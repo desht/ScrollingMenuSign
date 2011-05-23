@@ -34,7 +34,7 @@ public class SMSPlayerListener extends PlayerListener {
 		if (menuName == null) {
 			// No menu attached to this sign, but a left-click could create a new menu if the sign's
 			// text is in the right format...
-			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK && player.getItemInHand().getTypeId() == 0) {
 				Sign sign = (Sign) b.getState();
 				if (sign.getLine(0).equals("scrollingmenu")) {
 					if (plugin.isAllowedTo(player, "scrollingmenusign.commands.create")) {
