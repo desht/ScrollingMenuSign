@@ -27,14 +27,42 @@ public class SMSPlayerListener extends PlayerListener {
 		if (!(b.getState() instanceof Sign)) {
 			return;
 		}
+		Player player = event.getPlayer();
+		
 		String menuName = plugin.getMenuName(b.getLocation());
+		
 		if (menuName == null) {
+			// No menu attached to this sign, but a left-click could create a new menu if the sign's
+			// text is in the right format...
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+				Sign sign = (Sign) b.getState();
+				if (sign.getLine(0).equals("scrollingmenu")) {
+					if (plugin.isAllowedTo(player, "scrollingmenusign.commands.create")) {
+						String name = sign.getLine(1);
+						String title = sign.getLine(2);
+						if (name.length() > 0 && title.length() > 0) {
+							if (plugin.getMenu(name) != null) {
+								plugin.error_message(player, "A menu called '" + name + "' already exists.");
+								return;
+							}
+							if (plugin.getMenuName(b.getLocation()) != null) {
+								plugin.error_message(player, "There is already a menu attached to that sign.");
+								return;
+							}
+							SMSMenu menu = new SMSMenu(name, title, player.getName(), b.getLocation());
+							plugin.addMenu(name, menu, true);
+							plugin.status_message(player, "Created new menu sign: " + name);
+						} 
+					} else {
+						plugin.error_message(player, "You are not allowed to do that.");
+					}	
+				} 
+			}
 			return;
 		}
 		
 		// ok, it's a sign, and there's a menu on it
 		SMSMenu menu = plugin.getMenu(menuName);
-		Player player = event.getPlayer();
 		
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 			// left-click selects the current menu entry and runs the associated command
