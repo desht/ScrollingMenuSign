@@ -93,6 +93,15 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 	
+	public Boolean isAllowedTo(Player player, String node, Boolean okNotOp) {
+		// if Permissions is in force, then it overrides op status
+		if (permissionHandler != null) {
+			return permissionHandler.has(player, node);
+		} else {
+			return okNotOp ? true : player.isOp();
+		}
+	}
+	
 	public void addMenu(String menuName, SMSMenu menu, Boolean updateSign) {
 		menus.put(menuName, menu);
 		menuLocations.put(menu.getLocation(), menuName);

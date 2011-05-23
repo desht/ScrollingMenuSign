@@ -66,7 +66,7 @@ public class SMSPlayerListener extends PlayerListener {
 		
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 			// left-click selects the current menu entry and runs the associated command
-			if (!plugin.isAllowedTo(player, "scrollingmenusign.execute")) {
+			if (!plugin.isAllowedTo(player, "scrollingmenusign.execute", true)) {
 				plugin.error_message(player, "You are not allowed to execute menu sign commands");
 				return;
 			}
@@ -78,7 +78,7 @@ public class SMSPlayerListener extends PlayerListener {
 				}
 			}
 		} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			if (!plugin.isAllowedTo(player, "scrollingmenusign.scroll")) {
+			if (!plugin.isAllowedTo(player, "scrollingmenusign.scroll", true)) {
 				plugin.error_message(player, "You are not allowed to scroll through menu signs");
 				return;
 			}
