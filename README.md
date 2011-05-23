@@ -88,8 +88,11 @@ see below.  Removing items by label is on the TODO list.
 To show all menus that have been defined, use "/sms list", e.g.:
 
 	/sms list
+	1 line (page 1/1)
+	-------------------------
 	mymenu @ -100,65,50 world "Time Control" [3]
-
+    -------------------------
+	
 That's the menu named "mymenu" at location (-100,65,50) on world "world" with title "Time Control", and
 has 3 entries.
 
@@ -98,10 +101,12 @@ has 3 entries.
 To show information for a menu including all entries, use "/sms show _name_", e.g.:
 
 	/sms show mymenu
-  	mymenu "Time Control" [3]:
+    3 lines (page 1/1)
+	-------------------------
 	 1) Day [/time day] "It's daytime!"
 	 2) Night [/time night] "It's night time!"
 	 3) Compass [/compass] ""
+	-------------------------
 
 ### Forcing menu data to be saved
 
