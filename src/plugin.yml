@@ -5,8 +5,8 @@ commands:
   sms:
     description: Scrolling menu sign control
     usage: |
-      /sms make <name> <title>
-      /sms make <name> from <other-name>
+      /sms create <name> <title>
+      /sms create <name> from <other-name>
       /sms break [<name>]
       /sms list
       /sms show [<name>]

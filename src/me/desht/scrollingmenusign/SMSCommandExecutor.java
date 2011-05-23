@@ -35,8 +35,8 @@ public class SMSCommandExecutor implements CommandExecutor {
     			plugin.error_message(player, "You are not allowed to do that.");
     			return true;
     		}
-    		if (args[0].equalsIgnoreCase("make")) {
-    			makeSMSSign(player, args);
+    		if (args[0].equalsIgnoreCase("create")) {
+    			createSMSSign(player, args);
     		} else if (args[0].equalsIgnoreCase("break")) {
     	    	breakSMSSign(player, args);
     		} else if (args[0].equalsIgnoreCase("list")) {
@@ -159,7 +159,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private void makeSMSSign(Player player, String[] args) {
+	private void createSMSSign(Player player, String[] args) {
 		Block b = player.getTargetBlock(null, 3);
 		if (args.length < 2) {
 			plugin.error_message(player, "Usage: sms make <menu-name> <title>");
