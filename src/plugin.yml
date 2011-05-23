@@ -12,4 +12,6 @@ commands:
       /sms show [<name>]
       /sms add <name> <label|command|message>
       /sms remove <name> <index>
+      /sms page <page-number>
+      /sms save
       
