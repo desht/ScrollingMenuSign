@@ -15,9 +15,12 @@ import org.bukkit.entity.Player;
 
 public class SMSCommandExecutor implements CommandExecutor {
 	private ScrollingMenuSign plugin;
+	private ArrayList<String> messageBuffer;
+	private static int pageSize = 16;
 	
 	public SMSCommandExecutor(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
+		messageBuffer = new ArrayList<String>();
 	}
 	
 	@Override
@@ -50,6 +53,12 @@ public class SMSCommandExecutor implements CommandExecutor {
     			removeSMSItem(player, args);
     		} else if (args[0].equalsIgnoreCase("save")) {
     			saveSigns(player, args);
+    		} else if (args[0].equalsIgnoreCase("page") && args.length > 1) {
+    			try {
+    				pagedDisplay(player, Integer.parseInt(args[1]));
+    			} catch (NumberFormatException e) {
+    				plugin.error_message(player, "invalid argument '" + args[1] + "'");
+    			}
     		} else {
     			return false;
     		}
@@ -126,18 +135,20 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		
 		Iterator<String> iter = menus.keySet().iterator();
+		messageBuffer.clear();
 		while (iter.hasNext()) {
 			String k = iter.next();
 			SMSMenu menu = menus.get(k);
 			Location loc = menu.getLocation();
-			String where = loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + " "
-				+ loc.getWorld().getName();
-			plugin.status_message(player, 
-					ChatColor.YELLOW + k + 
-					ChatColor.WHITE + " @ " + where +
-					ChatColor.GREEN + " \"" + menu.getTitle() + "\"" +
-					ChatColor.WHITE + " [" + menu.getNumItems() + "]");
+			String where = loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + " " +
+				loc.getWorld().getName();
+			String message = ChatColor.YELLOW + k + 
+				ChatColor.WHITE + " @ " + where +
+				ChatColor.GREEN + " \"" + menu.getTitle() + "\"" +
+				ChatColor.WHITE + " [" + menu.getNumItems() + "]";
+			messageBuffer.add(message);
 		}
+		pagedDisplay(player, 1);
 	}
 
 	private void showSMSInfo(Player player, String[] args) {
@@ -155,18 +166,16 @@ public class SMSCommandExecutor implements CommandExecutor {
 			plugin.error_message(player, "Unknown menu name: " + menuName);
 			return;
 		}
-		plugin.status_message(player, 
-				ChatColor.YELLOW + menu.getName() +
-				ChatColor.GREEN + " \"" + menu.getTitle() + "\"" +
-				ChatColor.WHITE + " [" + menu.getNumItems() + "]:");
+		messageBuffer.clear();
 		ArrayList<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
-			plugin.status_message(player,
-					String.format(ChatColor.YELLOW + "%2d)" + ChatColor.WHITE + " %s [%s] \"%s\"",
-					n, item.getLabel(), item.getCommand(), item.getMessage()));
+			String s = String.format(ChatColor.YELLOW + "%2d)" + ChatColor.WHITE + " %s [%s] \"%s\"",
+					n, item.getLabel(), item.getCommand(), item.getMessage());
 			n++;
+			messageBuffer.add(s);
 		}
+		pagedDisplay(player, 1);
 	}
 
 	private void createSMSSign(Player player, String[] args) {
@@ -218,7 +227,19 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 	}
 
-
+	private void pagedDisplay(Player player, int pageNum) {
+		int nMessages = messageBuffer.size();
+		plugin.status_message(player, ChatColor.GREEN + "" +  nMessages +
+				" lines (page " + pageNum + "/" + (nMessages / pageSize + 1) + ")");
+		plugin.status_message(player, ChatColor.GREEN + "---------------");
+		for (int i = (pageNum -1) * pageSize; i < nMessages && i < pageNum * pageSize; i++) {
+			plugin.status_message(player, messageBuffer.get(i));
+		}
+		plugin.status_message(player, ChatColor.GREEN + "---------------");
+		String footer = (nMessages > pageSize * pageNum) ? "Use /sms page [page#] to see more" : "";
+		plugin.status_message(player, ChatColor.GREEN + footer);
+	}
+	
 	// Return the name of the menu sign that the player is looking at, if any
 	private String getTargetedMenuSign(Player player) {
 		Block b = player.getTargetBlock(null, 3);
