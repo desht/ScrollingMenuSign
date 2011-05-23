@@ -185,7 +185,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu = new SMSMenu(menuName, menuTitle, player.getName(), b.getLocation());
 		} else if (args.length == 4 && args[2].equals("from")) {
 			SMSMenu otherMenu = plugin.getMenu(args[3]);
-			menu = new SMSMenu(otherMenu, player.getName(), b.getLocation());
+			menu = new SMSMenu(otherMenu, menuName, player.getName(), b.getLocation());
 		}
 		plugin.addMenu(menuName, menu, true);
 		plugin.status_message(player, "Added new menu sign: " + menuName);

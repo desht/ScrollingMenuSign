@@ -29,9 +29,9 @@ public class SMSMenu {
 	}
 
 	// Construct a new menu which is a copy of otherMenu
-	public SMSMenu(SMSMenu other, String o, Location l) {
+	public SMSMenu(SMSMenu other, String n, String o, Location l) {
 		items = new ArrayList<SMSMenuItem>();
-		name = other.getName();
+		name = n;
 		title = other.getTitle();
 		owner = o;
 		loc = l;
