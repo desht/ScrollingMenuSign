@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -19,12 +18,10 @@ import org.bukkit.event.*;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
-
 public class ScrollingMenuSign extends JavaPlugin {
 	public static enum MenuRemoveAction { DESTROY_SIGN, BLANK_SIGN, DO_NOTHING };
 	public Logger logger = Logger.getLogger("Minecraft");
 	public PermissionHandler permissionHandler;
-	public static Server server;
 	public static PluginDescriptionFile description;
 	public static final String directory = "plugins" + File.separator + "ScrollingMenuSign";
 	
@@ -62,10 +59,10 @@ public class ScrollingMenuSign extends JavaPlugin {
 		
 		// delayed loading of saved menu files to ensure all worlds are loaded first
 		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            @Override
-            public void run() {
-            	load();
-            }
+			@Override
+			public void run() {
+				load();
+			}
 		})==-1) {
 			log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
 			load();
@@ -165,7 +162,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	public void log(Level level, String message) {
-        String logMsg = this.getDescription().getName() + ": " + message;
-        logger.log(level, logMsg);
+		String logMsg = this.getDescription().getName() + ": " + message;
+		logger.log(level, logMsg);
     }
 }
