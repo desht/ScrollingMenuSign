@@ -137,10 +137,10 @@ In addition, the following nodes are understood:
 ## Known bugs/limitations
 
 - Some of the commands (e.g. list, show, save) should work on the console but they don't, yet.
+- Menu entry labels, commands, feedback messages cannot contain a '|' character.  Need a more elegant way of specifying menu entries.
 
 ## TODO/planned features
 
 - Allow commands to be executed with elevated permissions?
 - Allow menu entries to be deleted by label in addition to numeric index.
-
- 
+- Configuration file?  Not sure at this point what should be configurable...
