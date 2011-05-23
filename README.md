@@ -136,7 +136,6 @@ In addition, the following nodes are understood:
 
 ## Known bugs/limitations
 
-- If the block a sign is attached to is destroyed, the sign will drop but the associated menu will not be deleted.  This can lead to some odd behaviour.
 - There is no paging yet if /sms list or /sms show has a lot of output.
 
 ## TODO/planned features
