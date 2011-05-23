@@ -12,6 +12,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 
@@ -20,6 +21,7 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 
 
 public class ScrollingMenuSign extends JavaPlugin {
+	public static enum MenuRemoveAction { DESTROY_SIGN, BLANK_SIGN, DO_NOTHING };
 	public Logger logger = Logger.getLogger("Minecraft");
 	public PermissionHandler permissionHandler;
 	public static Server server;
@@ -99,20 +101,25 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 	
-	public void removeMenu(String menuName, Boolean destroy) {
-		Location loc = getMenu(menuName).getSign().getBlock().getLocation();
-		doRemoveMenu(menuName, loc, destroy);
-	}
-	
-	public void removeMenu(Location loc, Boolean destroy) {
-		String menuName = getMenuName(loc);
-		doRemoveMenu(menuName, loc, destroy);
-	}
-	
-	private void doRemoveMenu(String menuName, Location loc, Boolean destroySign) {
-		if (destroySign) {
-			loc.getBlock().setTypeId(0);
+	public void removeMenu(String menuName, MenuRemoveAction action) {
+		Sign sign = getMenu(menuName).getSign();
+		if (sign != null) {
+			Location loc = sign.getBlock().getLocation();
+			doRemoveMenu(menuName, loc, action);
 		} else {
+			log(Level.SEVERE, "remove menu: sign for '" + menuName + "' seems to have disappeared!");
+		}
+	}
+	
+	public void removeMenu(Location loc, MenuRemoveAction action) {
+		String menuName = getMenuName(loc);
+		doRemoveMenu(menuName, loc, action);
+	}
+	
+	private void doRemoveMenu(String menuName, Location loc, MenuRemoveAction action) {
+		if (action == MenuRemoveAction.DESTROY_SIGN) {
+			loc.getBlock().setTypeId(0);
+		} else if (action == MenuRemoveAction.BLANK_SIGN) {
 			getMenu(menuName).blankSign();
 		}
 		menuLocations.remove(loc);

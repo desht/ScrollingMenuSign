@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -58,6 +59,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 
 	private void saveSigns(Player player, String[] args) {
 		plugin.save();
+		plugin.status_message(player, "Scrolling menu signs have been saved.");
 	}
 
 	private void removeSMSItem(Player player, String[] args) {
@@ -70,7 +72,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		try {
 			index = Integer.parseInt(args[2]);
 		} catch (NumberFormatException e) {
-			plugin.error_message(player, "item index must be numeric");
+			plugin.error_message(player, "Item index must be numeric");
 			return;
 		}
 		
@@ -128,8 +130,13 @@ public class SMSCommandExecutor implements CommandExecutor {
 			String k = iter.next();
 			SMSMenu menu = menus.get(k);
 			Location loc = menu.getLocation();
-			String where = loc.getWorld().getName() + ", " + loc.getBlockX() + ":" + loc.getBlockY() + ":" + loc.getBlockZ();
-			plugin.status_message(player, k + ": " + menu.getTitle() + ", " + menu.getNumItems() + " items @" + where);
+			String where = loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + " "
+				+ loc.getWorld().getName();
+			plugin.status_message(player, 
+					ChatColor.YELLOW + k + 
+					ChatColor.WHITE + " @ " + where +
+					ChatColor.GREEN + " \"" + menu.getTitle() + "\"" +
+					ChatColor.WHITE + " [" + menu.getNumItems() + "]");
 		}
 	}
 
@@ -148,12 +155,15 @@ public class SMSCommandExecutor implements CommandExecutor {
 			plugin.error_message(player, "Unknown menu name: " + menuName);
 			return;
 		}
-		plugin.status_message(player, "name = " + menu.getName() + ", title = " + menu.getTitle() +
-				", item count = " + menu.getNumItems());
+		plugin.status_message(player, 
+				ChatColor.YELLOW + menu.getName() +
+				ChatColor.GREEN + " \"" + menu.getTitle() + "\"" +
+				ChatColor.WHITE + " [" + menu.getNumItems() + "]:");
 		ArrayList<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
-			plugin.status_message(player, String.format("%2d) %s [%s] \"%s\"",
+			plugin.status_message(player,
+					String.format(ChatColor.YELLOW + "%2d)" + ChatColor.WHITE + " %s [%s] \"%s\"",
 					n, item.getLabel(), item.getCommand(), item.getMessage()));
 			n++;
 		}
@@ -198,11 +208,11 @@ public class SMSCommandExecutor implements CommandExecutor {
 				plugin.error_message(player, "Unknown menu name: " + menuName);
 				return;
 			}
-			plugin.removeMenu(menuName, false);
+			plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 		} else {
 			String menuName = getTargetedMenuSign(player);
 			if (menuName != null) {
-				plugin.removeMenu(menuName, false);
+				plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 				plugin.status_message(player, "Removed menu sign: " + menuName);
 			}
 		}
