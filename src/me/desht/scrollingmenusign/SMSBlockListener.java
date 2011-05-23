@@ -27,10 +27,8 @@ public class SMSBlockListener extends BlockListener {
 		}
 		Player p = event.getPlayer();
 		SMSMenu menu = plugin.getMenu(menuName);
-		if (p.getName().equals(menu.getOwner()) || p.isOp()) {
-			// TODO: add Permissions check
-			//plugin.removeMenu(menuName, false);
-			//p.sendMessage(ChatColor.RED + "Destroyed menu sign: " + menuName);
+		if (p.getName().equals(menu.getOwner()) || plugin.isAllowedTo(p, "scrollingmenusign.destroy")) {
+			// do nothing, allow damage to continue
 		} else {
 			// don't allow destruction
 			event.setCancelled(true);
