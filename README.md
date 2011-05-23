@@ -108,6 +108,11 @@ To show information for a menu including all entries, use "/sms show _name_", e.
 	 3) Compass [/compass] ""
 	-------------------------
 
+### Output paging
+
+The output of "/sms list" and "/sms show" could be too large to fit on screen.  In this case, further pages of
+output from the last _list_ or _show_ command can be shown with "/sms page _page-num_".
+
 ### Forcing menu data to be saved
 
 To force menu data to be written to disk immediately:
@@ -122,7 +127,7 @@ is reloaded.
 ScrollingMenuSign supports the Permissions plugin, but if Permissions is not present, only server ops are allowed 
 to manipulate menus.  Non-ops are, however, allowed to scroll and execute menus.
 
-If Permissions is present, the following command nodes are understood, each of which correspond to directly
+If Permissions is present, the following command nodes are understood, each of which correspond directly
 to _/sms **command**_:
 
 - scrollingmenusign.commands.create
@@ -149,3 +154,8 @@ In addition, the following nodes are understood:
 - Allow commands to be executed with elevated permissions?
 - Allow menu entries to be deleted by label in addition to numeric index.
 - Configuration file?  Not sure at this point what should be configurable...
+
+## Changelog
+
+#### ScrollingMenuSign 0.1 (23/5/2011)
+- Initial release
