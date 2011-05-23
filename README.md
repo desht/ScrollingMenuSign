@@ -15,7 +15,7 @@ To create a new scrolling menu, create a blank sign, look at it, then type:
 
 	/sms create <name> <title>
   
-<name> is a unique name to identify the menu.  <title> is the menu title, and is always shown as the top line
+_name_ is a unique name to identify the menu.  <title> is the menu title, and is always shown as the top line
 of the scrolling menu sign.
 
 When you do this, the menu becomes associated with the sign.  The sign's appearance will change; the title will
@@ -39,7 +39,7 @@ Finally, you can create a new menu as a copy of an existing menu.  Look at a sig
 
  	/sms create <name> from <other-name>
 
-where <other-name> is the unique identifier of a menu that already exists.
+where _other-name_ is the unique identifier of a menu that already exists.
 
 ### Destroying a menu
 
@@ -47,7 +47,7 @@ To destroy a menu, there are three options:
 
 - Look at a menu sign, and type "/sms break"
 
-- Type "/sms break <name>" where name is a unique sign identifier
+- Type "/sms break _name_" where _name_ is a unique sign identifier
 
 - Take an axe to the sign!  Menus will be automatically removed if their associated sign is destroyed.
 
@@ -56,16 +56,16 @@ Destroying a sign which has a menu created by another player is only allowed wit
 
 ### Adding menu entries
 
-To add a menu item to an existing menu, type "/sms add <name> <item-specifier>"
+To add a menu item to an existing menu, type "/sms add _name_ _item-specifier_"
 
-The syntax of <item-specifier> is "<label>|<command>[|<message>]".  This is most easily explained by example:
+The syntax of <item-specifier> is "_label_|_command_[|_message_]".  This is most easily explained by example:
 
 	/sms add mymenu Day|/time day|It's daytime!
 	/sms add mymenu Night|/time night|It's night time!
   
 adds a menu entry to the sign- scrollingmenusign.commands.show
  with a label of "Day".  If executed, this will issue "/time set 0" as a command,
-and send a message to the player of "It's daytime!".  And similary for night-time.
+and send a message to the player of "It's daytime!".  And similarly for night-time.
 
 You can leave out the message if you want, e.g.:
 
@@ -73,7 +73,7 @@ You can leave out the message if you want, e.g.:
 
 ### Removing menu entries
 
-To remove a menu item from an existing menu, type "/sms remove <name> <index>".  E.g.:
+To remove a menu item from an existing menu, type "/sms remove _name_ _index_".  E.g.:
 
 	/sms remove mymenu 1
   
