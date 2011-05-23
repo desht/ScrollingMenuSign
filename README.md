@@ -136,7 +136,7 @@ In addition, the following nodes are understood:
 
 ## Known bugs/limitations
 
-- There is no paging yet if /sms list or /sms show has a lot of output.
+- Some of the commands (e.g. list, show, save) should work on the console but they don't, yet.
 
 ## TODO/planned features
 
