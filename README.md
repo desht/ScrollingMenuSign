@@ -31,7 +31,7 @@ Alternatively, you can create a sign with the following text:
 	LINE 3: <title>
 	LINE 4: (BLANK)
 
-When you left-click such a sign, a menu will be created and associated with the sign, if possible.
+When you punch (i.e. left-click with no held item) such a sign, a menu will be created and associated with the sign, if possible.
 
 #### Method 3
 
