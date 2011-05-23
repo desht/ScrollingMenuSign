@@ -47,15 +47,9 @@ public class SMSBlockListener extends BlockListener {
 			return;
 		}
 		Player p = event.getPlayer();
-		SMSMenu menu = plugin.getMenu(menuName);
-		if (p.getName().equals(menu.getOwner()) || plugin.isAllowedTo(p, "scrollingmenusign.destroy")) {
-			plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
-			plugin.status_message(p, "Destroyed menu sign: " + menuName);
-		} else {
-			// don't allow destruction
-			event.setCancelled(true);
-			plugin.getMenu(menuName).updateSign();
-		}
+
+		plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
+		plugin.status_message(p, "Destroyed menu sign: " + menuName);
 	}
 	
 }
