@@ -186,7 +186,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		String menuName = args[1];
-		String menuTitle = combine(args, 2);
+		
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
 			plugin.error_message(player, "You are not looking at a sign");
 			return;
@@ -200,11 +200,16 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		SMSMenu menu = null;
-		if (args.length == 3) {
-			menu = new SMSMenu(menuName, menuTitle, player.getName(), b.getLocation());
-		} else if (args.length == 4 && args[2].equals("from")) {
+		if (args.length == 4 && args[2].equals("from")) {
 			SMSMenu otherMenu = plugin.getMenu(args[3]);
+			if (otherMenu == null) {
+				plugin.error_message(player, "No such menu '" + args[3] + "'");
+				return;
+			}
 			menu = new SMSMenu(otherMenu, menuName, player.getName(), b.getLocation());
+		} else if (args.length >= 3) {
+			String menuTitle = combine(args, 2);
+			menu = new SMSMenu(menuName, menuTitle, player.getName(), b.getLocation());
 		}
 		plugin.addMenu(menuName, menu, true);
 		plugin.status_message(player, "Added new menu sign: " + menuName);
