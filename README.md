@@ -180,6 +180,8 @@ In addition, the following nodes are understood:
 - Configuration file?  Not sure at this point what should be configurable...
 - Fully synchronised menus (update menu A, changes also appear on menu B)
 - Some kind of order/sorting control on menu items.
+- More control over title colour (specify colour when sign is created?)
+- Alternative scrolling method... left & right click scroll up/down, shift-click selects.
 
 ## Changelog
 
