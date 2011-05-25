@@ -165,4 +165,14 @@ public class ScrollingMenuSign extends JavaPlugin {
 		String logMsg = this.getDescription().getName() + ": " + message;
 		logger.log(level, logMsg);
     }
+
+	public String parseColourSpec(Player player, String spec) {
+		if (isAllowedTo(player, "scrollingmenusign.coloursigns") || 
+				isAllowedTo(player, "scrollingmenusign.colorsigns")) {
+			String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7");
+			return res.replace("&&", "&");
+		} else {
+			return spec;
+		}		
+	}
 }

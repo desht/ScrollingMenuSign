@@ -120,7 +120,8 @@ public class SMSCommandExecutor implements CommandExecutor {
 		if (entry_args.length >= 3) {
 			msg = entry_args[2];
 		}
-		menu.add(entry_args[0], entry_args[1], msg);
+		String label = plugin.parseColourSpec(player, entry_args[0]);
+		menu.add(label, entry_args[1], msg);
 		menu.updateSign();
 		plugin.status_message(player, "Menu entry [" + entry_args[0] + "] added to: " + menuName);
 	}
@@ -208,6 +209,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu = new SMSMenu(otherMenu, menuName, player.getName(), b.getLocation());
 		} else if (args.length >= 3) {
 			String menuTitle = combine(args, 2);
+			menuTitle = plugin.parseColourSpec(player, menuTitle);
 			menu = new SMSMenu(menuName, menuTitle, player.getName(), b.getLocation());
 		}
 		plugin.addMenu(menuName, menu, true);

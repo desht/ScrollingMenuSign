@@ -2,7 +2,6 @@ package me.desht.scrollingmenusign;
 
 import java.util.ArrayList;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -112,13 +111,13 @@ public class SMSMenu {
 	private String[] buildSignText() {
 		String[] res = new String[4];
 		
-		// first line of the sign in the menu title, centered
-		res[0] = ChatColor.DARK_BLUE + "-" + title + "-";
+		// first line of the sign in the menu title
+		res[0] = title;
 		
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
 		res[1] = String.format("  %1$-13s", getLine2Item().getLabel());
-		res[2] = String.format("> %1$-12s<", getLine3Item().getLabel());
+		res[2] = String.format("> %1$-13s", getLine3Item().getLabel());
 		res[3] = String.format("  %1$-13s", getLine4Item().getLabel());
 		
 		return res;
