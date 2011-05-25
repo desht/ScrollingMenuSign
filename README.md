@@ -22,6 +22,10 @@ When you do this, the menu becomes associated with the sign.  The sign's appeara
 be shown as "-Title-" in blue on the first line, and the third line will look like ">   <" (this is the currently
 selected line - it's blank because the menu has no entries yet).
 
+Example:
+
+	/sms create mymenu Time of Day
+
 #### Method 2
 
 Alternatively, you can create a sign with the following text:
@@ -41,6 +45,14 @@ Finally, you can create a new menu as a copy of an existing menu.  Look at a sig
 
 where _other-name_ is the unique identifier of a menu that already exists.
 
+Example:
+
+	/sms create mymenu2 from mymenu
+	
+_mymenu2_ will be an exact copy of _mymenu_, including the title.  However, after it's created, the two menus
+will be independent of each other; any items added to one menu will not appear in the other (optional automatic
+synchronisation is on the TODO list).
+
 ### Destroying a menu
 
 To destroy a menu, there are three options:
@@ -54,6 +66,10 @@ To destroy a menu, there are three options:
 Destroying a sign which has a menu created by another player is only allowed with the appropriate permission
 (see **Permissions Support** below).
 
+Example:
+
+	/sms break mymenu2
+	
 ### Adding menu entries
 
 To add a menu item to an existing menu, type "/sms add _name_ _item-specifier_"
@@ -63,8 +79,9 @@ The syntax of _item-specifier_ is "_label_|_command_[|_message_]".  This is most
 	/sms add mymenu Day|/time day|It's daytime!
 	/sms add mymenu Night|/time night|It's night time!
   
-adds a menu entry to the menu called _mymenu_ with a label of "Day".  If executed (left-clicked), this will issue "/time set 0" as a command,
-and send a message to the player of "It's daytime!".  Similarly for night-time.
+adds a menu entry to the menu called _mymenu_ with a label of "Day", and one with a label of "Night".  If 
+"Day" is executed (left-clicked), it will issue "/time day" as a command, and send a message to the player
+of "It's daytime!".  Similarly for "Night".
 
 You can leave out the message if you want, e.g.:
 
@@ -76,7 +93,7 @@ If the command doesn't start with a slash (/), then the player will speak the co
 
 ### Removing menu entries
 
-To remove a menu item from an existing menu, type "/sms remove _name_ _index_".  E.g.:
+To remove a menu item from an existing menu, type "/sms remove _name_ _index_".  Example:
 
 	/sms remove mymenu 1
   
@@ -85,7 +102,7 @@ see below.  Removing items by label is on the TODO list.
 
 ### Listing all menus
 
-To show all menus that have been defined, use "/sms list", e.g.:
+To show all menus that have been defined, use "/sms list".  Example:
 
 	/sms list
 	1 line (page 1/1)
@@ -98,7 +115,7 @@ has 3 entries.
 
 ### Show menu detail
 
-To show information for a menu including all entries, use "/sms show _name_", e.g.:
+To show information for a menu including all entries, use "/sms show _name_".  Example:
 
 	/sms show mymenu
     3 lines (page 1/1)
@@ -111,7 +128,9 @@ To show information for a menu including all entries, use "/sms show _name_", e.
 ### Output paging
 
 The output of "/sms list" and "/sms show" could be too large to fit on screen.  In this case, further pages of
-output from the last _list_ or _show_ command can be shown with "/sms page _page-num_".
+output from the last _list_ or _show_ command can be shown with "/sms page _page-num_".  Example:
+
+	/sms page 2
 
 ### Forcing menu data to be saved
 
@@ -119,7 +138,7 @@ To force menu data to be written to disk immediately:
 
 	/sms save
 	
-You will not normally need to do this, since it's automatically done if the server is stopped, or if the plugin
+You will not normally need to do this, since it's automatically done if the server is stopped or if the plugin
 is reloaded.
 
 ## Permissions support
@@ -146,6 +165,7 @@ In addition, the following nodes are understood:
 
 ## Known bugs/limitations
 
+- Indirectly breaking (e.g breaking the block it's attached to) a sign with a menu won't give the player any feedback that the menu is destroyed, but the menu will be deleted.
 - Some of the commands (e.g. list, show, save) should work on the console but they don't, yet.
 - Menu entry labels, commands, feedback messages cannot contain a '|' character.  Need a more elegant way of specifying menu entries.
 
@@ -154,6 +174,8 @@ In addition, the following nodes are understood:
 - Allow commands to be executed with elevated permissions?
 - Allow menu entries to be deleted by label in addition to numeric index.
 - Configuration file?  Not sure at this point what should be configurable...
+- Fully synchronised menus (update menu A, changes also appear on menu B)
+- Some kind of order/sorting control on menu items.
 
 ## Changelog
 
