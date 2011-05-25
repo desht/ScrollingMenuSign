@@ -39,7 +39,7 @@ public class SMSPlayerListener extends PlayerListener {
 				if (sign.getLine(0).equals("scrollingmenu")) {
 					if (plugin.isAllowedTo(player, "scrollingmenusign.commands.create")) {
 						String name = sign.getLine(1);
-						String title = sign.getLine(2);
+						String title = plugin.parseColourSpec(player, sign.getLine(2));
 						if (name.length() > 0 && title.length() > 0) {
 							if (plugin.getMenu(name) != null) {
 								plugin.error_message(player, "A menu called '" + name + "' already exists.");
