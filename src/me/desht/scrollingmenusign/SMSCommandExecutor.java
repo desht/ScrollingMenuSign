@@ -52,6 +52,8 @@ public class SMSCommandExecutor implements CommandExecutor {
     			removeSMSItem(player, args);
     		} else if (args[0].equalsIgnoreCase("save")) {
     			saveSigns(player, args);
+    		} else if (args[0].equalsIgnoreCase("reload")) {
+    			reload(player, args);
     		} else if (args[0].equalsIgnoreCase("page") && args.length > 1) {
     			try {
     				pagedDisplay(player, Integer.parseInt(args[1]));
@@ -68,6 +70,12 @@ public class SMSCommandExecutor implements CommandExecutor {
 	private void saveSigns(Player player, String[] args) {
 		plugin.save();
 		plugin.status_message(player, "Scrolling menu signs have been saved.");
+	}
+	
+	private void reload(Player player, String[] args) {
+		plugin.getConfiguration().load();
+		plugin.load();
+		plugin.status_message(player, "Scrolling menu signs have been reloaded.");
 	}
 
 	private void removeSMSItem(Player player, String[] args) {
@@ -103,7 +111,8 @@ public class SMSCommandExecutor implements CommandExecutor {
 			
 		String menuName = args[1];
 		String rest = combine(args, 2);
-		String[] entry_args = rest.split("\\|");
+		String sep = plugin.getConfiguration().getString("sms.menuitem_separator", "\\|");
+		String[] entry_args = rest.split(sep);
 		
 		if (entry_args.length < 2) {
 			plugin.error_message(player, "menu-entry must include at least entry label & command");

@@ -12,6 +12,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.config.Configuration;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -45,6 +46,10 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public void onEnable() {
 		description = this.getDescription();
 
+		Configuration config = getConfiguration();
+		if (config.getString("sms") == null) {
+			writeDefaultConfig();
+		}
 		setupPermissions();
 		
 		PluginManager pm = getServer().getPluginManager();
@@ -70,6 +75,18 @@ public class ScrollingMenuSign extends JavaPlugin {
 			log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
 			load();
 		}
+	}
+
+	private void writeDefaultConfig() {
+		Configuration config = getConfiguration();
+		config.setProperty("sms.mousewheel.enable", true);
+		config.setProperty("sms.mousewheel.must_sneak", true);
+		config.setProperty("sms.menuitem_separator", "|");
+		config.setProperty("sms.actions.leftclick.normal", "execute");
+		config.setProperty("sms.actions.leftclick.sneak", "none");
+		config.setProperty("sms.actions.rightclick.normal", "scroll");
+		config.setProperty("sms.actions.rightclick.sneak", "none");
+		config.save();
 	}
 
 	private void setupPermissions() {

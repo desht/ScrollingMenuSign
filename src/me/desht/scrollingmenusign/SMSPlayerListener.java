@@ -10,6 +10,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.util.config.Configuration;
 
 public class SMSPlayerListener extends PlayerListener {
 	private ScrollingMenuSign plugin;
@@ -38,28 +39,7 @@ public class SMSPlayerListener extends PlayerListener {
 			// No menu attached to this sign, but a left-click could create a new menu if the sign's
 			// text is in the right format...
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK && player.getItemInHand().getTypeId() == 0) {
-				Sign sign = (Sign) b.getState();
-				if (sign.getLine(0).equals("scrollingmenu")) {
-					if (plugin.isAllowedTo(player, "scrollingmenusign.commands.create")) {
-						String name = sign.getLine(1);
-						String title = plugin.parseColourSpec(player, sign.getLine(2));
-						if (name.length() > 0 && title.length() > 0) {
-							if (plugin.getMenu(name) != null) {
-								plugin.error_message(player, "A menu called '" + name + "' already exists.");
-								return;
-							}
-							if (plugin.getMenuName(b.getLocation()) != null) {
-								plugin.error_message(player, "There is already a menu attached to that sign.");
-								return;
-							}
-							SMSMenu menu = new SMSMenu(name, title, player.getName(), b.getLocation());
-							plugin.addMenu(name, menu, true);
-							plugin.status_message(player, "Created new menu sign: " + name);
-						} 
-					} else {
-						plugin.error_message(player, "You are not allowed to do that.");
-					}	
-				} 
+				tryToActivateSign(b, player); 
 			}
 			return;
 		}
@@ -67,35 +47,79 @@ public class SMSPlayerListener extends PlayerListener {
 		// ok, it's a sign, and there's a menu on it
 		SMSMenu menu = plugin.getMenu(menuName);
 		
+		String sneak = player.isSneaking() ? "sneak" : "normal";
+		Configuration config = plugin.getConfiguration();
+		String action = "none";
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-			// left-click selects the current menu entry and runs the associated command
-			if (!plugin.isAllowedTo(player, "scrollingmenusign.execute", true)) {
-				plugin.error_message(player, "You are not allowed to execute menu sign commands");
+			action = config.getString("sms.actions.leftclick." + sneak);
+		} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			action = config.getString("sms.actions.rightclick." + sneak);
+		}
+		processAction(action, player, menu);
+	}
+
+	private void processAction(String action, Player p, SMSMenu menu) {
+		if (action.equalsIgnoreCase("execute")) {
+			executeMenu(p, menu);
+		} else if (action.equalsIgnoreCase("scroll")) {
+			scrollMenu(p, menu);
+		}
+	}
+	
+	private void scrollMenu(Player player, SMSMenu menu) {
+		if (!plugin.isAllowedTo(player, "scrollingmenusign.scroll", true)) {
+			plugin.error_message(player, "You are not allowed to scroll through menu signs");
+			return;
+		}	
+		menu.nextItem();
+		menu.updateSign();
+	}
+
+	private void executeMenu(Player player, SMSMenu menu) {
+		if (!plugin.isAllowedTo(player, "scrollingmenusign.execute", true)) {
+			plugin.error_message(player, "You are not allowed to execute menu sign commands");
+			return;
+		}
+		SMSMenuItem item = menu.getCurrentItem();
+		if (item != null) {
+			player.chat(item.getCommand());
+			if (item.getMessage() != null && item.getMessage().length() > 0) {
+				player.sendMessage(ChatColor.YELLOW + item.getMessage());
+			}
+		}
+	}
+
+	private void tryToActivateSign(Block b, Player player) {
+		Sign sign = (Sign) b.getState();
+		if (sign.getLine(0).equals("scrollingmenu")) {
+			if (!plugin.isAllowedTo(player, "scrollingmenusign.commands.create")) {
+				plugin.error_message(player, "You are not allowed to create scrolling menu signs.");
 				return;
 			}
-			SMSMenuItem item = menu.getCurrentItem();
-			if (item != null) {
-				player.chat(item.getCommand());
-				if (item.getMessage() != null && item.getMessage().length() > 0) {
-					player.sendMessage(ChatColor.YELLOW + item.getMessage());
+			String name = sign.getLine(1);
+			String title = plugin.parseColourSpec(player, sign.getLine(2));
+			if (name.length() > 0 && title.length() > 0) {
+				if (plugin.getMenu(name) != null) {
+					plugin.error_message(player, "A menu called '" + name + "' already exists.");
+				} else 	if (plugin.getMenuName(b.getLocation()) != null) {
+					plugin.error_message(player, "There is already a menu attached to that sign.");
+					return;
+				} else {
+					SMSMenu menu = new SMSMenu(name, title, player.getName(), b.getLocation());
+					plugin.addMenu(name, menu, true);
+					plugin.status_message(player, "Created new menu sign: " + name);
 				}
 			}
-		} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			if (!plugin.isAllowedTo(player, "scrollingmenusign.scroll", true)) {
-				plugin.error_message(player, "You are not allowed to scroll through menu signs");
-				return;
-			}
-			// right-click cycles to the next entry in the menu
-			menu.nextItem();
-			menu.updateSign();
 		}
-		
 	}
 	
 	@Override
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
 		Player p = event.getPlayer();
-		if (!p.isSneaking()) return;
+		
+		Configuration config = plugin.getConfiguration();
+		if (config.getBoolean("sms.mousewheel.enable", false) == false) return;
+		if (config.getBoolean("sms.mousewheel.must_sneak", false) == true && !p.isSneaking()) return;
 		
 		String menuName = plugin.getTargetedMenuSign(p, false);
 		if (menuName == null) return;
