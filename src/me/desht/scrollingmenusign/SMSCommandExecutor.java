@@ -24,8 +24,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 	}
 	
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label,
-			String[] args) {
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (!(sender instanceof Player)) {
 			return true;
 		}
@@ -42,7 +41,7 @@ public class SMSCommandExecutor implements CommandExecutor {
     		if (args[0].equalsIgnoreCase("create")) {
     			createSMSSign(player, args);
     		} else if (args[0].equalsIgnoreCase("break")) {
-    	    	breakSMSSign(player, args);
+    			breakSMSSign(player, args);
     		} else if (args[0].equalsIgnoreCase("list")) {
     			listSMSSigns(player, args);
     		} else if (args[0].equalsIgnoreCase("show")) {
