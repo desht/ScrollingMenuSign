@@ -7,10 +7,12 @@ import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -47,6 +49,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, signListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, signListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
@@ -175,4 +178,17 @@ public class ScrollingMenuSign extends JavaPlugin {
 			return spec;
 		}		
 	}
+	
+	// Return the name of the menu sign that the player is looking at, if any
+	public String getTargetedMenuSign(Player player, Boolean complain) {
+		Block b = player.getTargetBlock(null, 3);
+		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
+			if (complain) error_message(player, "You are not looking at a sign");
+			return null;
+		}
+		String name = getMenuName(b.getLocation());
+		if (name == null && complain)
+			error_message(player, "There is no menu associated with that sign.");
+		return name;
+	} 
 }

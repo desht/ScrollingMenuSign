@@ -157,7 +157,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		if (args.length >= 2) {
 			menuName = args[1];
 		} else {
-			menuName = getTargetedMenuSign(player);
+			menuName = plugin.getTargetedMenuSign(player, true);
 			if (menuName == null)
 				return;
 		}
@@ -225,7 +225,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			}
 			plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 		} else {
-			String menuName = getTargetedMenuSign(player);
+			String menuName = plugin.getTargetedMenuSign(player, true);
 			if (menuName != null) {
 				plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 				plugin.status_message(player, "Removed menu sign: " + menuName);
@@ -245,19 +245,6 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String footer = (nMessages > pageSize * pageNum) ? "Use /sms page [page#] to see more" : "";
 		plugin.status_message(player, ChatColor.GREEN + footer);
 	}
-	
-	// Return the name of the menu sign that the player is looking at, if any
-	private String getTargetedMenuSign(Player player) {
-		Block b = player.getTargetBlock(null, 3);
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			plugin.error_message(player, "You are not looking at a sign");
-			return null;
-		}
-		String name = plugin.getMenuName(b.getLocation());
-		if (name == null)
-			plugin.error_message(player, "There is no menu associated with that sign.");
-		return name;
-	} 
 	
 	private static String combine(String[] args, int idx) {
 		return combine(args, idx, args.length - 1);

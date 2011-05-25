@@ -1,11 +1,14 @@
 package me.desht.scrollingmenusign;
 
+import java.util.logging.Level;
+
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerListener;
 
 public class SMSPlayerListener extends PlayerListener {
@@ -87,6 +90,31 @@ public class SMSPlayerListener extends PlayerListener {
 			menu.updateSign();
 		}
 		
+	}
+	
+	@Override
+	public void onItemHeldChange(PlayerItemHeldEvent event) {
+		Player p = event.getPlayer();
+		if (!p.isSneaking()) return;
+		
+		String menuName = plugin.getTargetedMenuSign(p, false);
+		if (menuName == null) return;
+		
+		SMSMenu menu = plugin.getMenu(menuName);
+		if (menu == null) {
+			plugin.log(Level.WARNING, "can't get the menu for '" + menuName + "'?");
+			return;
+		}
+		
+		int delta = event.getNewSlot() - event.getPreviousSlot();
+		if (delta == -1 || delta == 8) {
+			// scroll up
+			menu.prevItem();
+		} else if (delta == 1 || delta == -8) {
+			// scroll down
+			menu.nextItem();
+		}
+		menu.updateSign();
 	}
 	
 }
