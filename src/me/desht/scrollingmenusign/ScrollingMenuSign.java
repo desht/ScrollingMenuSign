@@ -1,7 +1,10 @@
 package me.desht.scrollingmenusign;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +41,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private HashMap<Location, String> menuLocations = new HashMap<Location, String>();
 	private HashMap<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
 	
-	private static final Map<String, Object> defConfig = new HashMap<String, Object>() {{
+	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("sms.menuitem_separator", "\\|");
 		put("sms.actions.leftclick.normal", "execute");
 		put("sms.actions.leftclick.sneak", "none");
@@ -91,9 +94,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	private void configInitialise() {
 		Configuration config = getConfiguration();
-		for (String k : defConfig.keySet()) {
+		for (String k : configItems.keySet()) {
 			if (config.getProperty(k) == null) {
-				config.setProperty(k, defConfig.get(k));
+				config.setProperty(k, configItems.get(k));
 			}
 		}
 		config.save();
@@ -184,11 +187,19 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 
 	public void status_message(Player player, String string) {
-		player.sendMessage(ChatColor.AQUA + string);
+		if (player != null) {
+			player.sendMessage(ChatColor.AQUA + string);
+		} else {
+			log(Level.INFO, string);
+		}
 	}
 
 	public void error_message(Player player, String string) {
-		player.sendMessage(ChatColor.RED + string);		
+		if (player != null) {
+			player.sendMessage(ChatColor.RED + string);
+		} else {
+			log(Level.WARNING, string);
+		}
 	}
 	
 	public void log(Level level, String message) {
@@ -219,5 +230,34 @@ public class ScrollingMenuSign extends JavaPlugin {
 		if (name == null && complain)
 			error_message(player, "There is no menu associated with that sign.");
 		return name;
+	}
+
+	public void setConfigItem(Player player, String key, String val) {
+		if (key.length() < 5 || !key.substring(0, 4).equals("sms.")) {
+			key = "sms." + key;
+		}
+		if (configItems.get(key) == null) {
+			error_message(player, "No such config key " + key);
+			error_message(player, "Use /sms getcfg to list all valid keys");
+			return;
+		}
+		if (val.equals("false")) {
+			getConfiguration().setProperty(key, false);
+		} else if (val.equals("true")) {
+			getConfiguration().setProperty(key, true);
+		} else {
+			getConfiguration().setProperty(key, val);
+		}
+		status_message(player, key + " is now set to " + val);
+		getConfiguration().save();
+	}
+	
+	public List<String> getConfigList() {
+		ArrayList<String> res = new ArrayList<String>();
+		for (String k : configItems.keySet()) {
+			res.add(k + " = " + getConfiguration().getString(k));
+		}
+		Collections.sort(res);
+		return res;
 	} 
 }

@@ -54,6 +54,10 @@ public class SMSCommandExecutor implements CommandExecutor {
     			saveSigns(player, args);
     		} else if (args[0].equalsIgnoreCase("reload")) {
     			reload(player, args);
+    		} else if (args[0].equalsIgnoreCase("getcfg")) {
+    			getConfig(player, args);
+    		} else if (args[0].equalsIgnoreCase("setcfg")) {
+    			setConfig(player, args);
     		} else if (args[0].equalsIgnoreCase("page") && args.length > 1) {
     			try {
     				pagedDisplay(player, Integer.parseInt(args[1]));
@@ -65,6 +69,31 @@ public class SMSCommandExecutor implements CommandExecutor {
     		}
     	}
 		return true;
+	}
+
+	private void setConfig(Player player, String[] args) {
+		if (args.length < 3) {
+			plugin.error_message(player, "Usage: /sms setcfg <key> <value>" + args.length);
+			return;
+		}
+		plugin.setConfigItem(player, args[1], args[2]);
+	}
+
+	private void getConfig(Player player, String[] args) {
+		messageBuffer.clear();
+		if (args.length < 2) {
+			for (String line : plugin.getConfigList()) {
+				messageBuffer.add(line);
+			}
+			pagedDisplay(player, 1);
+		} else {
+			String res = plugin.getConfiguration().getString(args[1]);
+			if (res != null) {
+				plugin.status_message(player, args[1] + " = " + res);
+			} else {
+				plugin.error_message(player, "No such config item " + args[1]);
+			}
+		}
 	}
 
 	private void saveSigns(Player player, String[] args) {

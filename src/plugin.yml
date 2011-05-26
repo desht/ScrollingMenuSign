@@ -13,6 +13,8 @@ commands:
       /sms add <name> <label|command|message>
       /sms remove <name> <index>
       /sms page <page-number>
+      /sms getcfg [<key>]
+      /sms setcfg <key> <value>
       /sms save
       /sms reload
       
