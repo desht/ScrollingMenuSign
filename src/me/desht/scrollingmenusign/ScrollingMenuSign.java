@@ -271,5 +271,15 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 		Collections.sort(res);
 		return res;
+	}
+
+	public void setTitle(Player player, String menuName, String newTitle) {
+		SMSMenu menu = getMenu(menuName);
+		if (menu == null) {
+			error_message(player, "No such menu: " + menuName);
+			return;
+		}
+		menu.setTitle(parseColourSpec(player, newTitle));
+		menu.updateSign();
 	} 
 }

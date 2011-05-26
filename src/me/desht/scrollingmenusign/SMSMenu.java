@@ -48,6 +48,10 @@ public class SMSMenu {
 		return title;
 	}
 
+	public void setTitle(String newTitle) {
+		title = newTitle;
+	}
+	
 	public Location getLocation() {
 		return loc;
 	}
@@ -185,4 +189,5 @@ public class SMSMenu {
 		}
 		return (Sign) b.getState();
 	}
+
 }

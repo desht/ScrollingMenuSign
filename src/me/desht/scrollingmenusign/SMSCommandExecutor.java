@@ -45,7 +45,7 @@ public class SMSCommandExecutor implements CommandExecutor {
     		} else if (args[0].equalsIgnoreCase("list")) {
     			listSMSSigns(player, args);
     		} else if (args[0].equalsIgnoreCase("show")) {
-    			showSMSInfo(player, args);
+    			showSMSSign(player, args);
     		} else if (args[0].equalsIgnoreCase("add")) {
     			addSMSItem(player, args);
     		} else if (args[0].equalsIgnoreCase("remove")) {
@@ -58,6 +58,8 @@ public class SMSCommandExecutor implements CommandExecutor {
     			getConfig(player, args);
     		} else if (args[0].equalsIgnoreCase("setcfg")) {
     			setConfig(player, args);
+    		} else if (args[0].equalsIgnoreCase("title")) {
+    			setTitle(player, args);
     		} else if (args[0].equalsIgnoreCase("page") && args.length > 1) {
     			try {
     				pagedDisplay(player, Integer.parseInt(args[1]));
@@ -71,9 +73,17 @@ public class SMSCommandExecutor implements CommandExecutor {
 		return true;
 	}
 
+	private void setTitle(Player player, String[] args) {
+		if (args.length < 3) {
+			plugin.error_message(player, "Usage: /sms title <menu-name> <new-title>");
+			return;
+		}
+		plugin.setTitle(player, args[1], args[2]);
+	}
+
 	private void setConfig(Player player, String[] args) {
 		if (args.length < 3) {
-			plugin.error_message(player, "Usage: /sms setcfg <key> <value>" + args.length);
+			plugin.error_message(player, "Usage: /sms setcfg <key> <value>");
 			return;
 		}
 		plugin.setConfigItem(player, args[1], args[2]);
@@ -189,7 +199,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		pagedDisplay(player, 1);
 	}
 
-	private void showSMSInfo(Player player, String[] args) {
+	private void showSMSSign(Player player, String[] args) {
 		String menuName;
 		SMSMenu menu;
 		if (args.length >= 2) {
@@ -205,6 +215,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		messageBuffer.clear();
+		messageBuffer.add(ChatColor.YELLOW + "Menu '" + menuName + "': title '" + menu.getTitle() + "'");
 		ArrayList<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
