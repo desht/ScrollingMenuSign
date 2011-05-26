@@ -1,6 +1,6 @@
 name: ScrollingMenuSign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
-version: 0.2pre
+version: 0.2
 commands:
   sms:
     description: Scrolling menu sign control
@@ -10,6 +10,7 @@ commands:
       /sms break [<name>]
       /sms list
       /sms show [<name>]
+      /sms title <name> <new-title>
       /sms add <name> <label|command|message>
       /sms remove <name> <index>
       /sms page <page-number>
