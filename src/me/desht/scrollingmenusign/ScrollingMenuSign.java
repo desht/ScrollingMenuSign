@@ -252,6 +252,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		getConfiguration().save();
 	}
 	
+	// return a sorted list of all config keys
 	public List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
 		for (String k : configItems.keySet()) {
