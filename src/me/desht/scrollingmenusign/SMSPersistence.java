@@ -113,7 +113,7 @@ public class SMSPersistence {
 	@SuppressWarnings("unchecked")
 	private void createMenuSign(String menuName, Map<String, Object> menuData) {
 		String worldName = (String) menuData.get("world");
-		String title = (String) menuData.get("title");
+		String title = plugin.parseColourSpec(null, (String) menuData.get("title"));
 		String owner = (String) menuData.get("owner");
 		World w = findWorld(worldName);
 		List<Integer>l = (List<Integer>) menuData.get("location");

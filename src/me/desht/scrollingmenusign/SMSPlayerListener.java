@@ -14,6 +14,7 @@ import org.bukkit.util.config.Configuration;
 
 public class SMSPlayerListener extends PlayerListener {
 	private ScrollingMenuSign plugin;
+	private static enum ScrollDirection { SCROLL_UP, SCROLL_DOWN };
 	
 	public SMSPlayerListener(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
@@ -61,17 +62,23 @@ public class SMSPlayerListener extends PlayerListener {
 	private void processAction(String action, Player p, SMSMenu menu) {
 		if (action.equalsIgnoreCase("execute")) {
 			executeMenu(p, menu);
-		} else if (action.equalsIgnoreCase("scroll")) {
-			scrollMenu(p, menu);
+		} else if (action.equalsIgnoreCase("scrolldown")) {
+			scrollMenu(p, menu, ScrollDirection.SCROLL_DOWN);
+		} else if (action.equalsIgnoreCase("scrollup")) {
+			scrollMenu(p, menu, ScrollDirection.SCROLL_UP);
 		}
 	}
 	
-	private void scrollMenu(Player player, SMSMenu menu) {
+	private void scrollMenu(Player player, SMSMenu menu, ScrollDirection dir) {
 		if (!plugin.isAllowedTo(player, "scrollingmenusign.scroll", true)) {
 			plugin.error_message(player, "You are not allowed to scroll through menu signs");
 			return;
-		}	
-		menu.nextItem();
+		}
+		if (dir == ScrollDirection.SCROLL_DOWN) {
+			menu.nextItem();
+		} else if (dir == ScrollDirection.SCROLL_UP) {
+			menu.prevItem();
+		}
 		menu.updateSign();
 	}
 
@@ -116,14 +123,9 @@ public class SMSPlayerListener extends PlayerListener {
 	@Override
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
 		Player p = event.getPlayer();
-		
-		Configuration config = plugin.getConfiguration();
-		if (config.getBoolean("sms.mousewheel.enable", false) == false) return;
-		if (config.getBoolean("sms.mousewheel.must_sneak", false) == true && !p.isSneaking()) return;
-		
+
 		String menuName = plugin.getTargetedMenuSign(p, false);
-		if (menuName == null) return;
-		
+		if (menuName == null) return;		
 		SMSMenu menu = plugin.getMenu(menuName);
 		if (menu == null) {
 			plugin.log(Level.WARNING, "can't get the menu for '" + menuName + "'?");
@@ -131,14 +133,15 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 		
 		int delta = event.getNewSlot() - event.getPreviousSlot();
+		String sneak = p.isSneaking() ? "sneak" : "normal";
+		String action = "none";
+		Configuration config = plugin.getConfiguration();
 		if (delta == -1 || delta == 8) {
-			// scroll up
-			menu.prevItem();
+			action = config.getString("sms.actions.wheelup." + sneak);
 		} else if (delta == 1 || delta == -8) {
-			// scroll down
-			menu.nextItem();
+			action = config.getString("sms.actions.wheeldown." + sneak);
 		}
-		menu.updateSign();
+		processAction(action, p, menu);
 	}
 	
 }

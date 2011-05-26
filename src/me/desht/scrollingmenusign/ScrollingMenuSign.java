@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +22,7 @@ import org.bukkit.event.*;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
+@SuppressWarnings("serial")
 public class ScrollingMenuSign extends JavaPlugin {
 	public static enum MenuRemoveAction { DESTROY_SIGN, BLANK_SIGN, DO_NOTHING };
 	public Logger logger = Logger.getLogger("Minecraft");
@@ -36,20 +38,24 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private HashMap<Location, String> menuLocations = new HashMap<Location, String>();
 	private HashMap<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
 	
-	@Override
-	public void onDisable() {
-		save();
-		logger.info(description.getName() + " version " + description.getVersion() + " is disabled!" );
-	}
-
+	private static final Map<String, Object> defConfig = new HashMap<String, Object>() {{
+		put("sms.menuitem_separator", "|");
+		put("sms.actions.leftclick.normal", "execute");
+		put("sms.actions.leftclick.sneak", "none");
+		put("sms.actions.rightclick.normal", "scrolldown");
+		put("sms.actions.rightclick.sneak", "scrollup");
+		put("sms.actions.wheelup.normal", "none");
+		put("sms.actions.wheelup.sneak", "scrollup");
+		put("sms.actions.wheeldown.normal", "none");
+		put("sms.actions.wheeldown.sneak", "scrolldown");
+	}};
+	
 	@Override
 	public void onEnable() {
 		description = this.getDescription();
 
-		Configuration config = getConfiguration();
-		if (config.getString("sms") == null) {
-			writeDefaultConfig();
-		}
+		configInitialise();
+
 		setupPermissions();
 		
 		PluginManager pm = getServer().getPluginManager();
@@ -77,15 +83,19 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 
-	private void writeDefaultConfig() {
+	@Override
+	public void onDisable() {
+		save();
+		logger.info(description.getName() + " version " + description.getVersion() + " is disabled!" );
+	}
+
+	private void configInitialise() {
 		Configuration config = getConfiguration();
-		config.setProperty("sms.mousewheel.enable", true);
-		config.setProperty("sms.mousewheel.must_sneak", true);
-		config.setProperty("sms.menuitem_separator", "|");
-		config.setProperty("sms.actions.leftclick.normal", "execute");
-		config.setProperty("sms.actions.leftclick.sneak", "none");
-		config.setProperty("sms.actions.rightclick.normal", "scroll");
-		config.setProperty("sms.actions.rightclick.sneak", "none");
+		for (String k : defConfig.keySet()) {
+			if (config.getProperty(k) == null) {
+				config.setProperty(k, defConfig.get(k));
+			}
+		}
 		config.save();
 	}
 
@@ -187,8 +197,10 @@ public class ScrollingMenuSign extends JavaPlugin {
     }
 
 	public String parseColourSpec(Player player, String spec) {
-		if (isAllowedTo(player, "scrollingmenusign.coloursigns") || 
-				isAllowedTo(player, "scrollingmenusign.colorsigns")) {
+		if (player == null ||
+				isAllowedTo(player, "scrollingmenusign.coloursigns") || 
+				isAllowedTo(player, "scrollingmenusign.colorsigns"))
+		{
 			String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7");
 			return res.replace("&&", "&");
 		} else {

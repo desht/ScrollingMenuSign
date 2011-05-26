@@ -153,7 +153,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 				loc.getWorld().getName();
 			String message = ChatColor.YELLOW + k + 
 				ChatColor.WHITE + " @ " + where +
-				ChatColor.GREEN + " \"" + menu.getTitle() + "\"" +
+				ChatColor.GREEN + " \"" + menu.getTitle() + ChatColor.GREEN + "\"" +
 				ChatColor.WHITE + " [" + menu.getNumItems() + "]";
 			messageBuffer.add(message);
 		}
@@ -179,7 +179,8 @@ public class SMSCommandExecutor implements CommandExecutor {
 		ArrayList<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
-			String s = String.format(ChatColor.YELLOW + "%2d)" + ChatColor.WHITE + " %s [%s] \"%s\"",
+			String s = String.format(ChatColor.YELLOW + "%2d)" +
+					ChatColor.WHITE + " %s " + ChatColor.WHITE + "[%s] \"%s\"",
 					n, item.getLabel(), item.getCommand(), item.getMessage());
 			n++;
 			messageBuffer.add(s);
