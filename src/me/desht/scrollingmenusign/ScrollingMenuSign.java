@@ -39,7 +39,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private HashMap<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
 	
 	private static final Map<String, Object> defConfig = new HashMap<String, Object>() {{
-		put("sms.menuitem_separator", "|");
+		put("sms.menuitem_separator", "\\|");
 		put("sms.actions.leftclick.normal", "execute");
 		put("sms.actions.leftclick.sneak", "none");
 		put("sms.actions.rightclick.normal", "scrolldown");
