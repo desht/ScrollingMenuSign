@@ -241,10 +241,21 @@ public class ScrollingMenuSign extends JavaPlugin {
 			error_message(player, "Use /sms getcfg to list all valid keys");
 			return;
 		}
-		if (val.equals("false")) {
-			getConfiguration().setProperty(key, false);
-		} else if (val.equals("true")) {
-			getConfiguration().setProperty(key, true);
+		if (configItems.get(key) instanceof Boolean) {
+			Boolean bVal = false;
+			if (val.equals("false")) {
+				bVal = false;
+			} else if (val.equals("true")) {
+				bVal = true;
+			}
+			getConfiguration().setProperty(key, bVal);
+		} else if (configItems.get(key) instanceof Integer) {
+			try {
+				int nVal = Integer.parseInt(val);
+				getConfiguration().setProperty(key, nVal);
+			} catch (NumberFormatException e) {
+				error_message(player, "Invalid numeric value: " + val);
+			}
 		} else {
 			getConfiguration().setProperty(key, val);
 		}
