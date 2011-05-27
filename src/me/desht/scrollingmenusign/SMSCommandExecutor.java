@@ -61,11 +61,7 @@ public class SMSCommandExecutor implements CommandExecutor {
     		} else if (args[0].equalsIgnoreCase("title")) {
     			setTitle(player, args);
     		} else if (args[0].equalsIgnoreCase("page") && args.length > 1) {
-    			try {
-    				pagedDisplay(player, Integer.parseInt(args[1]));
-    			} catch (NumberFormatException e) {
-    				plugin.error_message(player, "invalid argument '" + args[1] + "'");
-    			}
+    			pagedDisplay(player, args);
     		} else {
     			return false;
     		}
@@ -284,6 +280,17 @@ public class SMSCommandExecutor implements CommandExecutor {
 			}
 		}
 	}
+	
+	private void pagedDisplay(Player player, String[] args) {
+		int pageNum = 1;
+		try {
+			pageNum = Integer.parseInt(args[1]);
+			pagedDisplay(player, pageNum);
+		} catch (NumberFormatException e) {
+			plugin.error_message(player, "invalid argument '" + args[1] + "'");
+		}
+	}
+	
 	private void pagedDisplay(Player player, int pageNum) {
 		if (player != null) {
 			// pretty paged display
@@ -298,7 +305,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			String footer = (nMessages > pageSize * pageNum) ? "Use /sms page [page#] to see more" : "";
 			plugin.status_message(player, ChatColor.GREEN + footer);
 		} else {
-			// just dump it to the console
+			// just dump the whole message buffer to the console
 			for (String s: messageBuffer) {
 				plugin.status_message(null, plugin.deColourise(s));
 			}
