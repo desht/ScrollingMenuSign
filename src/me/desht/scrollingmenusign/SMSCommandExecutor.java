@@ -78,7 +78,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			plugin.error_message(player, "Usage: /sms title <menu-name> <new-title>");
 			return;
 		}
-		plugin.setTitle(player, args[1], args[2]);
+		plugin.setTitle(player, args[1], combine(args, 2));
 	}
 
 	private void setConfig(Player player, String[] args) {
@@ -260,8 +260,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			}
 			menu = new SMSMenu(otherMenu, menuName, player.getName(), b.getLocation());
 		} else if (args.length >= 3) {
-			String menuTitle = combine(args, 2);
-			menuTitle = plugin.parseColourSpec(player, menuTitle);
+			String menuTitle = plugin.parseColourSpec(player, combine(args, 2));
 			menu = new SMSMenu(menuName, menuTitle, player.getName(), b.getLocation());
 		}
 		plugin.addMenu(menuName, menu, true);
