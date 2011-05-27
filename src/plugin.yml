@@ -1,6 +1,7 @@
 name: ScrollingMenuSign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
 version: 0.2.1
+softdepend: [ Permissions ]
 commands:
   sms:
     description: Scrolling menu sign control
