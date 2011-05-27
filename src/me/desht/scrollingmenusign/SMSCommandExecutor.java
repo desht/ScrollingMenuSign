@@ -25,11 +25,11 @@ public class SMSCommandExecutor implements CommandExecutor {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!(sender instanceof Player)) {
-			return true;
+		Player player = null;
+		if (sender instanceof Player) {
+			player = (Player) sender;
 		}
-    	Player player = ((Player) sender);
-
+		
     	if (label.equalsIgnoreCase("sms")) {
     		if (args.length == 0) {
     			return false;
@@ -141,7 +141,6 @@ public class SMSCommandExecutor implements CommandExecutor {
 		plugin.status_message(player, "Menu entry #" + index + " removed from: " + menuName);
 	}
 
-	
 	private void addSMSItem(Player player, String[] args) {	
 		if (args.length < 3) {
 			plugin.error_message(player, "Usage: /sms add <menu-name> <menu-entry>");
@@ -205,6 +204,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		if (args.length >= 2) {
 			menuName = args[1];
 		} else {
+			if (onConsole(player)) return;
 			menuName = plugin.getTargetedMenuSign(player, true);
 			if (menuName == null)
 				return;
@@ -229,6 +229,8 @@ public class SMSCommandExecutor implements CommandExecutor {
 	}
 
 	private void createSMSSign(Player player, String[] args) {
+		if (onConsole(player)) return;
+		
 		Block b = player.getTargetBlock(null, 3);
 		if (args.length < 2) {
 			plugin.error_message(player, "Usage: sms make <menu-name> <title>");
@@ -275,6 +277,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			}
 			plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 		} else {
+			if (onConsole(player)) return;
 			String menuName = plugin.getTargetedMenuSign(player, true);
 			if (menuName != null) {
 				plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
@@ -282,18 +285,25 @@ public class SMSCommandExecutor implements CommandExecutor {
 			}
 		}
 	}
-
 	private void pagedDisplay(Player player, int pageNum) {
-		int nMessages = messageBuffer.size();
-		plugin.status_message(player, ChatColor.GREEN + "" +  nMessages +
-				" lines (page " + pageNum + "/" + (nMessages / pageSize + 1) + ")");
-		plugin.status_message(player, ChatColor.GREEN + "---------------");
-		for (int i = (pageNum -1) * pageSize; i < nMessages && i < pageNum * pageSize; i++) {
-			plugin.status_message(player, messageBuffer.get(i));
+		if (player != null) {
+			// pretty paged display
+			int nMessages = messageBuffer.size();
+			plugin.status_message(player, ChatColor.GREEN + "" +  nMessages +
+					" lines (page " + pageNum + "/" + (nMessages / pageSize + 1) + ")");
+			plugin.status_message(player, ChatColor.GREEN + "---------------");
+			for (int i = (pageNum -1) * pageSize; i < nMessages && i < pageNum * pageSize; i++) {
+				plugin.status_message(player, messageBuffer.get(i));
+			}
+			plugin.status_message(player, ChatColor.GREEN + "---------------");
+			String footer = (nMessages > pageSize * pageNum) ? "Use /sms page [page#] to see more" : "";
+			plugin.status_message(player, ChatColor.GREEN + footer);
+		} else {
+			// just dump it to the console
+			for (String s: messageBuffer) {
+				plugin.status_message(null, plugin.deColourise(s));
+			}
 		}
-		plugin.status_message(player, ChatColor.GREEN + "---------------");
-		String footer = (nMessages > pageSize * pageNum) ? "Use /sms page [page#] to see more" : "";
-		plugin.status_message(player, ChatColor.GREEN + footer);
 	}
 	
 	private static String combine(String[] args, int idx) {
@@ -309,5 +319,14 @@ public class SMSCommandExecutor implements CommandExecutor {
 			}
 		}
 		return result.toString();
+	}
+
+	private boolean onConsole(Player player) {
+		if (player == null) {
+			plugin.error_message(player, "This command cannot be run from the console.");
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

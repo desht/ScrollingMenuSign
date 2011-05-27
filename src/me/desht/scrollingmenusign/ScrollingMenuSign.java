@@ -116,6 +116,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 
 	public Boolean isAllowedTo(Player player, String node) {
+		if (player == null) return true;
 		// if Permissions is in force, then it overrides op status
 		if (permissionHandler != null) {
 			return permissionHandler.has(player, node);
@@ -125,6 +126,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	public Boolean isAllowedTo(Player player, String node, Boolean okNotOp) {
+		if (player == null) return true;
 		// if Permissions is in force, then it overrides op status
 		if (permissionHandler != null) {
 			return permissionHandler.has(player, node);
@@ -280,6 +282,11 @@ public class ScrollingMenuSign extends JavaPlugin {
 			return;
 		}
 		menu.setTitle(parseColourSpec(player, newTitle));
+		status_message(player, "title for '" + menuName + "' is now '" + newTitle + "'");
 		menu.updateSign();
+	}
+
+	public String deColourise(String s) {
+		return s.replaceAll("\u00A7.", "");
 	} 
 }
