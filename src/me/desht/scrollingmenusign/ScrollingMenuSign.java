@@ -18,7 +18,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 
@@ -105,14 +104,14 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private void setupPermissions() {
 		Plugin permissionsPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
 
-	      if (permissionHandler == null) {
-	          if (permissionsPlugin != null) {
-	              permissionHandler = ((Permissions) permissionsPlugin).getHandler();
-	              log(Level.INFO, "Permissions detected");
-	          } else {
-	              log(Level.INFO, "Permissions not detected, using ops");
-	          }
-	      }
+		if (permissionHandler == null) {
+			if (permissionsPlugin != null) {
+				permissionHandler = ((Permissions) permissionsPlugin).getHandler();
+				log(Level.INFO, "Permissions detected");
+			} else {
+				log(Level.INFO, "Permissions not detected, using ops");
+			}
+		}
 	}
 
 	public Boolean isAllowedTo(Player player, String node) {
@@ -135,38 +134,60 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 	
+	// add a new menu
 	public void addMenu(String menuName, SMSMenu menu, Boolean updateSign) {
 		menus.put(menuName, menu);
-		menuLocations.put(menu.getLocation(), menuName);
+		for (Location l: menu.getLocations().keySet()) {
+			menuLocations.put(l, menuName);
+		}
 		if (updateSign) {
-			menu.updateSign();
+			menu.updateSigns();
 		}
 	}
 	
+	// remove a menu completely
 	public void removeMenu(String menuName, MenuRemoveAction action) {
-		Sign sign = getMenu(menuName).getSign();
-		if (sign != null) {
-			Location loc = sign.getBlock().getLocation();
-			doRemoveMenu(menuName, loc, action);
-		} else {
-			log(Level.SEVERE, "remove menu: sign for '" + menuName + "' seems to have disappeared!");
-		}
-	}
-	
-	public void removeMenu(Location loc, MenuRemoveAction action) {
-		String menuName = getMenuName(loc);
-		doRemoveMenu(menuName, loc, action);
-	}
-	
-	private void doRemoveMenu(String menuName, Location loc, MenuRemoveAction action) {
+		SMSMenu menu = getMenu(menuName);
+		if (menu == null) return;
+		
 		if (action == MenuRemoveAction.DESTROY_SIGN) {
-			loc.getBlock().setTypeId(0);
+			menu.destroySigns();
 		} else if (action == MenuRemoveAction.BLANK_SIGN) {
-			getMenu(menuName).blankSign();
+			menu.blankSigns();
 		}
-		menuLocations.remove(loc);
+		for (Location loc: menu.getLocations().keySet()) {
+			menuLocations.remove(loc);
+		}
 		menus.remove(menuName);
 	}
+	
+	// remove the sign at location loc
+	// This doesn't cause the menu to be removed - a menu can have 0 signs
+	public void removeMenu(Location loc, MenuRemoveAction action) {		
+		String menuName = getMenuName(loc);
+	
+		if (menuName != null) {
+			SMSMenu menu = getMenu(menuName);
+			if (menu == null) return;
+			if (action == MenuRemoveAction.DESTROY_SIGN) {
+				menu.destroySign(loc);
+			} else if (action == MenuRemoveAction.BLANK_SIGN) {
+				menu.blankSign(loc);
+			}
+			menu.removeSign(loc);
+			menuLocations.remove(loc);
+		}
+	}
+	
+	// add a new synchronised sign to an existing menu
+	public void syncMenu(String menuName, Location location) {
+		SMSMenu menu = getMenu(menuName);
+		if (menu == null) return;
+		
+		menuLocations.put(location, menuName);
+		menu.addSign(location);
+		menu.updateSigns();
+	} 
 	
 	public HashMap<String, SMSMenu> getMenus() {
 		return menus;
@@ -225,7 +246,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public String getTargetedMenuSign(Player player, Boolean complain) {
 		Block b = player.getTargetBlock(null, 3);
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			if (complain) error_message(player, "You are not looking at a sign");
+			if (complain) error_message(player, "You are not looking at a sign.");
 			return null;
 		}
 		String name = getMenuName(b.getLocation());
@@ -283,10 +304,11 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 		menu.setTitle(parseColourSpec(player, newTitle));
 		status_message(player, "title for '" + menuName + "' is now '" + newTitle + "'");
-		menu.updateSign();
+		menu.updateSigns();
 	}
 
 	public String deColourise(String s) {
 		return s.replaceAll("\u00A7.", "");
-	} 
+	}
+
 }

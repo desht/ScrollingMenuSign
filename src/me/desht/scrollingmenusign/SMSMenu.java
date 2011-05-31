@@ -1,6 +1,8 @@
 package me.desht.scrollingmenusign;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,8 +14,7 @@ public class SMSMenu {
 	private String title;
 	private String owner;
 	private ArrayList<SMSMenuItem> items;
-	private Location loc;
-	private int curPos;
+	Map<Location, Integer> locations;
 	
 	private static SMSMenuItem blankItem = new SMSMenuItem("", "", "");
 
@@ -23,8 +24,8 @@ public class SMSMenu {
 		name = n;
 		title = t;
 		owner = o;
-		loc = l;
-		curPos = 0;
+		locations = new HashMap<Location, Integer>();
+		if (l != null) locations.put(l, 0);
 	}
 
 	// Construct a new menu which is a copy of otherMenu
@@ -33,8 +34,7 @@ public class SMSMenu {
 		name = n;
 		title = other.getTitle();
 		owner = o;
-		loc = l;
-		curPos = 0;
+		locations = new HashMap<Location, Integer>(other.getLocations());
 		for (SMSMenuItem item: other.getItems()) {
 			add(item.getLabel(), item.getCommand(), item.getMessage());
 		}
@@ -51,9 +51,9 @@ public class SMSMenu {
 	public void setTitle(String newTitle) {
 		title = newTitle;
 	}
-	
-	public Location getLocation() {
-		return loc;
+
+	public Map<Location,Integer> getLocations() {
+		return locations;
 	}
 
 	public String getOwner() {
@@ -68,11 +68,27 @@ public class SMSMenu {
 		return items.size();
 	}
 
-	public SMSMenuItem getCurrentItem() {
+	public SMSMenuItem getCurrentItem(Location l) {
 		if (items.size() == 0) {
 			return null;
 		}
-		return items.get(curPos);
+		return items.get(locations.get(l));
+	}
+	
+	// add a new sign to the menu
+	public void addSign(Location l) {
+		Block b = l.getBlock();
+		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
+			locations.put(l, 0);
+		}
+	}
+	
+	// remove a sign from the menu
+	public void removeSign(Location l) {
+		Block b = l.getBlock();
+		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
+			locations.remove(l);
+		}
 	}
 	
 	// add a new item to the menu
@@ -85,25 +101,43 @@ public class SMSMenu {
 	public void remove(int index) {
 		// Java is 0-indexed, our signs are 1-indexed
 		items.remove(index - 1);
-		if (curPos >= items.size()) {
-			curPos = items.size() - 1;
+		for (Location l : locations.keySet()) {
+			if (locations.get(l) >= items.size()) {
+				locations.put(l, items.size() == 0 ? 0 : items.size() - 1);
+			}
 		}
 	}
-	
-	// update the menu's sign according to the current menu state
-	public void updateSign() {
-		Sign sign = getSign();
+
+	// update the menu's signs according to the current menu state
+	public void updateSigns() {
+		for (Location l : locations.keySet()) {
+			String[] lines = buildSignText(l);
+			updateSign(l, lines);
+		}
+	}		
+	// update a sign according to the current menu state
+	public void updateSign(Location l) {
+		updateSign(l, null);
+	}	
+	public void updateSign(Location l, String[] lines) {
+		Sign sign = getSign(l);
 		if (sign == null) return;
-		String[] lines = buildSignText();
+		if (lines == null) lines = buildSignText(l);
 		for (int i = 0; i < 4; i++) {
 			sign.setLine(i, lines[i]);
 		}
 		sign.update();
 	}
 	
-	// blank the sign
-	public void blankSign() {
-		Sign sign = getSign();
+	// blank the signs
+	public void blankSigns() {
+		for (Location l : locations.keySet()) {
+			blankSign(l);
+		}
+	}
+	// blank the sign at location l
+	public void blankSign(Location l) {
+		Sign sign = getSign(l);
 		if (sign == null) return;
 		for (int i = 0; i < 4; i++) {
 			sign.setLine(i, "");
@@ -112,7 +146,7 @@ public class SMSMenu {
 	}
 	
 	// build the text for the sign based on current menu contents
-	private String[] buildSignText() {
+	private String[] buildSignText(Location l) {
 		String[] res = new String[4];
 		
 		// first line of the sign in the menu title
@@ -120,20 +154,20 @@ public class SMSMenu {
 		
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
-		res[1] = String.format("  %1$-13s", getLine2Item().getLabel());
-		res[2] = String.format("> %1$-13s", getLine3Item().getLabel());
-		res[3] = String.format("  %1$-13s", getLine4Item().getLabel());
+		res[1] = String.format("  %1$-13s", getLine2Item(l).getLabel());
+		res[2] = String.format("> %1$-13s", getLine3Item(l).getLabel());
+		res[3] = String.format("  %1$-13s", getLine4Item(l).getLabel());
 		
 		return res;
 	}
 
 	// Get line 2 of the sign (item before the current item, or blank
 	// if the menu has less than 3 items)
-	private SMSMenuItem getLine2Item() {
+	private SMSMenuItem getLine2Item(Location l) {
 		if (items.size() < 3) {
 			return blankItem;	
 		}
-		int prev_pos = curPos - 1;
+		int prev_pos = locations.get(l) - 1;
 		if (prev_pos < 0) {
 			prev_pos = items.size() - 1;
 		}
@@ -141,20 +175,20 @@ public class SMSMenu {
 	}
 
 	// Get line 3 of the sign (this is the currently selected item)
-	private SMSMenuItem getLine3Item() {
+	private SMSMenuItem getLine3Item(Location l) {
 		if (items.size() < 1) {
 			return blankItem;
 		}
-		return items.get(curPos);
+		return items.get(locations.get(l));
 	}
 	
 	// Get line 4 of the sign (item after the current item, or blank
 	// if the menu has less than 2 items)
-	private SMSMenuItem getLine4Item() {
+	private SMSMenuItem getLine4Item(Location l) {
 		if (items.size() < 2) {
 			return blankItem;
 		}
-		int next_pos = curPos + 1;
+		int next_pos = locations.get(l) + 1;
 		if (next_pos >= items.size()) {
 			next_pos = 0;
 		}
@@ -162,32 +196,41 @@ public class SMSMenu {
 	}
 	
 	// move to the next item in the menu
-	public void nextItem() {
-		curPos++;
-		if (curPos >= items.size()) {
-			curPos = 0;
-		}
+	public void nextItem(Location l) {
+		int pos = locations.get(l) + 1;
+		if (pos >= items.size()) pos = 0;
+		locations.put(l, pos);
 	}
 
 	// move to the previous item in the menu
-	public void prevItem() {
+	public void prevItem(Location l) {
 		if (items.size() == 0) return;
-		curPos--;
-		if (curPos < 0) {
-			curPos = items.size() - 1;
-		}
+		int pos = locations.get(l) - 1;
+		if (pos < 0) pos = items.size() - 1;
+		locations.put(l, pos);
 	}
 
-	// get the sign at the menu's location, if any
-	public Sign getSign() {
-		Block b = loc.getBlock();
+	// return the sign at location l
+	public Sign getSign(Location l) {
+		if (locations.get(l) == null) {
+			return null;
+		}
+		Block b = l.getBlock();
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			// This should never happen - a menu can't be created without a
-			// sign, and the block break event handler should ensure the menu is
-			// removed if the sign is destroyed.
 			return null;
 		}
 		return (Sign) b.getState();
 	}
 
+	// destroy all signs for this menu
+	// you would normally only do this when about to delete the menu!
+	public void destroySigns() {
+		for (Location l: getLocations().keySet()) {
+			destroySign(l);
+		}
+	}
+	
+	public void destroySign(Location l) {
+		l.getBlock().setTypeId(0);
+	}
 }

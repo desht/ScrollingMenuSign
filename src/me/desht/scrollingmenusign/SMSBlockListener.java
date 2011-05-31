@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.material.Sign;
@@ -36,7 +37,7 @@ public class SMSBlockListener extends BlockListener {
 		} else {
 			// don't allow destruction
 			event.setCancelled(true);
-			plugin.getMenu(menuName).updateSign();
+			plugin.getMenu(menuName).updateSigns();
 		}
 	}
 	
@@ -48,8 +49,11 @@ public class SMSBlockListener extends BlockListener {
 		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
 			String menuName = plugin.getMenuName(b.getLocation());
 			if (menuName != null) {
-				plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
-				plugin.status_message(p, "Destroyed menu sign: " + menuName);
+				Location l = b.getLocation();
+				plugin.removeMenu(l, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
+				plugin.status_message(p, "Sign @ " +
+					l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
+					" was removed from menu '" + menuName + "'");
 			}
 		}
 	}

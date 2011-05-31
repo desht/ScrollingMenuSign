@@ -3,6 +3,8 @@ package me.desht.scrollingmenusign;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -56,38 +58,38 @@ public class SMSPlayerListener extends PlayerListener {
 		} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			action = config.getString("sms.actions.rightclick." + sneak);
 		}
-		processAction(action, player, menu);
+		processAction(action, player, menu, b.getLocation());
 	}
 
-	private void processAction(String action, Player p, SMSMenu menu) {
+	private void processAction(String action, Player p, SMSMenu menu, Location l) {
 		if (action.equalsIgnoreCase("execute")) {
-			executeMenu(p, menu);
+			executeMenu(p, menu, l);
 		} else if (action.equalsIgnoreCase("scrolldown")) {
-			scrollMenu(p, menu, ScrollDirection.SCROLL_DOWN);
+			scrollMenu(p, menu, l, ScrollDirection.SCROLL_DOWN);
 		} else if (action.equalsIgnoreCase("scrollup")) {
-			scrollMenu(p, menu, ScrollDirection.SCROLL_UP);
+			scrollMenu(p, menu, l, ScrollDirection.SCROLL_UP);
 		}
 	}
 	
-	private void scrollMenu(Player player, SMSMenu menu, ScrollDirection dir) {
+	private void scrollMenu(Player player, SMSMenu menu, Location l, ScrollDirection dir) {
 		if (!plugin.isAllowedTo(player, "scrollingmenusign.scroll", true)) {
 			plugin.error_message(player, "You are not allowed to scroll through menu signs");
 			return;
 		}
 		if (dir == ScrollDirection.SCROLL_DOWN) {
-			menu.nextItem();
+			menu.nextItem(l);
 		} else if (dir == ScrollDirection.SCROLL_UP) {
-			menu.prevItem();
+			menu.prevItem(l);
 		}
-		menu.updateSign();
+		menu.updateSign(l);
 	}
 
-	private void executeMenu(Player player, SMSMenu menu) {
+	private void executeMenu(Player player, SMSMenu menu, Location l) {
 		if (!plugin.isAllowedTo(player, "scrollingmenusign.execute", true)) {
 			plugin.error_message(player, "You are not allowed to execute menu sign commands");
 			return;
 		}
-		SMSMenuItem item = menu.getCurrentItem();
+		SMSMenuItem item = menu.getCurrentItem(l);
 		if (item != null) {
 			player.chat(item.getCommand());
 			if (item.getMessage() != null && item.getMessage().length() > 0) {
@@ -98,20 +100,30 @@ public class SMSPlayerListener extends PlayerListener {
 
 	private void tryToActivateSign(Block b, Player player) {
 		Sign sign = (Sign) b.getState();
-		if (sign.getLine(0).equals("scrollingmenu")) {
-			if (!plugin.isAllowedTo(player, "scrollingmenusign.commands.create")) {
-				plugin.error_message(player, "You are not allowed to create scrolling menu signs.");
-				return;
-			}
+		if (sign.getLine(0).equals("[sms]")) {
+			
 			String name = sign.getLine(1);
 			String title = plugin.parseColourSpec(player, sign.getLine(2));
-			if (name.length() > 0 && title.length() > 0) {
+			if (name.length() > 0) {
 				if (plugin.getMenu(name) != null) {
-					plugin.error_message(player, "A menu called '" + name + "' already exists.");
-				} else 	if (plugin.getMenuName(b.getLocation()) != null) {
+					if (title.length() == 0) {
+						if (!plugin.isAllowedTo(player, "scrollingmenusign.commands.sync")) {
+							plugin.error_message(player, "You are not allowed to add signs to scrolling menus.");
+							return;
+						}
+						plugin.syncMenu(name, b.getLocation());
+						plugin.status_message(player, "Added sign to existing menu: " + name);
+					} else {
+						plugin.error_message(player, "A menu called '" + name + "' already exists.");
+					}
+				} else if (plugin.getMenuName(b.getLocation()) != null) {
 					plugin.error_message(player, "There is already a menu attached to that sign.");
 					return;
-				} else {
+				} else if (title.length() > 0) {
+					if (!plugin.isAllowedTo(player, "scrollingmenusign.commands.create")) {
+						plugin.error_message(player, "You are not allowed to create scrolling menu signs.");
+						return;
+					}
 					SMSMenu menu = new SMSMenu(name, title, player.getName(), b.getLocation());
 					plugin.addMenu(name, menu, true);
 					plugin.status_message(player, "Created new menu sign: " + name);
@@ -141,7 +153,10 @@ public class SMSPlayerListener extends PlayerListener {
 		} else if (delta == 1 || delta == -8) {
 			action = config.getString("sms.actions.wheeldown." + sneak);
 		}
-		processAction(action, p, menu);
+		Block b = p.getTargetBlock(null, 3);
+		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
+			processAction(action, p, menu, b.getLocation());
+		}
 	}
 	
 }

@@ -44,8 +44,11 @@ public class SMSPersistence {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("title", menu.getTitle());
 			map.put("owner", menu.getOwner());
-			map.put("world", menu.getLocation().getWorld().getName());
-			map.put("location", makeBlockList(menu.getLocation()));
+			List<List<Object>> locs = new ArrayList<List<Object>>();
+			for (Location l: menu.getLocations().keySet()) {
+				locs.add(makeBlockList(l));
+			}
+			map.put("locations", locs);
 			map.put("items", makeItemList(menu.getItems()));
 			menuMap.put(menu.getName(), map);
 		}
@@ -88,14 +91,16 @@ public class SMSPersistence {
         
 	}
 
-	private List<Integer> makeBlockList(Location l) {
-        List<Integer> list = new ArrayList<Integer>();
+	private List<Object> makeBlockList(Location l) {
+        List<Object> list = new ArrayList<Object>();
+        list.add(l.getWorld().getName());
         list.add(l.getBlockX());
         list.add(l.getBlockY());
         list.add(l.getBlockZ());
 
         return list;
     }
+
 	
 	private List<Map<String, String>> makeItemList(List<SMSMenuItem> items) {
 		List<Map<String,String>> l = new ArrayList<Map<String, String>>();
@@ -112,19 +117,40 @@ public class SMSPersistence {
 
 	@SuppressWarnings("unchecked")
 	private void createMenuSign(String menuName, Map<String, Object> menuData) {
-		String worldName = (String) menuData.get("world");
 		String title = plugin.parseColourSpec(null, (String) menuData.get("title"));
 		String owner = (String) menuData.get("owner");
-		World w = findWorld(worldName);
-		List<Integer>l = (List<Integer>) menuData.get("location");
-		SMSMenu menu = new SMSMenu(menuName, title, owner,
-				new Location(w, l.get(0), l.get(1), l.get(2)));
+		SMSMenu menu;
+		if (menuData.get("locations") != null) {
+			// v0.3 or newer format - multiple locations per menu
+			List<List<Object>> l0 = (List<List<Object>>) menuData.get("locations");
+			List<Location> locs = new ArrayList<Location>();
+			for (List<Object> l: l0) {
+				World w = plugin.getServer().getWorld((String) l.get(0));
+				locs.add(new Location(w, (Integer)l.get(1), (Integer)l.get(2), (Integer)l.get(3)));
+			}
+			menu = new SMSMenu(menuName, title, owner, null);
+			if (locs.size() > 0) {
+				for (int i = 0; i < locs.size(); i++) {
+					menu.addSign(locs.get(i));
+				}
+			}
+		} else {
+			// v0.2 or older
+			String worldName = (String) menuData.get("world");
+			World w = findWorld(worldName);
+			List<Integer>l = (List<Integer>) menuData.get("location");
+			menu = new SMSMenu(menuName, title, owner,
+					new Location(w, l.get(0), l.get(1), l.get(2)));
+
+		}
 		plugin.addMenu(menuName, menu, false);
 		
 		List<Map<String,String>>items = (List<Map<String, String>>) menuData.get("items");
 		for (Map<String,String> item : items) {
 			menu.add(item.get("label"), item.get("command"), item.get("message"));
 		}
+		
+		menu.updateSigns();
 	}
 
 	private World findWorld(String worldName) {
