@@ -1,6 +1,6 @@
 name: ScrollingMenuSign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
-version: 0.2.1
+version: 0.3pre
 softdepend: [ Permissions ]
 commands:
   sms:
@@ -8,7 +8,9 @@ commands:
     usage: |
       /sms create <name> <title>
       /sms create <name> from <other-name>
-      /sms break [<name>]
+      /sms sync <name>
+      /sms delete [<name>]
+      /sms break
       /sms list
       /sms show [<name>]
       /sms title <name> <new-title>
