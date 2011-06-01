@@ -34,7 +34,8 @@ public class SMSMenu {
 		name = n;
 		title = other.getTitle();
 		owner = o;
-		locations = new HashMap<Location, Integer>(other.getLocations());
+		locations = new HashMap<Location, Integer>();
+		if (l != null) locations.put(l, 0);
 		for (SMSMenuItem item: other.getItems()) {
 			add(item.getLabel(), item.getCommand(), item.getMessage());
 		}
