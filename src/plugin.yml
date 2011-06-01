@@ -1,7 +1,7 @@
 name: ScrollingMenuSign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
-version: 0.3pre
-softdepend: [ Permissions ]
+version: 0.3
+softdepend: [ Permissions, CommandSigns ]
 commands:
   sms:
     description: Scrolling menu sign control
@@ -19,6 +19,7 @@ commands:
       /sms page <page-number>
       /sms getcfg [<key>]
       /sms setcfg <key> <value>
+      /sms macro <list|add|remove> <macro-name> ...
       /sms save
       /sms reload
       
