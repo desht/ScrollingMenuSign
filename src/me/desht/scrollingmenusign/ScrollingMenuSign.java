@@ -21,6 +21,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 
+import com.edwardhand.commandsigns.CommandSigns;
+import com.edwardhand.commandsigns.CommandSignsHandler;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -28,9 +30,12 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 public class ScrollingMenuSign extends JavaPlugin {
 	public static enum MenuRemoveAction { DESTROY_SIGN, BLANK_SIGN, DO_NOTHING };
 	public Logger logger = Logger.getLogger("Minecraft");
-	public PermissionHandler permissionHandler;
 	public static PluginDescriptionFile description;
 	public static final String directory = "plugins" + File.separator + "ScrollingMenuSign";
+
+	public PermissionHandler permissionHandler;
+	public CommandSignsHandler csHandler;
+	public SMSCommandFile commandFile;
 	
 	private final SMSPlayerListener signListener = new SMSPlayerListener(this);
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
@@ -39,8 +44,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	private HashMap<Location, String> menuLocations = new HashMap<Location, String>();
 	private HashMap<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
-	
+
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
+		put("sms.always_use_commandsigns", true);
 		put("sms.menuitem_separator", "\\|");
 		put("sms.actions.leftclick.normal", "execute");
 		put("sms.actions.leftclick.sneak", "none");
@@ -59,6 +65,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 		configInitialise();
 
 		setupPermissions();
+		setupCommandSigns();
+		setupCommandFile();
 		
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, signListener, Event.Priority.Normal, this);
@@ -111,6 +119,25 @@ public class ScrollingMenuSign extends JavaPlugin {
 			} else {
 				log(Level.INFO, "Permissions not detected, using ops");
 			}
+		}
+	}
+
+	private void setupCommandSigns() {
+		Plugin csPlugin = this.getServer().getPluginManager().getPlugin("CommandSigns");
+		if (csHandler == null) {
+			if (csPlugin != null) {
+				csHandler = ((CommandSigns) csPlugin).getHandler();
+				log(Level.INFO, "CommandSigns API integration enabled");
+			} else {
+				log(Level.INFO, "CommandSigns API not available");
+			}
+		}
+
+	}
+
+	public void setupCommandFile() {
+		if (commandFile == null) {
+			commandFile = new SMSCommandFile(this);
 		}
 	}
 
@@ -203,10 +230,12 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	public void load() {
 		persistence.load();
+		commandFile.loadCommands();
 	}
 	
 	public void save() {
 		persistence.save();
+		commandFile.saveCommands();
 	}
 
 	public void status_message(Player player, String string) {

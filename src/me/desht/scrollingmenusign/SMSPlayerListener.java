@@ -91,7 +91,10 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 		SMSMenuItem item = menu.getCurrentItem(l);
 		if (item != null) {
-			player.chat(item.getCommand());
+			String command = item.getCommand();
+			plugin.commandFile.executeCommand(command, player);
+			
+			// feedback message, if present
 			if (item.getMessage() != null && item.getMessage().length() > 0) {
 				player.sendMessage(ChatColor.YELLOW + item.getMessage());
 			}
