@@ -115,10 +115,6 @@ public class SMSCommandExecutor implements CommandExecutor {
 		SMSMenu menu = null;
 		if (args.length == 4 && args[2].equals("from")) {
 			SMSMenu otherMenu = plugin.getMenu(args[3]);
-			if (otherMenu == null) {
-				plugin.error_message(player, "No such menu '" + args[3] + "'");
-				return;
-			}
 			menu = new SMSMenu(otherMenu, menuName, owner, loc);
 		} else if (args.length >= 3) {
 			String menuTitle = plugin.parseColourSpec(player, combine(args, 2));
@@ -250,59 +246,25 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 			
 		String menuName = args[1];
-		String rest = combine(args, 2);
 		String sep = plugin.getConfiguration().getString("sms.menuitem_separator", "\\|");
-		String[] entry_args = rest.split(sep);
-		
+		String[] entry_args = combine(args, 2).split(sep);		
 		if (entry_args.length < 2) {
 			plugin.error_message(player, "menu-entry must include at least entry label & command");
 			return;
 		}
 		
-		SMSMenu menu = plugin.getMenu(menuName);
-		String msg = "";
-		if (entry_args.length >= 3) {
-			msg = entry_args[2];
-		}
+		SMSMenu menu = plugin.getMenu(menuName);				
 		String label = plugin.parseColourSpec(player, entry_args[0]);
-		if (validateCommandPerms(player, entry_args[1])) {
-			menu.add(label, entry_args[1], msg);
+		String cmd = entry_args[1];
+		String msg = entry_args.length >= 3 ? entry_args[2] : "";
+
+		if (plugin.validateCommandPerms(player, cmd)) {
+			menu.add(label, cmd, msg);
 			menu.updateSigns();
-			plugin.status_message(player, "Menu entry [" + entry_args[0] + "] added to: " + menuName);
+			plugin.status_message(player, "Menu entry [" + label + "] added to: " + menuName);
 		} else {
 			plugin.error_message(player, "You do not have permission to add that kind of command.");
 		}
-	}
-
-	private boolean validateCommandPerms(Player player, String cmd) {
-		boolean restrictedSign = false;
-        boolean fakeUserSign = false;
-        boolean costSign = false;
-        boolean elevatedPermissionSign = false;
-        
-        int index;
-        if((index = cmd.indexOf("@")) != -1 && (index == 0 || cmd.charAt(index - 1) != '/'))
-        	restrictedSign = true;
-        if(cmd.contains("/*"))
-        	fakeUserSign = true;
-        if(cmd.contains("$"))
-        	costSign = true;
-        if(cmd.contains("/@"))
-        	elevatedPermissionSign = true;
-
-        boolean isAllowed = true;
-
-        boolean hasSuper = plugin.isAllowedTo(player, "commandSigns.super");
-        if (restrictedSign)
-        	isAllowed = hasSuper || plugin.isAllowedTo(player, "commandSigns.super.restricted");
-        if (fakeUserSign)
-        	isAllowed = hasSuper || plugin.isAllowedTo(player, "commandSigns.super.fakeuser");
-        if (costSign)
-        	isAllowed = hasSuper || plugin.isAllowedTo(player, "commandSigns.super.cost");
-        if (elevatedPermissionSign)
-        	isAllowed = hasSuper || plugin.isAllowedTo(player, "commandSigns.super.elevated");
-
-        return isAllowed;
 	}
 
 	private void removeSMSItem(Player player, String[] args) throws SMSNoSuchMenuException {
@@ -313,10 +275,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String menuName = args[1];
 		int index = -1;
 		
-		SMSMenu menu = plugin.getMenu(menuName);
-
 		try {
 			index = Integer.parseInt(args[2]);
+			SMSMenu menu = plugin.getMenu(menuName);
 			menu.remove(index);
 			menu.updateSigns();
 			plugin.status_message(player, "Menu entry #" + index + " removed from: " + menuName);

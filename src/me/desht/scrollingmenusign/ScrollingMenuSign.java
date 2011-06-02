@@ -203,13 +203,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 	
-	// add a new synchronised sign to an existing menu
-	void syncMenu(String menuName, Location location) throws SMSNoSuchMenuException {
+	// add a new synchronised sign at location loc to an existing menu
+	void syncMenu(String menuName, Location loc) throws SMSNoSuchMenuException {
 		SMSMenu menu = getMenu(menuName);
-		menuLocations.put(location, menuName);
-		menu.addSign(location);
+		menuLocations.put(loc, menuName);
+		menu.addSign(loc);
 		menu.updateSigns();
-	} 
+	}
 	
 	HashMap<String, SMSMenu> getMenus() {
 		return menus;
@@ -340,4 +340,34 @@ public class ScrollingMenuSign extends JavaPlugin {
 		return s.replaceAll("\u00A7.", "");
 	}
 
+	boolean validateCommandPerms(Player player, String cmd) {
+		boolean restrictedSign = false;
+	    boolean fakeUserSign = false;
+	    boolean costSign = false;
+	    boolean elevatedPermissionSign = false;
+	    
+	    int index;
+	    if((index = cmd.indexOf("@")) != -1 && (index == 0 || cmd.charAt(index - 1) != '/'))
+	    	restrictedSign = true;
+	    if(cmd.contains("/*"))
+	    	fakeUserSign = true;
+	    if(cmd.contains("$"))
+	    	costSign = true;
+	    if(cmd.contains("/@"))
+	    	elevatedPermissionSign = true;
+	
+	    boolean isAllowed = true;
+	
+	    boolean hasSuper = isAllowedTo(player, "commandSigns.super");
+	    if (restrictedSign)
+	    	isAllowed = hasSuper || isAllowedTo(player, "commandSigns.super.restricted");
+	    if (fakeUserSign)
+	    	isAllowed = hasSuper || isAllowedTo(player, "commandSigns.super.fakeuser");
+	    if (costSign)
+	    	isAllowed = hasSuper || isAllowedTo(player, "commandSigns.super.cost");
+	    if (elevatedPermissionSign)
+	    	isAllowed = hasSuper || isAllowedTo(player, "commandSigns.super.elevated");
+	
+	    return isAllowed;
+	}
 }
