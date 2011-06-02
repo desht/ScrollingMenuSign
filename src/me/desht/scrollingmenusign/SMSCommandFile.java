@@ -108,6 +108,8 @@ public class SMSCommandFile {
 	}
 
 	private void executeCommand(String command, Player player, Set<String> history) {
+		if (command.length() == 0) return;
+		
 		Pattern pattern = Pattern.compile("^(%|cs:)(.+)");
 		Matcher matcher = pattern.matcher(command);
 		if (matcher.find()) {
