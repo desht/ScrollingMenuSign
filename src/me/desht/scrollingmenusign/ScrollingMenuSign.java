@@ -173,10 +173,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	// remove a menu completely
-	void removeMenu(String menuName, MenuRemoveAction action) {
+	void removeMenu(String menuName, MenuRemoveAction action) throws SMSNoSuchMenuException {
 		SMSMenu menu = getMenu(menuName);
-		if (menu == null) return;
-		
 		if (action == MenuRemoveAction.DESTROY_SIGN) {
 			menu.destroySigns();
 		} else if (action == MenuRemoveAction.BLANK_SIGN) {
@@ -190,12 +188,11 @@ public class ScrollingMenuSign extends JavaPlugin {
 	
 	// remove the sign at location loc
 	// This doesn't cause the menu to be removed - a menu can have 0 signs
-	void removeMenu(Location loc, MenuRemoveAction action) {		
+	void removeMenu(Location loc, MenuRemoveAction action) throws SMSNoSuchMenuException {		
 		String menuName = getMenuName(loc);
 	
 		if (menuName != null) {
 			SMSMenu menu = getMenu(menuName);
-			if (menu == null) return;
 			if (action == MenuRemoveAction.DESTROY_SIGN) {
 				menu.destroySign(loc);
 			} else if (action == MenuRemoveAction.BLANK_SIGN) {
@@ -207,10 +204,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	// add a new synchronised sign to an existing menu
-	void syncMenu(String menuName, Location location) {
+	void syncMenu(String menuName, Location location) throws SMSNoSuchMenuException {
 		SMSMenu menu = getMenu(menuName);
-		if (menu == null) return;
-		
 		menuLocations.put(location, menuName);
 		menu.addSign(location);
 		menu.updateSigns();
@@ -220,7 +215,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 		return menus;
 	}
 	
-	SMSMenu getMenu(String menuName) {	
+	Boolean checkForMenu(String menuName) {
+		return menus.containsKey(menuName);
+	}
+	
+	SMSMenu getMenu(String menuName) throws SMSNoSuchMenuException {
+		if (!menus.containsKey(menuName))
+			throw new SMSNoSuchMenuException("No such menu '" + menuName + "'.");
 		return menus.get(menuName);
 	}
 	
@@ -295,10 +296,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 		if (configItems.get(key) instanceof Boolean) {
 			Boolean bVal = false;
-			if (val.equals("false")) {
+			if (val.equals("false") || val.equals("no")) {
 				bVal = false;
-			} else if (val.equals("true")) {
+			} else if (val.equals("true") || val.equals("yes")) {
 				bVal = true;
+			} else {
+				error_message(player, "Invalid boolean value " + val + " - use true/yes or false/no.");
+				return;
 			}
 			getConfiguration().setProperty(key, bVal);
 		} else if (configItems.get(key) instanceof Integer) {
@@ -325,12 +329,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 		return res;
 	}
 
-	void setTitle(Player player, String menuName, String newTitle) {
+	void setTitle(Player player, String menuName, String newTitle) throws SMSNoSuchMenuException {
 		SMSMenu menu = getMenu(menuName);
-		if (menu == null) {
-			error_message(player, "No such menu: " + menuName);
-			return;
-		}
 		menu.setTitle(parseColourSpec(player, newTitle));
 		status_message(player, "title for '" + menuName + "' is now '" + newTitle + "'");
 		menu.updateSigns();
