@@ -28,14 +28,14 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 
 @SuppressWarnings("serial")
 public class ScrollingMenuSign extends JavaPlugin {
-	public static enum MenuRemoveAction { DESTROY_SIGN, BLANK_SIGN, DO_NOTHING };
-	public Logger logger = Logger.getLogger("Minecraft");
-	public static PluginDescriptionFile description;
-	public static final String directory = "plugins" + File.separator + "ScrollingMenuSign";
+	static enum MenuRemoveAction { DESTROY_SIGN, BLANK_SIGN, DO_NOTHING };
+	Logger logger = Logger.getLogger("Minecraft");
+	static PluginDescriptionFile description;
+	static final String directory = "plugins" + File.separator + "ScrollingMenuSign";
 
-	public PermissionHandler permissionHandler;
-	public CommandSignsHandler csHandler;
-	public SMSCommandFile commandFile;
+	PermissionHandler permissionHandler;
+	CommandSignsHandler csHandler;
+	SMSCommandFile commandFile;
 	
 	private final SMSPlayerListener signListener = new SMSPlayerListener(this);
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
@@ -135,13 +135,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	}
 
-	public void setupCommandFile() {
+	private void setupCommandFile() {
 		if (commandFile == null) {
 			commandFile = new SMSCommandFile(this);
 		}
 	}
 
-	public Boolean isAllowedTo(Player player, String node) {
+	Boolean isAllowedTo(Player player, String node) {
 		if (player == null) return true;
 		// if Permissions is in force, then it overrides op status
 		if (permissionHandler != null) {
@@ -151,7 +151,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 	
-	public Boolean isAllowedTo(Player player, String node, Boolean okNotOp) {
+	Boolean isAllowedTo(Player player, String node, Boolean okNotOp) {
 		if (player == null) return true;
 		// if Permissions is in force, then it overrides op status
 		if (permissionHandler != null) {
@@ -162,7 +162,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	// add a new menu
-	public void addMenu(String menuName, SMSMenu menu, Boolean updateSign) {
+	void addMenu(String menuName, SMSMenu menu, Boolean updateSign) {
 		menus.put(menuName, menu);
 		for (Location l: menu.getLocations().keySet()) {
 			menuLocations.put(l, menuName);
@@ -173,7 +173,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	// remove a menu completely
-	public void removeMenu(String menuName, MenuRemoveAction action) {
+	void removeMenu(String menuName, MenuRemoveAction action) {
 		SMSMenu menu = getMenu(menuName);
 		if (menu == null) return;
 		
@@ -190,7 +190,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	
 	// remove the sign at location loc
 	// This doesn't cause the menu to be removed - a menu can have 0 signs
-	public void removeMenu(Location loc, MenuRemoveAction action) {		
+	void removeMenu(Location loc, MenuRemoveAction action) {		
 		String menuName = getMenuName(loc);
 	
 		if (menuName != null) {
@@ -207,7 +207,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	// add a new synchronised sign to an existing menu
-	public void syncMenu(String menuName, Location location) {
+	void syncMenu(String menuName, Location location) {
 		SMSMenu menu = getMenu(menuName);
 		if (menu == null) return;
 		
@@ -216,29 +216,29 @@ public class ScrollingMenuSign extends JavaPlugin {
 		menu.updateSigns();
 	} 
 	
-	public HashMap<String, SMSMenu> getMenus() {
+	HashMap<String, SMSMenu> getMenus() {
 		return menus;
 	}
 	
-	public SMSMenu getMenu(String menuName) {	
+	SMSMenu getMenu(String menuName) {	
 		return menus.get(menuName);
 	}
 	
-	public String getMenuName(Location loc) {
+	String getMenuName(Location loc) {
 		return menuLocations.get(loc);
 	}
 
-	public void load() {
+	void load() {
 		persistence.load();
 		commandFile.loadCommands();
 	}
 	
-	public void save() {
+	void save() {
 		persistence.save();
 		commandFile.saveCommands();
 	}
 
-	public void status_message(Player player, String string) {
+	void status_message(Player player, String string) {
 		if (player != null) {
 			player.sendMessage(ChatColor.AQUA + string);
 		} else {
@@ -246,7 +246,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 
-	public void error_message(Player player, String string) {
+	void error_message(Player player, String string) {
 		if (player != null) {
 			player.sendMessage(ChatColor.RED + string);
 		} else {
@@ -254,12 +254,12 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 	
-	public void log(Level level, String message) {
+	void log(Level level, String message) {
 		String logMsg = this.getDescription().getName() + ": " + message;
 		logger.log(level, logMsg);
     }
 
-	public String parseColourSpec(Player player, String spec) {
+	String parseColourSpec(Player player, String spec) {
 		if (player == null ||
 				isAllowedTo(player, "scrollingmenusign.coloursigns") || 
 				isAllowedTo(player, "scrollingmenusign.colorsigns"))
@@ -272,7 +272,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	// Return the name of the menu sign that the player is looking at, if any
-	public String getTargetedMenuSign(Player player, Boolean complain) {
+	String getTargetedMenuSign(Player player, Boolean complain) {
 		Block b = player.getTargetBlock(null, 3);
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
 			if (complain) error_message(player, "You are not looking at a sign.");
@@ -284,7 +284,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		return name;
 	}
 
-	public void setConfigItem(Player player, String key, String val) {
+	void setConfigItem(Player player, String key, String val) {
 		if (key.length() < 5 || !key.substring(0, 4).equals("sms.")) {
 			key = "sms." + key;
 		}
@@ -316,7 +316,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	// return a sorted list of all config keys
-	public List<String> getConfigList() {
+	List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
 		for (String k : configItems.keySet()) {
 			res.add(k + " = " + getConfiguration().getString(k));
@@ -325,7 +325,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		return res;
 	}
 
-	public void setTitle(Player player, String menuName, String newTitle) {
+	void setTitle(Player player, String menuName, String newTitle) {
 		SMSMenu menu = getMenu(menuName);
 		if (menu == null) {
 			error_message(player, "No such menu: " + menuName);
@@ -336,7 +336,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		menu.updateSigns();
 	}
 
-	public String deColourise(String s) {
+	String deColourise(String s) {
 		return s.replaceAll("\u00A7.", "");
 	}
 
