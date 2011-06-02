@@ -276,9 +276,44 @@ public class SMSCommandExecutor implements CommandExecutor {
 			msg = entry_args[2];
 		}
 		String label = plugin.parseColourSpec(player, entry_args[0]);
-		menu.add(label, entry_args[1], msg);
-		menu.updateSigns();
-		plugin.status_message(player, "Menu entry [" + entry_args[0] + "] added to: " + menuName);
+		if (validateCommandPerms(player, entry_args[1])) {
+			menu.add(label, entry_args[1], msg);
+			menu.updateSigns();
+			plugin.status_message(player, "Menu entry [" + entry_args[0] + "] added to: " + menuName);
+		} else {
+			plugin.error_message(player, "You do not have permission to add that kind of command.");
+		}
+	}
+
+	private boolean validateCommandPerms(Player player, String cmd) {
+		boolean restrictedSign = false;
+        boolean fakeUserSign = false;
+        boolean costSign = false;
+        boolean elevatedPermissionSign = false;
+        
+        int index;
+        if((index = cmd.indexOf("@")) != -1 && (index == 0 || cmd.charAt(index - 1) != '/'))
+        	restrictedSign = true;
+        if(cmd.contains("/*"))
+        	fakeUserSign = true;
+        if(cmd.contains("$"))
+        	costSign = true;
+        if(cmd.contains("/@"))
+        	elevatedPermissionSign = true;
+
+        boolean isAllowed = true;
+
+        boolean hasSuper = plugin.isAllowedTo(player, "commandSigns.super");
+        if (restrictedSign)
+        	isAllowed = hasSuper || plugin.isAllowedTo(player, "commandSigns.super.restricted");
+        if (fakeUserSign)
+        	isAllowed = hasSuper || plugin.isAllowedTo(player, "commandSigns.super.fakeuser");
+        if (costSign)
+        	isAllowed = hasSuper || plugin.isAllowedTo(player, "commandSigns.super.cost");
+        if (elevatedPermissionSign)
+        	isAllowed = hasSuper || plugin.isAllowedTo(player, "commandSigns.super.elevated");
+
+        return isAllowed;
 	}
 
 	private void removeSMSItem(Player player, String[] args) {
