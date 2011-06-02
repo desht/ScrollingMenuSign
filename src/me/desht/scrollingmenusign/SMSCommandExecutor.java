@@ -98,7 +98,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		
 		if (player != null) {
 			Block b = player.getTargetBlock(null, 3);
-			if (b.getType() == Material.SIGN_POST && b.getType() == Material.WALL_SIGN) {
+			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
 				if (plugin.getMenuName(b.getLocation()) != null) {
 					plugin.error_message(player, "There is already a menu attached to that sign.");
 					return;
