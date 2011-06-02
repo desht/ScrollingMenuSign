@@ -287,22 +287,24 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		String menuName = args[1];
-		int index;
-		try {
-			index = Integer.parseInt(args[2]);
-		} catch (NumberFormatException e) {
-			plugin.error_message(player, "Item index must be numeric");
-			return;
-		}
+		int index = -1;
 		
 		SMSMenu menu = plugin.getMenu(menuName);
 		if (menu == null) {
 			plugin.error_message(player, "Unknown menu name: " + menuName);
 			return;
 		}
-		menu.remove(index);
-		menu.updateSigns();
-		plugin.status_message(player, "Menu entry #" + index + " removed from: " + menuName);
+		try {
+			index = Integer.parseInt(args[2]);
+			menu.remove(index);
+			menu.updateSigns();
+			plugin.status_message(player, "Menu entry #" + index + " removed from: " + menuName);
+		} catch (NumberFormatException e) {
+			plugin.error_message(player, "Item index must be numeric");
+			return;
+		} catch (IndexOutOfBoundsException e) {
+			plugin.error_message(player, "Item index " + index + " out of range");
+		}
 	}
 
 	private void setConfig(Player player, String[] args) {
