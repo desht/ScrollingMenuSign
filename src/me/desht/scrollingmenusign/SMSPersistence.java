@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,6 +89,9 @@ public class SMSPersistence {
         	}        	
         } catch (FileNotFoundException e) {
             plugin.log(Level.SEVERE, "menu file '" + f + "' was not found.");
+        } catch (Exception e) {
+        	plugin.log(Level.SEVERE, "caught exception loading " + f + ": " + e.getMessage());
+        	backupMenuFile(f);
         }
         
 	}
@@ -147,7 +152,7 @@ public class SMSPersistence {
 		
 		List<Map<String,String>>items = (List<Map<String, String>>) menuData.get("items");
 		for (Map<String,String> item : items) {
-			menu.add(item.get("label"), item.get("command"), item.get("message"));
+			menu.addItem(item.get("label"), item.get("command"), item.get("message"));
 		}
 		
 		menu.updateSigns();
@@ -161,5 +166,43 @@ public class SMSPersistence {
         } else {
         	throw new IllegalArgumentException("World " + worldName + " was not found on the server.");
         }
+    }
+	
+	void backupMenuFile(File original) {
+        try {
+        	File backup = getBackupFileName(original.getParentFile(), menuFile);
+
+            plugin.log(Level.INFO, "An error occurred while loading the menus file, so a backup copy of "
+                + original + " is being created. The backup can be found at " + backup.getPath());
+            copy(original, backup);
+        } catch (IOException e) {
+            plugin.log(Level.SEVERE, "Error while trying to write backup file: " + e);
+        }
+    }
+	
+	static void copy(File src, File dst) throws IOException {
+        InputStream in = new FileInputStream(src);
+        OutputStream out = new FileOutputStream(dst);
+
+        // Transfer bytes from in to out
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+        in.close();
+        out.close();
+}
+
+    static File getBackupFileName(File parentFile, String template) {
+        String ext = ".BACKUP.";
+        File backup;
+        int idx = 0;
+
+        do {
+            backup = new File(parentFile, template + ext + idx);
+            idx++;
+        } while (backup.exists());
+        return backup;
     }
 }	

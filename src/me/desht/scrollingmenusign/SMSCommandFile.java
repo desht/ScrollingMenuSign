@@ -47,6 +47,7 @@ public class SMSCommandFile {
 			plugin.log(Level.SEVERE, "commands file '" + f + "' was not found.");
 		} catch (Exception e) {
 			plugin.log(Level.SEVERE, "caught exception loading " + f + ": " + e.getMessage());
+			backupCommandsFile(f);
 		}
 		if (cmdSet == null) cmdSet = new HashMap<String,List<String>>();
 		plugin.log(Level.INFO, "read " + cmdSet.size() + " macros from file.");
@@ -55,7 +56,7 @@ public class SMSCommandFile {
 	public void saveCommands() {
 		Yaml yaml = new Yaml();
 		File f = new File(plugin.getDataFolder(), commandFile);
-		plugin.log(Level.INFO, "Saving " + cmdSet.size() + " macros to file...");
+		if (cmdSet != null)	plugin.log(Level.INFO, "Saving " + cmdSet.size() + " macros to file...");
 		try {
 			yaml.dump(cmdSet, new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8")));
 		} catch (IOException e) {
@@ -135,5 +136,17 @@ public class SMSCommandFile {
 		} else {
 			player.chat(command);
 		}
+	}
+
+	private void backupCommandsFile(File original) {
+		try {
+        	File backup = SMSPersistence.getBackupFileName(original.getParentFile(), commandFile);
+
+            plugin.log(Level.INFO, "An error occurred while loading the commands file, so a backup copy of "
+                + original + " is being created. The backup can be found at " + backup.getPath());
+            SMSPersistence.copy(original, backup);
+        } catch (IOException e) {
+            plugin.log(Level.SEVERE, "Error while trying to write backup file: " + e);
+        }
 	}
 }

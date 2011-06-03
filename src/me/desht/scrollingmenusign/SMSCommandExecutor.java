@@ -259,7 +259,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String msg = entry_args.length >= 3 ? entry_args[2] : "";
 
 		if (plugin.validateCommandPerms(player, cmd)) {
-			menu.add(label, cmd, msg);
+			menu.addItem(label, cmd, msg);
 			menu.updateSigns();
 			plugin.status_message(player, "Menu entry [" + label + "] added to: " + menuName);
 		} else {
@@ -278,7 +278,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		try {
 			index = Integer.parseInt(args[2]);
 			SMSMenu menu = plugin.getMenu(menuName);
-			menu.remove(index);
+			menu.removeItem(index);
 			menu.updateSigns();
 			plugin.status_message(player, "Menu entry #" + index + " removed from: " + menuName);
 		} catch (NumberFormatException e) {

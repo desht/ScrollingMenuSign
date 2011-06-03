@@ -37,7 +37,7 @@ public class SMSMenu {
 		locations = new HashMap<Location, Integer>();
 		if (l != null) locations.put(l, 0);
 		for (SMSMenuItem item: other.getItems()) {
-			add(item.getLabel(), item.getCommand(), item.getMessage());
+			addItem(item.getLabel(), item.getCommand(), item.getMessage());
 		}
 	}
 
@@ -93,13 +93,13 @@ public class SMSMenu {
 	}
 	
 	// add a new item to the menu
-	public void add(String label, String command, String message) {
+	public void addItem(String label, String command, String message) {
 		SMSMenuItem item = new SMSMenuItem(label, command, message);
 		items.add(item);
 	}
 	
 	// remove an item from the menu
-	public void remove(int index) {
+	public void removeItem(int index) {
 		// Java is 0-indexed, our signs are 1-indexed
 		items.remove(index - 1);
 		for (Location l : locations.keySet()) {
