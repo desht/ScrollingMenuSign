@@ -18,6 +18,6 @@ public class SMSNoSuchMenuException extends Exception {
 	}
 
 	public String getError() {
-		return error;
+		return error == null ? getMessage() : error;
 	}
 }
