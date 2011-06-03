@@ -100,13 +100,15 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 
 	private void configInitialise() {
+		Boolean saveNeeded = false;
 		Configuration config = getConfiguration();
 		for (String k : configItems.keySet()) {
 			if (config.getProperty(k) == null) {
+				saveNeeded = true;
 				config.setProperty(k, configItems.get(k));
 			}
 		}
-		config.save();
+		if (saveNeeded) config.save();
 	}
 
 	private void setupPermissions() {
