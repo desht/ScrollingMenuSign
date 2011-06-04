@@ -86,7 +86,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 	}
 
 	private void createSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException {
-		if (args.length < 2) {
+		if (args.length < 3) {
 			plugin.error_message(player, "Usage: sms create <menu-name> <title>");
 			plugin.error_message(player, "   or: sms create <menu-name> from <other-menu-name>");
 			return;
