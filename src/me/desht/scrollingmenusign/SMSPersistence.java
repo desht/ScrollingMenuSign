@@ -86,6 +86,17 @@ public class SMSPersistence {
         			createMenuSign(k, entry);
         		}
         		plugin.log(Level.INFO, "read " + menuMap.size() + " menus from file.");
+                // now delete any menus which are in-game but not in the loaded map file
+        		List<String> staleMenus = new ArrayList<String>();
+        		for (String menuName : plugin.getMenus().keySet()) {
+        			if (!menuMap.containsKey(menuName)) {
+        				staleMenus.add(menuName);
+        			}
+        		}
+        		for (String stale : staleMenus) {
+    				plugin.log(Level.INFO, "deleted stale menu '" + stale + "'.");
+        			plugin.removeMenu(stale, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
+        		}
         	}        	
         } catch (FileNotFoundException e) {
             plugin.log(Level.SEVERE, "menu file '" + f + "' was not found.");
@@ -93,7 +104,7 @@ public class SMSPersistence {
         	plugin.log(Level.SEVERE, "caught exception loading " + f + ": " + e.getMessage());
         	backupMenuFile(f);
         }
-        
+         
 	}
 
 	private List<Object> makeBlockList(Location l) {
@@ -128,16 +139,11 @@ public class SMSPersistence {
 		if (menuData.get("locations") != null) {
 			// v0.3 or newer format - multiple locations per menu
 			List<List<Object>> l0 = (List<List<Object>>) menuData.get("locations");
-			List<Location> locs = new ArrayList<Location>();
-			for (List<Object> l: l0) {
-				World w = plugin.getServer().getWorld((String) l.get(0));
-				locs.add(new Location(w, (Integer)l.get(1), (Integer)l.get(2), (Integer)l.get(3)));
-			}
 			menu = new SMSMenu(menuName, title, owner, null);
-			if (locs.size() > 0) {
-				for (int i = 0; i < locs.size(); i++) {
-					menu.addSign(locs.get(i));
-				}
+			for (List<Object> l: l0) {
+				World w = findWorld((String) l.get(0));
+				Location loc = new Location(w, (Integer)l.get(1), (Integer)l.get(2), (Integer)l.get(3));
+				menu.addSign(loc);
 			}
 		} else {
 			// v0.2 or older
