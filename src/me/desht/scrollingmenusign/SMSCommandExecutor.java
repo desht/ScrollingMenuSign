@@ -127,7 +127,8 @@ public class SMSCommandExecutor implements CommandExecutor {
 	private void deleteSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException {
 		String menuName = null;
 		if (args.length >= 2) {
-			plugin.removeMenu(args[1], ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
+			menuName = args[1];
+			plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 		} else {
 			if (onConsole(player)) return;
 			menuName = plugin.getTargetedMenuSign(player, true);
@@ -273,19 +274,17 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		String menuName = args[1];
-		int index = -1;
-		
+		String item = args[2];
+
 		try {
-			index = Integer.parseInt(args[2]);
 			SMSMenu menu = plugin.getMenu(menuName);
-			menu.removeItem(index);
+			menu.removeItem(item);
 			menu.updateSigns();
-			plugin.status_message(player, "Menu entry #" + index + " removed from: " + menuName);
-		} catch (NumberFormatException e) {
-			plugin.error_message(player, "Item index must be numeric");
-			return;
+			plugin.status_message(player, "Menu entry #" + item + " removed from: " + menuName);
 		} catch (IndexOutOfBoundsException e) {
-			plugin.error_message(player, "Item index " + index + " out of range");
+			plugin.error_message(player, "Item index " + item + " out of range");
+		} catch (IllegalArgumentException e) {
+			plugin.error_message(player, e.getMessage());
 		}
 	}
 
@@ -412,7 +411,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		} else {
 			// just dump the whole message buffer to the console
 			for (String s: messageBuffer) {
-				plugin.status_message(null, plugin.deColourise(s));
+				plugin.status_message(null, ScrollingMenuSign.deColourise(s));
 			}
 		}
 	}

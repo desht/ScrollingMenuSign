@@ -338,38 +338,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		menu.updateSigns();
 	}
 
-	String deColourise(String s) {
+	static String deColourise(String s) {
 		return s.replaceAll("\u00A7.", "");
-	}
-
-	boolean validateCommandPerms(Player player, String cmd) {
-		boolean restrictedSign = false;
-	    boolean fakeUserSign = false;
-	    boolean costSign = false;
-	    boolean elevatedPermissionSign = false;
-	    
-	    int index;
-	    if((index = cmd.indexOf("@")) != -1 && (index == 0 || cmd.charAt(index - 1) != '/'))
-	    	restrictedSign = true;
-	    if(cmd.contains("/*"))
-	    	fakeUserSign = true;
-	    if(cmd.contains("$"))
-	    	costSign = true;
-	    if(cmd.contains("/@"))
-	    	elevatedPermissionSign = true;
-	
-	    boolean isAllowed = true;
-	
-	    boolean hasSuper = isAllowedTo(player, "commandSigns.super");
-	    if (restrictedSign)
-	    	isAllowed = hasSuper || isAllowedTo(player, "commandSigns.super.restricted");
-	    if (fakeUserSign)
-	    	isAllowed = hasSuper || isAllowedTo(player, "commandSigns.super.fakeuser");
-	    if (costSign)
-	    	isAllowed = hasSuper || isAllowedTo(player, "commandSigns.super.cost");
-	    if (elevatedPermissionSign)
-	    	isAllowed = hasSuper || isAllowedTo(player, "commandSigns.super.elevated");
-	
-	    return isAllowed;
 	}
 }

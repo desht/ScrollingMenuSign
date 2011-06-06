@@ -99,8 +99,27 @@ public class SMSMenu {
 	}
 	
 	// remove an item from the menu
+	public void removeItem(String indexStr) {
+		int index = -1;
+		try {
+			index = Integer.parseInt(indexStr);
+		} catch (NumberFormatException e) {
+			// not an integer - try to remove by label
+			for (int i = 0; i < items.size(); i++) {
+				String label = ScrollingMenuSign.deColourise(items.get(i).getLabel());
+				if (indexStr.equalsIgnoreCase(label)) {
+					index = i + 1;
+					break;
+				}
+			}
+			if (index == -1) throw new IllegalArgumentException("No such label '" + indexStr + "'.");
+		}
+		removeItem(index);
+	}
+	
+	// remove an item from the menu by numeric index (index is 1-based)
 	public void removeItem(int index) {
-		// Java is 0-indexed, our signs are 1-indexed
+		// Java lists are 0-indexed, our signs are 1-indexed
 		items.remove(index - 1);
 		for (Location l : locations.keySet()) {
 			if (locations.get(l) >= items.size()) {
