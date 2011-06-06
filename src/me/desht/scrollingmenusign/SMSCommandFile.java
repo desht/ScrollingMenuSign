@@ -25,12 +25,12 @@ public class SMSCommandFile {
 	private ScrollingMenuSign plugin = null;
 	Map<String,List<String>> cmdSet;
 	
-	public SMSCommandFile(ScrollingMenuSign plugin) {
+	SMSCommandFile(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
 	}
 
 	@SuppressWarnings("unchecked")
-	public void loadCommands() {
+	void loadCommands() {
 		File f = new File(plugin.getDataFolder(), commandFile);
 		if (!f.exists()) { // create empty file if doesn't already exist
             try {
@@ -53,7 +53,7 @@ public class SMSCommandFile {
 		plugin.log(Level.INFO, "read " + cmdSet.size() + " macros from file.");
 	}
 
-	public void saveCommands() {
+	void saveCommands() {
 		Yaml yaml = new Yaml();
 		File f = new File(plugin.getDataFolder(), commandFile);
 		if (cmdSet != null)	plugin.log(Level.INFO, "Saving " + cmdSet.size() + " macros to file...");
@@ -65,21 +65,21 @@ public class SMSCommandFile {
 		
 	}
 
-	public void addCommand(String commandSet, String cmd) {
+	void addCommand(String commandSet, String cmd) {
 		List<String> c = getCommands(commandSet);
 		c.add(cmd);
 	}
 	
-	public void insertCommand(String commandSet, String cmd, int index) {
+	void insertCommand(String commandSet, String cmd, int index) {
 		List<String> c = getCommands(commandSet);
 		c.add(index, cmd);
 	}
 	
-	public Set<String> getCommands() {
+	Set<String> getCommands() {
 		return cmdSet.keySet();
 	}
 	
-	public List<String> getCommands(String commandSet) {
+	List<String> getCommands(String commandSet) {
 		List<String> c = cmdSet.get(commandSet);
 		if (c == null) {
 			c = new ArrayList<String>();
@@ -88,16 +88,16 @@ public class SMSCommandFile {
 		return c;
 	}
 	
-	public void removeCommand(String commandSet) {
+	void removeCommand(String commandSet) {
 		cmdSet.remove(commandSet);
 	}
 	
-	public void removeCommand(String commandSet, int index) {
+	void removeCommand(String commandSet, int index) {
 		cmdSet.get(commandSet).remove(index);
 	}
 	
 	
-	public void executeCommand(String command, Player player) {
+	void executeCommand(String command, Player player) {
 		executeCommand(command, player, new HashSet<String>());
 	}
 	
