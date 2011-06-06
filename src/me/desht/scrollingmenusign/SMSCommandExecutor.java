@@ -258,7 +258,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String cmd = entry_args[1];
 		String msg = entry_args.length >= 3 ? entry_args[2] : "";
 
-		if (plugin.validateCommandPerms(player, cmd)) {
+		if (plugin.csHandler == null || plugin.csHandler.hasEnablingPermissions(player, cmd)) {
 			menu.addItem(label, cmd, msg);
 			menu.updateSigns();
 			plugin.status_message(player, "Menu entry [" + label + "] added to: " + menuName);
