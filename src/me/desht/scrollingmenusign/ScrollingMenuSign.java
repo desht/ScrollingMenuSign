@@ -47,6 +47,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("sms.always_use_commandsigns", true);
+		put("sms.autosave", true);
 		put("sms.menuitem_separator", "\\|");
 		put("sms.actions.leftclick.normal", "execute");
 		put("sms.actions.leftclick.sneak", "none");
@@ -85,17 +86,19 @@ public class ScrollingMenuSign extends JavaPlugin {
 		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 			@Override
 			public void run() {
-				load();
+				loadMenus();
 			}
 		})==-1) {
 			log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
-			load();
+			loadMenus();
 		}
+		loadMacros();
 	}
 
 	@Override
 	public void onDisable() {
-		save();
+		saveMenus();
+		saveMacros();
 		logger.info(description.getName() + " version " + description.getVersion() + " is disabled!" );
 	}
 
@@ -231,13 +234,19 @@ public class ScrollingMenuSign extends JavaPlugin {
 		return menuLocations.get(loc);
 	}
 
-	void load() {
+	void loadMenus() {
 		persistence.load();
+	}
+	
+	void loadMacros() {
 		commandFile.loadCommands();
 	}
 	
-	void save() {
+	void saveMenus() {
 		persistence.save();
+	}
+	
+	void saveMacros() {
 		commandFile.saveCommands();
 	}
 

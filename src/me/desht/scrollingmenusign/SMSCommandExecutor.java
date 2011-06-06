@@ -62,9 +62,9 @@ public class SMSCommandExecutor implements CommandExecutor {
     			} else if (partialMatch(args[0], "rem")) {	// remove
     				removeSMSItem(player, args);
     			} else if (partialMatch(args[0], "sa")) { 	// save
-    				saveSigns(player, args);
+    				saveCommand(player, args);
     			} else if (partialMatch(args[0], "rel")) {	// reload
-    				reload(player, args);
+    				loadCommand(player, args);
     			} else if (partialMatch(args[0], "g")) {	// getcfg
     				getConfig(player, args);
     			} else if (partialMatch(args[0], "se")) {	// setcfg
@@ -122,6 +122,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		plugin.addMenu(menuName, menu, true);
 		plugin.status_message(player, "Added new scrolling menu: " + menuName);
+		maybeSaveMenus();
 	}
 
 	private void deleteSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException {
@@ -140,6 +141,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			}
 		}
 		plugin.status_message(player, "Deleted scrolling menu: " + menuName);
+		maybeSaveMenus();
 	}
 
 	private void breakSMSSign(Player player, String[] args) throws SMSNoSuchMenuException {
@@ -156,6 +158,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		plugin.status_message(player, "Sign @ " +
 				l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 				" was removed from menu '" + menuName + "'");
+		maybeSaveMenus();
 	}
 
 	private void syncSMSSign(Player player, String[] args) throws SMSNoSuchMenuException {
@@ -179,6 +182,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String menuName = args[1];
 		plugin.syncMenu(menuName, b.getLocation());
 		plugin.status_message(player, "Added sign to scrolling menu: " + menuName);
+		maybeSaveMenus();
 	}
 
 	private void listSMSMenus(Player player, String[] args) {
@@ -238,6 +242,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		plugin.setTitle(player, args[1], combine(args, 2));
+		maybeSaveMenus();
 	}
 
 	private void addSMSItem(Player player, String[] args) throws SMSNoSuchMenuException {	
@@ -266,6 +271,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		} else {
 			plugin.error_message(player, "You do not have permission to add that kind of command.");
 		}
+		maybeSaveMenus();
 	}
 
 	private void removeSMSItem(Player player, String[] args) throws SMSNoSuchMenuException {
@@ -286,6 +292,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		} catch (IllegalArgumentException e) {
 			plugin.error_message(player, e.getMessage());
 		}
+		maybeSaveMenus();
 	}
 
 	private void setConfig(Player player, String[] args) {
@@ -313,14 +320,33 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private void saveSigns(Player player, String[] args) {
-		plugin.save();
-		plugin.status_message(player, "Scrolling menu signs have been saved.");
+	private void saveCommand(Player player, String[] args) {
+		Boolean saveMenus = false;
+		Boolean saveMacros = false;
+		if (args.length < 2 || args[1].equals("menus") || args[1].equals("all")) {
+			saveMenus = true;
+		} else if (args.length < 2 || args[1].equals("macros") || args[1].equals("all")) {
+			saveMacros = true;
+		}
+		if (saveMenus) plugin.saveMenus();
+		if (saveMacros) plugin.saveMacros();
+		plugin.status_message(player, "Save complete.");
 	}
 
-	private void reload(Player player, String[] args) {
-		plugin.getConfiguration().load();
-		plugin.load();
+	private void loadCommand(Player player, String[] args) {
+		Boolean loadMenus = false;
+		Boolean loadMacros = false;
+		Boolean loadConfig = false;
+		if (args.length < 2 || args[1].equals("menus") || args[1].equals("all")) {
+			loadMenus = true;
+		} else if (args.length < 2 || args[1].equals("macros") || args[1].equals("all")) {
+			loadMacros = true;
+		} else if (args.length < 2 || args[1].equals("config") || args[1].equals("all")) {
+			loadConfig = true;
+		}
+		if (loadConfig) plugin.getConfiguration().load();
+		if (loadMenus) plugin.loadMenus();
+		if (loadMacros) plugin.loadMacros();
 		plugin.status_message(player, "Scrolling menu signs have been reloaded.");
 	}
 
@@ -332,6 +358,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			plugin.error_message(player, "       /sms macro remove <macro-name> <index>");
 			return;
 		}
+		Boolean needSave = false;
 		if (partialMatch(args[1], "l")) {			// list
 			messageBuffer.clear();
 			int i = 1;
@@ -354,16 +381,19 @@ public class SMSCommandExecutor implements CommandExecutor {
 				String s = combine(args, 3);
 				plugin.commandFile.addCommand(args[2], s);
 				plugin.status_message(player, "Added command to macro '" + args[2] + "'.");
+				needSave = true;
 			}
 		} else if (partialMatch(args[1], "r")) {	// remove
 			if (args.length < 4) {
 				plugin.commandFile.removeCommand(args[2]);
 				plugin.status_message(player, "Removed macro '" + args[2] + "'.");
+				needSave = true;
 			} else {
 				try { 
 					int index = Integer.parseInt(args[3]);
 					plugin.commandFile.removeCommand(args[2], index - 1);
 					plugin.status_message(player, "Removed command from macro '" + args[2] + "'.");
+					needSave = true;
 				} catch (NumberFormatException e) {
 					plugin.error_message(player, "invalid index " + args[3]);
 				} catch (IndexOutOfBoundsException e) {
@@ -371,6 +401,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 				}
 			}
 		}
+		if (needSave) plugin.saveMacros();
 	}
 
 	private String formatLoc(Location loc) {
@@ -443,6 +474,12 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return true;
 		} else {
 			return false;
+		}
+	}
+
+	private void maybeSaveMenus() {
+		if (plugin.getConfiguration().getBoolean("sms.autosave", false)) {
+			plugin.saveMenus();
 		}
 	}
 }
