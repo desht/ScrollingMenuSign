@@ -15,7 +15,7 @@ commands:
       /sms show [<name>]
       /sms title <name> <new-title>
       /sms add <name> <label|command|message>
-      /sms remove <name> <index>
+      /sms remove <name> <index|label>
       /sms page <page-number>
       /sms getcfg [<key>]
       /sms setcfg <key> <value>
