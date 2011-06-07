@@ -41,6 +41,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
 	private final SMSCommandExecutor commandExecutor = new SMSCommandExecutor(this);
 	private final SMSPersistence persistence = new SMSPersistence(this);
+	private final SMSEntityListener entityListener = new SMSEntityListener(this);
 
 	private HashMap<Location, String> menuLocations = new HashMap<Location, String>();
 	private HashMap<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
@@ -48,6 +49,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("sms.always_use_commandsigns", true);
 		put("sms.autosave", true);
+		put("sms.no_physics", false);
+		put("sms.no_explosions", false);
 		put("sms.menuitem_separator", "\\|");
 		put("sms.actions.leftclick.normal", "execute");
 		put("sms.actions.leftclick.sneak", "none");
@@ -75,6 +78,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
 
 		getCommand("sms").setExecutor(commandExecutor);
 		

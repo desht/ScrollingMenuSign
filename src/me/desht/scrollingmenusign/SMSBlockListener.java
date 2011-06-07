@@ -24,6 +24,8 @@ public class SMSBlockListener extends BlockListener {
 
 	@Override
 	public void onBlockDamage(BlockDamageEvent event) {
+		if (event.isCancelled()) return;
+		
 		Block b = event.getBlock();
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
 			return;
@@ -49,6 +51,8 @@ public class SMSBlockListener extends BlockListener {
 	
 	@Override
 	public void onBlockBreak(BlockBreakEvent event) {
+		if (event.isCancelled()) return;
+		
 		Block b = event.getBlock();
 		Player p = event.getPlayer();
 
@@ -70,23 +74,27 @@ public class SMSBlockListener extends BlockListener {
 
 	@Override
 	public void onBlockPhysics(BlockPhysicsEvent event) {
-		Block b = event.getBlock();
+		if (event.isCancelled()) return;
 		
-		try {
-			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-				String menuName = plugin.getMenuName(b.getLocation());
-				if (menuName != null) {
-					Sign s = (Sign) b.getState().getData();
-					Block attachedBlock = b.getFace(s.getAttachedFace());
-					if (attachedBlock.getTypeId() == 0) {
-						// attached to air? looks like the sign has become detached
-						plugin.removeMenu(menuName, MenuRemoveAction.DO_NOTHING);
+		Block b = event.getBlock();
+		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
+			String menuName = plugin.getMenuName(b.getLocation());
+			if (menuName != null) {
+				if (plugin.getConfiguration().getBoolean("sms.no_physics", false)) {
+					event.setCancelled(true);
+				} else {
+					try {
+						Sign s = (Sign) b.getState().getData();
+						Block attachedBlock = b.getFace(s.getAttachedFace());
+						if (attachedBlock.getTypeId() == 0) {
+							// attached to air? looks like the sign has become detached
+							plugin.removeMenu(menuName, MenuRemoveAction.DO_NOTHING);
+						}
+					} catch (SMSNoSuchMenuException e) {
+						plugin.log(Level.WARNING, e.getError());
 					}
 				}
 			}
-		} catch (SMSNoSuchMenuException e) {
-			plugin.log(Level.WARNING, e.getError());
 		}
 	}
-	
 }
