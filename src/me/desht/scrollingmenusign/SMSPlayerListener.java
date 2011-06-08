@@ -114,7 +114,7 @@ public class SMSPlayerListener extends PlayerListener {
 				return;
 			} else if (plugin.commandFile.hasCommand(macro)) {
 				history.add(macro);
-				sendFeedbackSet(player, plugin.commandFile.getCommands(macro), history);
+				sendFeedback(player, plugin.commandFile.getCommands(macro), history);
 			} else {
 				plugin.error_message(player, "No such macro '" + macro + "'.");
 			}
@@ -123,7 +123,7 @@ public class SMSPlayerListener extends PlayerListener {
 		}	
 	}
 
-	private void sendFeedbackSet(Player player, List<String> messages, Set<String> history) {
+	private void sendFeedback(Player player, List<String> messages, Set<String> history) {
 		for (String m : messages) {
 			sendFeedback(player, m, history);
 		}
