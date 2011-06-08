@@ -79,6 +79,10 @@ public class SMSCommandFile {
 		return cmdSet.keySet();
 	}
 	
+	Boolean hasCommand(String cmd) {
+		return cmdSet.containsKey(cmd);
+	}
+	
 	List<String> getCommands(String commandSet) {
 		List<String> c = cmdSet.get(commandSet);
 		if (c == null) {
