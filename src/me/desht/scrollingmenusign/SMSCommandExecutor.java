@@ -334,13 +334,20 @@ public class SMSCommandExecutor implements CommandExecutor {
 	private void saveCommand(Player player, String[] args) {
 		Boolean saveMenus = false;
 		Boolean saveMacros = false;
-		if (args.length < 2 || args[1].equals("menus") || args[1].equals("all")) {
-			saveMenus = true;
-		} else if (args.length < 2 || args[1].equals("macros") || args[1].equals("all")) {
-			saveMacros = true;
+		Boolean saveAll = false;
+		if (args.length < 2) {
+			saveAll = true;
+		} else {
+			for (int i = 1 ; i < args.length; i++) {
+				if (args[i].equalsIgnoreCase("menus")) {
+					saveMenus = true;
+				} else if (args[i].equalsIgnoreCase("macros")) {
+					saveMacros = true;
+				}
+			}
 		}
-		if (saveMenus) plugin.saveMenus();
-		if (saveMacros) plugin.saveMacros();
+		if (saveAll || saveMenus) plugin.saveMenus();
+		if (saveAll || saveMacros) plugin.saveMacros();
 		plugin.status_message(player, "Save complete.");
 	}
 
@@ -348,17 +355,24 @@ public class SMSCommandExecutor implements CommandExecutor {
 		Boolean loadMenus = false;
 		Boolean loadMacros = false;
 		Boolean loadConfig = false;
-		if (args.length < 2 || args[1].equals("menus") || args[1].equals("all")) {
-			loadMenus = true;
-		} else if (args.length < 2 || args[1].equals("macros") || args[1].equals("all")) {
-			loadMacros = true;
-		} else if (args.length < 2 || args[1].equals("config") || args[1].equals("all")) {
-			loadConfig = true;
+		Boolean loadAll = false;
+		if (args.length < 2) {
+			loadAll = true;
+		} else {
+			for (int i = 1 ; i < args.length; i++) {
+				if (args[i].equalsIgnoreCase("menus")) {
+					loadMenus = true;
+				} else if (args[i].equalsIgnoreCase("macros")) {
+					loadMacros = true;
+				} else if (args[i].equalsIgnoreCase("config")) {
+					loadConfig = true;
+				}
+			}
 		}
-		if (loadConfig) plugin.getConfiguration().load();
-		if (loadMenus) plugin.loadMenus();
-		if (loadMacros) plugin.loadMacros();
-		plugin.status_message(player, "Scrolling menu signs have been reloaded.");
+		if (loadAll || loadConfig) plugin.getConfiguration().load();
+		if (loadAll || loadMenus) plugin.loadMenus();
+		if (loadAll || loadMacros) plugin.loadMacros();
+		plugin.status_message(player, "Reload complete.");
 	}
 
 	private void doMacroCommand(Player player, String[] args) {
