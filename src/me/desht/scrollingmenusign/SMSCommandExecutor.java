@@ -13,6 +13,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -80,6 +81,8 @@ public class SMSCommandExecutor implements CommandExecutor {
     			}
     		} catch (SMSNoSuchMenuException e) {
     			plugin.error_message(player, e.getError());
+    		} catch (IllegalArgumentException e) {
+    			plugin.error_message(player, e.getMessage());
     		}
     	}
 		return true;
@@ -145,22 +148,30 @@ public class SMSCommandExecutor implements CommandExecutor {
 	}
 
 	private void breakSMSSign(Player player, String[] args) throws SMSNoSuchMenuException {
-		if (onConsole(player)) return;
-		
-		String menuName = plugin.getTargetedMenuSign(player, true);
-		if (menuName == null) {
-			plugin.error_message(player, "You are not looking at a sign.");
-			return;
+		Location l = null;
+		String menuName = null;
+		if (args.length < 2) {
+			if (onConsole(player)) return;
+			menuName = plugin.getTargetedMenuSign(player, true);
+			if (menuName == null)
+				return;
+			Block b = player.getTargetBlock(null, 3);
+			l = b.getLocation();
+		} else {
+			l = parseLocation(args, 1, player);
+			menuName = plugin.getMenuName(l);
+			if (menuName == null) {
+				plugin.error_message(player, "There is no menu at that location.");
+				return;
+			}
 		}
-		Block b = player.getTargetBlock(null, 3);
-		Location l = b.getLocation();
 		plugin.removeMenu(l, MenuRemoveAction.BLANK_SIGN);
 		plugin.status_message(player, "Sign @ " +
 				l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 				" was removed from menu '" + menuName + "'");
 		maybeSaveMenus();
 	}
-
+	
 	private void syncSMSSign(Player player, String[] args) throws SMSNoSuchMenuException {
 		if (onConsole(player)) return;
 		
@@ -480,6 +491,27 @@ public class SMSCommandExecutor implements CommandExecutor {
 	private void maybeSaveMenus() {
 		if (plugin.getConfiguration().getBoolean("sms.autosave", false)) {
 			plugin.saveMenus();
+		}
+	}
+
+	private Location parseLocation(String[] args, int index, Player player) {
+		String s = player == null ? " & worldname" : "";
+		try {
+			int x = 0, y = 0, z = 0;
+			x = Integer.parseInt(args[index]);
+			y = Integer.parseInt(args[index + 1]);
+			z = Integer.parseInt(args[index + 2]);
+			World w;
+			if (player == null) {
+				w = plugin.getServer().getWorld(args[index + 3]);
+			} else {
+				w = player.getWorld();
+			}
+			return new Location(w, x, y, z);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new IllegalArgumentException("You must specify all of x, y, z" + s + ".");
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Invalid location: x, y, z" + s + ".");
 		}
 	}
 }
