@@ -1,5 +1,8 @@
 package me.desht.scrollingmenusign;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
@@ -95,14 +98,37 @@ public class SMSPlayerListener extends PlayerListener {
 		if (item != null) {
 			String command = item.getCommand();
 			plugin.commandFile.executeCommand(command, player);
-			
-			// feedback message, if present
-			if (item.getMessage() != null && item.getMessage().length() > 0) {
-				player.sendMessage(ChatColor.YELLOW + item.getMessage());
-			}
+			sendFeedback(player, item.getMessage(), new HashSet<String>());
 		}
 	}
+	
+	private void sendFeedback(Player player, String message, Set<String> history) {
+		if (message == null || message.length() == 0)
+			return;
+		if (message.length() > 1 && message.startsWith("%")) {
+			// macro expansion
+			String macro = message.substring(1);
+			if (history.contains(macro)) {
+				plugin.log(Level.WARNING, "sendFeedback [" + macro + "]: recursion detected");
+				plugin.error_message(player, "Recursive loop detected in macro " + macro + "!");
+				return;
+			} else if (plugin.commandFile.hasCommand(macro)) {
+				history.add(macro);
+				sendFeedbackSet(player, plugin.commandFile.getCommands(macro), history);
+			} else {
+				plugin.error_message(player, "No such macro '" + macro + "'.");
+			}
+		} else {
+			player.sendMessage(ChatColor.YELLOW + plugin.parseColourSpec(player, message));
+		}	
+	}
 
+	private void sendFeedbackSet(Player player, List<String> messages, Set<String> history) {
+		for (String m : messages) {
+			sendFeedback(player, m, history);
+		}
+	}
+	
 	private void tryToActivateSign(Block b, Player player) {
 		Sign sign = (Sign) b.getState();
 		if (!sign.getLine(0).equals("[sms]"))
