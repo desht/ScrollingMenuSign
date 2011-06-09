@@ -88,7 +88,7 @@ public class SMSBlockListener extends BlockListener {
 						Block attachedBlock = b.getFace(s.getAttachedFace());
 						if (attachedBlock.getTypeId() == 0) {
 							// attached to air? looks like the sign has become detached
-							plugin.removeMenu(menuName, MenuRemoveAction.DO_NOTHING);
+							plugin.removeSignFromMenu(b.getLocation(), MenuRemoveAction.DO_NOTHING);
 						}
 					} catch (SMSNoSuchMenuException e) {
 						plugin.log(Level.WARNING, e.getError());
