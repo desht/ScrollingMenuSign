@@ -165,7 +165,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 				return;
 			}
 		}
-		plugin.removeMenu(l, MenuRemoveAction.BLANK_SIGN);
+		plugin.removeSignFromMenu(l, MenuRemoveAction.BLANK_SIGN);
 		plugin.status_message(player, "Sign @ " +
 				l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 				" was removed from menu '" + menuName + "'");

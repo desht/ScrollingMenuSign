@@ -197,7 +197,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	
 	// remove the sign at location loc
 	// This doesn't cause the menu to be removed - a menu can have 0 signs
-	void removeMenu(Location loc, MenuRemoveAction action) throws SMSNoSuchMenuException {		
+	void removeSignFromMenu(Location loc, MenuRemoveAction action) throws SMSNoSuchMenuException {		
 		String menuName = getMenuName(loc);
 	
 		if (menuName != null) {

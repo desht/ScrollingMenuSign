@@ -61,7 +61,7 @@ public class SMSBlockListener extends BlockListener {
 				String menuName = plugin.getMenuName(b.getLocation());
 				if (menuName != null) {
 					Location l = b.getLocation();
-					plugin.removeMenu(l, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
+					plugin.removeSignFromMenu(l, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
 					plugin.status_message(p, "Sign @ " +
 							l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 							" was removed from menu '" + menuName + "'");
