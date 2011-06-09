@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign;
 
 import java.util.logging.Level;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -22,6 +23,10 @@ public class SMSEntityListener extends EntityListener {
 			if (b.getType() != Material.WALL_SIGN && b.getType() != Material.SIGN_POST) continue;
 			if (plugin.getMenuName(b.getLocation()) == null) continue;
 			if (noExplode) {
+				Location l = b.getLocation();
+				plugin.log(Level.INFO, "stopped an explosion to protect sign @ " +
+					l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() + "," +
+					l.getWorld().getName());
 				event.setCancelled(true);
 				break;
 			} else {
