@@ -158,7 +158,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			Block b = player.getTargetBlock(null, 3);
 			l = b.getLocation();
 		} else {
-			l = parseLocation(args, 1, player);
+			l = parseLocation(args[1], player);
 			menuName = plugin.getMenuName(l);
 			if (menuName == null) {
 				plugin.error_message(player, "There is no menu at that location.");
@@ -431,7 +431,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 
 	private String formatLoc(Location loc) {
 		StringBuilder str = new StringBuilder(ChatColor.WHITE + "@ " +
-			loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + " " +
+			loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + "," +
 			loc.getWorld().getName());
 		Block b = plugin.getServer().getWorld(loc.getWorld().getName()).getBlockAt(loc);
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
@@ -508,24 +508,22 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private Location parseLocation(String[] args, int index, Player player) {
-		String s = player == null ? " & worldname" : "";
+	private Location parseLocation(String arglist, Player player) {
+		String s = player == null ? ",worldname" : "";
+		String args[] = arglist.split(",");
 		try {
-			int x = 0, y = 0, z = 0;
-			x = Integer.parseInt(args[index]);
-			y = Integer.parseInt(args[index + 1]);
-			z = Integer.parseInt(args[index + 2]);
-			World w;
-			if (player == null) {
-				w = plugin.getServer().getWorld(args[index + 3]);
-			} else {
-				w = player.getWorld();
-			}
+			int x = Integer.parseInt(args[0]);
+			int y = Integer.parseInt(args[1]);
+			int z = Integer.parseInt(args[2]);
+			World w = (player == null) ?
+					plugin.getServer().getWorld(args[3]) :
+					player.getWorld();
+			if (w == null) throw new IllegalArgumentException("Unknown world: " + args[3]);
 			return new Location(w, x, y, z);
 		} catch (ArrayIndexOutOfBoundsException e) {
-			throw new IllegalArgumentException("You must specify all of x, y, z" + s + ".");
+			throw new IllegalArgumentException("You must specify all of x,y,z" + s + ".");
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Invalid location: x, y, z" + s + ".");
+			throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
 		}
 	}
 }
