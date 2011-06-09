@@ -160,7 +160,7 @@ public class SMSPlayerListener extends PlayerListener {
 					plugin.error_message(player, "You are not allowed to create scrolling menu signs.");
 					return;
 				}
-				SMSMenu menu = new SMSMenu(name, title, player.getName(), b.getLocation());
+				SMSMenu menu = new SMSMenu(plugin, name, title, player.getName(), b.getLocation());
 				plugin.addMenu(name, menu, true);
 				plugin.status_message(player, "Created new menu sign: " + name);
 			}

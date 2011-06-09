@@ -43,14 +43,17 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSPersistence persistence = new SMSPersistence(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
 
-	private HashMap<Location, String> menuLocations = new HashMap<Location, String>();
-	private HashMap<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
+	private Map<Location, String> menuLocations = new HashMap<Location, String>();
+	private Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
 
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("sms.always_use_commandsigns", true);
 		put("sms.autosave", true);
 		put("sms.no_physics", false);
 		put("sms.no_explosions", false);
+		put("sms.item_prefix.not_selected", "  ");
+		put("sms.item_prefix.selected", "> ");
+		put("sms.item_justify", "left");
 		put("sms.menuitem_separator", "\\|");
 		put("sms.actions.leftclick.normal", "execute");
 		put("sms.actions.leftclick.sneak", "none");
@@ -220,7 +223,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		menu.updateSigns();
 	}
 	
-	HashMap<String, SMSMenu> getMenus() {
+	Map<String, SMSMenu> getMenus() {
 		return menus;
 	}
 	

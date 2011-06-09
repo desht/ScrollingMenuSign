@@ -1,7 +1,6 @@
 package me.desht.scrollingmenusign;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,10 +117,10 @@ public class SMSCommandExecutor implements CommandExecutor {
 		SMSMenu menu = null;
 		if (args.length == 4 && args[2].equals("from")) {
 			SMSMenu otherMenu = plugin.getMenu(args[3]);
-			menu = new SMSMenu(otherMenu, menuName, owner, loc);
+			menu = new SMSMenu(plugin, otherMenu, menuName, owner, loc);
 		} else if (args.length >= 3) {
 			String menuTitle = plugin.parseColourSpec(player, combine(args, 2));
-			menu = new SMSMenu(menuName, menuTitle, owner, loc);
+			menu = new SMSMenu(plugin, menuName, menuTitle, owner, loc);
 		}
 		plugin.addMenu(menuName, menu, true);
 		plugin.status_message(player, "Added new scrolling menu: " + menuName);
@@ -197,7 +196,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 	}
 
 	private void listSMSMenus(Player player, String[] args) {
-		HashMap<String, SMSMenu> menus = plugin.getMenus();	
+		Map<String, SMSMenu> menus = plugin.getMenus();	
 		if (menus.size() == 0) {
 			plugin.status_message(player, "No menu signs exist.");
 			return;

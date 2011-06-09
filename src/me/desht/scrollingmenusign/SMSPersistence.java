@@ -36,7 +36,7 @@ public class SMSPersistence {
 		
 		File f = new File(plugin.getDataFolder(), menuFile);
 
-		HashMap<String, SMSMenu> menus = plugin.getMenus();
+		Map<String, SMSMenu> menus = plugin.getMenus();
 		Iterator<String> iter = menus.keySet().iterator();
 		
 		plugin.log(Level.INFO, "Saving " + menus.size() + " menus to file...");
@@ -139,7 +139,7 @@ public class SMSPersistence {
 		if (menuData.get("locations") != null) {
 			// v0.3 or newer format - multiple locations per menu
 			List<List<Object>> l0 = (List<List<Object>>) menuData.get("locations");
-			menu = new SMSMenu(menuName, title, owner, null);
+			menu = new SMSMenu(plugin, menuName, title, owner, null);
 			for (List<Object> l: l0) {
 				World w = findWorld((String) l.get(0));
 				Location loc = new Location(w, (Integer)l.get(1), (Integer)l.get(2), (Integer)l.get(3));
@@ -150,7 +150,7 @@ public class SMSPersistence {
 			String worldName = (String) menuData.get("world");
 			World w = findWorld(worldName);
 			List<Integer>l = (List<Integer>) menuData.get("location");
-			menu = new SMSMenu(menuName, title, owner,
+			menu = new SMSMenu(plugin, menuName, title, owner,
 					new Location(w, l.get(0), l.get(1), l.get(2)));
 
 		}

@@ -10,16 +10,18 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
 public class SMSMenu {
+	private ScrollingMenuSign plugin;
 	private String name;
 	private String title;
 	private String owner;
 	private ArrayList<SMSMenuItem> items;
-	Map<Location, Integer> locations;
+	Map<Location, Integer> locations;	// maps sign location to scroll pos
 	
 	private static SMSMenuItem blankItem = new SMSMenuItem("", "", "");
 
 	// Construct a new menu
-	public SMSMenu(String n, String t, String o, Location l) {
+	public SMSMenu(ScrollingMenuSign plugin, String n, String t, String o, Location l) {
+		this.plugin = plugin;
 		items = new ArrayList<SMSMenuItem>();
 		name = n;
 		title = t;
@@ -29,7 +31,8 @@ public class SMSMenu {
 	}
 
 	// Construct a new menu which is a copy of otherMenu
-	public SMSMenu(SMSMenu other, String n, String o, Location l) {
+	public SMSMenu(ScrollingMenuSign plugin, SMSMenu other, String n, String o, Location l) {
+		this.plugin = plugin;
 		items = new ArrayList<SMSMenuItem>();
 		name = n;
 		title = other.getTitle();
@@ -174,13 +177,29 @@ public class SMSMenu {
 		
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
-		res[1] = String.format("  %1$-13s", getLine2Item(l).getLabel());
-		res[2] = String.format("> %1$-13s", getLine3Item(l).getLabel());
-		res[3] = String.format("  %1$-13s", getLine4Item(l).getLabel());
+		String prefix1 = plugin.getConfiguration().getString("sms.item_prefix.not_selected", "  ");
+		String prefix2 = plugin.getConfiguration().getString("sms.item_prefix.selected", "> ");
+		
+		res[1] = String.format(make_prefix(prefix1), getLine2Item(l).getLabel());
+		res[2] = String.format(make_prefix(prefix2), getLine3Item(l).getLabel());
+		res[3] = String.format(make_prefix(prefix1), getLine4Item(l).getLabel());
 		
 		return res;
 	}
 
+	private String make_prefix(String prefix) {
+		String just = plugin.getConfiguration().getString("sms.item_justify", "left");
+		int l = 15 - prefix.length();
+		String s = "";
+		if (just.equals("left"))
+			s =  prefix + "%1$-" + l + "s";
+		else if (just.equals("right"))
+			s = prefix + "%1$" + l + "s";
+		else
+			s = prefix + "%1$s";
+		return plugin.parseColourSpec(null, s);
+	}
+	
 	// Get line 2 of the sign (item before the current item, or blank
 	// if the menu has less than 3 items)
 	private SMSMenuItem getLine2Item(Location l) {
