@@ -310,7 +310,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			plugin.error_message(player, "Usage: /sms setcfg <key> <value>");
 			return;
 		}
-		plugin.setConfigItem(player, args[1], args[2]);
+		plugin.setConfigItem(player, args[1], combine(args, 2));
 	}
 
 	private void getConfig(Player player, String[] args) {
