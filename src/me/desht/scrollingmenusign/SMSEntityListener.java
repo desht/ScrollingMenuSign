@@ -21,7 +21,7 @@ public class SMSEntityListener extends EntityListener {
 		Boolean noExplode = plugin.getConfiguration().getBoolean("sms.no_explosions", false);
 		for (Block b : event.blockList()) {
 			if (b.getType() != Material.WALL_SIGN && b.getType() != Material.SIGN_POST) continue;
-			if (plugin.getMenuName(b.getLocation()) == null) continue;
+			if (plugin.getMenuNameAt(b.getLocation()) == null) continue;
 			if (noExplode) {
 				Location l = b.getLocation();
 				plugin.log(Level.INFO, "stopped an explosion to protect sign @ " +

@@ -105,7 +105,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		if (player != null) {
 			Block b = player.getTargetBlock(null, 3);
 			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-				if (plugin.getMenuName(b.getLocation()) != null) {
+				if (plugin.getMenuNameAt(b.getLocation()) != null) {
 					plugin.error_message(player, "There is already a menu attached to that sign.");
 					return;
 				}
@@ -158,7 +158,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			l = b.getLocation();
 		} else {
 			l = parseLocation(args[1], player);
-			menuName = plugin.getMenuName(l);
+			menuName = plugin.getMenuNameAt(l);
 			if (menuName == null) {
 				plugin.error_message(player, "There is no menu at that location.");
 				return;
@@ -184,7 +184,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			plugin.error_message(player, "You are not looking at a sign.");
 			return;
 		}
-		String existingMenu = plugin.getMenuName(b.getLocation());
+		String existingMenu = plugin.getMenuNameAt(b.getLocation());
 		if (existingMenu != null) {
 			plugin.error_message(player, "That sign already belongs to menu '" + existingMenu + "'.");
 			return;
@@ -311,6 +311,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		plugin.setConfigItem(player, args[1], combine(args, 2));
+		if (args[1].matches("item_(justify|prefix.*)")) {
+			plugin.updateAllMenus();
+		}
 	}
 
 	private void getConfig(Player player, String[] args) {
@@ -323,7 +326,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		} else {
 			String res = plugin.getConfiguration().getString(args[1]);
 			if (res != null) {
-				plugin.status_message(player, args[1] + " = " + res);
+				plugin.status_message(player, args[1] + " = '" + res + "'");
 			} else {
 				plugin.error_message(player, "No such config item " + args[1]);
 			}
@@ -368,7 +371,10 @@ public class SMSCommandExecutor implements CommandExecutor {
 				}
 			}
 		}
-		if (loadAll || loadConfig) plugin.getConfiguration().load();
+		if (loadAll || loadConfig) {
+				plugin.getConfiguration().load();
+				plugin.updateAllMenus();
+		}
 		if (loadAll || loadMenus) plugin.loadMenus();
 		if (loadAll || loadMacros) plugin.loadMacros();
 		plugin.status_message(player, "Reload complete.");
@@ -455,7 +461,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			// pretty paged display
 			int nMessages = messageBuffer.size();
 			plugin.status_message(player, ChatColor.GREEN + "" +  nMessages +
-					" lines (page " + pageNum + "/" + (nMessages / pageSize + 1) + ")");
+					" lines (page " + pageNum + "/" + ((nMessages-1) / pageSize + 1) + ")");
 			plugin.status_message(player, ChatColor.GREEN + "---------------");
 			for (int i = (pageNum -1) * pageSize; i < nMessages && i < pageNum * pageSize; i++) {
 				plugin.status_message(player, messageBuffer.get(i));

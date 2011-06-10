@@ -201,7 +201,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	// remove the sign at location loc
 	// This doesn't cause the menu to be removed - a menu can have 0 signs
 	void removeSignFromMenu(Location loc, MenuRemoveAction action) throws SMSNoSuchMenuException {		
-		String menuName = getMenuName(loc);
+		String menuName = getMenuNameAt(loc);
 	
 		if (menuName != null) {
 			SMSMenu menu = getMenu(menuName);
@@ -227,18 +227,24 @@ public class ScrollingMenuSign extends JavaPlugin {
 		return menus;
 	}
 	
-	Boolean checkForMenu(String menuName) {
-		return menus.containsKey(menuName);
-	}
-	
 	SMSMenu getMenu(String menuName) throws SMSNoSuchMenuException {
 		if (!menus.containsKey(menuName))
 			throw new SMSNoSuchMenuException("No such menu '" + menuName + "'.");
 		return menus.get(menuName);
 	}
 	
-	String getMenuName(Location loc) {
+	void updateAllMenus(){
+		for (SMSMenu menu : getMenus().values()) {
+			menu.updateSigns();
+		}
+	}
+	
+	String getMenuNameAt(Location loc) {
 		return menuLocations.get(loc);
+	}
+
+	Boolean checkForMenu(String menuName) {
+		return menus.containsKey(menuName);
 	}
 
 	void loadMenus() {
@@ -297,7 +303,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 			if (complain) error_message(player, "You are not looking at a sign.");
 			return null;
 		}
-		String name = getMenuName(b.getLocation());
+		String name = getMenuNameAt(b.getLocation());
 		if (name == null && complain)
 			error_message(player, "There is no menu associated with that sign.");
 		return name;
@@ -341,7 +347,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
 		for (String k : configItems.keySet()) {
-			res.add(k + " = " + getConfiguration().getString(k));
+			res.add(k + " = '" + getConfiguration().getString(k) + "'");
 		}
 		Collections.sort(res);
 		return res;

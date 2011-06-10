@@ -39,7 +39,7 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 		Player player = event.getPlayer();
 		
-		String menuName = plugin.getMenuName(b.getLocation());
+		String menuName = plugin.getMenuNameAt(b.getLocation());
 		if (menuName == null) {
 			// No menu attached to this sign, but a left-click could create a new menu if the sign's
 			// text is in the right format...
@@ -119,7 +119,7 @@ public class SMSPlayerListener extends PlayerListener {
 				plugin.error_message(player, "No such macro '" + macro + "'.");
 			}
 		} else {
-			player.sendMessage(ChatColor.YELLOW + plugin.parseColourSpec(player, message));
+			player.sendMessage(ChatColor.YELLOW + plugin.parseColourSpec(null, message));
 		}	
 	}
 
@@ -152,7 +152,7 @@ public class SMSPlayerListener extends PlayerListener {
 				} else {
 					plugin.error_message(player, "A menu called '" + name + "' already exists.");
 				}
-			} else if (plugin.getMenuName(b.getLocation()) != null) {
+			} else if (plugin.getMenuNameAt(b.getLocation()) != null) {
 				plugin.error_message(player, "There is already a menu attached to that sign.");
 				return;
 			} else if (title.length() > 0) {
