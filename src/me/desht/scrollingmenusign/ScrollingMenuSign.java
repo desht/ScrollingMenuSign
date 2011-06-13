@@ -118,6 +118,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 				config.setProperty(k, configItems.get(k));
 			}
 		}
+		
+		if (config.getString("sms.menuitem_separator").equals("\\|")) {
+			// special case - convert from v0.3 or older where it was a regexp
+			config.setProperty("sms.menuitem_separator", "|");
+			saveNeeded = true;
+		}
+		
 		if (saveNeeded) config.save();
 	}
 
