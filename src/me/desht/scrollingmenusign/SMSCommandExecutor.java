@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
 
@@ -263,7 +264,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			
 		String menuName = args[1];
 		String sep = plugin.getConfiguration().getString("sms.menuitem_separator", "\\|");
-		String[] entry_args = combine(args, 2).split(sep);		
+		String[] entry_args = combine(args, 2).split(Pattern.quote(sep));		
 		if (entry_args.length < 2) {
 			plugin.error_message(player, "menu-entry must include at least entry label & command");
 			return;
@@ -274,14 +275,14 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String cmd = entry_args[1];
 		String msg = entry_args.length >= 3 ? entry_args[2] : "";
 
-		if (plugin.csHandler == null || plugin.csHandler.hasEnablingPermissions(player, cmd)) {
+		if (plugin.csHandler == null || player == null || plugin.csHandler.hasEnablingPermissions(player, cmd)) {
 			menu.addItem(label, cmd, msg);
 			menu.updateSigns();
 			plugin.status_message(player, "Menu entry [" + label + "] added to: " + menuName);
+			maybeSaveMenus();
 		} else {
 			plugin.error_message(player, "You do not have permission to add that kind of command.");
 		}
-		maybeSaveMenus();
 	}
 
 	private void removeSMSItem(Player player, String[] args) throws SMSNoSuchMenuException {
