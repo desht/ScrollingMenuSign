@@ -21,12 +21,14 @@ public class SMSEntityListener extends EntityListener {
 		Boolean noExplode = plugin.getConfiguration().getBoolean("sms.no_explosions", false);
 		for (Block b : event.blockList()) {
 			if (b.getType() != Material.WALL_SIGN && b.getType() != Material.SIGN_POST) continue;
-			if (plugin.getMenuNameAt(b.getLocation()) == null) continue;
+			String menuName = plugin.getMenuNameAt(b.getLocation());
+			if (menuName == null) continue;
+			plugin.debug("entity explode event @ " + b.getLocation() + ", menu=" + menuName);
 			if (noExplode) {
 				Location l = b.getLocation();
 				plugin.log(Level.INFO, "stopped an explosion to protect sign @ " +
 					l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() + "," +
-					l.getWorld().getName());
+					l.getWorld().getName() + " (menu " + menuName + ")");
 				event.setCancelled(true);
 				break;
 			} else {

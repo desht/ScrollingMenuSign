@@ -34,6 +34,7 @@ public class SMSBlockListener extends BlockListener {
 		if (menuName == null) {
 			return;
 		}
+		plugin.debug("block damage event @ " + b.getLocation() + ", menu=" + menuName);
 		Player p = event.getPlayer();
 		try { 
 			SMSMenu menu = plugin.getMenu(menuName);
@@ -60,6 +61,7 @@ public class SMSBlockListener extends BlockListener {
 			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
 				String menuName = plugin.getMenuNameAt(b.getLocation());
 				if (menuName != null) {
+					plugin.debug("block break event @ " + b.getLocation() + ", menu=" + menuName);
 					Location l = b.getLocation();
 					plugin.removeSignFromMenu(l, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
 					plugin.status_message(p, "Sign @ " +
@@ -80,6 +82,7 @@ public class SMSBlockListener extends BlockListener {
 		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
 			String menuName = plugin.getMenuNameAt(b.getLocation());
 			if (menuName != null) {
+				plugin.debug("block physics event @ " + b.getLocation() + ", menu=" + menuName);
 				if (plugin.getConfiguration().getBoolean("sms.no_physics", false)) {
 					event.setCancelled(true);
 				} else {

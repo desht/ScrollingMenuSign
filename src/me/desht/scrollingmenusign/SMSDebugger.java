@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class SMSDebugger {
@@ -23,6 +24,23 @@ public class SMSDebugger {
 		debuggers.remove(debuggerName(p));
 	}
 	
+	int getDebugLevel(Player p) {
+		String name = debuggerName(p);
+		if (!debuggers.containsKey(name) || debuggers.get(name) == 0) {
+			return 0;
+		} else {
+			return debuggers.get(name);
+		}
+	}
+	
+	void toggleDebug(Player p) {
+		if (getDebugLevel(p) == 0) {
+			addDebugger(p, 1);
+		} else {
+			removeDebugger(p);
+		}
+	}
+	
 	void debug(String message) {
 		debug(message, 1);
 	}
@@ -33,13 +51,12 @@ public class SMSDebugger {
 			if (level >= debuggers.get(name)) {
 				if (name.equals("&console")) {
 					debugMessage(null, message);
-					plugin.status_message(null, message);
 				} else {
 					Player p = plugin.getServer().getPlayer(name);
 					if (p != null) {
 						debugMessage(p, message);
 					} else {
-						debuggers.remove(p);
+						removeDebugger(p);
 					}
 				}
 			}
@@ -57,6 +74,6 @@ public class SMSDebugger {
 	}
 
 	private void debugMessage(Player p, String message) {
-		plugin.status_message(null, message);
+		plugin.status_message(p, ChatColor.DARK_GREEN + "[D] " + ChatColor.GREEN + message);
 	}
 }

@@ -52,7 +52,7 @@ public class SMSCommandExecutor implements CommandExecutor {
     				syncSMSSign(player, args);
     			} else if (partialMatch(args[0], "b")) {	// break
     				breakSMSSign(player, args);
-    			} else if (partialMatch(args[0], "d")) {	// delete
+    			} else if (partialMatch(args[0], "del")) {	// delete
     				deleteSMSMenu(player, args);
     			} else if (partialMatch(args[0], "l")) {	// list
     				listSMSMenus(player, args);
@@ -76,6 +76,8 @@ public class SMSCommandExecutor implements CommandExecutor {
     				pagedDisplay(player, args);
     			} else if (partialMatch(args[0], "m")) {	// macro
     				doMacroCommand(player, args);
+    			} else if (partialMatch(args[0], "deb")) {	// debug
+    				debugCommand(player, args);
     			} else {
     				return false;
     			}
@@ -433,6 +435,16 @@ public class SMSCommandExecutor implements CommandExecutor {
 			}
 		}
 		if (needSave) plugin.saveMacros();
+	}
+
+	private void debugCommand(Player player, String[] args) {
+		plugin.debugger.toggleDebug(player);
+		int level = plugin.debugger.getDebugLevel(player);
+		if (level > 0) {
+			plugin.status_message(player, "Debugging enabled (level " + level + ").");
+		} else {
+			plugin.status_message(player, "Debugging disabled.");
+		}
 	}
 
 	private String formatLoc(Location loc) {

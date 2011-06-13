@@ -29,7 +29,6 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 @SuppressWarnings("serial")
 public class ScrollingMenuSign extends JavaPlugin {
 	static enum MenuRemoveAction { DESTROY_SIGN, BLANK_SIGN, DO_NOTHING };
-	Logger logger = Logger.getLogger("Minecraft");
 	static PluginDescriptionFile description;
 	static final String directory = "plugins" + File.separator + "ScrollingMenuSign";
 
@@ -42,7 +41,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSCommandExecutor commandExecutor = new SMSCommandExecutor(this);
 	private final SMSPersistence persistence = new SMSPersistence(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
-	private final SMSDebugger debugger = new SMSDebugger(this);
+
+	final Logger logger = Logger.getLogger("Minecraft");
+	final SMSDebugger debugger = new SMSDebugger(this);
 
 	private Map<Location, String> menuLocations = new HashMap<Location, String>();
 	private Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
