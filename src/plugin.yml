@@ -1,6 +1,6 @@
 name: ScrollingMenuSign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
-version: 0.4pre
+version: 0.4
 softdepend: [ Permissions, CommandSigns ]
 commands:
   sms:
@@ -20,6 +20,6 @@ commands:
       /sms getcfg [<key>]
       /sms setcfg <key> <value>
       /sms macro <list|add|remove> <macro-name> ...
-      /sms save
-      /sms reload
+      /sms save [<all|menus|macros|config>]
+      /sms reload [<all|menus|macros|config>]
       
