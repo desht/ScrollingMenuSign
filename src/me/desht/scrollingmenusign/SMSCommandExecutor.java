@@ -403,7 +403,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 				}
 			} else {
 				List<String> cmds = plugin.commandFile.getCommands(args[2]);
-				messageBuffer.add(ChatColor.YELLOW + "" + cmds.size() + " commands");
+				messageBuffer.add(ChatColor.YELLOW + "" + cmds.size() + " macro entries");
 				for (String c : cmds) {
 					messageBuffer.add(ChatColor.YELLOW + "" + i++ + ") " + ChatColor.WHITE + c);
 				}
