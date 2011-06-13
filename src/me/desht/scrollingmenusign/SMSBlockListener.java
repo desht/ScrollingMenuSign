@@ -67,6 +67,7 @@ public class SMSBlockListener extends BlockListener {
 					plugin.status_message(p, "Sign @ " +
 							l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 							" was removed from menu '" + menuName + "'");
+					plugin.maybeSaveMenus();
 				}
 			}
 		} catch (SMSNoSuchMenuException e) {
@@ -92,6 +93,7 @@ public class SMSBlockListener extends BlockListener {
 						if (attachedBlock.getTypeId() == 0) {
 							// attached to air? looks like the sign has become detached
 							plugin.removeSignFromMenu(b.getLocation(), MenuRemoveAction.DO_NOTHING);
+							plugin.maybeSaveMenus();
 						}
 					} catch (SMSNoSuchMenuException e) {
 						plugin.log(Level.WARNING, e.getError());

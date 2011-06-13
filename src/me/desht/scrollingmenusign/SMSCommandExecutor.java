@@ -127,7 +127,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		plugin.addMenu(menuName, menu, true);
 		plugin.status_message(player, "Added new scrolling menu: " + menuName);
-		maybeSaveMenus();
+		plugin.maybeSaveMenus();
 	}
 
 	private void deleteSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException {
@@ -146,7 +146,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			}
 		}
 		plugin.status_message(player, "Deleted scrolling menu: " + menuName);
-		maybeSaveMenus();
+		plugin.maybeSaveMenus();
 	}
 
 	private void breakSMSSign(Player player, String[] args) throws SMSNoSuchMenuException {
@@ -171,7 +171,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		plugin.status_message(player, "Sign @ " +
 				l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 				" was removed from menu '" + menuName + "'");
-		maybeSaveMenus();
+		plugin.maybeSaveMenus();
 	}
 	
 	private void syncSMSSign(Player player, String[] args) throws SMSNoSuchMenuException {
@@ -195,7 +195,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String menuName = args[1];
 		plugin.syncMenu(menuName, b.getLocation());
 		plugin.status_message(player, "Added sign to scrolling menu: " + menuName);
-		maybeSaveMenus();
+		plugin.maybeSaveMenus();
 	}
 
 	private void listSMSMenus(Player player, String[] args) {
@@ -255,7 +255,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		plugin.setTitle(player, args[1], combine(args, 2));
-		maybeSaveMenus();
+		plugin.maybeSaveMenus();
 	}
 
 	private void addSMSItem(Player player, String[] args) throws SMSNoSuchMenuException {	
@@ -281,7 +281,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu.addItem(label, cmd, msg);
 			menu.updateSigns();
 			plugin.status_message(player, "Menu entry [" + label + "] added to: " + menuName);
-			maybeSaveMenus();
+			plugin.maybeSaveMenus();
 		} else {
 			plugin.error_message(player, "You do not have permission to add that kind of command.");
 		}
@@ -305,7 +305,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		} catch (IllegalArgumentException e) {
 			plugin.error_message(player, e.getMessage());
 		}
-		maybeSaveMenus();
+		plugin.maybeSaveMenus();
 	}
 
 	private void setConfig(Player player, String[] args) {
@@ -517,12 +517,6 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return true;
 		} else {
 			return false;
-		}
-	}
-
-	private void maybeSaveMenus() {
-		if (plugin.getConfiguration().getBoolean("sms.autosave", false)) {
-			plugin.saveMenus();
 		}
 	}
 

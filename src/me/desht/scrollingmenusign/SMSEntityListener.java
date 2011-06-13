@@ -34,6 +34,7 @@ public class SMSEntityListener extends EntityListener {
 			} else {
 				try {
 					plugin.removeSignFromMenu(b.getLocation(), ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
+					plugin.maybeSaveMenus();
 				} catch (SMSNoSuchMenuException e) {
 					plugin.log(Level.WARNING, e.getMessage());
 				}

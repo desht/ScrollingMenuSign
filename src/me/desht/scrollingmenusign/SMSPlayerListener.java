@@ -165,9 +165,7 @@ public class SMSPlayerListener extends PlayerListener {
 				plugin.addMenu(name, menu, true);
 				plugin.status_message(player, "Created new menu sign: " + name);
 			}
-			if (plugin.getConfiguration().getBoolean("sms.autosave", false)) {
-				plugin.saveMenus();
-			}
+			plugin.maybeSaveMenus();
 		}
 	}
 	
