@@ -441,7 +441,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		plugin.debugger.toggleDebug(player);
 		int level = plugin.debugger.getDebugLevel(player);
 		if (level > 0) {
-			plugin.status_message(player, "Debugging enabled (level " + level + ").");
+			plugin.status_message(player, "Debugging enabled.");
 		} else {
 			plugin.status_message(player, "Debugging disabled.");
 		}

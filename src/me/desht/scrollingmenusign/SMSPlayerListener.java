@@ -51,6 +51,7 @@ public class SMSPlayerListener extends PlayerListener {
 		
 		// ok, it's a sign, and there's a menu on it
 		try {
+			plugin.debug("player interact event @ " + b.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + menuName);
 			SMSMenu menu = plugin.getMenu(menuName);		
 			String sneak = player.isSneaking() ? "sneak" : "normal";
 			Configuration config = plugin.getConfiguration();
