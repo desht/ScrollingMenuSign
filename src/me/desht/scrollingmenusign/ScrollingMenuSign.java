@@ -54,7 +54,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		put("sms.item_prefix.not_selected", "  ");
 		put("sms.item_prefix.selected", "> ");
 		put("sms.item_justify", "left");
-		put("sms.menuitem_separator", "\\|");
+		put("sms.menuitem_separator", "|");
 		put("sms.actions.leftclick.normal", "execute");
 		put("sms.actions.leftclick.sneak", "none");
 		put("sms.actions.rightclick.normal", "scrolldown");
