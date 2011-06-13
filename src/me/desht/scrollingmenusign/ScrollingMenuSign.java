@@ -42,6 +42,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSCommandExecutor commandExecutor = new SMSCommandExecutor(this);
 	private final SMSPersistence persistence = new SMSPersistence(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
+	private final SMSDebugger debugger = new SMSDebugger(this);
 
 	private Map<Location, String> menuLocations = new HashMap<Location, String>();
 	private Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
@@ -369,5 +370,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	static String deColourise(String s) {
 		return s.replaceAll("\u00A7.", "");
+	}
+	
+	void debug(String message) {
+		debugger.debug(message);
 	}
 }
