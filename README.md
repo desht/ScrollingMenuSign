@@ -12,3 +12,7 @@ Very simple: copy ScrollingMenuSign.jar into your plugins/ folder.  Restart/relo
 ## Usage
 
 Detailed documentation is now in the Wiki: https://github.com/desht/ScrollingMenuSign/wiki
+
+## License
+
+ScrollingMenuSign by Des Herriott is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported License. 
