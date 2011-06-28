@@ -41,7 +41,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSCommandExecutor commandExecutor = new SMSCommandExecutor(this);
 	private final SMSPersistence persistence = new SMSPersistence(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
-
+	
 	final Logger logger = Logger.getLogger("Minecraft");
 	final SMSDebugger debugger = new SMSDebugger(this);
 
@@ -220,8 +220,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 				menu.blankSign(loc);
 			}
 			menu.removeSign(loc);
-			menuLocations.remove(loc);
 		}
+		menuLocations.remove(loc);
 	}
 	
 	// add a new synchronised sign at location loc to an existing menu
@@ -381,5 +381,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 		if (getConfiguration().getBoolean("sms.autosave", false)) {
 			saveMenus();
 		}
+	}
+	
+	Map<Location,String>getLocations() {
+		return menuLocations;
 	}
 }
