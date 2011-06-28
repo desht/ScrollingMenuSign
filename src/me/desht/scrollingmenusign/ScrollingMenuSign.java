@@ -41,6 +41,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSCommandExecutor commandExecutor = new SMSCommandExecutor(this);
 	private final SMSPersistence persistence = new SMSPersistence(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
+	private final SMSCustomListener customListener = new SMSCustomListener(this);
 	
 	final Logger logger = Logger.getLogger("Minecraft");
 	final SMSDebugger debugger = new SMSDebugger(this);
@@ -84,6 +85,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.CUSTOM_EVENT, customListener, Event.Priority.Normal, this);
 
 		getCommand("sms").setExecutor(commandExecutor);
 		
