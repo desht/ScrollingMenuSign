@@ -89,10 +89,7 @@ public class SMSMenu {
 	
 	// remove a sign from the menu
 	public void removeSign(Location l) {
-		Block b = l.getBlock();
-		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-			locations.remove(l);
-		}
+		locations.remove(l);
 	}
 	
 	// add a new item to the menu
