@@ -269,4 +269,10 @@ public class SMSMenu {
 	public void destroySign(Location l) {
 		l.getBlock().setTypeId(0);
 	}
+
+	void moveSign(Location loc, Location newLoc) {
+		int pos = locations.get(loc);
+		locations.remove(loc);
+		locations.put(newLoc, pos);
+	}
 }

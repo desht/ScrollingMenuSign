@@ -32,7 +32,8 @@ public class SMSCustomListener extends CustomEventListener implements Listener {
 			if (c.isCraftBlock(l.getBlockX(), l.getBlockY(), l.getBlockZ())) {
 				String menuName = plugin.getMenuNameAt(l);
 				if (menuName != null) {
-					plugin.debug("movecraft craft " + c.name + ", moved " + v + ",sign " + l + ", menu " + menuName);			
+					plugin.debug("movecraft craft " + c.name + ", moved " + v + ",sign " + l + ", menu " + menuName);
+					plugin.moveSign(menuName, l, v);
 				}
 			}
 		}
@@ -41,6 +42,13 @@ public class SMSCustomListener extends CustomEventListener implements Listener {
 	public void onMoveCraftTurnEvent(MoveCraftTurnEvent event) {
 		Craft c = event.getCraft();
 		int d = event.getDegrees();
-		plugin.debug("movecraft craft " + c.name + " turned " + d);
+		for (Location l : plugin.getLocations().keySet()) {
+			if (c.isCraftBlock(l.getBlockX(), l.getBlockY(), l.getBlockZ())) {
+				String menuName = plugin.getMenuNameAt(l);
+				if (menuName != null) {
+					plugin.debug("movecraft craft " + c.name + " turned " + d + ", sign " + l + ", menu " + menuName);
+				}
+			}
+		}
 	}
 }

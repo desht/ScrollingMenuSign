@@ -16,6 +16,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -232,6 +233,22 @@ public class ScrollingMenuSign extends JavaPlugin {
 		menuLocations.put(loc, menuName);
 		menu.addSign(loc);
 		menu.updateSigns();
+	}
+	
+	// update the location of the sign at loc, moved by vec
+	void moveSign(String menuName, Location loc, Vector vec) {
+		SMSMenu menu;
+		try {
+			menu = getMenu(menuName);
+		} catch (SMSNoSuchMenuException e) {
+			return;
+		}
+		Location newLoc = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+		newLoc.add(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ());
+		menuLocations.put(newLoc, menuName);
+		if (menuLocations.get(loc).equalsIgnoreCase(menuName))
+				menuLocations.remove(loc);
+		menu.moveSign(loc, newLoc);
 	}
 	
 	Map<String, SMSMenu> getMenus() {
