@@ -1,5 +1,8 @@
 package me.desht.scrollingmenusign;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Location;
 import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
@@ -28,8 +31,13 @@ public class SMSCustomListener extends CustomEventListener implements Listener {
 	public void onMoveCraftMoveEvent(MoveCraftMoveEvent event) {
 		Craft c = event.getCraft();
 		Vector v = event.getMovement();
+		List<Location> locs = new ArrayList<Location>();
 		for (Location l : plugin.getLocations().keySet()) {
-			if (c.isCraftBlock(l.getBlockX(), l.getBlockY(), l.getBlockZ())) {
+			locs.add(l);
+		}
+		for (Location l : locs) {
+			if (c.isIn(l.getBlockX(), l.getBlockY(), l.getBlockZ())) {
+				plugin.debug("movecraft move event " + l);
 				String menuName = plugin.getMenuNameAt(l);
 				if (menuName != null) {
 					plugin.debug("movecraft craft " + c.name + ", moved " + v + ",sign " + l + ", menu " + menuName);
