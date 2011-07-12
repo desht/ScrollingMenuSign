@@ -198,30 +198,42 @@ public class SMSCommandExecutor implements CommandExecutor {
 		plugin.maybeSaveMenus();
 	}
 
-	private void listSMSMenus(Player player, String[] args) {
-		Map<String, SMSMenu> menus = plugin.getMenus();	
-		if (menus.size() == 0) {
-			plugin.status_message(player, "No menu signs exist.");
-			return;
-		}
-		
+	private void listSMSMenus(Player player, String[] args) throws SMSNoSuchMenuException {
 		messageBuffer.clear();
 		
-		SortedSet<String> sorted = new TreeSet<String>(menus.keySet());
-		for (String k : sorted) {
-			SMSMenu menu = menus.get(k);
-			Map<Location,Integer> locs = menu.getLocations();
-			ChatColor signCol = locs.size() > 0 ? ChatColor.YELLOW : ChatColor.RED;
-			String message = ChatColor.YELLOW + k +
-				ChatColor.GREEN + " \"" + menu.getTitle() + ChatColor.GREEN + "\"" +
-				ChatColor.YELLOW + " [" + menu.getNumItems() + " items]" +
-				signCol + " [" + locs.size() + " signs]";
-			messageBuffer.add(message);
-			for (Location loc: locs.keySet()) {
-				messageBuffer.add(" - " + formatLoc(loc));
+		if (args.length >= 2) {
+			SMSMenu menu = plugin.getMenu(args[1]);
+			if (menu != null) {
+				listMenu(menu);
+			} else {
+				plugin.error_message(player, "No such menu " + menu);
+			}
+		} else {
+			Map<String, SMSMenu> menus = plugin.getMenus();	
+			if (menus.size() == 0) {
+				plugin.status_message(player, "No menu signs exist.");
+				return;
+			}
+			SortedSet<String> sorted = new TreeSet<String>(menus.keySet());
+			for (String k : sorted) {
+				SMSMenu menu = menus.get(k);
+				listMenu(menu);
 			}
 		}
 		pagedDisplay(player, 1);
+	}
+
+	private void listMenu(SMSMenu menu) {
+		Map<Location,Integer> locs = menu.getLocations();
+		ChatColor signCol = locs.size() > 0 ? ChatColor.YELLOW : ChatColor.RED;
+		String message = ChatColor.YELLOW + menu.getName() +
+			ChatColor.GREEN + " \"" + menu.getTitle() + ChatColor.GREEN + "\"" +
+			ChatColor.YELLOW + " [" + menu.getNumItems() + " items]" +
+			signCol + " [" + locs.size() + " signs]";
+		messageBuffer.add(message);
+		for (Location loc: locs.keySet()) {
+			messageBuffer.add(" - " + formatLoc(loc));
+		}
 	}
 
 	private void showSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException {
