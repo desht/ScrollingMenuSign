@@ -269,4 +269,6 @@ public class SMSMenu {
 	public void destroySign(Location l) {
 		l.getBlock().setTypeId(0);
 	}
+
+	
 }

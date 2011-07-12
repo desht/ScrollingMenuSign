@@ -65,12 +65,13 @@ public class SMSPersistence {
 	@SuppressWarnings("unchecked")
 	public void load() {
 		File f = new File(plugin.getDataFolder(), menuFile);
-		if (!f.exists()) { // create empty file if doesn't already exist
-            try {
-                f.createNewFile();
-            } catch (IOException e) {
-                plugin.log(Level.SEVERE, e.getMessage());
-            }
+		if (!f.exists()) {
+//            try {
+//                f.createNewFile();
+//            } catch (IOException e) {
+//                plugin.log(Level.SEVERE, e.getMessage());
+//            }
+			return;
         }
 
         Yaml yaml = new Yaml();
@@ -104,7 +105,12 @@ public class SMSPersistence {
         	plugin.log(Level.SEVERE, "caught exception loading " + f + ": " + e.getMessage());
         	backupMenuFile(f);
         }
-         
+        
+        // Push the data into the database and move the old scrollingmenus.yml
+        // file out of the way
+        plugin.writeAlltoDB();
+        f.renameTo(new File(f.getName() + ".OLD"));
+        
 	}
 
 	private List<Object> makeBlockList(Location l) {

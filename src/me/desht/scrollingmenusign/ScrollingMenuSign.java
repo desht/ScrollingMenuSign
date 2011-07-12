@@ -34,7 +34,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	PermissionHandler permissionHandler;
 	CommandSignsHandler csHandler;
-//	SMSCommandFile commandFile;
 	
 	private final SMSPlayerListener signListener = new SMSPlayerListener(this);
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
@@ -48,6 +47,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	private Map<Location, String> menuLocations = new HashMap<Location, String>();
 	private Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
+	private sqlCore SQLiteHandler;
 
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("sms.always_use_commandsigns", true);
@@ -76,7 +76,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 		setupPermissions();
 		setupCommandSigns();
-//		setupCommandFile();
+
+		setupDatabase();
 		
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, signListener, Event.Priority.Normal, this);
@@ -112,6 +113,34 @@ public class ScrollingMenuSign extends JavaPlugin {
 		logger.info(description.getName() + " version " + description.getVersion() + " is disabled!" );
 	}
 
+	private void setupDatabase() {
+		SQLiteHandler = new sqlCore(logger, "SMS", "menu_db", directory);
+		SQLiteHandler.initialize();
+		
+		if (!SQLiteHandler.checkTable("menus")) {
+			SQLiteHandler.createTable(
+					"CREATE TABLE menu (id INT AUTO INCREMENT PRIMARY KEY, " +
+					"name VARCHAR(64), title VARCHAR(16), owner VARCHAR(255), "
+			);
+			SQLiteHandler.createTable(
+					"CREATE TABLE menu_items (FOREIGN KEY id REFERENCES menu(id), " +
+					"label VARCHAR(16), command VARCHAR(255), message VARCHAR(255)"
+			);
+			SQLiteHandler.createTable(
+					"CREATE TABLE menu_locations (FOREIGN KEY id REFERENCES menu(id), " +
+					"world VARCHAR(255), x INT, y INY, z INT"
+					);
+			SQLiteHandler.createTable(
+					"CREATE TABLE macros (id INT AUTO INCREMENT PRIMARY KEY, " +
+					"name VARCHAR(255), command VARCHAR(255)"
+			);
+		}
+	}
+
+	sqlCore getDBhandler() {
+		return SQLiteHandler;
+	}
+	
 	private void configInitialise() {
 		Boolean saveNeeded = false;
 		Configuration config = getConfiguration();
@@ -156,12 +185,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 
 	}
-
-//	private void setupCommandFile() {
-//		if (commandFile == null) {
-//			commandFile = new SMSCommandFile(this);
-//		}
-//	}
 
 	Boolean isAllowedTo(Player player, String node) {
 		if (player == null) return true;
@@ -390,5 +413,18 @@ public class ScrollingMenuSign extends JavaPlugin {
 	
 	Map<Location,String>getLocations() {
 		return menuLocations;
+	}
+	
+	// Save all menus into the database
+	void writeAlltoDB() {
+		sqlCore db = getDBhandler();
+
+		db.wipeTable("menu_items");
+		db.wipeTable("menu_locations");
+		db.wipeTable("menu");
+
+		for (SMSMenu m : getMenus().values()) {
+			db.insertQuery("INSERT INTO blocks()");
+		}
 	}
 }
