@@ -304,6 +304,10 @@ public class ScrollingMenuSign extends JavaPlugin {
 			return spec;
 		}		
 	}
+		
+	static String unParseColourSpec(String spec) {
+		return spec.replaceAll("\u00A7", "&");
+	}
 	
 	// Return the name of the menu sign that the player is looking at, if any
 	String getTargetedMenuSign(Player player, Boolean complain) {

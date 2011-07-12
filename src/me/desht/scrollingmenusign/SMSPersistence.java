@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class SMSPersistence {
 			String k = iter.next();
 			SMSMenu menu = menus.get(k);
 			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("title", menu.getTitle());
+			map.put("title", ScrollingMenuSign.unParseColourSpec(menu.getTitle()));
 			map.put("owner", menu.getOwner());
 			List<List<Object>> locs = new ArrayList<List<Object>>();
 			for (Location l: menu.getLocations().keySet()) {
@@ -77,7 +78,7 @@ public class SMSPersistence {
 
         try {        	
         	HashMap<String,Map<String,Object>> menuMap = 
-        		(HashMap<String,Map<String,Object>>) yaml.load(new FileInputStream(f));
+        		(HashMap<String,Map<String,Object>>) yaml.load(new InputStreamReader(new FileInputStream(f), "UTF-8"));
         	if (menuMap != null) {
         		Iterator<String> iter = menuMap.keySet().iterator();
         		while (iter.hasNext()) {
@@ -122,9 +123,9 @@ public class SMSPersistence {
 		List<Map<String,String>> l = new ArrayList<Map<String, String>>();
 		for (SMSMenuItem item : items) {		
 			HashMap<String,String> h = new HashMap<String, String>();
-			h.put("label", item.getLabel());
+			h.put("label", ScrollingMenuSign.unParseColourSpec(item.getLabel()));
 			h.put("command", item.getCommand());
-			h.put("message", item.getMessage());
+			h.put("message", ScrollingMenuSign.unParseColourSpec(item.getMessage()));
 			l.add(h);
 		}
 		return l;
@@ -158,7 +159,11 @@ public class SMSPersistence {
 		
 		List<Map<String,String>>items = (List<Map<String, String>>) menuData.get("items");
 		for (Map<String,String> item : items) {
-			menu.addItem(item.get("label"), item.get("command"), item.get("message"));
+			menu.addItem(
+					plugin.parseColourSpec(null, item.get("label")),
+					item.get("command"),
+					plugin.parseColourSpec(null, item.get("message"))
+			);
 		}
 		
 		menu.updateSigns();
