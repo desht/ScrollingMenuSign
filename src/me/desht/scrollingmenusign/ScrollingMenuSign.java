@@ -34,13 +34,14 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	PermissionHandler permissionHandler;
 	CommandSignsHandler csHandler;
-	SMSCommandFile commandFile;
+//	SMSCommandFile commandFile;
 	
 	private final SMSPlayerListener signListener = new SMSPlayerListener(this);
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
 	private final SMSCommandExecutor commandExecutor = new SMSCommandExecutor(this);
 	private final SMSPersistence persistence = new SMSPersistence(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
+	private final SMSCommandFile macroHandler = new SMSCommandFile(this);
 	
 	final Logger logger = Logger.getLogger("Minecraft");
 	final SMSDebugger debugger = new SMSDebugger(this);
@@ -75,7 +76,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 		setupPermissions();
 		setupCommandSigns();
-		setupCommandFile();
+//		setupCommandFile();
 		
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, signListener, Event.Priority.Normal, this);
@@ -156,11 +157,11 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	}
 
-	private void setupCommandFile() {
-		if (commandFile == null) {
-			commandFile = new SMSCommandFile(this);
-		}
-	}
+//	private void setupCommandFile() {
+//		if (commandFile == null) {
+//			commandFile = new SMSCommandFile(this);
+//		}
+//	}
 
 	Boolean isAllowedTo(Player player, String node) {
 		if (player == null) return true;
@@ -261,7 +262,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	void loadMacros() {
-		commandFile.loadCommands();
+		macroHandler.loadCommands();
 	}
 	
 	void saveMenus() {
@@ -269,7 +270,11 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	void saveMacros() {
-		commandFile.saveCommands();
+		macroHandler.saveCommands();
+	}
+	
+	SMSCommandFile getMacroHandler() {
+		return macroHandler;
 	}
 
 	void status_message(Player player, String string) {

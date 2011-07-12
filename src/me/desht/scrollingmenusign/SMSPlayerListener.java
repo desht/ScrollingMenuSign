@@ -98,7 +98,7 @@ public class SMSPlayerListener extends PlayerListener {
 		SMSMenuItem item = menu.getCurrentItem(l);
 		if (item != null) {
 			String command = item.getCommand();
-			plugin.commandFile.executeCommand(command, player);
+			plugin.getMacroHandler().executeCommand(command, player);
 			sendFeedback(player, item.getMessage(), new HashSet<String>());
 		}
 	}
@@ -113,9 +113,9 @@ public class SMSPlayerListener extends PlayerListener {
 				plugin.log(Level.WARNING, "sendFeedback [" + macro + "]: recursion detected");
 				plugin.error_message(player, "Recursive loop detected in macro " + macro + "!");
 				return;
-			} else if (plugin.commandFile.hasCommand(macro)) {
+			} else if (plugin.getMacroHandler().hasCommand(macro)) {
 				history.add(macro);
-				sendFeedback(player, plugin.commandFile.getCommands(macro), history);
+				sendFeedback(player, plugin.getMacroHandler().getCommands(macro), history);
 			} else {
 				plugin.error_message(player, "No such macro '" + macro + "'.");
 			}
