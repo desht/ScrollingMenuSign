@@ -26,6 +26,8 @@ import com.edwardhand.commandsigns.CommandSignsHandler;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
+import com.alta189.sqlLibrary.SQLite.sqlCore;
+
 @SuppressWarnings("serial")
 public class ScrollingMenuSign extends JavaPlugin {
 	static enum MenuRemoveAction { DESTROY_SIGN, BLANK_SIGN, DO_NOTHING };
@@ -110,6 +112,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public void onDisable() {
 		saveMenus();
 		saveMacros();
+		SQLiteHandler.close();
 		logger.info(description.getName() + " version " + description.getVersion() + " is disabled!" );
 	}
 
@@ -117,22 +120,28 @@ public class ScrollingMenuSign extends JavaPlugin {
 		SQLiteHandler = new sqlCore(logger, "SMS", "menu_db", directory);
 		SQLiteHandler.initialize();
 		
-		if (!SQLiteHandler.checkTable("menus")) {
+		if (!SQLiteHandler.checkTable("menu")) {
 			SQLiteHandler.createTable(
-					"CREATE TABLE menu (id INT AUTO INCREMENT PRIMARY KEY, " +
-					"name VARCHAR(64), title VARCHAR(16), owner VARCHAR(255), "
+					"CREATE TABLE menu (name VARCHAR(64) PRIMARY KEY, " +
+					"title VARCHAR(16), owner VARCHAR(255))"
 			);
 			SQLiteHandler.createTable(
-					"CREATE TABLE menu_items (FOREIGN KEY id REFERENCES menu(id), " +
-					"label VARCHAR(16), command VARCHAR(255), message VARCHAR(255)"
+					"CREATE TABLE menu_items (name VARCHAR(64), " +
+					"label VARCHAR(16), command VARCHAR(255), message VARCHAR(255))"
+//					"FOREIGN KEY name REFERENCES menu(name))"
 			);
 			SQLiteHandler.createTable(
-					"CREATE TABLE menu_locations (FOREIGN KEY id REFERENCES menu(id), " +
-					"world VARCHAR(255), x INT, y INY, z INT"
+					"CREATE TABLE menu_locations (name VARCHAR(64), " +
+					"world VARCHAR(255), x INT, y INY, z INT)"
+//					"FOREIGN KEY name REFERENCES menu(name))"
 					);
 			SQLiteHandler.createTable(
-					"CREATE TABLE macros (id INT AUTO INCREMENT PRIMARY KEY, " +
-					"name VARCHAR(255), command VARCHAR(255)"
+					"CREATE TABLE macro (name VARCHAR(255) PRIMARY KEY)"
+			);
+			SQLiteHandler.createTable(
+					"CREATE TABLE macro_entries (name VARCHAR(255), " +
+					"command VARCHAR(255))"
+//					"FOREIGN KEY name REFERENCES macros(name))"
 			);
 		}
 	}
@@ -424,7 +433,36 @@ public class ScrollingMenuSign extends JavaPlugin {
 		db.wipeTable("menu");
 
 		for (SMSMenu m : getMenus().values()) {
-			db.insertQuery("INSERT INTO blocks()");
+			String query = String.format("INSERT INTO menu(name, title, owner) VALUES ('%1$s', '%2$s', '%3$s')",
+					m.getName(), m.getTitle(), m.getOwner());
+			db.insertQuery(query);
+			for (SMSMenuItem i : m.getItems()) {
+				String query2 = String.format("INSERT INTO menu_items(name, label, command, message)" +
+						"VALUES ('%1$s', '%2$s', '%3$s', '%4$s')",
+						m.getName(), i.getLabel(), i.getCommand(), i.getMessage()
+						);
+				db.insertQuery(query2);
+			}
+			for (Location l : m.getLocations().keySet()) {
+				String query2 = String.format("INSERT INTO menu_locations(name, world, x, y, z)" +
+						"VALUES ('%1$s', '%2$s', '%3$s', '%4$s', '%5$s')",
+						m.getName(), l.getWorld().getName(), l.getBlockX(), l.getBlockY(), l.getBlockZ()
+						);
+				db.insertQuery(query2);
+			}
+		}
+		
+		db.wipeTable("macro");
+		db.wipeTable("macro_entries");
+		
+		for (String macro : macroHandler.getCommands()) {
+			String query = String.format("INSERT INTO macro(name) VALUES ('%1$s')", macro);
+			db.insertQuery(query);
+			for (String cmd: macroHandler.getCommands(macro)) {
+				String query2 = String.format("INSERT INTO macro_entries(name, command) VALUES ('%1$s', '%2$s')",
+						macro, cmd);
+				db.insertQuery(query2);
+			}
 		}
 	}
 }

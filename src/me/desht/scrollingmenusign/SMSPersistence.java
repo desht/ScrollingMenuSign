@@ -109,7 +109,7 @@ public class SMSPersistence {
         // Push the data into the database and move the old scrollingmenus.yml
         // file out of the way
         plugin.writeAlltoDB();
-        f.renameTo(new File(f.getName() + ".OLD"));
+//        f.renameTo(new File(f.getName() + ".OLD"));
         
 	}
 
