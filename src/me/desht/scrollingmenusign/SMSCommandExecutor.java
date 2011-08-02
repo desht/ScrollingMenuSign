@@ -97,7 +97,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		String menuName = args[1];
-		if (plugin.checkForMenu(menuName)) {
+		if (SMSMenu.checkForMenu(menuName)) {
 			plugin.error_message(player, "A menu called '" + menuName + "' already exists.");
 			return;
 		}
@@ -108,7 +108,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		if (player != null) {
 			Block b = player.getTargetBlock(null, 3);
 			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-				if (plugin.getMenuNameAt(b.getLocation()) != null) {
+				if (SMSMenu.getMenuNameAt(b.getLocation()) != null) {
 					plugin.error_message(player, "There is already a menu attached to that sign.");
 					return;
 				}
@@ -119,13 +119,13 @@ public class SMSCommandExecutor implements CommandExecutor {
 		
 		SMSMenu menu = null;
 		if (args.length == 4 && args[2].equals("from")) {
-			SMSMenu otherMenu = plugin.getMenu(args[3]);
+			SMSMenu otherMenu = SMSMenu.getMenu(args[3]);
 			menu = new SMSMenu(plugin, otherMenu, menuName, owner, loc);
 		} else if (args.length >= 3) {
 			String menuTitle = plugin.parseColourSpec(player, combine(args, 2));
 			menu = new SMSMenu(plugin, menuName, menuTitle, owner, loc);
 		}
-		plugin.addMenu(menuName, menu, true);
+		SMSMenu.addMenu(menuName, menu, true);
 		plugin.status_message(player, "Added new scrolling menu: " + menuName);
 		plugin.maybeSaveMenus();
 	}
@@ -134,12 +134,12 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String menuName = null;
 		if (args.length >= 2) {
 			menuName = args[1];
-			plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
+			SMSMenu.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 		} else {
 			if (onConsole(player)) return;
 			menuName = plugin.getTargetedMenuSign(player, true);
 			if (menuName != null) {
-				plugin.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
+				SMSMenu.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 			} else {
 				plugin.error_message(player, "You are not looking at a sign.");
 				return;
@@ -161,13 +161,13 @@ public class SMSCommandExecutor implements CommandExecutor {
 			l = b.getLocation();
 		} else {
 			l = parseLocation(args[1], player);
-			menuName = plugin.getMenuNameAt(l);
+			menuName = SMSMenu.getMenuNameAt(l);
 			if (menuName == null) {
 				plugin.error_message(player, "There is no menu at that location.");
 				return;
 			}
 		}
-		plugin.removeSignFromMenu(l, MenuRemoveAction.BLANK_SIGN);
+		SMSMenu.removeSignFromMenu(l, MenuRemoveAction.BLANK_SIGN);
 		plugin.status_message(player, "Sign @ " +
 				l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 				" was removed from menu '" + menuName + "'");
@@ -187,13 +187,13 @@ public class SMSCommandExecutor implements CommandExecutor {
 			plugin.error_message(player, "You are not looking at a sign.");
 			return;
 		}
-		String existingMenu = plugin.getMenuNameAt(b.getLocation());
+		String existingMenu = SMSMenu.getMenuNameAt(b.getLocation());
 		if (existingMenu != null) {
 			plugin.error_message(player, "That sign already belongs to menu '" + existingMenu + "'.");
 			return;
 		}
 		String menuName = args[1];
-		plugin.syncMenu(menuName, b.getLocation());
+		SMSMenu.addSignToMenu(menuName, b.getLocation());
 		plugin.status_message(player, "Added sign to scrolling menu: " + menuName);
 		plugin.maybeSaveMenus();
 	}
@@ -202,14 +202,14 @@ public class SMSCommandExecutor implements CommandExecutor {
 		messageBuffer.clear();
 		
 		if (args.length >= 2) {
-			SMSMenu menu = plugin.getMenu(args[1]);
+			SMSMenu menu = SMSMenu.getMenu(args[1]);
 			if (menu != null) {
 				listMenu(menu);
 			} else {
 				plugin.error_message(player, "No such menu " + menu);
 			}
 		} else {
-			Map<String, SMSMenu> menus = plugin.getMenus();	
+			Map<String, SMSMenu> menus = SMSMenu.getMenus();	
 			if (menus.size() == 0) {
 				plugin.status_message(player, "No menu signs exist.");
 				return;
@@ -246,7 +246,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			if (menuName == null)
 				return;
 		}
-		SMSMenu menu = plugin.getMenu(menuName);
+		SMSMenu menu = SMSMenu.getMenu(menuName);
 		messageBuffer.clear();
 		messageBuffer.add(ChatColor.YELLOW + "Menu '" + menuName + "': title '" + menu.getTitle() + "'");
 		ArrayList<SMSMenuItem> items = menu.getItems();
@@ -284,7 +284,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		
-		SMSMenu menu = plugin.getMenu(menuName);				
+		SMSMenu menu = SMSMenu.getMenu(menuName);				
 		String label = plugin.parseColourSpec(player, entry_args[0]);
 		String cmd = entry_args[1];
 		String msg = entry_args.length >= 3 ? entry_args[2] : "";
@@ -308,7 +308,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String item = args[2];
 
 		try {
-			SMSMenu menu = plugin.getMenu(menuName);
+			SMSMenu menu = SMSMenu.getMenu(menuName);
 			menu.removeItem(item);
 			menu.updateSigns();
 			plugin.status_message(player, "Menu entry #" + item + " removed from: " + menuName);
@@ -327,7 +327,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		plugin.setConfigItem(player, args[1], combine(args, 2));
 		if (args[1].matches("item_(justify|prefix.*)")) {
-			plugin.updateAllMenus();
+			SMSMenu.updateAllMenus();
 		}
 	}
 
@@ -388,7 +388,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		if (loadAll || loadConfig) {
 				plugin.getConfiguration().load();
-				plugin.updateAllMenus();
+				SMSMenu.updateAllMenus();
 		}
 		if (loadAll || loadMenus) plugin.loadMenus();
 		if (loadAll || loadMacros) plugin.loadMacros();

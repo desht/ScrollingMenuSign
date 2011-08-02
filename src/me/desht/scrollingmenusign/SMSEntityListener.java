@@ -21,7 +21,7 @@ public class SMSEntityListener extends EntityListener {
 		Boolean noExplode = plugin.getConfiguration().getBoolean("sms.no_explosions", false);
 		for (Block b : event.blockList()) {
 			if (b.getType() != Material.WALL_SIGN && b.getType() != Material.SIGN_POST) continue;
-			String menuName = plugin.getMenuNameAt(b.getLocation());
+			String menuName = SMSMenu.getMenuNameAt(b.getLocation());
 			if (menuName == null) continue;
 			plugin.debug("entity explode event @ " + b.getLocation() + ", menu=" + menuName);
 			if (noExplode) {
@@ -33,7 +33,7 @@ public class SMSEntityListener extends EntityListener {
 				break;
 			} else {
 				try {
-					plugin.removeSignFromMenu(b.getLocation(), ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
+					SMSMenu.removeSignFromMenu(b.getLocation(), ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
 					plugin.maybeSaveMenus();
 				} catch (SMSNoSuchMenuException e) {
 					plugin.log(Level.WARNING, e.getMessage());

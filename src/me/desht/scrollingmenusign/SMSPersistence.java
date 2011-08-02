@@ -37,7 +37,7 @@ public class SMSPersistence {
 		
 		File f = new File(plugin.getDataFolder(), menuFile);
 
-		Map<String, SMSMenu> menus = plugin.getMenus();
+		Map<String, SMSMenu> menus = SMSMenu.getMenus();
 		Iterator<String> iter = menus.keySet().iterator();
 		
 		plugin.log(Level.INFO, "Saving " + menus.size() + " menus to file...");
@@ -89,14 +89,14 @@ public class SMSPersistence {
         		plugin.log(Level.INFO, "read " + menuMap.size() + " menus from file.");
                 // now delete any menus which are in-game but not in the loaded map file
         		List<String> staleMenus = new ArrayList<String>();
-        		for (String menuName : plugin.getMenus().keySet()) {
+        		for (String menuName : SMSMenu.getMenus().keySet()) {
         			if (!menuMap.containsKey(menuName)) {
         				staleMenus.add(menuName);
         			}
         		}
         		for (String stale : staleMenus) {
     				plugin.log(Level.INFO, "deleted stale menu '" + stale + "'.");
-        			plugin.removeMenu(stale, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
+        			SMSMenu.removeMenu(stale, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
         		}
         	}        	
         } catch (FileNotFoundException e) {
@@ -155,7 +155,7 @@ public class SMSPersistence {
 					new Location(w, l.get(0), l.get(1), l.get(2)));
 
 		}
-		plugin.addMenu(menuName, menu, false);
+		SMSMenu.addMenu(menuName, menu, false);
 		
 		List<Map<String,String>>items = (List<Map<String, String>>) menuData.get("items");
 		for (Map<String,String> item : items) {

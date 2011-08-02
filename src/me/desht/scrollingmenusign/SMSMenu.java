@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -16,6 +18,9 @@ public class SMSMenu {
 	private String owner;
 	private ArrayList<SMSMenuItem> items;
 	Map<Location, Integer> locations;	// maps sign location to scroll pos
+	
+	private static Map<Location, String> menuLocations = new HashMap<Location, String>();
+	private static Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
 	
 	private static SMSMenuItem blankItem = new SMSMenuItem("", "", "");
 
@@ -268,5 +273,102 @@ public class SMSMenu {
 	
 	public void destroySign(Location l) {
 		l.getBlock().setTypeId(0);
+	}
+	
+	/**************************************************************************/
+	
+	/**
+	 * Add a menu to the menu list, preserving a reference to it
+	 * 
+	 * @param menuName	The menu's name
+	 * @param menu		The menu object
+	 * @param updateSign	Whether or not to update the menu's signs now
+	 */
+	static void addMenu(String menuName, SMSMenu menu, Boolean updateSign) {
+		menus.put(menuName, menu);
+		for (Location l: menu.getLocations().keySet()) {
+			menuLocations.put(l, menuName);
+		}
+		if (updateSign) {
+			menu.updateSigns();
+		}
+	}
+	
+	/**
+	 * Remove a menu from the list, destroying it.
+	 * 
+	 * @param menuName	The menu's name
+	 * @param action	Action to take on removal
+	 * @throws SMSNoSuchMenuException
+	 */
+	static void removeMenu(String menuName, MenuRemoveAction action) throws SMSNoSuchMenuException {
+		SMSMenu menu = getMenu(menuName);
+		if (action == MenuRemoveAction.DESTROY_SIGN) {
+			menu.destroySigns();
+		} else if (action == MenuRemoveAction.BLANK_SIGN) {
+			menu.blankSigns();
+		}
+		for (Location loc: menu.getLocations().keySet()) {
+			menuLocations.remove(loc);
+		}
+		menus.remove(menuName);
+	}
+	
+	/**
+	 * Remove a sign from a menu
+	 * 
+	 * @param loc	The location of the sign to remove
+	 * @param action	Action to take on removal
+	 * @throws SMSNoSuchMenuException
+	 */
+	static void removeSignFromMenu(Location loc, MenuRemoveAction action) throws SMSNoSuchMenuException {		
+		String menuName = getMenuNameAt(loc);
+	
+		if (menuName != null) {
+			SMSMenu menu = SMSMenu.getMenu(menuName);
+			if (action == MenuRemoveAction.DESTROY_SIGN) {
+				menu.destroySign(loc);
+			} else if (action == MenuRemoveAction.BLANK_SIGN) {
+				menu.blankSign(loc);
+			}
+			menu.removeSign(loc);
+		}
+		menuLocations.remove(loc);
+	}
+	
+	// add a new synchronised sign at location loc to an existing menu
+	static void addSignToMenu(String menuName, Location loc) throws SMSNoSuchMenuException {
+		SMSMenu menu = getMenu(menuName);
+		menuLocations.put(loc, menuName);
+		menu.addSign(loc);
+		menu.updateSigns();
+	}
+	
+	static Map<String, SMSMenu> getMenus() {
+		return menus;
+	}
+	
+	static SMSMenu getMenu(String menuName) throws SMSNoSuchMenuException {
+		if (!menus.containsKey(menuName))
+			throw new SMSNoSuchMenuException("No such menu '" + menuName + "'.");
+		return menus.get(menuName);
+	}
+	
+	static void updateAllMenus(){
+		for (SMSMenu menu : getMenus().values()) {
+			menu.updateSigns();
+		}
+	}
+	
+	static String getMenuNameAt(Location loc) {
+		return menuLocations.get(loc);
+	}
+
+	static Boolean checkForMenu(String menuName) {
+		return menus.containsKey(menuName);
+	}
+	
+	static Map<Location,String> getAllLocations() {
+		return menuLocations;
 	}
 }

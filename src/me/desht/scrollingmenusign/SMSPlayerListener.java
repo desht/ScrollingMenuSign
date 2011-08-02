@@ -39,7 +39,7 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 		Player player = event.getPlayer();
 		
-		String menuName = plugin.getMenuNameAt(b.getLocation());
+		String menuName = SMSMenu.getMenuNameAt(b.getLocation());
 		if (menuName == null) {
 			// No menu attached to this sign, but a left-click could create a new menu if the sign's
 			// text is in the right format...
@@ -52,7 +52,7 @@ public class SMSPlayerListener extends PlayerListener {
 		// ok, it's a sign, and there's a menu on it
 		try {
 			plugin.debug("player interact event @ " + b.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + menuName);
-			SMSMenu menu = plugin.getMenu(menuName);		
+			SMSMenu menu = SMSMenu.getMenu(menuName);		
 			String sneak = player.isSneaking() ? "sneak" : "normal";
 			Configuration config = plugin.getConfiguration();
 			String action = "none";
@@ -138,14 +138,14 @@ public class SMSPlayerListener extends PlayerListener {
 		String name = sign.getLine(1);
 		String title = plugin.parseColourSpec(player, sign.getLine(2));
 		if (name.length() > 0) {
-			if (plugin.checkForMenu(name)) {
+			if (SMSMenu.checkForMenu(name)) {
 				if (title.length() == 0) {
 					if (!plugin.isAllowedTo(player, "scrollingmenusign.commands.sync")) {
 						plugin.error_message(player, "You are not allowed to add signs to scrolling menus.");
 						return;
 					}
 					try {
-						plugin.syncMenu(name, b.getLocation());
+						SMSMenu.addSignToMenu(name, b.getLocation());
 					} catch (SMSNoSuchMenuException e) {
 						plugin.error_message(player, e.getError());
 					}
@@ -153,7 +153,7 @@ public class SMSPlayerListener extends PlayerListener {
 				} else {
 					plugin.error_message(player, "A menu called '" + name + "' already exists.");
 				}
-			} else if (plugin.getMenuNameAt(b.getLocation()) != null) {
+			} else if (SMSMenu.getMenuNameAt(b.getLocation()) != null) {
 				plugin.error_message(player, "There is already a menu attached to that sign.");
 				return;
 			} else if (title.length() > 0) {
@@ -161,8 +161,7 @@ public class SMSPlayerListener extends PlayerListener {
 					plugin.error_message(player, "You are not allowed to create scrolling menu signs.");
 					return;
 				}
-				SMSMenu menu = new SMSMenu(plugin, name, title, player.getName(), b.getLocation());
-				plugin.addMenu(name, menu, true);
+				SMSMenu.addMenu(name, new SMSMenu(plugin, name, title, player.getName(), b.getLocation()), true);
 				plugin.status_message(player, "Created new menu sign: " + name);
 			}
 			plugin.maybeSaveMenus();
@@ -178,7 +177,7 @@ public class SMSPlayerListener extends PlayerListener {
 		try {
 			menuName = plugin.getTargetedMenuSign(p, false);
 			if (menuName == null) return;		
-			menu = plugin.getMenu(menuName);
+			menu = SMSMenu.getMenu(menuName);
 		} catch (SMSNoSuchMenuException e) {
 			plugin.log(Level.WARNING, e.getError());
 			return;

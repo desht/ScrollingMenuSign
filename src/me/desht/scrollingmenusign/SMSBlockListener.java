@@ -30,20 +30,20 @@ public class SMSBlockListener extends BlockListener {
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
 			return;
 		}
-		String menuName = plugin.getMenuNameAt(b.getLocation());
+		String menuName = SMSMenu.getMenuNameAt(b.getLocation());
 		if (menuName == null) {
 			return;
 		}
 		plugin.debug("block damage event @ " + b.getLocation() + ", menu=" + menuName);
 		Player p = event.getPlayer();
 		try { 
-			SMSMenu menu = plugin.getMenu(menuName);
+			SMSMenu menu = SMSMenu.getMenu(menuName);
 			if (p.getName().equals(menu.getOwner()) || plugin.isAllowedTo(p, "scrollingmenusign.destroy")) {
 				// do nothing, allow damage to continue
 			} else {
 				// don't allow destruction
 				event.setCancelled(true);
-				plugin.getMenu(menuName).updateSign(b.getLocation());
+				SMSMenu.getMenu(menuName).updateSign(b.getLocation());
 			}
 		} catch (SMSNoSuchMenuException e) {
 			plugin.error_message(event.getPlayer(), e.getError());
@@ -59,11 +59,11 @@ public class SMSBlockListener extends BlockListener {
 
 		try {
 			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-				String menuName = plugin.getMenuNameAt(b.getLocation());
+				String menuName = SMSMenu.getMenuNameAt(b.getLocation());
 				if (menuName != null) {
 					plugin.debug("block break event @ " + b.getLocation() + ", menu=" + menuName);
 					Location l = b.getLocation();
-					plugin.removeSignFromMenu(l, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
+					SMSMenu.removeSignFromMenu(l, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
 					plugin.status_message(p, "Sign @ " +
 							l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 							" was removed from menu '" + menuName + "'");
@@ -81,7 +81,7 @@ public class SMSBlockListener extends BlockListener {
 		
 		Block b = event.getBlock();
 		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-			String menuName = plugin.getMenuNameAt(b.getLocation());
+			String menuName = SMSMenu.getMenuNameAt(b.getLocation());
 			if (menuName != null) {
 				plugin.debug("block physics event @ " + b.getLocation() + ", menu=" + menuName);
 				if (plugin.getConfiguration().getBoolean("sms.no_physics", false)) {
@@ -92,7 +92,7 @@ public class SMSBlockListener extends BlockListener {
 						Block attachedBlock = b.getRelative(s.getAttachedFace());
 						if (attachedBlock.getTypeId() == 0) {
 							// attached to air? looks like the sign has become detached
-							plugin.removeSignFromMenu(b.getLocation(), MenuRemoveAction.DO_NOTHING);
+							SMSMenu.removeSignFromMenu(b.getLocation(), MenuRemoveAction.DO_NOTHING);
 							plugin.maybeSaveMenus();
 						}
 					} catch (SMSNoSuchMenuException e) {
