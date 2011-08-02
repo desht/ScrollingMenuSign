@@ -26,7 +26,7 @@ public class SMSEntityListener extends EntityListener {
 			plugin.debug("entity explode event @ " + b.getLocation() + ", menu=" + menuName);
 			if (noExplode) {
 				Location l = b.getLocation();
-				plugin.log(Level.INFO, "stopped an explosion to protect sign @ " +
+				SMSUtils.log(Level.INFO, "stopped an explosion to protect sign @ " +
 					l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() + "," +
 					l.getWorld().getName() + " (menu " + menuName + ")");
 				event.setCancelled(true);
@@ -36,7 +36,7 @@ public class SMSEntityListener extends EntityListener {
 					SMSMenu.removeSignFromMenu(b.getLocation(), ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
 					plugin.maybeSaveMenus();
 				} catch (SMSNoSuchMenuException e) {
-					plugin.log(Level.WARNING, e.getMessage());
+					SMSUtils.log(Level.WARNING, e.getMessage());
 				}
 			}
 		}

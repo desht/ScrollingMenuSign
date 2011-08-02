@@ -74,6 +74,6 @@ public class SMSDebugger {
 	}
 
 	private void debugMessage(Player p, String message) {
-		plugin.status_message(p, ChatColor.DARK_GREEN + "[SMS] " + ChatColor.GREEN + message);
+		SMSUtils.statusMessage(p, ChatColor.DARK_GREEN + "[SMS] " + ChatColor.GREEN + message);
 	}
 }

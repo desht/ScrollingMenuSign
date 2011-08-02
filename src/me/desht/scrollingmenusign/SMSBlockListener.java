@@ -46,7 +46,7 @@ public class SMSBlockListener extends BlockListener {
 				SMSMenu.getMenu(menuName).updateSign(b.getLocation());
 			}
 		} catch (SMSNoSuchMenuException e) {
-			plugin.error_message(event.getPlayer(), e.getError());
+			SMSUtils.errorMessage(event.getPlayer(), e.getError());
 		}
 	}
 	
@@ -64,14 +64,14 @@ public class SMSBlockListener extends BlockListener {
 					plugin.debug("block break event @ " + b.getLocation() + ", menu=" + menuName);
 					Location l = b.getLocation();
 					SMSMenu.removeSignFromMenu(l, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
-					plugin.status_message(p, "Sign @ " +
+					SMSUtils.statusMessage(p, "Sign @ " +
 							l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 							" was removed from menu '" + menuName + "'");
 					plugin.maybeSaveMenus();
 				}
 			}
 		} catch (SMSNoSuchMenuException e) {
-			plugin.error_message(p, e.getError());
+			SMSUtils.errorMessage(p, e.getError());
 		}
 	}
 
@@ -96,7 +96,7 @@ public class SMSBlockListener extends BlockListener {
 							plugin.maybeSaveMenus();
 						}
 					} catch (SMSNoSuchMenuException e) {
-						plugin.log(Level.WARNING, e.getError());
+						SMSUtils.log(Level.WARNING, e.getError());
 					}
 				}
 			}

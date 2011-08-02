@@ -36,7 +36,7 @@ public class SMSCommandFile {
             try {
                 f.createNewFile();
             } catch (IOException e) {
-                plugin.log(Level.SEVERE, e.getMessage());
+                SMSUtils.log(Level.SEVERE, e.getMessage());
             }
         }
 		Yaml yaml = new Yaml();
@@ -44,23 +44,23 @@ public class SMSCommandFile {
 		try {
 			cmdSet = (Map<String,List<String>>) yaml.load(new FileInputStream(f));
 		} catch (FileNotFoundException e) {
-			plugin.log(Level.SEVERE, "commands file '" + f + "' was not found.");
+			SMSUtils.log(Level.SEVERE, "commands file '" + f + "' was not found.");
 		} catch (Exception e) {
-			plugin.log(Level.SEVERE, "caught exception loading " + f + ": " + e.getMessage());
+			SMSUtils.log(Level.SEVERE, "caught exception loading " + f + ": " + e.getMessage());
 			backupCommandsFile(f);
 		}
 		if (cmdSet == null) cmdSet = new HashMap<String,List<String>>();
-		plugin.log(Level.INFO, "read " + cmdSet.size() + " macros from file.");
+		SMSUtils.log(Level.INFO, "read " + cmdSet.size() + " macros from file.");
 	}
 
 	void saveCommands() {
 		Yaml yaml = new Yaml();
 		File f = new File(plugin.getDataFolder(), commandFile);
-		if (cmdSet != null)	plugin.log(Level.INFO, "Saving " + cmdSet.size() + " macros to file...");
+		if (cmdSet != null)	SMSUtils.log(Level.INFO, "Saving " + cmdSet.size() + " macros to file...");
 		try {
 			yaml.dump(cmdSet, new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8")));
 		} catch (IOException e) {
-			plugin.log(Level.SEVERE, e.getMessage());
+			SMSUtils.log(Level.SEVERE, e.getMessage());
 		}
 		
 	}
@@ -124,14 +124,14 @@ public class SMSCommandFile {
 			} else if (matcher.group(1).equalsIgnoreCase("%")) {
 				// a macro expansion
 				if (history.contains(cmd)) {
-					plugin.log(Level.WARNING, "executeCommandSet [" + cmd + "]: recursion detected");
-					plugin.error_message(player, "Recursive loop detected in macro " + cmd + "!");
+					SMSUtils.log(Level.WARNING, "executeCommandSet [" + cmd + "]: recursion detected");
+					SMSUtils.errorMessage(player, "Recursive loop detected in macro " + cmd + "!");
 					return;
 				} else if (cmdSet.containsKey(cmd)) {
 					history.add(cmd);
 					executeCommandSet(cmd, player, history);
 				} else {
-					plugin.error_message(player, "No such macro '" + cmd + "'.");
+					SMSUtils.errorMessage(player, "No such macro '" + cmd + "'.");
 				}
 			}
 		} else if (plugin.csHandler != null &&
@@ -146,11 +146,11 @@ public class SMSCommandFile {
 		try {
         	File backup = SMSPersistence.getBackupFileName(original.getParentFile(), commandFile);
 
-            plugin.log(Level.INFO, "An error occurred while loading the commands file, so a backup copy of "
+            SMSUtils.log(Level.INFO, "An error occurred while loading the commands file, so a backup copy of "
                 + original + " is being created. The backup can be found at " + backup.getPath());
             SMSPersistence.copy(original, backup);
         } catch (IOException e) {
-            plugin.log(Level.SEVERE, "Error while trying to write backup file: " + e);
+            SMSUtils.log(Level.SEVERE, "Error while trying to write backup file: " + e);
         }
 	}
 }

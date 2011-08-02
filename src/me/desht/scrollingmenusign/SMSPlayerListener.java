@@ -63,7 +63,7 @@ public class SMSPlayerListener extends PlayerListener {
 			}
 			processAction(action, player, menu, b.getLocation());
 		} catch (SMSNoSuchMenuException e) {
-			plugin.error_message(player, e.getError());
+			SMSUtils.errorMessage(player, e.getError());
 		}
 	}
 
@@ -79,7 +79,7 @@ public class SMSPlayerListener extends PlayerListener {
 	
 	private void scrollMenu(Player player, SMSMenu menu, Location l, ScrollDirection dir) {
 		if (!plugin.isAllowedTo(player, "scrollingmenusign.scroll", true)) {
-			plugin.error_message(player, "You are not allowed to scroll through menu signs");
+			SMSUtils.errorMessage(player, "You are not allowed to scroll through menu signs");
 			return;
 		}
 		if (dir == ScrollDirection.SCROLL_DOWN) {
@@ -92,7 +92,7 @@ public class SMSPlayerListener extends PlayerListener {
 
 	private void executeMenu(Player player, SMSMenu menu, Location l) {
 		if (!plugin.isAllowedTo(player, "scrollingmenusign.execute", true)) {
-			plugin.error_message(player, "You are not allowed to execute menu sign commands");
+			SMSUtils.errorMessage(player, "You are not allowed to execute menu sign commands");
 			return;
 		}
 		SMSMenuItem item = menu.getCurrentItem(l);
@@ -110,14 +110,14 @@ public class SMSPlayerListener extends PlayerListener {
 			// macro expansion
 			String macro = message.substring(1);
 			if (history.contains(macro)) {
-				plugin.log(Level.WARNING, "sendFeedback [" + macro + "]: recursion detected");
-				plugin.error_message(player, "Recursive loop detected in macro " + macro + "!");
+				SMSUtils.log(Level.WARNING, "sendFeedback [" + macro + "]: recursion detected");
+				SMSUtils.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
 				return;
 			} else if (plugin.commandFile.hasCommand(macro)) {
 				history.add(macro);
 				sendFeedback(player, plugin.commandFile.getCommands(macro), history);
 			} else {
-				plugin.error_message(player, "No such macro '" + macro + "'.");
+				SMSUtils.errorMessage(player, "No such macro '" + macro + "'.");
 			}
 		} else {
 			player.sendMessage(ChatColor.YELLOW + plugin.parseColourSpec(null, message));
@@ -141,28 +141,28 @@ public class SMSPlayerListener extends PlayerListener {
 			if (SMSMenu.checkForMenu(name)) {
 				if (title.length() == 0) {
 					if (!plugin.isAllowedTo(player, "scrollingmenusign.commands.sync")) {
-						plugin.error_message(player, "You are not allowed to add signs to scrolling menus.");
+						SMSUtils.errorMessage(player, "You are not allowed to add signs to scrolling menus.");
 						return;
 					}
 					try {
 						SMSMenu.addSignToMenu(name, b.getLocation());
 					} catch (SMSNoSuchMenuException e) {
-						plugin.error_message(player, e.getError());
+						SMSUtils.errorMessage(player, e.getError());
 					}
-					plugin.status_message(player, "Added sign to existing menu: " + name);
+					SMSUtils.statusMessage(player, "Added sign to existing menu: " + name);
 				} else {
-					plugin.error_message(player, "A menu called '" + name + "' already exists.");
+					SMSUtils.errorMessage(player, "A menu called '" + name + "' already exists.");
 				}
 			} else if (SMSMenu.getMenuNameAt(b.getLocation()) != null) {
-				plugin.error_message(player, "There is already a menu attached to that sign.");
+				SMSUtils.errorMessage(player, "There is already a menu attached to that sign.");
 				return;
 			} else if (title.length() > 0) {
 				if (!plugin.isAllowedTo(player, "scrollingmenusign.commands.create")) {
-					plugin.error_message(player, "You are not allowed to create scrolling menu signs.");
+					SMSUtils.errorMessage(player, "You are not allowed to create scrolling menu signs.");
 					return;
 				}
 				SMSMenu.addMenu(name, new SMSMenu(plugin, name, title, player.getName(), b.getLocation()), true);
-				plugin.status_message(player, "Created new menu sign: " + name);
+				SMSUtils.statusMessage(player, "Created new menu sign: " + name);
 			}
 			plugin.maybeSaveMenus();
 		}
@@ -179,7 +179,7 @@ public class SMSPlayerListener extends PlayerListener {
 			if (menuName == null) return;		
 			menu = SMSMenu.getMenu(menuName);
 		} catch (SMSNoSuchMenuException e) {
-			plugin.log(Level.WARNING, e.getError());
+			SMSUtils.log(Level.WARNING, e.getError());
 			return;
 		}
 		

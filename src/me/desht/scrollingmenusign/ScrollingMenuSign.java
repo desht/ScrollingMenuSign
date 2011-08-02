@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -43,9 +42,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 	
 	final Logger logger = Logger.getLogger("Minecraft");
 	final SMSDebugger debugger = new SMSDebugger(this);
-
-//	private Map<Location, String> menuLocations = new HashMap<Location, String>();
-//	private Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
 
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("sms.always_use_commandsigns", true);
@@ -97,7 +93,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 				loadMenus();
 			}
 		})==-1) {
-			log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
+			SMSUtils.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
 			loadMenus();
 		}
 		loadMacros();
@@ -135,9 +131,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 		if (permissionHandler == null) {
 			if (permissionsPlugin != null) {
 				permissionHandler = ((Permissions) permissionsPlugin).getHandler();
-				log(Level.INFO, "Permissions detected");
+				SMSUtils.log(Level.INFO, "Permissions detected");
 			} else {
-				log(Level.INFO, "Permissions not detected, using ops");
+				SMSUtils.log(Level.INFO, "Permissions not detected, using ops");
 			}
 		}
 	}
@@ -147,9 +143,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 		if (csHandler == null) {
 			if (csPlugin != null) {
 				csHandler = ((CommandSigns) csPlugin).getHandler();
-				log(Level.INFO, "CommandSigns API integration enabled");
+				SMSUtils.log(Level.INFO, "CommandSigns API integration enabled");
 			} else {
-				log(Level.INFO, "CommandSigns API not available");
+				SMSUtils.log(Level.INFO, "CommandSigns API not available");
 			}
 		}
 
@@ -181,80 +177,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 	
-//	// add a new menu
-//	void addMenu(String menuName, SMSMenu menu, Boolean updateSign) {
-//		menus.put(menuName, menu);
-//		for (Location l: menu.getLocations().keySet()) {
-//			menuLocations.put(l, menuName);
-//		}
-//		if (updateSign) {
-//			menu.updateSigns();
-//		}
-//	}
-//	
-//	// remove a menu completely
-//	void removeMenu(String menuName, MenuRemoveAction action) throws SMSNoSuchMenuException {
-//		SMSMenu menu = getMenu(menuName);
-//		if (action == MenuRemoveAction.DESTROY_SIGN) {
-//			menu.destroySigns();
-//		} else if (action == MenuRemoveAction.BLANK_SIGN) {
-//			menu.blankSigns();
-//		}
-//		for (Location loc: menu.getLocations().keySet()) {
-//			menuLocations.remove(loc);
-//		}
-//		menus.remove(menuName);
-//	}
-//	
-//	// remove the sign at location loc
-//	// This doesn't cause the menu to be removed - a menu can have 0 signs
-//	void removeSignFromMenu(Location loc, MenuRemoveAction action) throws SMSNoSuchMenuException {		
-//		String menuName = getMenuNameAt(loc);
-//	
-//		if (menuName != null) {
-//			SMSMenu menu = getMenu(menuName);
-//			if (action == MenuRemoveAction.DESTROY_SIGN) {
-//				menu.destroySign(loc);
-//			} else if (action == MenuRemoveAction.BLANK_SIGN) {
-//				menu.blankSign(loc);
-//			}
-//			menu.removeSign(loc);
-//		}
-//		menuLocations.remove(loc);
-//	}
-//	
-//	// add a new synchronised sign at location loc to an existing menu
-//	void syncMenu(String menuName, Location loc) throws SMSNoSuchMenuException {
-//		SMSMenu menu = getMenu(menuName);
-//		menuLocations.put(loc, menuName);
-//		menu.addSign(loc);
-//		menu.updateSigns();
-//	}
-//	
-//	Map<String, SMSMenu> getMenus() {
-//		return menus;
-//	}
-//	
-//	SMSMenu getMenu(String menuName) throws SMSNoSuchMenuException {
-//		if (!menus.containsKey(menuName))
-//			throw new SMSNoSuchMenuException("No such menu '" + menuName + "'.");
-//		return menus.get(menuName);
-//	}
-//	
-//	void updateAllMenus(){
-//		for (SMSMenu menu : getMenus().values()) {
-//			menu.updateSigns();
-//		}
-//	}
-//	
-//	String getMenuNameAt(Location loc) {
-//		return menuLocations.get(loc);
-//	}
-//
-//	Boolean checkForMenu(String menuName) {
-//		return menus.containsKey(menuName);
-//	}
-
 	void loadMenus() {
 		persistence.load();
 	}
@@ -270,27 +192,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 	void saveMacros() {
 		commandFile.saveCommands();
 	}
-
-	void status_message(Player player, String string) {
-		if (player != null) {
-			player.sendMessage(ChatColor.AQUA + string);
-		} else {
-			log(Level.INFO, string);
-		}
-	}
-
-	void error_message(Player player, String string) {
-		if (player != null) {
-			player.sendMessage(ChatColor.RED + string);
-		} else {
-			log(Level.WARNING, string);
-		}
-	}
-	
-	void log(Level level, String message) {
-		String logMsg = this.getDescription().getName() + ": " + message;
-		logger.log(level, logMsg);
-    }
 
 	String parseColourSpec(Player player, String spec) {
 		if (player == null ||
@@ -312,12 +213,12 @@ public class ScrollingMenuSign extends JavaPlugin {
 	String getTargetedMenuSign(Player player, Boolean complain) {
 		Block b = player.getTargetBlock(null, 3);
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			if (complain) error_message(player, "You are not looking at a sign.");
+			if (complain) SMSUtils.errorMessage(player, "You are not looking at a sign.");
 			return null;
 		}
 		String name = SMSMenu.getMenuNameAt(b.getLocation());
 		if (name == null && complain)
-			error_message(player, "There is no menu associated with that sign.");
+			SMSUtils.errorMessage(player, "There is no menu associated with that sign.");
 		return name;
 	}
 
@@ -326,8 +227,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 			key = "sms." + key;
 		}
 		if (configItems.get(key) == null) {
-			error_message(player, "No such config key " + key);
-			error_message(player, "Use /sms getcfg to list all valid keys");
+			SMSUtils.errorMessage(player, "No such config key " + key);
+			SMSUtils.errorMessage(player, "Use /sms getcfg to list all valid keys");
 			return;
 		}
 		if (configItems.get(key) instanceof Boolean) {
@@ -337,7 +238,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 			} else if (val.equals("true") || val.equals("yes")) {
 				bVal = true;
 			} else {
-				error_message(player, "Invalid boolean value " + val + " - use true/yes or false/no.");
+				SMSUtils.errorMessage(player, "Invalid boolean value " + val + " - use true/yes or false/no.");
 				return;
 			}
 			getConfiguration().setProperty(key, bVal);
@@ -346,12 +247,12 @@ public class ScrollingMenuSign extends JavaPlugin {
 				int nVal = Integer.parseInt(val);
 				getConfiguration().setProperty(key, nVal);
 			} catch (NumberFormatException e) {
-				error_message(player, "Invalid numeric value: " + val);
+				SMSUtils.errorMessage(player, "Invalid numeric value: " + val);
 			}
 		} else {
 			getConfiguration().setProperty(key, val);
 		}
-		status_message(player, key + " is now set to " + val);
+		SMSUtils.statusMessage(player, key + " is now set to " + val);
 		getConfiguration().save();
 	}
 	
@@ -368,7 +269,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	void setTitle(Player player, String menuName, String newTitle) throws SMSNoSuchMenuException {
 		SMSMenu menu = SMSMenu.getMenu(menuName);
 		menu.setTitle(parseColourSpec(player, newTitle));
-		status_message(player, "title for '" + menuName + "' is now '" + newTitle + "'");
+		SMSUtils.statusMessage(player, "title for '" + menuName + "' is now '" + newTitle + "'");
 		menu.updateSigns();
 	}
 

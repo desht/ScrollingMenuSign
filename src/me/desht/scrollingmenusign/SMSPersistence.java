@@ -40,7 +40,7 @@ public class SMSPersistence {
 		Map<String, SMSMenu> menus = SMSMenu.getMenus();
 		Iterator<String> iter = menus.keySet().iterator();
 		
-		plugin.log(Level.INFO, "Saving " + menus.size() + " menus to file...");
+		SMSUtils.log(Level.INFO, "Saving " + menus.size() + " menus to file...");
 		while (iter.hasNext()) {
 			String k = iter.next();
 			SMSMenu menu = menus.get(k);
@@ -59,7 +59,7 @@ public class SMSPersistence {
 		try {
 			yaml.dump(menuMap, new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8")));
 		} catch (IOException e) {
-			plugin.log(Level.SEVERE, e.getMessage());
+			SMSUtils.log(Level.SEVERE, e.getMessage());
 		}
 	}
 	
@@ -70,7 +70,7 @@ public class SMSPersistence {
             try {
                 f.createNewFile();
             } catch (IOException e) {
-                plugin.log(Level.SEVERE, e.getMessage());
+                SMSUtils.log(Level.SEVERE, e.getMessage());
             }
         }
 
@@ -86,7 +86,7 @@ public class SMSPersistence {
         			Map<String,Object> entry = menuMap.get(k);
         			createMenuSign(k, entry);
         		}
-        		plugin.log(Level.INFO, "read " + menuMap.size() + " menus from file.");
+        		SMSUtils.log(Level.INFO, "read " + menuMap.size() + " menus from file.");
                 // now delete any menus which are in-game but not in the loaded map file
         		List<String> staleMenus = new ArrayList<String>();
         		for (String menuName : SMSMenu.getMenus().keySet()) {
@@ -95,14 +95,14 @@ public class SMSPersistence {
         			}
         		}
         		for (String stale : staleMenus) {
-    				plugin.log(Level.INFO, "deleted stale menu '" + stale + "'.");
+    				SMSUtils.log(Level.INFO, "deleted stale menu '" + stale + "'.");
         			SMSMenu.removeMenu(stale, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
         		}
         	}        	
         } catch (FileNotFoundException e) {
-            plugin.log(Level.SEVERE, "menu file '" + f + "' was not found.");
+            SMSUtils.log(Level.SEVERE, "menu file '" + f + "' was not found.");
         } catch (Exception e) {
-        	plugin.log(Level.SEVERE, "caught exception loading " + f + ": " + e.getMessage());
+        	SMSUtils.log(Level.SEVERE, "caught exception loading " + f + ": " + e.getMessage());
         	backupMenuFile(f);
         }
          
@@ -183,11 +183,11 @@ public class SMSPersistence {
         try {
         	File backup = getBackupFileName(original.getParentFile(), menuFile);
 
-            plugin.log(Level.INFO, "An error occurred while loading the menus file, so a backup copy of "
+            SMSUtils.log(Level.INFO, "An error occurred while loading the menus file, so a backup copy of "
                 + original + " is being created. The backup can be found at " + backup.getPath());
             copy(original, backup);
         } catch (IOException e) {
-            plugin.log(Level.SEVERE, "Error while trying to write backup file: " + e);
+            SMSUtils.log(Level.SEVERE, "Error while trying to write backup file: " + e);
         }
     }
 	

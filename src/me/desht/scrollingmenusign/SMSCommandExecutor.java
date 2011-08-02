@@ -42,7 +42,7 @@ public class SMSCommandExecutor implements CommandExecutor {
     			return false;
     		}
     		if (!plugin.isAllowedTo(player, "scrollingmenusign.commands." + args[0])) {
-    			plugin.error_message(player, "You are not allowed to do that.");
+    			SMSUtils.errorMessage(player, "You are not allowed to do that.");
     			return true;
     		}
     		try {
@@ -82,9 +82,9 @@ public class SMSCommandExecutor implements CommandExecutor {
     				return false;
     			}
     		} catch (SMSNoSuchMenuException e) {
-    			plugin.error_message(player, e.getError());
+    			SMSUtils.errorMessage(player, e.getError());
     		} catch (IllegalArgumentException e) {
-    			plugin.error_message(player, e.getMessage());
+    			SMSUtils.errorMessage(player, e.getMessage());
     		}
     	}
 		return true;
@@ -92,13 +92,13 @@ public class SMSCommandExecutor implements CommandExecutor {
 
 	private void createSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException {
 		if (args.length < 3) {
-			plugin.error_message(player, "Usage: sms create <menu-name> <title>");
-			plugin.error_message(player, "   or: sms create <menu-name> from <other-menu-name>");
+			SMSUtils.errorMessage(player, "Usage: sms create <menu-name> <title>");
+			SMSUtils.errorMessage(player, "   or: sms create <menu-name> from <other-menu-name>");
 			return;
 		}
 		String menuName = args[1];
 		if (SMSMenu.checkForMenu(menuName)) {
-			plugin.error_message(player, "A menu called '" + menuName + "' already exists.");
+			SMSUtils.errorMessage(player, "A menu called '" + menuName + "' already exists.");
 			return;
 		}
 		
@@ -109,7 +109,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			Block b = player.getTargetBlock(null, 3);
 			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
 				if (SMSMenu.getMenuNameAt(b.getLocation()) != null) {
-					plugin.error_message(player, "There is already a menu attached to that sign.");
+					SMSUtils.errorMessage(player, "There is already a menu attached to that sign.");
 					return;
 				}
 				owner = player.getName();
@@ -126,7 +126,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu = new SMSMenu(plugin, menuName, menuTitle, owner, loc);
 		}
 		SMSMenu.addMenu(menuName, menu, true);
-		plugin.status_message(player, "Added new scrolling menu: " + menuName);
+		SMSUtils.statusMessage(player, "Added new scrolling menu: " + menuName);
 		plugin.maybeSaveMenus();
 	}
 
@@ -141,11 +141,11 @@ public class SMSCommandExecutor implements CommandExecutor {
 			if (menuName != null) {
 				SMSMenu.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 			} else {
-				plugin.error_message(player, "You are not looking at a sign.");
+				SMSUtils.errorMessage(player, "You are not looking at a sign.");
 				return;
 			}
 		}
-		plugin.status_message(player, "Deleted scrolling menu: " + menuName);
+		SMSUtils.statusMessage(player, "Deleted scrolling menu: " + menuName);
 		plugin.maybeSaveMenus();
 	}
 
@@ -163,12 +163,12 @@ public class SMSCommandExecutor implements CommandExecutor {
 			l = parseLocation(args[1], player);
 			menuName = SMSMenu.getMenuNameAt(l);
 			if (menuName == null) {
-				plugin.error_message(player, "There is no menu at that location.");
+				SMSUtils.errorMessage(player, "There is no menu at that location.");
 				return;
 			}
 		}
 		SMSMenu.removeSignFromMenu(l, MenuRemoveAction.BLANK_SIGN);
-		plugin.status_message(player, "Sign @ " +
+		SMSUtils.statusMessage(player, "Sign @ " +
 				l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 				" was removed from menu '" + menuName + "'");
 		plugin.maybeSaveMenus();
@@ -178,23 +178,23 @@ public class SMSCommandExecutor implements CommandExecutor {
 		if (onConsole(player)) return;
 		
 		if (args.length < 2) {
-			plugin.error_message(player, "Usage: sms sync <menu-name>");
+			SMSUtils.errorMessage(player, "Usage: sms sync <menu-name>");
 			return;
 		}
 
 		Block b = player.getTargetBlock(null, 3);		
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			plugin.error_message(player, "You are not looking at a sign.");
+			SMSUtils.errorMessage(player, "You are not looking at a sign.");
 			return;
 		}
 		String existingMenu = SMSMenu.getMenuNameAt(b.getLocation());
 		if (existingMenu != null) {
-			plugin.error_message(player, "That sign already belongs to menu '" + existingMenu + "'.");
+			SMSUtils.errorMessage(player, "That sign already belongs to menu '" + existingMenu + "'.");
 			return;
 		}
 		String menuName = args[1];
 		SMSMenu.addSignToMenu(menuName, b.getLocation());
-		plugin.status_message(player, "Added sign to scrolling menu: " + menuName);
+		SMSUtils.statusMessage(player, "Added sign to scrolling menu: " + menuName);
 		plugin.maybeSaveMenus();
 	}
 
@@ -206,12 +206,12 @@ public class SMSCommandExecutor implements CommandExecutor {
 			if (menu != null) {
 				listMenu(menu);
 			} else {
-				plugin.error_message(player, "No such menu " + menu);
+				SMSUtils.errorMessage(player, "No such menu " + menu);
 			}
 		} else {
 			Map<String, SMSMenu> menus = SMSMenu.getMenus();	
 			if (menus.size() == 0) {
-				plugin.status_message(player, "No menu signs exist.");
+				SMSUtils.statusMessage(player, "No menu signs exist.");
 				return;
 			}
 			SortedSet<String> sorted = new TreeSet<String>(menus.keySet());
@@ -263,7 +263,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 
 	private void setMenuTitle(Player player, String[] args) throws SMSNoSuchMenuException {
 		if (args.length < 3) {
-			plugin.error_message(player, "Usage: /sms title <menu-name> <new-title>");
+			SMSUtils.errorMessage(player, "Usage: /sms title <menu-name> <new-title>");
 			return;
 		}
 		plugin.setTitle(player, args[1], combine(args, 2));
@@ -272,7 +272,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 
 	private void addSMSItem(Player player, String[] args) throws SMSNoSuchMenuException {	
 		if (args.length < 3) {
-			plugin.error_message(player, "Usage: /sms add <menu-name> <menu-entry>");
+			SMSUtils.errorMessage(player, "Usage: /sms add <menu-name> <menu-entry>");
 			return;
 		}
 			
@@ -280,7 +280,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String sep = plugin.getConfiguration().getString("sms.menuitem_separator", "\\|");
 		String[] entry_args = combine(args, 2).split(Pattern.quote(sep));		
 		if (entry_args.length < 2) {
-			plugin.error_message(player, "menu-entry must include at least entry label & command");
+			SMSUtils.errorMessage(player, "menu-entry must include at least entry label & command");
 			return;
 		}
 		
@@ -292,16 +292,16 @@ public class SMSCommandExecutor implements CommandExecutor {
 		if (plugin.csHandler == null || player == null || plugin.csHandler.hasEnablingPermissions(player, cmd)) {
 			menu.addItem(label, cmd, msg);
 			menu.updateSigns();
-			plugin.status_message(player, "Menu entry [" + label + "] added to: " + menuName);
+			SMSUtils.statusMessage(player, "Menu entry [" + label + "] added to: " + menuName);
 			plugin.maybeSaveMenus();
 		} else {
-			plugin.error_message(player, "You do not have permission to add that kind of command.");
+			SMSUtils.errorMessage(player, "You do not have permission to add that kind of command.");
 		}
 	}
 
 	private void removeSMSItem(Player player, String[] args) throws SMSNoSuchMenuException {
 		if (args.length < 3) {
-			plugin.error_message(player, "Usage: /sms remove <menu-name> <item-index>");
+			SMSUtils.errorMessage(player, "Usage: /sms remove <menu-name> <item-index>");
 			return;
 		}
 		String menuName = args[1];
@@ -311,18 +311,18 @@ public class SMSCommandExecutor implements CommandExecutor {
 			SMSMenu menu = SMSMenu.getMenu(menuName);
 			menu.removeItem(item);
 			menu.updateSigns();
-			plugin.status_message(player, "Menu entry #" + item + " removed from: " + menuName);
+			SMSUtils.statusMessage(player, "Menu entry #" + item + " removed from: " + menuName);
 		} catch (IndexOutOfBoundsException e) {
-			plugin.error_message(player, "Item index " + item + " out of range");
+			SMSUtils.errorMessage(player, "Item index " + item + " out of range");
 		} catch (IllegalArgumentException e) {
-			plugin.error_message(player, e.getMessage());
+			SMSUtils.errorMessage(player, e.getMessage());
 		}
 		plugin.maybeSaveMenus();
 	}
 
 	private void setConfig(Player player, String[] args) {
 		if (args.length < 3) {
-			plugin.error_message(player, "Usage: /sms setcfg <key> <value>");
+			SMSUtils.errorMessage(player, "Usage: /sms setcfg <key> <value>");
 			return;
 		}
 		plugin.setConfigItem(player, args[1], combine(args, 2));
@@ -341,9 +341,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		} else {
 			String res = plugin.getConfiguration().getString(args[1]);
 			if (res != null) {
-				plugin.status_message(player, args[1] + " = '" + res + "'");
+				SMSUtils.statusMessage(player, args[1] + " = '" + res + "'");
 			} else {
-				plugin.error_message(player, "No such config item " + args[1]);
+				SMSUtils.errorMessage(player, "No such config item " + args[1]);
 			}
 		}
 	}
@@ -365,7 +365,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		if (saveAll || saveMenus) plugin.saveMenus();
 		if (saveAll || saveMacros) plugin.saveMacros();
-		plugin.status_message(player, "Save complete.");
+		SMSUtils.statusMessage(player, "Save complete.");
 	}
 
 	private void loadCommand(Player player, String[] args) {
@@ -392,15 +392,15 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		if (loadAll || loadMenus) plugin.loadMenus();
 		if (loadAll || loadMacros) plugin.loadMacros();
-		plugin.status_message(player, "Reload complete.");
+		SMSUtils.statusMessage(player, "Reload complete.");
 	}
 
 	private void doMacroCommand(Player player, String[] args) {
 		if (args.length < 2) {
-			plugin.error_message(player, "Usage: /sms macro list");
-			plugin.error_message(player, "       /sms macro list <macro-name>");
-			plugin.error_message(player, "       /sms macro add <macro-name> <command>");
-			plugin.error_message(player, "       /sms macro remove <macro-name> <index>");
+			SMSUtils.errorMessage(player, "Usage: /sms macro list");
+			SMSUtils.errorMessage(player, "       /sms macro list <macro-name>");
+			SMSUtils.errorMessage(player, "       /sms macro add <macro-name> <command>");
+			SMSUtils.errorMessage(player, "       /sms macro remove <macro-name> <index>");
 			return;
 		}
 		Boolean needSave = false;
@@ -425,24 +425,24 @@ public class SMSCommandExecutor implements CommandExecutor {
 			if (args.length >= 4) {
 				String s = combine(args, 3);
 				plugin.commandFile.addCommand(args[2], s);
-				plugin.status_message(player, "Added command to macro '" + args[2] + "'.");
+				SMSUtils.statusMessage(player, "Added command to macro '" + args[2] + "'.");
 				needSave = true;
 			}
 		} else if (partialMatch(args[1], "r")) {	// remove
 			if (args.length < 4) {
 				plugin.commandFile.removeCommand(args[2]);
-				plugin.status_message(player, "Removed macro '" + args[2] + "'.");
+				SMSUtils.statusMessage(player, "Removed macro '" + args[2] + "'.");
 				needSave = true;
 			} else {
 				try { 
 					int index = Integer.parseInt(args[3]);
 					plugin.commandFile.removeCommand(args[2], index - 1);
-					plugin.status_message(player, "Removed command from macro '" + args[2] + "'.");
+					SMSUtils.statusMessage(player, "Removed command from macro '" + args[2] + "'.");
 					needSave = true;
 				} catch (NumberFormatException e) {
-					plugin.error_message(player, "invalid index " + args[3]);
+					SMSUtils.errorMessage(player, "invalid index " + args[3]);
 				} catch (IndexOutOfBoundsException e) {
-					plugin.error_message(player, "invalid index " + args[3]);	
+					SMSUtils.errorMessage(player, "invalid index " + args[3]);	
 				}
 			}
 		}
@@ -453,9 +453,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		plugin.debugger.toggleDebug(player);
 		int level = plugin.debugger.getDebugLevel(player);
 		if (level > 0) {
-			plugin.status_message(player, "Debugging enabled.");
+			SMSUtils.statusMessage(player, "Debugging enabled.");
 		} else {
-			plugin.status_message(player, "Debugging disabled.");
+			SMSUtils.statusMessage(player, "Debugging disabled.");
 		}
 	}
 
@@ -477,7 +477,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			pageNum = Integer.parseInt(args[1]);
 			pagedDisplay(player, pageNum);
 		} catch (NumberFormatException e) {
-			plugin.error_message(player, "invalid argument '" + args[1] + "'");
+			SMSUtils.errorMessage(player, "invalid argument '" + args[1] + "'");
 		}
 	}
 	
@@ -485,19 +485,19 @@ public class SMSCommandExecutor implements CommandExecutor {
 		if (player != null) {
 			// pretty paged display
 			int nMessages = messageBuffer.size();
-			plugin.status_message(player, ChatColor.GREEN + "" +  nMessages +
+			SMSUtils.statusMessage(player, ChatColor.GREEN + "" +  nMessages +
 					" lines (page " + pageNum + "/" + ((nMessages-1) / pageSize + 1) + ")");
-			plugin.status_message(player, ChatColor.GREEN + "---------------");
+			SMSUtils.statusMessage(player, ChatColor.GREEN + "---------------");
 			for (int i = (pageNum -1) * pageSize; i < nMessages && i < pageNum * pageSize; i++) {
-				plugin.status_message(player, messageBuffer.get(i));
+				SMSUtils.statusMessage(player, messageBuffer.get(i));
 			}
-			plugin.status_message(player, ChatColor.GREEN + "---------------");
+			SMSUtils.statusMessage(player, ChatColor.GREEN + "---------------");
 			String footer = (nMessages > pageSize * pageNum) ? "Use /sms page [page#] to see more" : "";
-			plugin.status_message(player, ChatColor.GREEN + footer);
+			SMSUtils.statusMessage(player, ChatColor.GREEN + footer);
 		} else {
 			// just dump the whole message buffer to the console
 			for (String s: messageBuffer) {
-				plugin.status_message(null, ScrollingMenuSign.deColourise(s));
+				SMSUtils.statusMessage(null, ScrollingMenuSign.deColourise(s));
 			}
 		}
 	}
@@ -525,7 +525,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 
 	private boolean onConsole(Player player) {
 		if (player == null) {
-			plugin.error_message(player, "This command cannot be run from the console.");
+			SMSUtils.errorMessage(player, "This command cannot be run from the console.");
 			return true;
 		} else {
 			return false;
