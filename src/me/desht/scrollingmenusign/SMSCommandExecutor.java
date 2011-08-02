@@ -41,7 +41,7 @@ public class SMSCommandExecutor implements CommandExecutor {
     		if (args.length == 0) {
     			return false;
     		}
-    		if (!plugin.isAllowedTo(player, "scrollingmenusign.commands." + args[0])) {
+    		if (!SMSPermissions.isAllowedTo(player, "scrollingmenusign.commands." + args[0])) {
     			SMSUtils.errorMessage(player, "You are not allowed to do that.");
     			return true;
     		}
@@ -122,7 +122,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			SMSMenu otherMenu = SMSMenu.getMenu(args[3]);
 			menu = new SMSMenu(plugin, otherMenu, menuName, owner, loc);
 		} else if (args.length >= 3) {
-			String menuTitle = plugin.parseColourSpec(player, combine(args, 2));
+			String menuTitle = SMSUtils.parseColourSpec(player, combine(args, 2));
 			menu = new SMSMenu(plugin, menuName, menuTitle, owner, loc);
 		}
 		SMSMenu.addMenu(menuName, menu, true);
@@ -137,7 +137,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			SMSMenu.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 		} else {
 			if (onConsole(player)) return;
-			menuName = plugin.getTargetedMenuSign(player, true);
+			menuName = SMSMenu.getTargetedMenuSign(player, true);
 			if (menuName != null) {
 				SMSMenu.removeMenu(menuName, ScrollingMenuSign.MenuRemoveAction.BLANK_SIGN);
 			} else {
@@ -154,7 +154,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		String menuName = null;
 		if (args.length < 2) {
 			if (onConsole(player)) return;
-			menuName = plugin.getTargetedMenuSign(player, true);
+			menuName = SMSMenu.getTargetedMenuSign(player, true);
 			if (menuName == null)
 				return;
 			Block b = player.getTargetBlock(null, 3);
@@ -242,7 +242,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menuName = args[1];
 		} else {
 			if (onConsole(player)) return;
-			menuName = plugin.getTargetedMenuSign(player, true);
+			menuName = SMSMenu.getTargetedMenuSign(player, true);
 			if (menuName == null)
 				return;
 		}
@@ -266,7 +266,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			SMSUtils.errorMessage(player, "Usage: /sms title <menu-name> <new-title>");
 			return;
 		}
-		plugin.setTitle(player, args[1], combine(args, 2));
+		SMSMenu.setTitle(player, args[1], combine(args, 2));
 		plugin.maybeSaveMenus();
 	}
 
@@ -285,7 +285,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		
 		SMSMenu menu = SMSMenu.getMenu(menuName);				
-		String label = plugin.parseColourSpec(player, entry_args[0]);
+		String label = SMSUtils.parseColourSpec(player, entry_args[0]);
 		String cmd = entry_args[1];
 		String msg = entry_args.length >= 3 ? entry_args[2] : "";
 
@@ -325,7 +325,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			SMSUtils.errorMessage(player, "Usage: /sms setcfg <key> <value>");
 			return;
 		}
-		plugin.setConfigItem(player, args[1], combine(args, 2));
+		SMSConfig.setConfigItem(player, args[1], combine(args, 2));
 		if (args[1].matches("item_(justify|prefix.*)")) {
 			SMSMenu.updateAllMenus();
 		}
@@ -334,7 +334,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 	private void getConfig(Player player, String[] args) {
 		messageBuffer.clear();
 		if (args.length < 2) {
-			for (String line : plugin.getConfigList()) {
+			for (String line : SMSConfig.getConfigList()) {
 				messageBuffer.add(line);
 			}
 			pagedDisplay(player, 1);
@@ -497,7 +497,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		} else {
 			// just dump the whole message buffer to the console
 			for (String s: messageBuffer) {
-				SMSUtils.statusMessage(null, ScrollingMenuSign.deColourise(s));
+				SMSUtils.statusMessage(null, SMSUtils.deColourise(s));
 			}
 		}
 	}

@@ -45,7 +45,7 @@ public class SMSPersistence {
 			String k = iter.next();
 			SMSMenu menu = menus.get(k);
 			HashMap<String, Object> map = new HashMap<String, Object>();
-			map.put("title", ScrollingMenuSign.unParseColourSpec(menu.getTitle()));
+			map.put("title", SMSUtils.unParseColourSpec(menu.getTitle()));
 			map.put("owner", menu.getOwner());
 			List<List<Object>> locs = new ArrayList<List<Object>>();
 			for (Location l: menu.getLocations().keySet()) {
@@ -123,9 +123,9 @@ public class SMSPersistence {
 		List<Map<String,String>> l = new ArrayList<Map<String, String>>();
 		for (SMSMenuItem item : items) {		
 			HashMap<String,String> h = new HashMap<String, String>();
-			h.put("label", ScrollingMenuSign.unParseColourSpec(item.getLabel()));
+			h.put("label", SMSUtils.unParseColourSpec(item.getLabel()));
 			h.put("command", item.getCommand());
-			h.put("message", ScrollingMenuSign.unParseColourSpec(item.getMessage()));
+			h.put("message", SMSUtils.unParseColourSpec(item.getMessage()));
 			l.add(h);
 		}
 		return l;
@@ -134,7 +134,7 @@ public class SMSPersistence {
 
 	@SuppressWarnings("unchecked")
 	private void createMenuSign(String menuName, Map<String, Object> menuData) {
-		String title = plugin.parseColourSpec(null, (String) menuData.get("title"));
+		String title = SMSUtils.parseColourSpec(null, (String) menuData.get("title"));
 		String owner = (String) menuData.get("owner");
 		SMSMenu menu;
 		if (menuData.get("locations") != null) {
@@ -160,9 +160,9 @@ public class SMSPersistence {
 		List<Map<String,String>>items = (List<Map<String, String>>) menuData.get("items");
 		for (Map<String,String> item : items) {
 			menu.addItem(
-					plugin.parseColourSpec(null, item.get("label")),
+					SMSUtils.parseColourSpec(null, item.get("label")),
 					item.get("command"),
-					plugin.parseColourSpec(null, item.get("message"))
+					SMSUtils.parseColourSpec(null, item.get("message"))
 			);
 		}
 		

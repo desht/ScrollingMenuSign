@@ -40,13 +40,17 @@ public class SMSPlayerListener extends PlayerListener {
 		Player player = event.getPlayer();
 		
 		String menuName = SMSMenu.getMenuNameAt(b.getLocation());
-		if (menuName == null) {
-			// No menu attached to this sign, but a left-click could create a new menu if the sign's
-			// text is in the right format...
-			if (event.getAction() == Action.LEFT_CLICK_BLOCK && player.getItemInHand().getTypeId() == 0) {
-				tryToActivateSign(b, player); 
+		try {
+			if (menuName == null) {
+				// No menu attached to this sign, but a left-click could create a new menu if the sign's
+				// text is in the right format...
+				if (event.getAction() == Action.LEFT_CLICK_BLOCK && player.getItemInHand().getTypeId() == 0) {
+					tryToActivateSign(b, player); 
+				}
+				return;
 			}
-			return;
+		} catch (SMSException e) {
+			SMSUtils.errorMessage(player, e.getMessage());
 		}
 		
 		// ok, it's a sign, and there's a menu on it
@@ -64,10 +68,12 @@ public class SMSPlayerListener extends PlayerListener {
 			processAction(action, player, menu, b.getLocation());
 		} catch (SMSNoSuchMenuException e) {
 			SMSUtils.errorMessage(player, e.getError());
+		} catch (SMSException e) {
+			SMSUtils.errorMessage(player, e.getMessage());
 		}
 	}
 
-	private void processAction(String action, Player p, SMSMenu menu, Location l) {
+	private void processAction(String action, Player p, SMSMenu menu, Location l) throws SMSException {
 		if (action.equalsIgnoreCase("execute")) {
 			executeMenu(p, menu, l);
 		} else if (action.equalsIgnoreCase("scrolldown")) {
@@ -77,11 +83,8 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 	}
 	
-	private void scrollMenu(Player player, SMSMenu menu, Location l, ScrollDirection dir) {
-		if (!plugin.isAllowedTo(player, "scrollingmenusign.scroll", true)) {
-			SMSUtils.errorMessage(player, "You are not allowed to scroll through menu signs");
-			return;
-		}
+	private void scrollMenu(Player player, SMSMenu menu, Location l, ScrollDirection dir) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.scroll");
 		if (dir == ScrollDirection.SCROLL_DOWN) {
 			menu.nextItem(l);
 		} else if (dir == ScrollDirection.SCROLL_UP) {
@@ -90,11 +93,9 @@ public class SMSPlayerListener extends PlayerListener {
 		menu.updateSign(l);
 	}
 
-	private void executeMenu(Player player, SMSMenu menu, Location l) {
-		if (!plugin.isAllowedTo(player, "scrollingmenusign.execute", true)) {
-			SMSUtils.errorMessage(player, "You are not allowed to execute menu sign commands");
-			return;
-		}
+	private void executeMenu(Player player, SMSMenu menu, Location l) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.execute");
+		
 		SMSMenuItem item = menu.getCurrentItem(l);
 		if (item != null) {
 			String command = item.getCommand();
@@ -120,7 +121,7 @@ public class SMSPlayerListener extends PlayerListener {
 				SMSUtils.errorMessage(player, "No such macro '" + macro + "'.");
 			}
 		} else {
-			player.sendMessage(ChatColor.YELLOW + plugin.parseColourSpec(null, message));
+			player.sendMessage(ChatColor.YELLOW + SMSUtils.parseColourSpec(null, message));
 		}	
 	}
 
@@ -130,20 +131,17 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 	}
 	
-	private void tryToActivateSign(Block b, Player player) {
+	private void tryToActivateSign(Block b, Player player) throws SMSException {
 		Sign sign = (Sign) b.getState();
 		if (!sign.getLine(0).equals("[sms]"))
 		return;
 
 		String name = sign.getLine(1);
-		String title = plugin.parseColourSpec(player, sign.getLine(2));
+		String title = SMSUtils.parseColourSpec(player, sign.getLine(2));
 		if (name.length() > 0) {
 			if (SMSMenu.checkForMenu(name)) {
 				if (title.length() == 0) {
-					if (!plugin.isAllowedTo(player, "scrollingmenusign.commands.sync")) {
-						SMSUtils.errorMessage(player, "You are not allowed to add signs to scrolling menus.");
-						return;
-					}
+					SMSPermissions.requirePerms(player, "scrollingmenusign.commands.sync");
 					try {
 						SMSMenu.addSignToMenu(name, b.getLocation());
 					} catch (SMSNoSuchMenuException e) {
@@ -157,10 +155,7 @@ public class SMSPlayerListener extends PlayerListener {
 				SMSUtils.errorMessage(player, "There is already a menu attached to that sign.");
 				return;
 			} else if (title.length() > 0) {
-				if (!plugin.isAllowedTo(player, "scrollingmenusign.commands.create")) {
-					SMSUtils.errorMessage(player, "You are not allowed to create scrolling menu signs.");
-					return;
-				}
+				SMSPermissions.requirePerms(player, "scrollingmenusign.commands.create");
 				SMSMenu.addMenu(name, new SMSMenu(plugin, name, title, player.getName(), b.getLocation()), true);
 				SMSUtils.statusMessage(player, "Created new menu sign: " + name);
 			}
@@ -170,12 +165,12 @@ public class SMSPlayerListener extends PlayerListener {
 	
 	@Override
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
-		Player p = event.getPlayer();
+		Player player = event.getPlayer();
 
 		String menuName = null;
 		SMSMenu menu = null;
 		try {
-			menuName = plugin.getTargetedMenuSign(p, false);
+			menuName = SMSMenu.getTargetedMenuSign(player, false);
 			if (menuName == null) return;		
 			menu = SMSMenu.getMenu(menuName);
 		} catch (SMSNoSuchMenuException e) {
@@ -184,7 +179,7 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 		
 		int delta = event.getNewSlot() - event.getPreviousSlot();
-		String sneak = p.isSneaking() ? "sneak" : "normal";
+		String sneak = player.isSneaking() ? "sneak" : "normal";
 		String action = "none";
 		Configuration config = plugin.getConfiguration();
 		if (delta == -1 || delta == 8) {
@@ -192,9 +187,13 @@ public class SMSPlayerListener extends PlayerListener {
 		} else if (delta == 1 || delta == -8) {
 			action = config.getString("sms.actions.wheeldown." + sneak);
 		}
-		Block b = p.getTargetBlock(null, 3);
+		Block b = player.getTargetBlock(null, 3);
 		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-			processAction(action, p, menu, b.getLocation());
+			try {
+				processAction(action, player, menu, b.getLocation());
+			} catch (SMSException e) {
+				SMSUtils.errorMessage(player, e.getMessage());
+			}
 		}
 	}
 	

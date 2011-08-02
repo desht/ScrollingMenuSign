@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 
 public class SMSMenu {
 	private ScrollingMenuSign plugin;
@@ -111,7 +112,7 @@ public class SMSMenu {
 		} catch (NumberFormatException e) {
 			// not an integer - try to remove by label
 			for (int i = 0; i < items.size(); i++) {
-				String label = ScrollingMenuSign.deColourise(items.get(i).getLabel());
+				String label = SMSUtils.deColourise(items.get(i).getLabel());
 				if (indexStr.equalsIgnoreCase(label)) {
 					index = i + 1;
 					break;
@@ -199,7 +200,7 @@ public class SMSMenu {
 			s = prefix + "%1$" + l + "s";
 		else
 			s = prefix + "%1$s";
-		return plugin.parseColourSpec(null, s);
+		return SMSUtils.parseColourSpec(null, s);
 	}
 	
 	// Get line 2 of the sign (item before the current item, or blank
@@ -371,4 +372,25 @@ public class SMSMenu {
 	static Map<Location,String> getAllLocations() {
 		return menuLocations;
 	}
+	
+	// Return the name of the menu sign that the player is looking at, if any
+	static String getTargetedMenuSign(Player player, Boolean complain) {
+		Block b = player.getTargetBlock(null, 3);
+		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
+			if (complain) SMSUtils.errorMessage(player, "You are not looking at a sign.");
+			return null;
+		}
+		String name = SMSMenu.getMenuNameAt(b.getLocation());
+		if (name == null && complain)
+			SMSUtils.errorMessage(player, "There is no menu associated with that sign.");
+		return name;
+	}
+	
+	static void setTitle(Player player, String menuName, String newTitle) throws SMSNoSuchMenuException {
+		SMSMenu menu = SMSMenu.getMenu(menuName);
+		menu.setTitle(SMSUtils.parseColourSpec(player, newTitle));
+		SMSUtils.statusMessage(player, "title for '" + menuName + "' is now '" + newTitle + "'");
+		menu.updateSigns();
+	}
+
 }
