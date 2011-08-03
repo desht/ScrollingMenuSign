@@ -44,7 +44,7 @@ public class SMSBlockListener extends BlockListener {
 				SMSMenu.getMenu(menuName).updateSign(b.getLocation());
 			}
 		} catch (SMSNoSuchMenuException e) {
-			SMSUtils.errorMessage(event.getPlayer(), e.getError());
+			SMSUtils.errorMessage(event.getPlayer(), e.getMessage());
 		}
 	}
 	
@@ -68,7 +68,7 @@ public class SMSBlockListener extends BlockListener {
 				}
 			}
 		} catch (SMSNoSuchMenuException e) {
-			SMSUtils.errorMessage(p, e.getError());
+			SMSUtils.errorMessage(p, e.getMessage());
 		}
 	}
 
@@ -94,7 +94,7 @@ public class SMSBlockListener extends BlockListener {
 							menu.autosave();
 						}
 					} catch (SMSNoSuchMenuException e) {
-						SMSUtils.log(Level.WARNING, e.getError());
+						SMSUtils.log(Level.WARNING, e.getMessage());
 					}
 				}
 			}

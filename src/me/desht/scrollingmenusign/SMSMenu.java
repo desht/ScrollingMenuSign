@@ -327,6 +327,16 @@ public class SMSMenu {
 	}		
 	
 	/**
+	 * Remove all items from a menu 
+	 */
+	public void removeAllItems() {
+		items.clear();
+		for (Location l : locations.keySet()) {
+			locations.put(l, 0);
+		}
+	}
+	
+	/**
 	 * Force a repaint of the given sign according to the current menu state
 	 * 
 	 * @param l	Location of the sign to repaint
@@ -538,6 +548,7 @@ public class SMSMenu {
 		if (updateSign) {
 			menu.updateSigns();
 		}
+		System.out.println("added menu " + menuName);
 	}
 	
 	/**

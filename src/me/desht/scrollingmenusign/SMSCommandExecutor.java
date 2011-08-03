@@ -75,7 +75,7 @@ public class SMSCommandExecutor implements CommandExecutor {
     				return false;
     			}
     		} catch (SMSNoSuchMenuException e) {
-    			SMSUtils.errorMessage(player, e.getError());
+    			SMSUtils.errorMessage(player, e.getMessage());
     		} catch (SMSException e) {
     			SMSUtils.errorMessage(player, e.getMessage());
     		} catch (IllegalArgumentException e) {

@@ -10,7 +10,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class SMSUtils {
-	private static String prevColour;
+	private static String prevColour = ChatColor.WHITE.toString();
 	protected static final Logger logger = Logger.getLogger("Minecraft");
 	protected static final String messageFormat = "ScrollingMenuSign: %s";
 	

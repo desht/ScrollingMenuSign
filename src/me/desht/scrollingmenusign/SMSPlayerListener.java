@@ -67,7 +67,7 @@ public class SMSPlayerListener extends PlayerListener {
 			}
 			processAction(action, player, menu, b.getLocation());
 		} catch (SMSNoSuchMenuException e) {
-			SMSUtils.errorMessage(player, e.getError());
+			SMSUtils.errorMessage(player, e.getMessage());
 		} catch (SMSException e) {
 			SMSUtils.errorMessage(player, e.getMessage());
 		}
@@ -147,7 +147,7 @@ public class SMSPlayerListener extends PlayerListener {
 						menu.addSign(b.getLocation(), true);
 						menu.autosave();
 					} catch (SMSNoSuchMenuException e) {
-						SMSUtils.errorMessage(player, e.getError());
+						SMSUtils.errorMessage(player, e.getMessage());
 					}
 					SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(b.getLocation()) +
 					                       "&- was added to menu &e" + name + "&-");
@@ -180,7 +180,7 @@ public class SMSPlayerListener extends PlayerListener {
 			if (menuName == null) return;		
 			menu = SMSMenu.getMenu(menuName);
 		} catch (SMSNoSuchMenuException e) {
-			SMSUtils.log(Level.WARNING, e.getError());
+			SMSUtils.log(Level.WARNING, e.getMessage());
 			return;
 		} catch (SMSException e) {
 			SMSUtils.log(Level.WARNING, e.getMessage());
