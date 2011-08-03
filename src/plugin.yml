@@ -22,4 +22,84 @@ commands:
       /sms macro <list|add|remove> <macro-name> ...
       /sms save [<all|menus|macros|config>]
       /sms reload [<all|menus|macros|config>]
-      
+permissions:
+  scrollingmenusign.admin:
+    description: Gives access to SMS administration
+    children:
+      scrollingmenusign.commands.create: true
+      scrollingmenusign.commands.delete: true
+      scrollingmenusign.commands.break: true
+      scrollingmenusign.commands.sync: true
+      scrollingmenusign.commands.add: true
+      scrollingmenusign.commands.remove: true
+      scrollingmenusign.commands.save: true
+      scrollingmenusign.commands.reload: true
+      scrollingmenusign.commands.macro: true
+      scrollingmenusign.commands.setcfg: true
+      scrollingmenusign.destroy: true
+      scrollingmenusign.user: true
+  scrollingmenusign.user:
+    description: Gives access to basic SMS functionality
+    children:
+      scrollingmenusign.commands.getcfg: true
+      scrollingmenusign.commands.list: true
+      scrollingmenusign.commands.show: true
+      scrollingmenusign.scroll: true
+      scrollingmenusign.execute: true
+  scrollingmenusign.commands.create:
+    description: Allow creation of new menus
+    default: op
+  scrollingmenusign.commands.delete:
+    description: Allow deletion of menus
+    default: op
+  scrollingmenusign.commands.break:
+    description: Allows signs to be removed from menus
+    default: op
+  scrollingmenusign.commands.sync:
+    description: Allows signs to be added to (synchronised with) menus
+    default: op
+  scrollingmenusign.commands.add:
+    description: Allows menu items to be added to a menu
+    default: op
+  scrollingmenusign.commands.remove:
+    description: Allows menu items to be removed from a menu
+    default: op
+  scrollingmenusign.commands.save:
+    description: Allows saving of persisted data
+    default: op
+  scrollingmenusign.commands.reload:
+    description: Allows reloading of persisted data
+    default: op
+  scrollingmenusign.commands.macro:
+    description: Allows usage of macro management commands
+    default: op
+  scrollingmenusign.commands.debug:
+    description: Allows debugging of the plugin
+    default: op
+  scrollingmenusign.destroy:
+    description: Allows destruction of signs belonging to a menu created by someone else
+    default: op
+  scrollingmenusign.commands.getcfg:
+    description: Allows configuration items to be viewed
+    default: true
+  scrollingmenusign.destroy:
+    description: Allows destruction of signs belonging to a menu created by someone else
+    default: op
+  scrollingmenusign.coloursigns:
+    description: Allows creation of signs with coloured titles and menu items
+    default: op
+  scrollingmenusign.commands.list:
+    description: Allows menus to be listed
+    default: true
+  scrollingmenusign.commands.show:
+    description: Allows menus to be shown
+    default: true
+  scrollingmenusign.scroll:
+    description: Allows menus to be scrolled
+    default: true
+  scrollingmenusign.execute:
+    description: Allows menu items to be executed
+    default: true
+  scrollingmenusign.commands.page:
+    description: Allows output data to be paged
+    default: true

@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class SMSUtils {
@@ -46,7 +47,7 @@ public class SMSUtils {
 			if (player != null) {
 				player.sendMessage(parseColourSpec(line));
 			} else {
-				log(level, line);
+				log(level, ChatColor.stripColor(parseColourSpec(line)));
 			}
 		}
 	}
@@ -56,7 +57,7 @@ public class SMSUtils {
 			if (player != null) {
 				player.sendMessage(colour + parseColourSpec(line));
 			} else {
-				log(level, line);
+				log(level, ChatColor.stripColor(parseColourSpec(line)));
 			}
 		}
 	}
@@ -66,10 +67,31 @@ public class SMSUtils {
 		return res.replace("&-", prevColour).replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
-	static String formatLoc(Location loc) {
-		String str = "<" + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + "," //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				+ loc.getWorld().getName() + ">"; //$NON-NLS-1$
-		return str;
+	static String formatLocation(Location loc) {
+		return String.format("%d,%d,%d,%s", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName());
+	}
+
+	static Location parseLocation(String arglist) {
+		return parseLocation(arglist, null);
+	}
+	
+	static Location parseLocation(String arglist, Player player) {
+		String s = player == null ? ",worldname" : "";
+		String args[] = arglist.split(",");
+		try {
+			int x = Integer.parseInt(args[0]);
+			int y = Integer.parseInt(args[1]);
+			int z = Integer.parseInt(args[2]);
+			World w = (player == null) ?
+					Bukkit.getServer().getWorld(args[3]) :
+					player.getWorld();
+			if (w == null) throw new IllegalArgumentException("Unknown world: " + args[3]);
+			return new Location(w, x, y, z);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new IllegalArgumentException("You must specify all of x,y,z" + s + ".");
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
+		}
 	}
 	
 	static void log(String message) {

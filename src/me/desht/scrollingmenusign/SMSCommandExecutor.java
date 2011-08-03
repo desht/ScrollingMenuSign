@@ -6,10 +6,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -36,10 +37,6 @@ public class SMSCommandExecutor implements CommandExecutor {
     	if (label.equalsIgnoreCase("sms")) {
     		if (args.length == 0) {
     			return false;
-    		}
-    		if (!SMSPermissions.isAllowedTo(player, "scrollingmenusign.commands." + args[0])) {
-    			SMSUtils.errorMessage(player, "You are not allowed to do that.");
-    			return true;
     		}
     		try {
     			if (partialMatch(args[0], "c")) { 			// create
@@ -88,7 +85,8 @@ public class SMSCommandExecutor implements CommandExecutor {
 		return true;
 	}
 
-	private void createSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException {
+	private void createSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.create");
 		if (args.length < 3) {
 			SMSUtils.errorMessage(player, "Usage: sms create <menu-name> <title>");
 			SMSUtils.errorMessage(player, "   or: sms create <menu-name> from <other-menu-name>");
@@ -124,11 +122,13 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu = new SMSMenu(plugin, menuName, menuTitle, owner, loc);
 		}
 		SMSMenu.addMenu(menuName, menu, true);
-		SMSUtils.statusMessage(player, "Added new scrolling menu: " + menuName);
+		SMSUtils.statusMessage(player, "Created new menu &e" + menuName + "&- " + (loc == null ? " with no signs" : " with sign @ &f" + formatLoc(loc)));
 		menu.autosave();
 	}
 
 	private void deleteSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.delete");
+		
 		SMSMenu menu = null;
 		if (args.length >= 2) {
 			menu = SMSMenu.getMenu(args[1]);
@@ -138,27 +138,30 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		menu.deletePermanent();
 		menu.autosave();
-		SMSUtils.statusMessage(player, "Deleted scrolling menu: " + menu.getName());
+		SMSUtils.statusMessage(player, "Deleted menu &e" + menu.getName());
 	}
 
-	private void breakSMSSign(Player player, String[] args) throws SMSNoSuchMenuException {
+	private void breakSMSSign(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.break");
+		
 		Location loc = null;
 		if (args.length < 2) {
 			if (onConsole(player)) return;
 			Block b = player.getTargetBlock(null, 3);
 			loc = b.getLocation();
 		} else {
-			loc = parseLocation(args[1], player);
+			loc = SMSUtils.parseLocation(args[1], player);
 		}
 		SMSMenu menu = SMSMenu.getMenuAt(loc);
-		menu.removeSign(loc);
-		menu.blankSign(loc);
-		SMSUtils.statusMessage(player, "Sign @ " + SMSUtils.formatLoc(loc) +
-		                       " was removed from menu '" + menu.getName() + "'");
+		menu.removeSign(loc, MenuRemoveAction.BLANK_SIGN);
+		SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(loc) +
+		                       "&- was removed from menu &e" + menu.getName() + "&-");
 		menu.autosave();
 	}
 	
 	private void syncSMSSign(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.sync");
+		
 		if (onConsole(player)) return;
 		
 		if (args.length < 2) {
@@ -170,24 +173,29 @@ public class SMSCommandExecutor implements CommandExecutor {
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
 			throw new SMSException("You are not looking at a sign.");
 		}
-		SMSMenu menu = SMSMenu.getMenuAt(b.getLocation());
-		menu.addSign(b.getLocation());
+		SMSMenu menu = SMSMenu.getMenu(args[1]);
+		menu.addSign(b.getLocation(), true);
+		menu.updateSign(b.getLocation());
 		menu.autosave();
-		
-		SMSUtils.statusMessage(player, "Added sign to scrolling menu: " + menu.getName());
+
+		SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(b.getLocation()) +
+		                       "&- was added to menu &e" + menu.getName() + "&-");
 	}
 
-	private void listSMSMenus(Player player, String[] args) throws SMSNoSuchMenuException {
+	private void listSMSMenus(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.list");
+		
 		messageBuffer.clear();
 		
 		if (args.length >= 2) {
 			SMSMenu menu = SMSMenu.getMenu(args[1]);
 			listMenu(menu);
 		} else {
-			if (SMSMenu.getMenus().size() == 0) {
+			List<SMSMenu> menus = SMSMenu.listMenus(true);
+			if (menus.size() == 0) {
 				SMSUtils.statusMessage(player, "No menu signs exist.");
 			} else {
-				for (SMSMenu menu : SMSMenu.listMenus(true)) {
+				for (SMSMenu menu : menus) {
 					listMenu(menu);
 				}
 			}
@@ -209,6 +217,8 @@ public class SMSCommandExecutor implements CommandExecutor {
 	}
 
 	private void showSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.show");
+		
 		SMSMenu menu = null;
 		if (args.length >= 2) {
 			menu = SMSMenu.getMenu(args[1]);
@@ -218,7 +228,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		messageBuffer.clear();
 		messageBuffer.add(ChatColor.YELLOW + "Menu '" + menu.getName() + "': title '" + menu.getTitle() + "'");
-		ArrayList<SMSMenuItem> items = menu.getItems();
+		List<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
 			String s = String.format(ChatColor.YELLOW + "%2d)" +
@@ -240,7 +250,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		menu.autosave();
 	}
 
-	private void addSMSItem(Player player, String[] args) throws SMSNoSuchMenuException {	
+	private void addSMSItem(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {	
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.add");
+		
 		if (args.length < 3) {
 			SMSUtils.errorMessage(player, "Usage: /sms add <menu-name> <menu-entry>");
 			return;
@@ -262,14 +274,16 @@ public class SMSCommandExecutor implements CommandExecutor {
 		if (!SMSCommandSigns.isActive() || player == null || SMSCommandSigns.hasEnablingPermissions(player, cmd)) {
 			menu.addItem(label, cmd, msg);
 			menu.updateSigns();
-			SMSUtils.statusMessage(player, "Menu entry [" + label + "] added to: " + menuName);
+			SMSUtils.statusMessage(player, "Menu entry &f" + label + "&- added to: &e" + menuName);
 			menu.autosave();
 		} else {
 			SMSUtils.errorMessage(player, "You do not have permission to add that kind of command.");
 		}
 	}
 
-	private void removeSMSItem(Player player, String[] args) throws SMSNoSuchMenuException {
+	private void removeSMSItem(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.remove");
+		
 		if (args.length < 3) {
 			SMSUtils.errorMessage(player, "Usage: /sms remove <menu-name> <item-index>");
 			return;
@@ -282,7 +296,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu.removeItem(item);
 			menu.updateSigns();
 			menu.autosave();
-			SMSUtils.statusMessage(player, "Menu entry #" + item + " removed from: " + menuName);
+			SMSUtils.statusMessage(player, "Menu entry &f#" + item + "&- removed from &e" + menuName);
 		} catch (IndexOutOfBoundsException e) {
 			SMSUtils.errorMessage(player, "Item index " + item + " out of range");
 		} catch (IllegalArgumentException e) {
@@ -290,7 +304,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private void setConfig(Player player, String[] args) {
+	private void setConfig(Player player, String[] args) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.setcfg");
+		
 		if (args.length < 3) {
 			SMSUtils.errorMessage(player, "Usage: /sms setcfg <key> <value>");
 			return;
@@ -301,7 +317,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private void getConfig(Player player, String[] args) {
+	private void getConfig(Player player, String[] args) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.getcfg");
+		
 		messageBuffer.clear();
 		if (args.length < 2) {
 			for (String line : SMSConfig.getConfigList()) {
@@ -318,7 +336,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private void saveCommand(Player player, String[] args) {
+	private void saveCommand(Player player, String[] args) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.save");
+		
 		Boolean saveMenus = false;
 		Boolean saveMacros = false;
 		Boolean saveAll = false;
@@ -338,7 +358,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		SMSUtils.statusMessage(player, "Save complete.");
 	}
 
-	private void loadCommand(Player player, String[] args) {
+	private void loadCommand(Player player, String[] args) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.reload");
+		
 		Boolean loadMenus = false;
 		Boolean loadMacros = false;
 		Boolean loadConfig = false;
@@ -365,7 +387,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		SMSUtils.statusMessage(player, "Reload complete.");
 	}
 
-	private void doMacroCommand(Player player, String[] args) {
+	private void doMacroCommand(Player player, String[] args) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.macro");
+		
 		if (args.length < 2) {
 			SMSUtils.errorMessage(player, "Usage: /sms macro list");
 			SMSUtils.errorMessage(player, "       /sms macro list <macro-name>");
@@ -395,31 +419,33 @@ public class SMSCommandExecutor implements CommandExecutor {
 			if (args.length >= 4) {
 				String s = combine(args, 3);
 				plugin.macroHandler.addCommand(args[2], s);
-				SMSUtils.statusMessage(player, "Added command to macro '" + args[2] + "'.");
+				SMSUtils.statusMessage(player, "Added command to macro &e" + args[2] + "&-.");
 				needSave = true;
 			}
 		} else if (partialMatch(args[1], "r")) {	// remove
 			if (args.length < 4) {
 				plugin.macroHandler.removeCommand(args[2]);
-				SMSUtils.statusMessage(player, "Removed macro '" + args[2] + "'.");
+				SMSUtils.statusMessage(player, "Removed macro &e" + args[2] + "&-.");
 				needSave = true;
 			} else {
 				try { 
 					int index = Integer.parseInt(args[3]);
 					plugin.macroHandler.removeCommand(args[2], index - 1);
-					SMSUtils.statusMessage(player, "Removed command from macro '" + args[2] + "'.");
+					SMSUtils.statusMessage(player, "Removed command from macro &e" + args[2] + "&-.");
 					needSave = true;
 				} catch (NumberFormatException e) {
-					SMSUtils.errorMessage(player, "invalid index " + args[3]);
+					SMSUtils.errorMessage(player, "invalid index: " + args[3]);
 				} catch (IndexOutOfBoundsException e) {
-					SMSUtils.errorMessage(player, "invalid index " + args[3]);	
+					SMSUtils.errorMessage(player, "invalid index: " + args[3]);	
 				}
 			}
 		}
 		if (needSave) plugin.saveMacros();
 	}
 
-	private void debugCommand(Player player, String[] args) {
+	private void debugCommand(Player player, String[] args) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.debug");
+		
 		plugin.debugger.toggleDebug(player);
 		int level = plugin.debugger.getDebugLevel(player);
 		if (level > 0) {
@@ -440,18 +466,21 @@ public class SMSCommandExecutor implements CommandExecutor {
 		return str.toString();
 	}
 
-	private void pagedDisplay(Player player, String[] args) {
+	private void pagedDisplay(Player player, String[] args) throws SMSException {
+		
 		int pageNum = 1;
 		if (args.length < 2) return;
 		try {
 			pageNum = Integer.parseInt(args[1]);
 			pagedDisplay(player, pageNum);
 		} catch (NumberFormatException e) {
-			SMSUtils.errorMessage(player, "invalid argument '" + args[1] + "'");
+			SMSUtils.errorMessage(player, "invalid argument: " + args[1]);
 		}
 	}
 	
-	private void pagedDisplay(Player player, int pageNum) {
+	private void pagedDisplay(Player player, int pageNum) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.page");
+		
 		if (player != null) {
 			// pretty paged display
 			int nMessages = messageBuffer.size();
@@ -487,7 +516,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		return result.toString();
 	}
 
-	private Boolean partialMatch(String str, String match) {
+	private static Boolean partialMatch(String str, String match) {
 		int l = match.length();
 		if (str.length() < l) return false;
 		return str.substring(0, l).equalsIgnoreCase(match);
@@ -499,25 +528,6 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return true;
 		} else {
 			return false;
-		}
-	}
-
-	private Location parseLocation(String arglist, Player player) {
-		String s = player == null ? ",worldname" : "";
-		String args[] = arglist.split(",");
-		try {
-			int x = Integer.parseInt(args[0]);
-			int y = Integer.parseInt(args[1]);
-			int z = Integer.parseInt(args[2]);
-			World w = (player == null) ?
-					plugin.getServer().getWorld(args[3]) :
-					player.getWorld();
-			if (w == null) throw new IllegalArgumentException("Unknown world: " + args[3]);
-			return new Location(w, x, y, z);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			throw new IllegalArgumentException("You must specify all of x,y,z" + s + ".");
-		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
 		}
 	}
 }

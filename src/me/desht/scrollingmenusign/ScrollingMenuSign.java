@@ -17,6 +17,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSCommandExecutor commandExecutor = new SMSCommandExecutor(this);
 	private final SMSPersistence persistence = new SMSPersistence(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
+	private final SMSHandlerImpl handler = new SMSHandlerImpl(this);
 	
 	final SMSDebugger debugger = new SMSDebugger(this);
 	final SMSMacro macroHandler = new SMSMacro(this);
@@ -86,5 +87,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 	
 	SMSPersistence getPersistence() {
 		return persistence;
+	}
+	
+	public SMSHandler getHandler() {
+		return handler;
 	}
 }

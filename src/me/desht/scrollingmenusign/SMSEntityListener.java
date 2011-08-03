@@ -29,7 +29,7 @@ public class SMSEntityListener extends EntityListener {
 			plugin.debug("entity explode event @ " + b.getLocation() + ", menu=" + menuName);
 			Location loc = b.getLocation();
 			if (noExplode) {
-				SMSUtils.log(Level.INFO, "stopped an explosion to protect sign @ " + SMSUtils.formatLoc(loc) + " (menu " + menuName + ")");
+				SMSUtils.log(Level.INFO, "stopped an explosion to protect sign @ " + SMSUtils.formatLocation(loc) + " (menu " + menuName + ")");
 				event.setCancelled(true);
 				break;
 			} else {

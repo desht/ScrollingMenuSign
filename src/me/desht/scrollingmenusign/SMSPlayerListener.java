@@ -144,12 +144,13 @@ public class SMSPlayerListener extends PlayerListener {
 					SMSPermissions.requirePerms(player, "scrollingmenusign.commands.sync");
 					try {
 						SMSMenu menu = SMSMenu.getMenu(name);
-						menu.addSign(b.getLocation());
+						menu.addSign(b.getLocation(), true);
 						menu.autosave();
 					} catch (SMSNoSuchMenuException e) {
 						SMSUtils.errorMessage(player, e.getError());
 					}
-					SMSUtils.statusMessage(player, "Added sign to existing menu: " + name);
+					SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(b.getLocation()) +
+					                       "&- was added to menu &e" + name + "&-");
 				} else {
 					SMSUtils.errorMessage(player, "A menu called '" + name + "' already exists.");
 				}
@@ -162,7 +163,8 @@ public class SMSPlayerListener extends PlayerListener {
 				SMSMenu.addMenu(name, menu, true);
 				menu.autosave();
 
-				SMSUtils.statusMessage(player, "Created new menu sign: " + name);
+				SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(b.getLocation()) +
+				                       "&- was added to new menu &e" + name + "&-");
 			}
 		}
 	}

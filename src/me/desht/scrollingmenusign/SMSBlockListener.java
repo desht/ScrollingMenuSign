@@ -63,9 +63,7 @@ public class SMSBlockListener extends BlockListener {
 					plugin.debug("block break event @ " + b.getLocation() + ", menu=" + menuName);
 					Location l = b.getLocation();
 					menu.removeSign(l);
-					SMSUtils.statusMessage(p, "Sign @ " +
-							l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
-							" was removed from menu '" + menuName + "'");
+					SMSUtils.statusMessage(p, "Sign @ &f" + SMSUtils.formatLocation(l) + "&- was removed from menu &e" + menuName + "&-");
 					menu.autosave();
 				}
 			}
