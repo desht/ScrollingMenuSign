@@ -3,23 +3,16 @@ package me.desht.scrollingmenusign;
 import java.io.File;
 import java.util.logging.Level;
 
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.*;
 
-import com.edwardhand.commandsigns.CommandSigns;
-import com.edwardhand.commandsigns.CommandSignsHandler;
-
 //@SuppressWarnings("serial")
 public class ScrollingMenuSign extends JavaPlugin {
 	static enum MenuRemoveAction { DESTROY_SIGN, BLANK_SIGN, DO_NOTHING };
-	static PluginDescriptionFile description;
-	static final String directory = "plugins" + File.separator + "ScrollingMenuSign";
+	private static PluginDescriptionFile description;
 
-	CommandSignsHandler csHandler;
-	
 	private final SMSPlayerListener signListener = new SMSPlayerListener(this);
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
 	private final SMSCommandExecutor commandExecutor = new SMSCommandExecutor(this);
@@ -35,8 +28,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 		SMSConfig.configInitialise(this);
 
-		SMSPermissions.setupPermissions();
-		setupCommandSigns();
+		SMSPermissions.setup();
+		SMSCommandSigns.setup();
 		
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, signListener, Event.Priority.Normal, this);
@@ -72,19 +65,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 		SMSUtils.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is disabled!" );
 	}
 
-	private void setupCommandSigns() {
-		Plugin csPlugin = this.getServer().getPluginManager().getPlugin("CommandSigns");
-		if (csHandler == null) {
-			if (csPlugin != null) {
-				csHandler = ((CommandSigns) csPlugin).getHandler();
-				SMSUtils.log(Level.INFO, "CommandSigns API integration enabled");
-			} else {
-				SMSUtils.log(Level.INFO, "CommandSigns API not available");
-			}
-		}
-
-	}
-	
 	void loadMenus() {
 		persistence.load();
 	}

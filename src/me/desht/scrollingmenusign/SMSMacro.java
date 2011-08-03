@@ -119,8 +119,8 @@ public class SMSMacro {
 		Matcher matcher = pattern.matcher(command);
 		if (matcher.find()) {
 			String cmd = matcher.group(2);
-			if (matcher.group(1).equalsIgnoreCase("cs:") && plugin.csHandler != null) {
-				plugin.csHandler.runCommandString(cmd, player);
+			if (matcher.group(1).equalsIgnoreCase("cs:") && SMSCommandSigns.isActive()) {
+				SMSCommandSigns.runCommandString(player, cmd);
 			} else if (matcher.group(1).equalsIgnoreCase("%")) {
 				// a macro expansion
 				if (history.contains(cmd)) {
@@ -134,9 +134,9 @@ public class SMSMacro {
 					SMSUtils.errorMessage(player, "No such macro '" + cmd + "'.");
 				}
 			}
-		} else if (plugin.csHandler != null &&
+		} else if (SMSCommandSigns.isActive() &&
 				plugin.getConfiguration().getBoolean("sms.always_use_commandsigns", true)) {
-			plugin.csHandler.runCommandString(command, player);
+			SMSCommandSigns.runCommandString(player, command);
 		} else {
 			player.chat(command);
 		}

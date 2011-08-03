@@ -12,7 +12,10 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 public class SMSPermissions {
 	private static PermissionHandler permissionHandler = null;
 	
-	static void setupPermissions() {
+	private SMSPermissions() {	
+	}
+	
+	static void setup() {
 		Plugin permissionsPlugin = Bukkit.getServer().getPluginManager().getPlugin("Permissions");
 
 		if (permissionHandler == null) {
