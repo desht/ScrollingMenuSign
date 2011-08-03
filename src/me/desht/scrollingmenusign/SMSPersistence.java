@@ -46,7 +46,6 @@ public class SMSPersistence {
 			conf.load();
 			for (String menuName : conf.getKeys()) {
 				ConfigurationNode cn = conf.getNode(menuName);
-				System.out.println("load " + menuName);
 				SMSMenu menu = new SMSMenu(plugin, menuName, cn.getAll());
 				SMSMenu.addMenu(menu.getName(), menu, true);
 			}
