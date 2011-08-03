@@ -408,13 +408,13 @@ public class SMSCommandExecutor implements CommandExecutor {
 			messageBuffer.clear();
 			int i = 1;
 			if (args.length < 3) {
-				Set<String> macros = plugin.commandFile.getCommands();
+				Set<String> macros = plugin.macroHandler.getCommands();
 				messageBuffer.add(ChatColor.YELLOW + "" + macros.size() + " macros");
 				for (String m : macros) {
 					messageBuffer.add(ChatColor.YELLOW + "" + i++ + ") " + ChatColor.WHITE + m);
 				}
 			} else {
-				List<String> cmds = plugin.commandFile.getCommands(args[2]);
+				List<String> cmds = plugin.macroHandler.getCommands(args[2]);
 				messageBuffer.add(ChatColor.YELLOW + "" + cmds.size() + " macro entries");
 				for (String c : cmds) {
 					messageBuffer.add(ChatColor.YELLOW + "" + i++ + ") " + ChatColor.WHITE + c);
@@ -424,19 +424,19 @@ public class SMSCommandExecutor implements CommandExecutor {
 		} else if (partialMatch(args[1], "a")) {	// add
 			if (args.length >= 4) {
 				String s = combine(args, 3);
-				plugin.commandFile.addCommand(args[2], s);
+				plugin.macroHandler.addCommand(args[2], s);
 				SMSUtils.statusMessage(player, "Added command to macro '" + args[2] + "'.");
 				needSave = true;
 			}
 		} else if (partialMatch(args[1], "r")) {	// remove
 			if (args.length < 4) {
-				plugin.commandFile.removeCommand(args[2]);
+				plugin.macroHandler.removeCommand(args[2]);
 				SMSUtils.statusMessage(player, "Removed macro '" + args[2] + "'.");
 				needSave = true;
 			} else {
 				try { 
 					int index = Integer.parseInt(args[3]);
-					plugin.commandFile.removeCommand(args[2], index - 1);
+					plugin.macroHandler.removeCommand(args[2], index - 1);
 					SMSUtils.statusMessage(player, "Removed command from macro '" + args[2] + "'.");
 					needSave = true;
 				} catch (NumberFormatException e) {

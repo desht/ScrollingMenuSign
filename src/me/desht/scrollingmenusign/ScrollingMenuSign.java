@@ -19,7 +19,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 	static final String directory = "plugins" + File.separator + "ScrollingMenuSign";
 
 	CommandSignsHandler csHandler;
-	SMSCommandFile commandFile;
 	
 	private final SMSPlayerListener signListener = new SMSPlayerListener(this);
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
@@ -28,7 +27,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
 	
 	final SMSDebugger debugger = new SMSDebugger(this);
-
+	final SMSMacro macroHandler = new SMSMacro(this);
+	
 	@Override
 	public void onEnable() {
 		description = this.getDescription();
@@ -37,7 +37,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 		SMSPermissions.setupPermissions();
 		setupCommandSigns();
-		setupCommandFile();
 		
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, signListener, Event.Priority.Normal, this);
@@ -85,19 +84,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 
 	}
-
-	private void setupCommandFile() {
-		if (commandFile == null) {
-			commandFile = new SMSCommandFile(this);
-		}
-	}
 	
 	void loadMenus() {
 		persistence.load();
 	}
 	
 	void loadMacros() {
-		commandFile.loadCommands();
+		macroHandler.loadCommands();
 	}
 	
 	void saveMenus() {
@@ -105,7 +98,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	void saveMacros() {
-		commandFile.saveCommands();
+		macroHandler.saveCommands();
 	}
 	
 	void debug(String message) {

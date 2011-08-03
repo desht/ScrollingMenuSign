@@ -20,12 +20,12 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.Yaml;
 
-public class SMSCommandFile {
+public class SMSMacro {
 	private static final String commandFile = "commands.yml";
 	private ScrollingMenuSign plugin = null;
 	Map<String,List<String>> cmdSet;
 	
-	SMSCommandFile(ScrollingMenuSign plugin) {
+	SMSMacro(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
 	}
 
