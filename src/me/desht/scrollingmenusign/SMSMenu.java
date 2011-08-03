@@ -2,7 +2,11 @@ package me.desht.scrollingmenusign;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
 
@@ -276,6 +280,23 @@ public class SMSMenu {
 		l.getBlock().setTypeId(0);
 	}
 	
+	/**
+	 * Permanently delete a menu
+	 */
+	public void deletePermanent() {
+		try {
+			SMSMenu.removeMenu(getName(), MenuRemoveAction.BLANK_SIGN);
+		} catch (SMSNoSuchMenuException e) {
+			// Should not get here
+			SMSUtils.log(Level.WARNING, "Impossible: deletePermanent got SMSNoSuchMenuException?");
+		}
+	}
+
+	void autosave() {
+		if (SMSConfig.getConfiguration().getBoolean("sms.autosave", true))
+			plugin.getPersistence().save();
+	}
+
 	/**************************************************************************/
 	
 	/**
@@ -285,7 +306,7 @@ public class SMSMenu {
 	 * @param menu		The menu object
 	 * @param updateSign	Whether or not to update the menu's signs now
 	 */
-	static void addMenu(String menuName, SMSMenu menu, Boolean updateSign) {
+	public static void addMenu(String menuName, SMSMenu menu, Boolean updateSign) {
 		menus.put(menuName, menu);
 		for (Location l: menu.getLocations().keySet()) {
 			menuLocations.put(l, menuName);
@@ -302,7 +323,7 @@ public class SMSMenu {
 	 * @param action	Action to take on removal
 	 * @throws SMSNoSuchMenuException
 	 */
-	static void removeMenu(String menuName, MenuRemoveAction action) throws SMSNoSuchMenuException {
+	public static void removeMenu(String menuName, MenuRemoveAction action) throws SMSNoSuchMenuException {
 		SMSMenu menu = getMenu(menuName);
 		if (action == MenuRemoveAction.DESTROY_SIGN) {
 			menu.destroySigns();
@@ -315,66 +336,40 @@ public class SMSMenu {
 		menus.remove(menuName);
 	}
 	
-	/**
-	 * Remove a sign from a menu
-	 * 
-	 * @param loc	The location of the sign to remove
-	 * @param action	Action to take on removal
-	 * @throws SMSNoSuchMenuException
-	 */
-	static void removeSignFromMenu(Location loc, MenuRemoveAction action) throws SMSNoSuchMenuException {		
-		String menuName = getMenuNameAt(loc);
-	
-		if (menuName != null) {
-			SMSMenu menu = SMSMenu.getMenu(menuName);
-			if (action == MenuRemoveAction.DESTROY_SIGN) {
-				menu.destroySign(loc);
-			} else if (action == MenuRemoveAction.BLANK_SIGN) {
-				menu.blankSign(loc);
-			}
-			menu.removeSign(loc);
-		}
-		menuLocations.remove(loc);
-	}
-	
-	// add a new synchronised sign at location loc to an existing menu
-	static void addSignToMenu(String menuName, Location loc) throws SMSNoSuchMenuException {
-		SMSMenu menu = getMenu(menuName);
-		menuLocations.put(loc, menuName);
-		menu.addSign(loc);
-		menu.updateSigns();
-	}
-	
-	static Map<String, SMSMenu> getMenus() {
+	public static Map<String, SMSMenu> getMenus() {
 		return menus;
 	}
 	
-	static SMSMenu getMenu(String menuName) throws SMSNoSuchMenuException {
+	public static SMSMenu getMenu(String menuName) throws SMSNoSuchMenuException {
 		if (!menus.containsKey(menuName))
 			throw new SMSNoSuchMenuException("No such menu '" + menuName + "'.");
 		return menus.get(menuName);
 	}
 	
-	static void updateAllMenus(){
-		for (SMSMenu menu : getMenus().values()) {
+	public static void updateAllMenus(){
+		for (SMSMenu menu : listMenus()) {
 			menu.updateSigns();
 		}
 	}
 	
-	static String getMenuNameAt(Location loc) {
+	public static String getMenuNameAt(Location loc) {
 		return menuLocations.get(loc);
 	}
+	
+	public static SMSMenu getMenuAt(Location loc) throws SMSNoSuchMenuException {
+		return getMenu(getMenuNameAt(loc));
+	}
 
-	static Boolean checkForMenu(String menuName) {
+	public static Boolean checkForMenu(String menuName) {
 		return menus.containsKey(menuName);
 	}
 	
-	static Map<Location,String> getAllLocations() {
+	public static Map<Location,String> getAllLocations() {
 		return menuLocations;
 	}
 	
 	// Return the name of the menu sign that the player is looking at, if any
-	static String getTargetedMenuSign(Player player, Boolean complain) {
+	public static String getTargetedMenuSign(Player player, Boolean complain) throws SMSException {
 		Block b = player.getTargetBlock(null, 3);
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
 			if (complain) SMSUtils.errorMessage(player, "You are not looking at a sign.");
@@ -382,15 +377,25 @@ public class SMSMenu {
 		}
 		String name = SMSMenu.getMenuNameAt(b.getLocation());
 		if (name == null && complain)
-			SMSUtils.errorMessage(player, "There is no menu associated with that sign.");
+			throw new SMSException("There is no menu associated with that sign.");
 		return name;
 	}
+
+	public static List<SMSMenu> listMenus() {
+		return listMenus(false);
+	}
 	
-	static void setTitle(Player player, String menuName, String newTitle) throws SMSNoSuchMenuException {
-		SMSMenu menu = SMSMenu.getMenu(menuName);
-		menu.setTitle(SMSUtils.parseColourSpec(player, newTitle));
-		SMSUtils.statusMessage(player, "title for '" + menuName + "' is now '" + newTitle + "'");
-		menu.updateSigns();
+	public static List<SMSMenu> listMenus(boolean isSorted) {
+		if (isSorted) {
+			SortedSet<String> sorted = new TreeSet<String>(menus.keySet());
+			List<SMSMenu> res = new ArrayList<SMSMenu>();
+			for (String name : sorted) {
+				res.add(menus.get(name));
+			}
+			return res;
+		} else {
+			return new ArrayList<SMSMenu>(menus.values());
+		}
 	}
 
 }

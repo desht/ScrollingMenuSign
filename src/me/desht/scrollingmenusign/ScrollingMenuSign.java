@@ -84,9 +84,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		debugger.debug(message);
 	}
 	
-	void maybeSaveMenus() {
-		if (getConfiguration().getBoolean("sms.autosave", false)) {
-			saveMenus();
-		}
+	SMSPersistence getPersistence() {
+		return persistence;
 	}
 }

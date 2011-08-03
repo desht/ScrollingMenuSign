@@ -2,8 +2,6 @@ package me.desht.scrollingmenusign;
 
 import java.util.logging.Level;
 
-import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -61,13 +59,14 @@ public class SMSBlockListener extends BlockListener {
 			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
 				String menuName = SMSMenu.getMenuNameAt(b.getLocation());
 				if (menuName != null) {
+					SMSMenu menu = SMSMenu.getMenu(menuName);
 					plugin.debug("block break event @ " + b.getLocation() + ", menu=" + menuName);
 					Location l = b.getLocation();
-					SMSMenu.removeSignFromMenu(l, ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
+					menu.removeSign(l);
 					SMSUtils.statusMessage(p, "Sign @ " +
 							l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 							" was removed from menu '" + menuName + "'");
-					plugin.maybeSaveMenus();
+					menu.autosave();
 				}
 			}
 		} catch (SMSNoSuchMenuException e) {
@@ -92,8 +91,9 @@ public class SMSBlockListener extends BlockListener {
 						Block attachedBlock = b.getRelative(s.getAttachedFace());
 						if (attachedBlock.getTypeId() == 0) {
 							// attached to air? looks like the sign has become detached
-							SMSMenu.removeSignFromMenu(b.getLocation(), MenuRemoveAction.DO_NOTHING);
-							plugin.maybeSaveMenus();
+							SMSMenu menu = SMSMenu.getMenu(menuName);
+							menu.removeSign(b.getLocation());
+							menu.autosave();
 						}
 					} catch (SMSNoSuchMenuException e) {
 						SMSUtils.log(Level.WARNING, e.getError());

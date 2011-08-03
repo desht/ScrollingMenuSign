@@ -134,7 +134,7 @@ public class SMSPlayerListener extends PlayerListener {
 	private void tryToActivateSign(Block b, Player player) throws SMSException {
 		Sign sign = (Sign) b.getState();
 		if (!sign.getLine(0).equals("[sms]"))
-		return;
+			return;
 
 		String name = sign.getLine(1);
 		String title = SMSUtils.parseColourSpec(player, sign.getLine(2));
@@ -143,7 +143,9 @@ public class SMSPlayerListener extends PlayerListener {
 				if (title.length() == 0) {
 					SMSPermissions.requirePerms(player, "scrollingmenusign.commands.sync");
 					try {
-						SMSMenu.addSignToMenu(name, b.getLocation());
+						SMSMenu menu = SMSMenu.getMenu(name);
+						menu.addSign(b.getLocation());
+						menu.autosave();
 					} catch (SMSNoSuchMenuException e) {
 						SMSUtils.errorMessage(player, e.getError());
 					}
@@ -156,10 +158,12 @@ public class SMSPlayerListener extends PlayerListener {
 				return;
 			} else if (title.length() > 0) {
 				SMSPermissions.requirePerms(player, "scrollingmenusign.commands.create");
-				SMSMenu.addMenu(name, new SMSMenu(plugin, name, title, player.getName(), b.getLocation()), true);
+				SMSMenu menu = new SMSMenu(plugin, name, title, player.getName(), b.getLocation());
+				SMSMenu.addMenu(name, menu, true);
+				menu.autosave();
+
 				SMSUtils.statusMessage(player, "Created new menu sign: " + name);
 			}
-			plugin.maybeSaveMenus();
 		}
 	}
 	
@@ -176,6 +180,8 @@ public class SMSPlayerListener extends PlayerListener {
 		} catch (SMSNoSuchMenuException e) {
 			SMSUtils.log(Level.WARNING, e.getError());
 			return;
+		} catch (SMSException e) {
+			SMSUtils.log(Level.WARNING, e.getMessage());
 		}
 		
 		int delta = event.getNewSlot() - event.getPreviousSlot();

@@ -20,21 +20,23 @@ public class SMSEntityListener extends EntityListener {
 		if (event.isCancelled()) return;
 		Boolean noExplode = plugin.getConfiguration().getBoolean("sms.no_explosions", false);
 		for (Block b : event.blockList()) {
-			if (b.getType() != Material.WALL_SIGN && b.getType() != Material.SIGN_POST) continue;
+			if (b.getType() != Material.WALL_SIGN && b.getType() != Material.SIGN_POST)
+				continue;
 			String menuName = SMSMenu.getMenuNameAt(b.getLocation());
-			if (menuName == null) continue;
+			if (menuName == null)
+				continue;
+			
 			plugin.debug("entity explode event @ " + b.getLocation() + ", menu=" + menuName);
+			Location loc = b.getLocation();
 			if (noExplode) {
-				Location l = b.getLocation();
-				SMSUtils.log(Level.INFO, "stopped an explosion to protect sign @ " +
-					l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() + "," +
-					l.getWorld().getName() + " (menu " + menuName + ")");
+				SMSUtils.log(Level.INFO, "stopped an explosion to protect sign @ " + SMSUtils.formatLoc(loc) + " (menu " + menuName + ")");
 				event.setCancelled(true);
 				break;
 			} else {
 				try {
-					SMSMenu.removeSignFromMenu(b.getLocation(), ScrollingMenuSign.MenuRemoveAction.DO_NOTHING);
-					plugin.maybeSaveMenus();
+					SMSMenu menu = SMSMenu.getMenuAt(loc);
+					menu.removeSign(loc);
+					menu.autosave();
 				} catch (SMSNoSuchMenuException e) {
 					SMSUtils.log(Level.WARNING, e.getMessage());
 				}

@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,6 +52,10 @@ public class SMSConfig {
 		}
 		
 		if (saveNeeded) config.save();
+	}
+	
+	static File getDataFolder() {
+		return plugin.getDataFolder();
 	}
 	
 	static void setConfigItem(Player player, String key, String val) {
