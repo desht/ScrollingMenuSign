@@ -1,12 +1,11 @@
 package me.desht.scrollingmenusign;
 
-import java.io.File;
 import java.util.logging.Level;
 
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.event.*;
+import org.bukkit.event.Event;
 
 //@SuppressWarnings("serial")
 public class ScrollingMenuSign extends JavaPlugin {
