@@ -6,12 +6,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
 public class SMSConfig {
 	private static ScrollingMenuSign plugin = null;
+
+	private static File pluginDir;
+	private static File dataDir, menusDir;
+	private static final String dataDirName = "data";
+	private static final String menusDirName = "menus";
 	
 	@SuppressWarnings("serial")
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
@@ -33,9 +39,36 @@ public class SMSConfig {
 		put("sms.actions.wheeldown.sneak", "scrolldown");
 	}};
 	
-	static void configInitialise(ScrollingMenuSign plugin) {
+	static void init(ScrollingMenuSign plugin) {
 		SMSConfig.plugin = plugin;
+		if (plugin != null) {
+			pluginDir = plugin.getDataFolder();
+		}
 		
+		setupDirectoryStructure();
+		
+		initConfigFile();
+	}
+
+	private static void setupDirectoryStructure() {
+		dataDir = new File(pluginDir, dataDirName);
+		menusDir = new File(dataDir, menusDirName);
+		
+		createDirectory(pluginDir);
+		createDirectory(dataDir);
+		createDirectory(menusDir);
+	}
+
+	private static void createDirectory(File dir) {
+		if (dir.isDirectory()) {
+			return;
+		}
+		if (!dir.mkdir()) {
+			SMSUtils.log(Level.WARNING, "Can't make directory " + dir.getName()); //$NON-NLS-1$
+		}
+	}
+
+	private static void initConfigFile() {
 		Boolean saveNeeded = false;
 		Configuration config = plugin.getConfiguration();
 		for (String k : configItems.keySet()) {
@@ -104,5 +137,9 @@ public class SMSConfig {
 	
 	static Configuration getConfiguration() {
 		return plugin.getConfiguration();
+	}
+
+	static File getMenusFolder() {
+		return menusDir;
 	}
 }

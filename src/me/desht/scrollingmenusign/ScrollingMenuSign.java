@@ -26,7 +26,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public void onEnable() {
 		description = this.getDescription();
 
-		SMSConfig.configInitialise(this);
+		SMSConfig.init(this);
 
 		SMSPermissions.setup();
 		SMSCommandSigns.setup();
@@ -41,8 +41,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 		getCommand("sms").setExecutor(commandExecutor);
 		
-		if (!getDataFolder().exists()) getDataFolder().mkdir();
-
 		SMSUtils.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
 		
 		// delayed loading of saved menu files to ensure all worlds are loaded first
@@ -66,7 +64,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 
 	void loadMenus() {
-		persistence.load();
+		persistence.loadAll();
 	}
 	
 	void loadMacros() {
@@ -74,7 +72,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	void saveMenus() {
-		persistence.save();
+		persistence.saveAll();
 	}
 	
 	void saveMacros() {

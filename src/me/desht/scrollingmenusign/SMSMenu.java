@@ -75,9 +75,9 @@ public class SMSMenu {
 	 * @param menuData A map of properties for the menu
 	 */
 	@SuppressWarnings("unchecked")
-	SMSMenu(ScrollingMenuSign plugin, String name, Map<String, Object> menuData) {
+	SMSMenu(ScrollingMenuSign plugin, Map<String, Object> menuData) {
 		initCommon(plugin,
-				name,
+				(String) menuData.get("name"),
 				SMSUtils.parseColourSpec(null, ((String) menuData.get("title"))),
 				(String) menuData.get("owner"));
 		
@@ -118,6 +118,7 @@ public class SMSMenu {
 	Map<String, Object> freeze() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		
+		map.put("name", getName());
 		map.put("title", SMSUtils.unParseColourSpec(getTitle()));
 		map.put("owner", getOwner());
 		List<List<Object>> locs = new ArrayList<List<Object>>();
@@ -555,7 +556,7 @@ public class SMSMenu {
 	void deletePermanent(MenuRemoveAction action) {
 		try {
 			SMSMenu.removeMenu(getName(), MenuRemoveAction.BLANK_SIGN);
-			// TODO: remove persistence file once we go to one file per menu
+			plugin.getPersistence().unPersist(this);
 		} catch (SMSException e) {
 			// Should not get here
 			SMSUtils.log(Level.WARNING, "Impossible: deletePermanent got SMSException?");
@@ -574,7 +575,7 @@ public class SMSMenu {
 	private void autosave() {
 		// we only save menus which have been registered via SMSMenu.addMenu()
 		if (autosave && SMSMenu.checkForMenu(getName()))
-			plugin.getPersistence().save();
+			plugin.getPersistence().save(this);
 	}
 
 	/**************************************************************************/

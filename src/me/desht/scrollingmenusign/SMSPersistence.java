@@ -3,10 +3,12 @@ package me.desht.scrollingmenusign;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import org.bukkit.util.config.Configuration;
@@ -14,39 +16,81 @@ import org.bukkit.util.config.ConfigurationNode;
 import org.yaml.snakeyaml.reader.ReaderException;
 
 public class SMSPersistence {
-
-	private static String menuFile = "scrollingmenus.yml";
 	private ScrollingMenuSign plugin;
 
-	public SMSPersistence(ScrollingMenuSign plugin) {
+	private static final FilenameFilter ymlFilter = new FilenameFilter() {
+
+		@Override
+		public boolean accept(File dir, String name) {
+			return name.endsWith(".yml");
+		}
+	};
+	
+	SMSPersistence(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
 	}
 	
-	public void save() {
-		File menusFile = new File(plugin.getDataFolder(), menuFile);
-		Configuration conf = new Configuration(menusFile);
-		
+	void saveAll() {
 		for (SMSMenu menu : SMSMenu.listMenus()) {
-			Map<String, Object> map = menu.freeze();
-			conf.setProperty(menu.getName(), map);
+			save(menu);
 		}
-		conf.save();
 		SMSUtils.log(Level.INFO, "saved " + SMSMenu.listMenus().size() + " menus to file.");
 	}
 	
-	public void load() {
-		File menusFile = new File(plugin.getDataFolder(), menuFile);
+	void save(SMSMenu menu) {
+		File menusFile = new File(SMSConfig.getMenusFolder(), menu.getName() + ".yml");
+		Configuration conf = new Configuration(menusFile);
+		Map<String, Object> map = menu.freeze();
+		for (Entry<String, Object> e : map.entrySet()) {
+			conf.setProperty(e.getKey(), e.getValue());
+		}
+		conf.save();
+	}
+	
+	void loadAll() {
+		final File oldMenusFile = new File(SMSConfig.getDataFolder(), "scrollingmenus.yml");
 		
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			menu.deleteTemporary();
 		}
 		
+		if (oldMenusFile.exists()) {
+			// old-style data file, all menus in one file
+			oldStyleLoad(oldMenusFile);
+			oldMenusFile.renameTo(new File(oldMenusFile.getParent(), oldMenusFile.getName() + ".OLD"));
+			saveAll();
+			SMSUtils.log(Level.INFO, "Converted old-style menu data file to new v0.5+ format");
+		} else {
+			for (File f : SMSConfig.getMenusFolder().listFiles(ymlFilter)) {
+				try {
+					Configuration conf = new Configuration(f);
+					conf.load();
+					SMSMenu menu = new SMSMenu(plugin, conf.getAll());
+					SMSMenu.addMenu(menu.getName(), menu, true);
+				} catch (ReaderException e)	{
+					SMSUtils.log(Level.WARNING, "caught exception while loading menu file " +
+							f + ": " + e.getMessage());
+					backupMenuFile(f);
+				}
+			}
+		}
+	}
+	
+	void unPersist(SMSMenu menu) {
+		File menusFile = new File(SMSConfig.getMenusFolder(), menu.getName() + ".yml");
+		if (!menusFile.delete()) {
+			SMSUtils.log(Level.WARNING, "can't delete " + menusFile);
+		}
+	}
+
+	private void oldStyleLoad(File menusFile) {	
 		try {
 			Configuration conf = new Configuration(menusFile);
 			conf.load();
 			for (String menuName : conf.getKeys()) {
 				ConfigurationNode cn = conf.getNode(menuName);
-				SMSMenu menu = new SMSMenu(plugin, menuName, cn.getAll());
+				cn.setProperty("name", menuName);
+				SMSMenu menu = new SMSMenu(plugin, cn.getAll());
 				SMSMenu.addMenu(menu.getName(), menu, true);
 			}
 		} catch (ReaderException e) {
@@ -58,7 +102,7 @@ public class SMSPersistence {
 
 	void backupMenuFile(File original) {
         try {
-        	File backup = getBackupFileName(original.getParentFile(), menuFile);
+        	File backup = getBackupFileName(original.getParentFile(), original.getName());
 
             SMSUtils.log(Level.INFO, "An error occurred while loading the menus file, so a backup copy of "
                 + original + " is being created. The backup can be found at " + backup.getPath());
