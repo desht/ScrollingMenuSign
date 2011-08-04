@@ -48,6 +48,8 @@ public class SMSCommandExecutor implements CommandExecutor {
     				listSMSMenus(player, args);
     			} else if (partialMatch(args[0], "sh")) {	// show
     				showSMSMenu(player, args);
+    			} else if (partialMatch(args[0], "so")) { 	// sort
+    				sortSMSMenu(player, args);
     			} else if (partialMatch(args[0], "a")) {	// add
     				addSMSItem(player, args);
     			} else if (partialMatch(args[0], "rem")) {	// remove
@@ -71,8 +73,6 @@ public class SMSCommandExecutor implements CommandExecutor {
     			} else {
     				return false;
     			}
-    		} catch (SMSNoSuchMenuException e) {
-    			SMSUtils.errorMessage(player, e.getMessage());
     		} catch (SMSException e) {
     			SMSUtils.errorMessage(player, e.getMessage());
     		} catch (IllegalArgumentException e) {
@@ -82,7 +82,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		return true;
 	}
 
-	private void createSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+	private void createSMSMenu(Player player, String[] args) throws SMSException {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.create");
 		if (args.length < 3) {
 			SMSUtils.errorMessage(player, "Usage: sms create <menu-name> <title>");
@@ -121,30 +121,28 @@ public class SMSCommandExecutor implements CommandExecutor {
 		SMSMenu.addMenu(menuName, menu, true);
 		SMSUtils.statusMessage(player, "Created new menu &e" + menuName + "&- " +
 		                       (loc == null ? " with no signs" : " with sign @ &f" + SMSUtils.formatLocation(loc)));
-		menu.autosave();
 	}
 
-	private void deleteSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+	private void deleteSMSMenu(Player player, String[] args) throws SMSException {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.delete");
 		
 		SMSMenu menu = null;
 		if (args.length >= 2) {
 			menu = SMSMenu.getMenu(args[1]);
 		} else {
-			if (onConsole(player)) return;
+			notFromConsole(player);
 			menu = SMSMenu.getMenu(SMSMenu.getTargetedMenuSign(player, true));
 		}
 		menu.deletePermanent();
-		menu.autosave();
 		SMSUtils.statusMessage(player, "Deleted menu &e" + menu.getName());
 	}
 
-	private void breakSMSSign(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+	private void breakSMSSign(Player player, String[] args) throws SMSException {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.break");
 		
 		Location loc = null;
 		if (args.length < 2) {
-			if (onConsole(player)) return;
+			notFromConsole(player);
 			Block b = player.getTargetBlock(null, 3);
 			loc = b.getLocation();
 		} else {
@@ -154,13 +152,11 @@ public class SMSCommandExecutor implements CommandExecutor {
 		menu.removeSign(loc, MenuRemoveAction.BLANK_SIGN);
 		SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(loc) +
 		                       "&- was removed from menu &e" + menu.getName() + "&-");
-		menu.autosave();
 	}
 	
-	private void syncSMSSign(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+	private void syncSMSSign(Player player, String[] args) throws SMSException {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.sync");
-		
-		if (onConsole(player)) return;
+		notFromConsole(player);
 		
 		if (args.length < 2) {
 			SMSUtils.errorMessage(player, "Usage: sms sync <menu-name>");
@@ -174,13 +170,12 @@ public class SMSCommandExecutor implements CommandExecutor {
 		SMSMenu menu = SMSMenu.getMenu(args[1]);
 		menu.addSign(b.getLocation(), true);
 		menu.updateSign(b.getLocation());
-		menu.autosave();
 
 		SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(b.getLocation()) +
 		                       "&- was added to menu &e" + menu.getName() + "&-");
 	}
 
-	private void listSMSMenus(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+	private void listSMSMenus(Player player, String[] args) throws SMSException {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.list");
 		
 		MessageBuffer.clear(player);
@@ -205,7 +200,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		Map<Location,Integer> locs = menu.getLocations();
 		ChatColor signCol = locs.size() > 0 ? ChatColor.YELLOW : ChatColor.RED;
 		String message = String.format("&e%s &2\"%s&2\" &e[%d items] %s[%d signs]",
-		                               menu.getName(), menu.getTitle(), menu.getNumItems(),
+		                               menu.getName(), menu.getTitle(), menu.getItemCount(),
 		                               signCol.toString(), locs.size());
 		List<String> l = new ArrayList<String>();
 		l.add(message);
@@ -215,14 +210,14 @@ public class SMSCommandExecutor implements CommandExecutor {
 		MessageBuffer.add(player, l);
 	}
 
-	private void showSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+	private void showSMSMenu(Player player, String[] args) throws SMSException {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.show");
 		
 		SMSMenu menu = null;
 		if (args.length >= 2) {
 			menu = SMSMenu.getMenu(args[1]);
 		} else {
-			if (onConsole(player)) return;
+			notFromConsole(player);
 			menu = SMSMenu.getMenu(SMSMenu.getTargetedMenuSign(player, true));
 		}
 		MessageBuffer.clear(player);
@@ -239,17 +234,32 @@ public class SMSCommandExecutor implements CommandExecutor {
 		MessageBuffer.showPage(player);
 	}
 
-	private void setMenuTitle(Player player, String[] args) throws SMSNoSuchMenuException {
+	private void sortSMSMenu(Player player, String[] args) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.sort");
+		
+		SMSMenu menu = null;
+		if (args.length >= 2) {
+			menu = SMSMenu.getMenu(args[1]);
+		} else {
+			notFromConsole(player);
+			menu = SMSMenu.getMenu(SMSMenu.getTargetedMenuSign(player, true));
+		}
+		
+		menu.sortItems();
+		
+		SMSUtils.statusMessage(player, "Menu &e" + menu.getName() + "&- has been sorted.");
+	}
+
+	private void setMenuTitle(Player player, String[] args) throws SMSException {
 		if (args.length < 3) {
 			SMSUtils.errorMessage(player, "Usage: /sms title <menu-name> <new-title>");
 			return;
 		}
 		SMSMenu menu = SMSMenu.getMenu(args[1]);
 		menu.setTitle(combine(args, 2));
-		menu.autosave();
 	}
 
-	private void addSMSItem(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {	
+	private void addSMSItem(Player player, String[] args) throws SMSException {	
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.add");
 		
 		if (args.length < 3) {
@@ -274,13 +284,12 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu.addItem(label, cmd, msg);
 			menu.updateSigns();
 			SMSUtils.statusMessage(player, "Menu entry &f" + label + "&- added to: &e" + menuName);
-			menu.autosave();
 		} else {
 			SMSUtils.errorMessage(player, "You do not have permission to add that kind of command.");
 		}
 	}
 
-	private void removeSMSItem(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
+	private void removeSMSItem(Player player, String[] args) throws SMSException {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.remove");
 		
 		if (args.length < 3) {
@@ -294,7 +303,6 @@ public class SMSCommandExecutor implements CommandExecutor {
 			SMSMenu menu = SMSMenu.getMenu(menuName);
 			menu.removeItem(item);
 			menu.updateSigns();
-			menu.autosave();
 			SMSUtils.statusMessage(player, "Menu entry &f#" + item + "&- removed from &e" + menuName);
 		} catch (IndexOutOfBoundsException e) {
 			SMSUtils.errorMessage(player, "Item index " + item + " out of range");
@@ -503,12 +511,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		return str.substring(0, l).equalsIgnoreCase(match);
 	}
 
-	private boolean onConsole(Player player) {
+	private void notFromConsole(Player player) throws SMSException {
 		if (player == null) {
-			SMSUtils.errorMessage(player, "This command cannot be run from the console.");
-			return true;
-		} else {
-			return false;
-		}
+			throw new SMSException("This command can't be run from the console.");
+		}	
 	}
 }

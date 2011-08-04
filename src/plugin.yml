@@ -76,6 +76,9 @@ permissions:
   scrollingmenusign.commands.debug:
     description: Allows debugging of the plugin
     default: op
+  scrollingmenusign.commands.sort:
+    description: Allows menus to be sorted
+    default: op
   scrollingmenusign.destroy:
     description: Allows destruction of signs belonging to a menu created by someone else
     default: op

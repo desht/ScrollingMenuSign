@@ -11,14 +11,14 @@ public interface SMSHandler {
 	public SMSMenu createMenu(String name, String title, String owner);
 	public SMSMenu createMenu(String name, SMSMenu otherMenu, String owner);
 	
-	public void deleteMenu(String name) throws SMSNoSuchMenuException;
-	public void deleteMenu(String menuName, MenuRemoveAction action) throws SMSNoSuchMenuException;
+	public void deleteMenu(String name) throws SMSException;
+	public void deleteMenu(String menuName, MenuRemoveAction action) throws SMSException;
 	
-	public SMSMenu getMenu(String name) throws SMSNoSuchMenuException;
+	public SMSMenu getMenu(String name) throws SMSException;
 	public boolean checkMenu(String name);
 	
 	public String getMenuNameAt(Location loc);
-	public SMSMenu getMenuAt(Location loc) throws SMSNoSuchMenuException;
+	public SMSMenu getMenuAt(Location loc) throws SMSException;
 	
 	public String getTargetedMenuSign(Player player, Boolean complain) throws SMSException;
 	

@@ -43,7 +43,7 @@ public class SMSBlockListener extends BlockListener {
 				event.setCancelled(true);
 				SMSMenu.getMenu(menuName).updateSign(b.getLocation());
 			}
-		} catch (SMSNoSuchMenuException e) {
+		} catch (SMSException e) {
 			SMSUtils.errorMessage(event.getPlayer(), e.getMessage());
 		}
 	}
@@ -64,10 +64,9 @@ public class SMSBlockListener extends BlockListener {
 					Location l = b.getLocation();
 					menu.removeSign(l);
 					SMSUtils.statusMessage(p, "Sign @ &f" + SMSUtils.formatLocation(l) + "&- was removed from menu &e" + menuName + "&-");
-					menu.autosave();
 				}
 			}
-		} catch (SMSNoSuchMenuException e) {
+		} catch (SMSException e) {
 			SMSUtils.errorMessage(p, e.getMessage());
 		}
 	}
@@ -91,9 +90,8 @@ public class SMSBlockListener extends BlockListener {
 							// attached to air? looks like the sign has become detached
 							SMSMenu menu = SMSMenu.getMenu(menuName);
 							menu.removeSign(b.getLocation());
-							menu.autosave();
 						}
-					} catch (SMSNoSuchMenuException e) {
+					} catch (SMSException e) {
 						SMSUtils.log(Level.WARNING, e.getMessage());
 					}
 				}

@@ -29,7 +29,7 @@ public class SMSHandlerImpl implements SMSHandler {
 	}
 
 	@Override
-	public SMSMenu getMenu(String name) throws SMSNoSuchMenuException {
+	public SMSMenu getMenu(String name) throws SMSException {
 		return SMSMenu.getMenu(name);
 	}
 
@@ -39,17 +39,17 @@ public class SMSHandlerImpl implements SMSHandler {
 	}
 
 	@Override
-	public void deleteMenu(String name, MenuRemoveAction action) throws SMSNoSuchMenuException {
+	public void deleteMenu(String name, MenuRemoveAction action) throws SMSException {
 		SMSMenu.getMenu(name).deletePermanent(action);
 	}
 
 	@Override
-	public void deleteMenu(String name) throws SMSNoSuchMenuException {
+	public void deleteMenu(String name) throws SMSException {
 		SMSMenu.getMenu(name).deletePermanent();
 	}
 
 	@Override
-	public SMSMenu getMenuAt(Location loc) throws SMSNoSuchMenuException {
+	public SMSMenu getMenuAt(Location loc) throws SMSException {
 		return SMSMenu.getMenuAt(loc);
 	}
 

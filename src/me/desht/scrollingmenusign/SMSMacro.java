@@ -17,13 +17,14 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.Yaml;
 
 public class SMSMacro {
 	private static final String commandFile = "commands.yml";
 	private ScrollingMenuSign plugin = null;
-	Map<String,List<String>> cmdSet;
+	private Map<String,List<String>> cmdSet;
 	
 	SMSMacro(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
@@ -142,6 +143,37 @@ public class SMSMacro {
 		}
 	}
 
+	void sendFeedback(Player player, String message) {
+		sendFeedback(player, message, new HashSet<String>());
+	}
+	
+	private void sendFeedback(Player player, String message, Set<String> history) {
+		if (message == null || message.length() == 0)
+			return;
+		if (message.length() > 1 && message.startsWith("%")) {
+			// macro expansion
+			String macro = message.substring(1);
+			if (history.contains(macro)) {
+				SMSUtils.log(Level.WARNING, "sendFeedback [" + macro + "]: recursion detected");
+				SMSUtils.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
+				return;
+			} else if (plugin.macroHandler.hasCommand(macro)) {
+				history.add(macro);
+				sendFeedback(player, plugin.macroHandler.getCommands(macro), history);
+			} else {
+				SMSUtils.errorMessage(player, "No such macro '" + macro + "'.");
+			}
+		} else {
+			player.sendMessage(ChatColor.YELLOW + SMSUtils.parseColourSpec(null, message));
+		}	
+	}
+
+	private void sendFeedback(Player player, List<String> messages, Set<String> history) {
+		for (String m : messages) {
+			sendFeedback(player, m, history);
+		}
+	}
+	
 	private void backupCommandsFile(File original) {
 		try {
         	File backup = SMSPersistence.getBackupFileName(original.getParentFile(), commandFile);

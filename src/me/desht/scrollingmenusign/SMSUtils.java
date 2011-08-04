@@ -139,4 +139,15 @@ public class SMSUtils {
 		return s.replaceAll("\u00A7.", "");
 	}
 
+	static World findWorld(String worldName) {
+        World w = Bukkit.getServer().getWorld(worldName);
+
+        if (w != null) {
+        	return w;
+        } else {
+        	throw new IllegalArgumentException("World " + worldName + " was not found on the server.");
+        }
+    }
+
+
 }

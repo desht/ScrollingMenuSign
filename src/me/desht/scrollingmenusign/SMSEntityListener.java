@@ -36,8 +36,7 @@ public class SMSEntityListener extends EntityListener {
 				try {
 					SMSMenu menu = SMSMenu.getMenuAt(loc);
 					menu.removeSign(loc);
-					menu.autosave();
-				} catch (SMSNoSuchMenuException e) {
+				} catch (SMSException e) {
 					SMSUtils.log(Level.WARNING, e.getMessage());
 				}
 			}

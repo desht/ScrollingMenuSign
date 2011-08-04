@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,6 @@ import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -27,22 +27,27 @@ public class SMSMenu {
 	private String name;
 	private String title;
 	private String owner;
-	private ArrayList<SMSMenuItem> items;
+	private List<SMSMenuItem> items;
 	Map<Location, Integer> locations;	// maps sign location to scroll pos
+	private boolean autosave;
 	
-	private static Map<Location, String> menuLocations = new HashMap<Location, String>();
-	private static Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
+	private static final Map<Location, String> menuLocations = new HashMap<Location, String>();
+	private static final Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
 	
-	private static SMSMenuItem blankItem = new SMSMenuItem("", "", "");
+	private static final SMSMenuItem blankItem = new SMSMenuItem("", "", "");
 
-	// Construct a new menu
-	public SMSMenu(ScrollingMenuSign plugin, String n, String t, String o, Location l) {
-		this.plugin = plugin;
-		items = new ArrayList<SMSMenuItem>();
-		name = n;
-		title = t;
-		owner = o;
-		locations = new HashMap<Location, Integer>();
+	/**
+	 * Construct a new menu
+	 *
+	 * @param plugin	Reference to the ScrollingMenuSign plugin
+	 * @param n			Name of the menu
+	 * @param t			Title of the menu
+	 * @param o			Owner of the menu
+	 * @param l			Location of the menu's first sign (may be null)
+	 */
+	SMSMenu(ScrollingMenuSign plugin, String n, String t, String o, Location l) {
+		initCommon(plugin, n, t, o);
+		
 		if (l != null) locations.put(l, 0);
 	}
 
@@ -55,13 +60,9 @@ public class SMSMenu {
 	 * @param o
 	 * @param l
 	 */
-	public SMSMenu(ScrollingMenuSign plugin, SMSMenu other, String n, String o, Location l) {
-		this.plugin = plugin;
-		items = new ArrayList<SMSMenuItem>();
-		name = n;
-		title = other.getTitle();
-		owner = o;
-		locations = new HashMap<Location, Integer>();
+	SMSMenu(ScrollingMenuSign plugin, SMSMenu other, String n, String o, Location l) {
+		initCommon(plugin, n, other.getTitle(), o);
+		
 		if (l != null) locations.put(l, 0);
 		for (SMSMenuItem item: other.getItems()) {
 			addItem(item.getLabel(), item.getCommand(), item.getMessage());
@@ -75,25 +76,23 @@ public class SMSMenu {
 	 */
 	@SuppressWarnings("unchecked")
 	SMSMenu(ScrollingMenuSign plugin, String name, Map<String, Object> menuData) {
-		this.plugin = plugin;
-		this.name = name;
-		items = new ArrayList<SMSMenuItem>();
-		setTitle(SMSUtils.parseColourSpec(null, ((String) menuData.get("title"))));
-		setOwner((String) menuData.get("owner"));
-		locations = new HashMap<Location, Integer>();
+		initCommon(plugin,
+				name,
+				SMSUtils.parseColourSpec(null, ((String) menuData.get("title"))),
+				(String) menuData.get("owner"));
 		
 		if (menuData.get("locations") != null) {
 			// v0.3 or newer format - multiple locations per menu
 			List<List<Object>> l0 = (List<List<Object>>) menuData.get("locations");			
 			for (List<Object> locList: l0) {
-				World w = findWorld((String) locList.get(0));
+				World w = SMSUtils.findWorld((String) locList.get(0));
 				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
 				addSign(loc);
 			}
 		} else {
 			// v0.2 or older
 			String worldName = (String) menuData.get("world");
-			World w = findWorld(worldName);
+			World w = SMSUtils.findWorld(worldName);
 			List<Integer>locList = (List<Integer>) menuData.get("location");
 			addSign(new Location(w, locList.get(0), locList.get(1), locList.get(2)));
 		}
@@ -106,6 +105,16 @@ public class SMSMenu {
 		}
 	}
 
+	private void initCommon(ScrollingMenuSign plugin, String n, String t, String o) {
+		this.plugin = plugin;
+		items = new ArrayList<SMSMenuItem>();
+		name = n;
+		title = t;
+		owner = o;
+		locations = new HashMap<Location, Integer>();
+		autosave = SMSConfig.getConfiguration().getBoolean("sms.autosave", true);
+	}
+	
 	Map<String, Object> freeze() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		
@@ -113,25 +122,15 @@ public class SMSMenu {
 		map.put("owner", getOwner());
 		List<List<Object>> locs = new ArrayList<List<Object>>();
 		for (Location l: getLocations().keySet()) {
-			locs.add(makeBlockList(l));
+			locs.add(freezeLocation(l));
 		}
 		map.put("locations", locs);
-		map.put("items", makeItemList(getItems()));
+		map.put("items", freezItemList(getItems()));
 		
 		return map;
 	}
 	
-	private World findWorld(String worldName) {
-        World w = Bukkit.getServer().getWorld(worldName);
-
-        if (w != null) {
-        	return w;
-        } else {
-        	throw new IllegalArgumentException("World " + worldName + " was not found on the server.");
-        }
-    }
-
-	private List<Object> makeBlockList(Location l) {
+	private List<Object> freezeLocation(Location l) {
         List<Object> list = new ArrayList<Object>();
         list.add(l.getWorld().getName());
         list.add(l.getBlockX());
@@ -142,7 +141,7 @@ public class SMSMenu {
     }
 
 	
-	private List<Map<String, String>> makeItemList(List<SMSMenuItem> items) {
+	private List<Map<String, String>> freezItemList(List<SMSMenuItem> items) {
 		List<Map<String,String>> l = new ArrayList<Map<String, String>>();
 		for (SMSMenuItem item : items) {		
 			Map<String,String> h = new HashMap<String, String>();
@@ -164,6 +163,8 @@ public class SMSMenu {
 
 	public void setTitle(String newTitle) {
 		title = newTitle;
+		
+		autosave();
 	}
 
 	public Map<Location,Integer> getLocations() {
@@ -176,6 +177,18 @@ public class SMSMenu {
 
 	public void setOwner(String owner) {
 		this.owner = owner;
+		
+		autosave();
+	}
+
+	public boolean isAutosave() {
+		return autosave;
+	}
+
+	public boolean setAutosave(boolean autosave) {
+		boolean prev = this.autosave;
+		this.autosave = autosave;
+		return prev;
 	}
 
 	/**
@@ -192,7 +205,7 @@ public class SMSMenu {
 	 * 
 	 * @return	The number of items
 	 */
-	public int getNumItems() {
+	public int getItemCount() {
 		return items.size();
 	}
 
@@ -233,6 +246,8 @@ public class SMSMenu {
 		if (updateSignText) {
 			updateSign(l);
 		}
+		
+		autosave();
 	}
 	
 	/**
@@ -261,6 +276,8 @@ public class SMSMenu {
 		}
 		locations.remove(l);
 		menuLocations.remove(l);
+		
+		autosave();
 	}
 
 	/**
@@ -271,8 +288,30 @@ public class SMSMenu {
 	 * @param message Feedback text to be shown when the item is selected
 	 */
 	public void addItem(String label, String command, String message) {
-		SMSMenuItem item = new SMSMenuItem(label, command, message);
+		addItem(new SMSMenuItem(label, command, message));
+	}
+	
+	/**
+	 * Add a new item to the menu
+	 * 
+	 * @param item	The item to be added
+	 */
+	public void addItem(SMSMenuItem item) {
+		if (item == null)
+			throw new NullPointerException();
+		
 		items.add(item);
+		
+		autosave();
+	}
+	
+	/**
+	 * Sort the menu's items by label text (see SMSMenuItem.compareTo())
+	 */
+	public void sortItems() {
+		Collections.sort(items);
+		
+		autosave();
 	}
 	
 	/**
@@ -314,6 +353,8 @@ public class SMSMenu {
 				locations.put(l, items.size() == 0 ? 0 : items.size() - 1);
 			}
 		}
+		
+		autosave();
 	}
 
 	/**
@@ -334,6 +375,7 @@ public class SMSMenu {
 		for (Location l : locations.keySet()) {
 			locations.put(l, 0);
 		}
+		autosave();
 	}
 	
 	/**
@@ -347,9 +389,11 @@ public class SMSMenu {
 	
 	private void updateSign(Location l, String[] lines) {
 		Sign sign = getSign(l);
-		if (sign == null) return;
-		if (lines == null) lines = buildSignText(l);
-		for (int i = 0; i < 4; i++) {
+		if (sign == null)
+			return;
+		if (lines == null)
+			lines = buildSignText(l);
+		for (int i = 0; i < lines.length; i++) {
 			sign.setLine(i, lines[i]);
 		}
 		sign.update();
@@ -386,7 +430,7 @@ public class SMSMenu {
 	 * @param l A location
 	 * @return	The sign
 	 */
-	public Sign getSign(Location l) {
+	private Sign getSign(Location l) {
 		if (locations.get(l) == null) {
 			return null;
 		}
@@ -511,23 +555,25 @@ public class SMSMenu {
 	void deletePermanent(MenuRemoveAction action) {
 		try {
 			SMSMenu.removeMenu(getName(), MenuRemoveAction.BLANK_SIGN);
-		} catch (SMSNoSuchMenuException e) {
+			// TODO: remove persistence file once we go to one file per menu
+		} catch (SMSException e) {
 			// Should not get here
-			SMSUtils.log(Level.WARNING, "Impossible: deletePermanent got SMSNoSuchMenuException?");
+			SMSUtils.log(Level.WARNING, "Impossible: deletePermanent got SMSException?");
 		}
 	}
 
 	void deleteTemporary() {
 		try {
 			SMSMenu.removeMenu(getName(), MenuRemoveAction.DO_NOTHING);
-		} catch (SMSNoSuchMenuException e) {
+		} catch (SMSException e) {
 			// Should not get here
-			SMSUtils.log(Level.WARNING, "Impossible: deleteTemporary got SMSNoSuchMenuException?");
+			SMSUtils.log(Level.WARNING, "Impossible: deleteTemporary got SMSException?");
 		}
 	}
 
-	void autosave() {
-		if (SMSConfig.getConfiguration().getBoolean("sms.autosave", true))
+	private void autosave() {
+		// we only save menus which have been registered via SMSMenu.addMenu()
+		if (autosave && SMSMenu.checkForMenu(getName()))
 			plugin.getPersistence().save();
 	}
 
@@ -548,6 +594,8 @@ public class SMSMenu {
 		if (updateSign) {
 			menu.updateSigns();
 		}
+		
+		menu.autosave();
 		System.out.println("added menu " + menuName);
 	}
 	
@@ -556,9 +604,9 @@ public class SMSMenu {
 	 * 
 	 * @param menuName	The menu's name
 	 * @param action	Action to take on removal
-	 * @throws SMSNoSuchMenuException
+	 * @throws SMSException
 	 */
-	static void removeMenu(String menuName, MenuRemoveAction action) throws SMSNoSuchMenuException {
+	static void removeMenu(String menuName, MenuRemoveAction action) throws SMSException {
 		SMSMenu menu = getMenu(menuName);
 		switch(action) {
 		case DESTROY_SIGN:
@@ -578,11 +626,11 @@ public class SMSMenu {
 	 * Retrieve the menu with the given name
 	 * @param menuName	The name of the menu to retrieve
 	 * @return	The menu object
-	 * @throws SMSNoSuchMenuException if the menu name is not found
+	 * @throws SMSException if the menu name is not found
 	 */
-	static SMSMenu getMenu(String menuName) throws SMSNoSuchMenuException {
+	static SMSMenu getMenu(String menuName) throws SMSException {
 		if (!menus.containsKey(menuName))
-			throw new SMSNoSuchMenuException("No such menu '" + menuName + "'.");
+			throw new SMSException("No such menu '" + menuName + "'.");
 		return menus.get(menuName);
 	}
 	
@@ -610,9 +658,9 @@ public class SMSMenu {
 	 * 
 	 * @param loc	The location
 	 * @return	The menu object
-	 * @throws SMSNoSuchMenuException if there is no menu sign at the location
+	 * @throws SMSException if there is no menu sign at the location
 	 */
-	static SMSMenu getMenuAt(Location loc) throws SMSNoSuchMenuException {
+	static SMSMenu getMenuAt(Location loc) throws SMSException {
 		return getMenu(getMenuNameAt(loc));
 	}
 
