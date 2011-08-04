@@ -19,12 +19,9 @@ import org.bukkit.entity.Player;
 
 public class SMSCommandExecutor implements CommandExecutor {
 	private ScrollingMenuSign plugin;
-	private ArrayList<String> messageBuffer;
-	private static int pageSize = 16;
 	
 	public SMSCommandExecutor(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
-		messageBuffer = new ArrayList<String>();
 	}
 	
 	@Override
@@ -66,7 +63,7 @@ public class SMSCommandExecutor implements CommandExecutor {
     			} else if (partialMatch(args[0], "t")) {	// title
     				setMenuTitle(player, args);
     			} else if (partialMatch(args[0], "p")) {	// page
-    				pagedDisplay(player, args);
+    				pageCommand(player, args);
     			} else if (partialMatch(args[0], "m")) {	// macro
     				doMacroCommand(player, args);
     			} else if (partialMatch(args[0], "deb")) {	// debug
@@ -122,7 +119,8 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu = new SMSMenu(plugin, menuName, menuTitle, owner, loc);
 		}
 		SMSMenu.addMenu(menuName, menu, true);
-		SMSUtils.statusMessage(player, "Created new menu &e" + menuName + "&- " + (loc == null ? " with no signs" : " with sign @ &f" + formatLoc(loc)));
+		SMSUtils.statusMessage(player, "Created new menu &e" + menuName + "&- " +
+		                       (loc == null ? " with no signs" : " with sign @ &f" + SMSUtils.formatLocation(loc)));
 		menu.autosave();
 	}
 
@@ -185,35 +183,36 @@ public class SMSCommandExecutor implements CommandExecutor {
 	private void listSMSMenus(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.list");
 		
-		messageBuffer.clear();
+		MessageBuffer.clear(player);
 		
 		if (args.length >= 2) {
 			SMSMenu menu = SMSMenu.getMenu(args[1]);
-			listMenu(menu);
+			listMenu(player, menu);
 		} else {
 			List<SMSMenu> menus = SMSMenu.listMenus(true);
 			if (menus.size() == 0) {
 				SMSUtils.statusMessage(player, "No menu signs exist.");
 			} else {
 				for (SMSMenu menu : menus) {
-					listMenu(menu);
+					listMenu(player, menu);
 				}
 			}
 		}
-		pagedDisplay(player, 1);
+		MessageBuffer.showPage(player);
 	}
 
-	private void listMenu(SMSMenu menu) {
+	private void listMenu(Player player, SMSMenu menu) {
 		Map<Location,Integer> locs = menu.getLocations();
 		ChatColor signCol = locs.size() > 0 ? ChatColor.YELLOW : ChatColor.RED;
-		String message = ChatColor.YELLOW + menu.getName() +
-			ChatColor.GREEN + " \"" + menu.getTitle() + ChatColor.GREEN + "\"" +
-			ChatColor.YELLOW + " [" + menu.getNumItems() + " items]" +
-			signCol + " [" + locs.size() + " signs]";
-		messageBuffer.add(message);
+		String message = String.format("&e%s &2\"%s&2\" &e[%d items] %s[%d signs]",
+		                               menu.getName(), menu.getTitle(), menu.getNumItems(),
+		                               signCol.toString(), locs.size());
+		List<String> l = new ArrayList<String>();
+		l.add(message);
 		for (Location loc: locs.keySet()) {
-			messageBuffer.add(" - " + formatLoc(loc));
+			l.add(" &5*&- " + SMSUtils.formatLocation(loc));
 		}
+		MessageBuffer.add(player, l);
 	}
 
 	private void showSMSMenu(Player player, String[] args) throws SMSNoSuchMenuException, SMSException {
@@ -226,18 +225,18 @@ public class SMSCommandExecutor implements CommandExecutor {
 			if (onConsole(player)) return;
 			menu = SMSMenu.getMenu(SMSMenu.getTargetedMenuSign(player, true));
 		}
-		messageBuffer.clear();
-		messageBuffer.add(ChatColor.YELLOW + "Menu '" + menu.getName() + "': title '" + menu.getTitle() + "'");
+		MessageBuffer.clear(player);
+		MessageBuffer.add(player, "Menu &e" + menu.getName() + "&-: title &f" + menu.getTitle());
 		List<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
-			String s = String.format(ChatColor.YELLOW + "%2d)" +
-					ChatColor.WHITE + " %s " + ChatColor.WHITE + "[%s] \"%s\"",
+			String s = String.format("&e%2d)" +
+					" &f%s " + "&f[%s] \"%s\"&f",
 					n, item.getLabel(), item.getCommand(), item.getMessage());
 			n++;
-			messageBuffer.add(s);
+			MessageBuffer.add(player, s);
 		}
-		pagedDisplay(player, 1);
+		MessageBuffer.showPage(player);
 	}
 
 	private void setMenuTitle(Player player, String[] args) throws SMSNoSuchMenuException {
@@ -320,12 +319,12 @@ public class SMSCommandExecutor implements CommandExecutor {
 	private void getConfig(Player player, String[] args) throws SMSException {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.getcfg");
 		
-		messageBuffer.clear();
+		MessageBuffer.clear(player);
 		if (args.length < 2) {
 			for (String line : SMSConfig.getConfigList()) {
-				messageBuffer.add(line);
+				MessageBuffer.add(player, line);
 			}
-			pagedDisplay(player, 1);
+			MessageBuffer.showPage(player);
 		} else {
 			String res = plugin.getConfiguration().getString(args[1]);
 			if (res != null) {
@@ -399,22 +398,22 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		Boolean needSave = false;
 		if (partialMatch(args[1], "l")) {			// list
-			messageBuffer.clear();
+			MessageBuffer.clear(player);
 			int i = 1;
 			if (args.length < 3) {
 				Set<String> macros = plugin.macroHandler.getCommands();
-				messageBuffer.add(ChatColor.YELLOW + "" + macros.size() + " macros");
+				MessageBuffer.add(player, "&e" + macros.size() + " macros");
 				for (String m : macros) {
-					messageBuffer.add(ChatColor.YELLOW + "" + i++ + ") " + ChatColor.WHITE + m);
+					MessageBuffer.add(player, "&e" + i++ + ") &f" + m);
 				}
 			} else {
 				List<String> cmds = plugin.macroHandler.getCommands(args[2]);
-				messageBuffer.add(ChatColor.YELLOW + "" + cmds.size() + " macro entries");
+				MessageBuffer.add(player, "&e" + cmds.size() + " macro entries");
 				for (String c : cmds) {
-					messageBuffer.add(ChatColor.YELLOW + "" + i++ + ") " + ChatColor.WHITE + c);
+					MessageBuffer.add(player, "&e" + i++ + ") &f" + c);
 				}
 			}
-			pagedDisplay(player, 1);
+			MessageBuffer.showPage(player);
 		} else if (partialMatch(args[1], "a")) {	// add
 			if (args.length >= 4) {
 				String s = combine(args, 3);
@@ -455,48 +454,23 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private String formatLoc(Location loc) {
-		StringBuilder str = new StringBuilder(ChatColor.WHITE + "@ " +
-			loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + "," +
-			loc.getWorld().getName());
-		Block b = plugin.getServer().getWorld(loc.getWorld().getName()).getBlockAt(loc);
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			str.append(ChatColor.RED + " [ NO SIGN ]");
-		}
-		return str.toString();
-	}
-
-	private void pagedDisplay(Player player, String[] args) throws SMSException {
-		
-		int pageNum = 1;
-		if (args.length < 2) return;
-		try {
-			pageNum = Integer.parseInt(args[1]);
-			pagedDisplay(player, pageNum);
-		} catch (NumberFormatException e) {
-			SMSUtils.errorMessage(player, "invalid argument: " + args[1]);
-		}
-	}
-	
-	private void pagedDisplay(Player player, int pageNum) throws SMSException {
-		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.page");
-		
-		if (player != null) {
-			// pretty paged display
-			int nMessages = messageBuffer.size();
-			SMSUtils.statusMessage(player, ChatColor.GREEN + "" +  nMessages +
-					" lines (page " + pageNum + "/" + ((nMessages-1) / pageSize + 1) + ")");
-			SMSUtils.statusMessage(player, ChatColor.GREEN + "---------------");
-			for (int i = (pageNum -1) * pageSize; i < nMessages && i < pageNum * pageSize; i++) {
-				SMSUtils.statusMessage(player, messageBuffer.get(i));
-			}
-			SMSUtils.statusMessage(player, ChatColor.GREEN + "---------------");
-			String footer = (nMessages > pageSize * pageNum) ? "Use /sms page [page#] to see more" : "";
-			SMSUtils.statusMessage(player, ChatColor.GREEN + footer);
+	private void pageCommand(Player player, String[] args) {
+		if (args.length < 2) {
+			// default is to advance one page and display
+			MessageBuffer.nextPage(player);
+			MessageBuffer.showPage(player);
+		} else if (partialMatch(args, 1, "n")) { //$NON-NLS-1$
+			MessageBuffer.nextPage(player);
+			MessageBuffer.showPage(player);
+		} else if (partialMatch(args, 1, "p")) { //$NON-NLS-1$
+			MessageBuffer.prevPage(player);
+			MessageBuffer.showPage(player);
 		} else {
-			// just dump the whole message buffer to the console
-			for (String s: messageBuffer) {
-				SMSUtils.statusMessage(null, SMSUtils.deColourise(s));
+			try {
+				int pageNum = Integer.parseInt(args[1]);
+				MessageBuffer.showPage(player, pageNum);
+			} catch (NumberFormatException e) {
+				SMSUtils.errorMessage(player, "Invalid page number " + args[1]);
 			}
 		}
 	}
@@ -515,7 +489,14 @@ public class SMSCommandExecutor implements CommandExecutor {
 		}
 		return result.toString();
 	}
-
+	
+	private static boolean partialMatch(String[] args, int index, String match) {
+		if (index >= args.length) {
+			return false;
+		}
+		return partialMatch(args[index], match);
+	}
+	
 	private static Boolean partialMatch(String str, String match) {
 		int l = match.length();
 		if (str.length() < l) return false;
