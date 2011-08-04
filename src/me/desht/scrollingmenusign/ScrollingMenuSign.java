@@ -20,7 +20,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSHandlerImpl handler = new SMSHandlerImpl(this);
 	
 	final SMSDebugger debugger = new SMSDebugger(this);
-	final SMSMacro macroHandler = new SMSMacro(this);
+//	final SMSMacro macroHandler = new SMSMacro(this);
 	
 	@Override
 	public void onEnable() {
@@ -68,7 +68,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	void loadMacros() {
-		macroHandler.loadCommands();
+		SMSMacro.loadCommands();
 	}
 	
 	void saveMenus() {
@@ -76,7 +76,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	void saveMacros() {
-		macroHandler.saveCommands();
+		SMSMacro.saveCommands();
 	}
 	
 	void debug(String message) {

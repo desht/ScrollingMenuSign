@@ -23,15 +23,15 @@ import org.yaml.snakeyaml.Yaml;
 
 public class SMSMacro {
 	private static final String commandFile = "commands.yml";
-	private ScrollingMenuSign plugin = null;
-	private Map<String,List<String>> cmdSet;
+//	private ScrollingMenuSign plugin = null;
+	private static Map<String,List<String>> cmdSet;
 	
-	SMSMacro(ScrollingMenuSign plugin) {
-		this.plugin = plugin;
-	}
+//	SMSMacro(ScrollingMenuSign plugin) {
+//		this.plugin = plugin;
+//	}
 
 	@SuppressWarnings("unchecked")
-	void loadCommands() {
+	static void loadCommands() {
 		File f = new File(SMSConfig.getPluginFolder(), commandFile);
 		if (!f.exists()) { // create empty file if doesn't already exist
             try {
@@ -54,9 +54,9 @@ public class SMSMacro {
 		SMSUtils.log(Level.INFO, "read " + cmdSet.size() + " macros from file.");
 	}
 
-	void saveCommands() {
+	static void saveCommands() {
 		Yaml yaml = new Yaml();
-		File f = new File(plugin.getDataFolder(), commandFile);
+		File f = new File(SMSConfig.getPluginFolder(), commandFile);
 		if (cmdSet != null)	SMSUtils.log(Level.INFO, "Saving " + cmdSet.size() + " macros to file...");
 		try {
 			yaml.dump(cmdSet, new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8")));
@@ -66,25 +66,25 @@ public class SMSMacro {
 		
 	}
 
-	void addCommand(String commandSet, String cmd) {
+	static void addCommand(String commandSet, String cmd) {
 		List<String> c = getCommands(commandSet);
 		c.add(cmd);
 	}
 	
-	void insertCommand(String commandSet, String cmd, int index) {
+	static void insertCommand(String commandSet, String cmd, int index) {
 		List<String> c = getCommands(commandSet);
 		c.add(index, cmd);
 	}
 	
-	Set<String> getCommands() {
+	static Set<String> getCommands() {
 		return cmdSet.keySet();
 	}
 	
-	Boolean hasCommand(String cmd) {
+	static Boolean hasCommand(String cmd) {
 		return cmdSet.containsKey(cmd);
 	}
 	
-	List<String> getCommands(String commandSet) {
+	static List<String> getCommands(String commandSet) {
 		List<String> c = cmdSet.get(commandSet);
 		if (c == null) {
 			c = new ArrayList<String>();
@@ -93,27 +93,27 @@ public class SMSMacro {
 		return c;
 	}
 	
-	void removeCommand(String commandSet) {
+	static void removeCommand(String commandSet) {
 		cmdSet.remove(commandSet);
 	}
 	
-	void removeCommand(String commandSet, int index) {
+	static void removeCommand(String commandSet, int index) {
 		cmdSet.get(commandSet).remove(index);
 	}
 	
 	
-	void executeCommand(String command, Player player) {
+	static void executeCommand(String command, Player player) {
 		executeCommand(command, player, new HashSet<String>());
 	}
 	
-	private void executeCommandSet(String commandSet, Player player, Set<String> history) {
+	private static void executeCommandSet(String commandSet, Player player, Set<String> history) {
 		List<String>c = cmdSet.get(commandSet);
 		for (String cmd : c) {
 			executeCommand(cmd, player, history);
 		}
 	}
 
-	private void executeCommand(String command, Player player, Set<String> history) {
+	private static void executeCommand(String command, Player player, Set<String> history) {
 		if (command.length() == 0) return;
 		
 		Pattern pattern = Pattern.compile("^(%|cs:)(.+)");
@@ -136,18 +136,18 @@ public class SMSMacro {
 				}
 			}
 		} else if (SMSCommandSigns.isActive() &&
-				plugin.getConfiguration().getBoolean("sms.always_use_commandsigns", true)) {
+				SMSConfig.getConfiguration().getBoolean("sms.always_use_commandsigns", true)) {
 			SMSCommandSigns.runCommandString(player, command);
 		} else {
 			player.chat(command);
 		}
 	}
 
-	void sendFeedback(Player player, String message) {
+	static void sendFeedback(Player player, String message) {
 		sendFeedback(player, message, new HashSet<String>());
 	}
 	
-	private void sendFeedback(Player player, String message, Set<String> history) {
+	private static void sendFeedback(Player player, String message, Set<String> history) {
 		if (message == null || message.length() == 0)
 			return;
 		if (message.length() > 1 && message.startsWith("%")) {
@@ -157,9 +157,9 @@ public class SMSMacro {
 				SMSUtils.log(Level.WARNING, "sendFeedback [" + macro + "]: recursion detected");
 				SMSUtils.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
 				return;
-			} else if (plugin.macroHandler.hasCommand(macro)) {
+			} else if (hasCommand(macro)) {
 				history.add(macro);
-				sendFeedback(player, plugin.macroHandler.getCommands(macro), history);
+				sendFeedback(player, getCommands(macro), history);
 			} else {
 				SMSUtils.errorMessage(player, "No such macro '" + macro + "'.");
 			}
@@ -168,13 +168,13 @@ public class SMSMacro {
 		}	
 	}
 
-	private void sendFeedback(Player player, List<String> messages, Set<String> history) {
+	private static void sendFeedback(Player player, List<String> messages, Set<String> history) {
 		for (String m : messages) {
 			sendFeedback(player, m, history);
 		}
 	}
 	
-	private void backupCommandsFile(File original) {
+	private static void backupCommandsFile(File original) {
 		try {
         	File backup = SMSPersistence.getBackupFileName(original.getParentFile(), commandFile);
 

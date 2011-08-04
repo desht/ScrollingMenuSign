@@ -50,6 +50,8 @@ public class SMSCommandExecutor implements CommandExecutor {
     				showSMSMenu(player, args);
     			} else if (partialMatch(args[0], "so")) { 	// sort
     				sortSMSMenu(player, args);
+    			} else if (partialMatch(args[0], "u")) { 	// uses
+    				setItemUseCount(player, args);
     			} else if (partialMatch(args[0], "a")) {	// add
     				addSMSItem(player, args);
     			} else if (partialMatch(args[0], "rem")) {	// remove
@@ -226,8 +228,8 @@ public class SMSCommandExecutor implements CommandExecutor {
 		int n = 1;
 		for (SMSMenuItem item : items) {
 			String s = String.format("&e%2d)" +
-					" &f%s " + "&f[%s] \"%s\"&f",
-					n, item.getLabel(), item.getCommand(), item.getMessage());
+					" &f%s " + "&f[%s] \"%s\"&f &c%s",
+					n, item.getLabel(), item.getCommand(), item.getMessage(), item.getUsesAsString());
 			n++;
 			MessageBuffer.add(player, s);
 		}
@@ -308,6 +310,44 @@ public class SMSCommandExecutor implements CommandExecutor {
 			SMSUtils.errorMessage(player, "Item index " + item + " out of range");
 		} catch (IllegalArgumentException e) {
 			SMSUtils.errorMessage(player, e.getMessage());
+		}
+	}
+
+	private void setItemUseCount(Player player, String[] args) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.uses");
+		
+		if (args.length < 4) {
+			SMSUtils.errorMessage(player, "Usage: /sms uses <menu> <item> <count> [global|clear]");
+			return;
+		}
+		
+		SMSMenu menu = SMSMenu.getMenu(args[1]);
+		int idx = menu.indexOfItem(args[2]);
+		if (idx <= 0) {
+			throw new SMSException("Unknown menu item '" + args[2] + "'");
+		}
+		SMSMenuItem item = menu.getItem(idx);
+		
+		if (partialMatch(args, 3, "c")) {
+			item.clearUses();
+			SMSUtils.statusMessage(player, "Unset all usage limits for item &e" + item.getLabel());			
+		} else {
+			int count;
+			try {
+				count = Integer.parseInt(args[3]);
+			} catch (NumberFormatException e) {
+				throw new SMSException("Invalid numeric argument '" + args[3] + "'");
+			}
+
+			if (partialMatch(args, 4, "g")) {
+				item.setGlobalUses(count);
+				SMSUtils.statusMessage(player, "Set GLOBAL use limit for item &e" + item.getLabel()
+						+ "&- to " + count + ".");
+			} else {
+				SMSUtils.statusMessage(player, "Set PER-PLAYER use limit for item &e" + item.getLabel()
+						+ "&- to " + count + ".");
+				item.setUses(count);
+			}
 		}
 	}
 
@@ -409,13 +449,13 @@ public class SMSCommandExecutor implements CommandExecutor {
 			MessageBuffer.clear(player);
 			int i = 1;
 			if (args.length < 3) {
-				Set<String> macros = plugin.macroHandler.getCommands();
+				Set<String> macros = SMSMacro.getCommands();
 				MessageBuffer.add(player, "&e" + macros.size() + " macros");
 				for (String m : macros) {
 					MessageBuffer.add(player, "&e" + i++ + ") &f" + m);
 				}
 			} else {
-				List<String> cmds = plugin.macroHandler.getCommands(args[2]);
+				List<String> cmds = SMSMacro.getCommands(args[2]);
 				MessageBuffer.add(player, "&e" + cmds.size() + " macro entries");
 				for (String c : cmds) {
 					MessageBuffer.add(player, "&e" + i++ + ") &f" + c);
@@ -425,19 +465,19 @@ public class SMSCommandExecutor implements CommandExecutor {
 		} else if (partialMatch(args[1], "a")) {	// add
 			if (args.length >= 4) {
 				String s = combine(args, 3);
-				plugin.macroHandler.addCommand(args[2], s);
+				SMSMacro.addCommand(args[2], s);
 				SMSUtils.statusMessage(player, "Added command to macro &e" + args[2] + "&-.");
 				needSave = true;
 			}
 		} else if (partialMatch(args[1], "r")) {	// remove
 			if (args.length < 4) {
-				plugin.macroHandler.removeCommand(args[2]);
+				SMSMacro.removeCommand(args[2]);
 				SMSUtils.statusMessage(player, "Removed macro &e" + args[2] + "&-.");
 				needSave = true;
 			} else {
 				try { 
 					int index = Integer.parseInt(args[3]);
-					plugin.macroHandler.removeCommand(args[2], index - 1);
+					SMSMacro.removeCommand(args[2], index - 1);
 					SMSUtils.statusMessage(player, "Removed command from macro &e" + args[2] + "&-.");
 					needSave = true;
 				} catch (NumberFormatException e) {

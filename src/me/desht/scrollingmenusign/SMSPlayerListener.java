@@ -98,12 +98,10 @@ public class SMSPlayerListener extends PlayerListener {
 		
 		SMSMenuItem item = menu.getCurrentItem(l);
 		if (item != null) {
-			String command = item.getCommand();
-			plugin.macroHandler.executeCommand(command, player);
-			plugin.macroHandler.sendFeedback(player, item.getMessage());
+			item.execute(player);
+			item.feedbackMessage(player);
 		}
 	}
-	
 
 	private void tryToActivateSign(Block b, Player player) throws SMSException {
 		Sign sign = (Sign) b.getState();

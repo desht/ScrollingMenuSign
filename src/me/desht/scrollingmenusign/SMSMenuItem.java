@@ -1,9 +1,15 @@
 package me.desht.scrollingmenusign;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.bukkit.entity.Player;
+
 public class SMSMenuItem implements Comparable<SMSMenuItem> {
-	private String label;
-	private String command;
-	private String message;
+	private final String label;
+	private final String command;
+	private final String message;
+	private final SMSRemainingUses uses;
 	
 	SMSMenuItem(String l, String c, String m) {
 		if (l == null || c == null || m == null)
@@ -12,6 +18,15 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		this.label = l;
 		this.command = c;
 		this.message = m;
+		this.uses = new SMSRemainingUses();
+	}
+	
+	@SuppressWarnings("unchecked")
+	SMSMenuItem(Map<String, Object> map) {
+		this.label = SMSUtils.parseColourSpec(null, (String) map.get("label"));
+		this.command = (String) map.get("command");
+		this.message = SMSUtils.parseColourSpec(null, (String) map.get("message"));
+		this.uses = new SMSRemainingUses((Map<String, Integer>) map.get("usesRemaining"));
 	}
 	
 	public String getLabel() {
@@ -26,9 +41,42 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		return message;
 	}
 
+	public void setGlobalUses(int nUses) {
+		uses.clearUses();
+		uses.setGlobalUses(nUses);
+	}
+	
+	public void setUses(int nUses) {
+		uses.setUses(nUses);
+	}
+	
+	public void clearUses(Player player) {
+		uses.clearUses(player.getName());
+	}
+	
+	public void clearUses() {
+		uses.clearUses();
+	}
+	
+	public void execute(Player player) throws SMSException {
+		if (uses.getUses(player.getName()) == 0) {
+			throw new SMSException("You can't use that menu item anymore");
+		}
+		uses.use(player.getName());
+		SMSMacro.executeCommand(getCommand(), player);
+	}
+	
+	public void feedbackMessage(Player player) {
+		SMSMacro.sendFeedback(player, getMessage());
+	}
+
 	@Override
 	public String toString() {
 		return "SMSMenuItem [label=" + label + ", command=" + command + ", message=" + message + "]";
+	}
+	
+	public String getUsesAsString() {
+		return uses.toString();
 	}
 
 	@Override
@@ -71,5 +119,16 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	@Override
 	public int compareTo(SMSMenuItem other) {
 		return SMSUtils.deColourise(label).compareTo(SMSUtils.deColourise(other.label));
+	}
+	
+	Map<String, Object> freeze() {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		map.put("label", SMSUtils.unParseColourSpec(label));
+		map.put("command", command);
+		map.put("message", SMSUtils.unParseColourSpec(message));
+		map.put("usesRemaining", uses.freeze());
+		
+		return map;
 	}
 }

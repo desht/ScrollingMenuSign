@@ -79,6 +79,9 @@ permissions:
   scrollingmenusign.commands.sort:
     description: Allows menus to be sorted
     default: op
+  scrollingmenusign.commands.uses:
+    description: Allows the permitted use count of a menu item to be set
+    default: op
   scrollingmenusign.destroy:
     description: Allows destruction of signs belonging to a menu created by someone else
     default: op

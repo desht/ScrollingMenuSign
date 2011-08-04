@@ -96,12 +96,10 @@ public class SMSMenu {
 			List<Integer>locList = (List<Integer>) menuData.get("location");
 			addSign(new Location(w, locList.get(0), locList.get(1), locList.get(2)));
 		}
-		List<Map<String,String>>items = (List<Map<String, String>>) menuData.get("items");
-		for (Map<String,String> item : items) {
-			addItem(SMSUtils.parseColourSpec(null, item.get("label")),
-					item.get("command"),
-					SMSUtils.parseColourSpec(null, item.get("message"))
-			);
+		List<Map<String,Object>>items = (List<Map<String, Object>>) menuData.get("items");
+		for (Map<String,Object> itemMap : items) {
+			SMSMenuItem menuItem = new SMSMenuItem(itemMap);
+			addItem(menuItem);
 		}
 	}
 
@@ -126,7 +124,7 @@ public class SMSMenu {
 			locs.add(freezeLocation(l));
 		}
 		map.put("locations", locs);
-		map.put("items", freezItemList(getItems()));
+		map.put("items", freezeItemList(getItems()));
 		
 		return map;
 	}
@@ -142,14 +140,10 @@ public class SMSMenu {
     }
 
 	
-	private List<Map<String, String>> freezItemList(List<SMSMenuItem> items) {
-		List<Map<String,String>> l = new ArrayList<Map<String, String>>();
-		for (SMSMenuItem item : items) {		
-			Map<String,String> h = new HashMap<String, String>();
-			h.put("label", SMSUtils.unParseColourSpec(item.getLabel()));
-			h.put("command", item.getCommand());
-			h.put("message", SMSUtils.unParseColourSpec(item.getMessage()));
-			l.add(h);
+	private List<Map<String, Object>> freezeItemList(List<SMSMenuItem> items) {
+		List<Map<String,Object>> l = new ArrayList<Map<String, Object>>();
+		for (SMSMenuItem item : items) {
+			l.add(item.freeze());
 		}
 		return l;
 	}
@@ -208,6 +202,31 @@ public class SMSMenu {
 	 */
 	public int getItemCount() {
 		return items.size();
+	}
+
+	public SMSMenuItem getItem(int index) {
+		return items.get(index - 1);
+	}
+
+	public SMSMenuItem getItem(String wanted) {
+		return items.get(indexOfItem(wanted) - 1);
+	}
+
+	public int indexOfItem(String wanted) {
+		int index = -1;
+		try {
+			index = Integer.parseInt(wanted);
+		} catch (NumberFormatException e) {
+			// not an integer - try to remove by label
+			for (int i = 0; i < items.size(); i++) {
+				String label = SMSUtils.deColourise(items.get(i).getLabel());
+				if (wanted.equalsIgnoreCase(label)) {
+					index = i + 1;
+					break;
+				}
+			};
+		}
+		return index;
 	}
 
 	/**
