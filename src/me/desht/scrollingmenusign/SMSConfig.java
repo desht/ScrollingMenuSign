@@ -87,10 +87,18 @@ public class SMSConfig {
 		if (saveNeeded) config.save();
 	}
 	
-	static File getDataFolder() {
-		return plugin.getDataFolder();
+	static File getPluginFolder() {
+		return pluginDir;
 	}
 	
+	static File getDataFolder() {
+		return dataDir;
+	}
+	
+	static File getMenusFolder() {
+		return menusDir;
+	}
+
 	static void setConfigItem(Player player, String key, String val) {
 		if (key.length() < 5 || !key.substring(0, 4).equals("sms.")) {
 			key = "sms." + key;
@@ -137,9 +145,5 @@ public class SMSConfig {
 	
 	static Configuration getConfiguration() {
 		return plugin.getConfiguration();
-	}
-
-	static File getMenusFolder() {
-		return menusDir;
 	}
 }

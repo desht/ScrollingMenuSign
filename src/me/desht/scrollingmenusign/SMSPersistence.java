@@ -48,7 +48,7 @@ public class SMSPersistence {
 	}
 	
 	void loadAll() {
-		final File oldMenusFile = new File(SMSConfig.getDataFolder(), "scrollingmenus.yml");
+		final File oldMenusFile = new File(SMSConfig.getPluginFolder(), "scrollingmenus.yml");
 		
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			menu.deleteTemporary();

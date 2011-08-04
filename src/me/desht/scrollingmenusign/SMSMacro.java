@@ -32,7 +32,7 @@ public class SMSMacro {
 
 	@SuppressWarnings("unchecked")
 	void loadCommands() {
-		File f = new File(plugin.getDataFolder(), commandFile);
+		File f = new File(SMSConfig.getPluginFolder(), commandFile);
 		if (!f.exists()) { // create empty file if doesn't already exist
             try {
                 f.createNewFile();
