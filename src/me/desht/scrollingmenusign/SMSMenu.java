@@ -188,11 +188,11 @@ public class SMSMenu {
 		return prev;
 	}
 
-	boolean isAutosort() {
+	public boolean isAutosort() {
 		return autosort;
 	}
 
-	void setAutosort(boolean autosort) {
+	public void setAutosort(boolean autosort) {
 		this.autosort = autosort;
 	}
 
