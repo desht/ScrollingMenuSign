@@ -30,11 +30,12 @@ public class SMSMenu {
 	private List<SMSMenuItem> items;
 	Map<Location, Integer> locations;	// maps sign location to scroll pos
 	private boolean autosave;
+	private boolean autosort;
 	
 	private static final Map<Location, String> menuLocations = new HashMap<Location, String>();
 	private static final Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
 	
-	private static final SMSMenuItem blankItem = new SMSMenuItem("", "", "");
+	private static final SMSMenuItem blankItem = new SMSMenuItem(null, "", "", "");
 
 	/**
 	 * Construct a new menu
@@ -80,6 +81,7 @@ public class SMSMenu {
 				(String) menuData.get("name"),
 				SMSUtils.parseColourSpec(null, ((String) menuData.get("title"))),
 				(String) menuData.get("owner"));
+		autosort = menuData.containsKey("autosort") ? (Boolean) menuData.get("autosort") : false;
 		
 		if (menuData.get("locations") != null) {
 			// v0.3 or newer format - multiple locations per menu
@@ -98,7 +100,7 @@ public class SMSMenu {
 		}
 		List<Map<String,Object>>items = (List<Map<String, Object>>) menuData.get("items");
 		for (Map<String,Object> itemMap : items) {
-			SMSMenuItem menuItem = new SMSMenuItem(itemMap);
+			SMSMenuItem menuItem = new SMSMenuItem(this, itemMap);
 			addItem(menuItem);
 		}
 	}
@@ -111,6 +113,7 @@ public class SMSMenu {
 		owner = o;
 		locations = new HashMap<Location, Integer>();
 		autosave = SMSConfig.getConfiguration().getBoolean("sms.autosave", true);
+		autosort = false;
 	}
 	
 	Map<String, Object> freeze() {
@@ -125,6 +128,7 @@ public class SMSMenu {
 		}
 		map.put("locations", locs);
 		map.put("items", freezeItemList(getItems()));
+		map.put("autosort", autosort);
 		
 		return map;
 	}
@@ -184,6 +188,14 @@ public class SMSMenu {
 		boolean prev = this.autosave;
 		this.autosave = autosave;
 		return prev;
+	}
+
+	boolean isAutosort() {
+		return autosort;
+	}
+
+	void setAutosort(boolean autosort) {
+		this.autosort = autosort;
 	}
 
 	/**
@@ -308,7 +320,7 @@ public class SMSMenu {
 	 * @param message Feedback text to be shown when the item is selected
 	 */
 	public void addItem(String label, String command, String message) {
-		addItem(new SMSMenuItem(label, command, message));
+		addItem(new SMSMenuItem(this, label, command, message));
 	}
 	
 	/**
@@ -321,6 +333,8 @@ public class SMSMenu {
 			throw new NullPointerException();
 		
 		items.add(item);
+		if (autosort)
+			Collections.sort(items);
 		
 		autosave();
 	}
@@ -591,7 +605,7 @@ public class SMSMenu {
 		}
 	}
 
-	private void autosave() {
+	void autosave() {
 		// we only save menus which have been registered via SMSMenu.addMenu()
 		if (autosave && SMSMenu.checkForMenu(getName()))
 			plugin.getPersistence().save(this);

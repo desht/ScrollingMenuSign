@@ -229,7 +229,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		for (SMSMenuItem item : items) {
 			String s = String.format("&e%2d)" +
 					" &f%s " + "&f[%s] \"%s\"&f &c%s",
-					n, item.getLabel(), item.getCommand(), item.getMessage(), item.getUsesAsString());
+					n, item.getLabel(), item.getCommand(), item.getMessage(), item.getUsesAsString(player));
 			n++;
 			MessageBuffer.add(player, s);
 		}
@@ -247,9 +247,15 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu = SMSMenu.getMenu(SMSMenu.getTargetedMenuSign(player, true));
 		}
 		
-		menu.sortItems();
-		
-		SMSUtils.statusMessage(player, "Menu &e" + menu.getName() + "&- has been sorted.");
+		if (partialMatch(args, 2, "a")) {	// autosort
+			menu.setAutosort(true);
+			menu.sortItems();
+			SMSUtils.statusMessage(player, "Menu &e" + menu.getName() + "&- has been sorted (autosort enabled)");
+		} else {
+			menu.setAutosort(false);
+			menu.sortItems();
+			SMSUtils.statusMessage(player, "Menu &e" + menu.getName() + "&- has been sorted (autosort disabled)");
+		}
 	}
 
 	private void setMenuTitle(Player player, String[] args) throws SMSException {

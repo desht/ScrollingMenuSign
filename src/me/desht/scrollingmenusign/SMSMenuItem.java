@@ -10,23 +10,27 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	private final String command;
 	private final String message;
 	private final SMSRemainingUses uses;
+	private final SMSMenu menu;
 	
-	SMSMenuItem(String l, String c, String m) {
+	SMSMenuItem(SMSMenu menu, String l, String c, String m) {
 		if (l == null || c == null || m == null)
 			throw new NullPointerException();
-		
+		this.menu = menu;
 		this.label = l;
 		this.command = c;
 		this.message = m;
-		this.uses = new SMSRemainingUses();
+		this.uses = new SMSRemainingUses(this);
 	}
 	
 	@SuppressWarnings("unchecked")
-	SMSMenuItem(Map<String, Object> map) {
+	SMSMenuItem(SMSMenu menu, Map<String, Object> map) {
+		this.menu = menu;
 		this.label = SMSUtils.parseColourSpec(null, (String) map.get("label"));
 		this.command = (String) map.get("command");
 		this.message = SMSUtils.parseColourSpec(null, (String) map.get("message"));
-		this.uses = new SMSRemainingUses((Map<String, Integer>) map.get("usesRemaining"));
+		this.uses = map.containsKey("usesRemaining") ?
+				new SMSRemainingUses(this, (Map<String, Integer>) map.get("usesRemaining")) :
+					new SMSRemainingUses(this);
 	}
 	
 	public String getLabel() {
@@ -52,17 +56,27 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	
 	public void clearUses(Player player) {
 		uses.clearUses(player.getName());
+		if (menu != null)
+			menu.autosave();
 	}
 	
 	public void clearUses() {
 		uses.clearUses();
+		if (menu != null)
+			menu.autosave();
 	}
 	
 	public void execute(Player player) throws SMSException {
-		if (uses.getUses(player.getName()) == 0) {
-			throw new SMSException("You can't use that menu item anymore");
+		String name = player.getName();
+		if (uses.hasLimitedUses(name)) {
+			if (uses.getRemainingUses(name) == 0) {
+				throw new SMSException("You can't use that menu item anymore");
+			}
+			uses.use(name);
+			if (menu != null)
+				menu.autosave();
+			SMSUtils.statusMessage(player, "&6[Uses remaining for this menu item: &e" + uses.getRemainingUses(name) + "&6]");
 		}
-		uses.use(player.getName());
 		SMSMacro.executeCommand(getCommand(), player);
 	}
 	
@@ -78,7 +92,11 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	public String getUsesAsString() {
 		return uses.toString();
 	}
-
+	
+	public String getUsesAsString(Player player) {
+		return uses.toString(player.getName());
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -130,5 +148,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		map.put("usesRemaining", uses.freeze());
 		
 		return map;
+	}
+
+	void autosave() {
+		if (menu != null)
+			menu.autosave();
 	}
 }
