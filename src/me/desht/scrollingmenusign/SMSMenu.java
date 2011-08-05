@@ -43,26 +43,30 @@ public class SMSMenu {
 	 * @param t			Title of the menu
 	 * @param o			Owner of the menu
 	 * @param l			Location of the menu's first sign (may be null)
+	 * @throws SMSException If there is already a menu at this location
 	 */
-	SMSMenu(ScrollingMenuSign plugin, String n, String t, String o, Location l) {
+	SMSMenu(ScrollingMenuSign plugin, String n, String t, String o, Location l) throws SMSException {
 		initCommon(plugin, n, t, o);
 		
-		if (l != null) locations.put(l, 0);
+		if (l != null)
+			addSign(l);
 	}
 
 	/**
 	 * Construct a new menu which is a copy of an existing menu
 	 *
-	 * @param plugin
-	 * @param other
-	 * @param n
-	 * @param o
-	 * @param l
+	 * @param plugin	Reference to the ScrollingMenuSign plugin
+	 * @param other		The existing menu to be copied
+	 * @param n			Name of the menu
+	 * @param o			Owner of the menu
+	 * @param l			Location of the menu's first sign (may be null)
+	 * @throws SMSException  If there is already a menu at this location
 	 */
-	SMSMenu(ScrollingMenuSign plugin, SMSMenu other, String n, String o, Location l) {
+	SMSMenu(ScrollingMenuSign plugin, SMSMenu other, String n, String o, Location l) throws SMSException {
 		initCommon(plugin, n, other.getTitle(), o);
 		
-		if (l != null) locations.put(l, 0);
+		if (l != null)
+			addSign(l);
 		for (SMSMenuItem item: other.getItems()) {
 			addItem(item.getLabel(), item.getCommand(), item.getMessage());
 		}
@@ -72,9 +76,10 @@ public class SMSMenu {
 	 * Construct a new menu from data read from the save file
 	 * 
 	 * @param menuData A map of properties for the menu
+	 * @throws SMSException If there is already a menu at this location
 	 */
 	@SuppressWarnings("unchecked")
-	SMSMenu(ScrollingMenuSign plugin, Map<String, Object> menuData) {
+	SMSMenu(ScrollingMenuSign plugin, Map<String, Object> menuData) throws SMSException {
 		initCommon(plugin,
 				(String) menuData.get("name"),
 				SMSUtils.parseColourSpec(null, ((String) menuData.get("title"))),
@@ -258,8 +263,9 @@ public class SMSMenu {
 	 * Add a new sign to the menu.  Equivalent to <b>addSign(l, false)</b>
 	 * 
 	 * @param l	Location of the sign to add
+	 * @throws SMSException 
 	 */
-	public void addSign(Location l) {
+	public void addSign(Location l) throws SMSException {
 		addSign(l, false);
 	}
 	
@@ -268,9 +274,16 @@ public class SMSMenu {
 	 * 
 	 * @param l Location of the sign to add
 	 * @param updateSignText true to immediately repaint the sign, false to leave it as is
+	 * @throws SMSException 
 	 */
-	public void addSign(Location l, boolean updateSignText) {
+	public void addSign(Location l, boolean updateSignText) throws SMSException {
 		Block b = l.getBlock();
+		
+		String s = SMSMenu.getMenuNameAt(b.getLocation());
+		if (s != null) {
+			throw new SMSException("Location " + SMSUtils.formatLocation(l) + " already has a menu: " + s);
+		}
+		
 		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
 			locations.put(l, 0);
 		}

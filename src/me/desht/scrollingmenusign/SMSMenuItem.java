@@ -74,7 +74,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		String name = player.getName();
 		if (uses.hasLimitedUses(name)) {
 			if (uses.getRemainingUses(name) == 0) {
-				throw new SMSException("You can't use that menu item anymore");
+				throw new SMSException("You can't use that menu item anymore.");
 			}
 			uses.use(name);
 			if (menu != null)

@@ -15,14 +15,26 @@ public class SMSHandlerImpl implements SMSHandler {
 	
 	@Override
 	public SMSMenu createMenu(String name, String title, String owner) {
-		SMSMenu menu = new SMSMenu(plugin, name, SMSUtils.parseColourSpec(title), owner, null);
+		SMSMenu menu;
+		try {
+			menu = new SMSMenu(plugin, name, SMSUtils.parseColourSpec(title), owner, null);
+		} catch (SMSException e) {
+			// should not get here
+			return null;
+		}
 		SMSMenu.addMenu(name, menu, false);
 		return menu;
 	}
 
 	@Override
 	public SMSMenu createMenu(String name, SMSMenu otherMenu, String owner) {
-		SMSMenu menu = new SMSMenu(plugin, otherMenu, name, owner, null);
+		SMSMenu menu;
+		try {
+			menu = new SMSMenu(plugin, otherMenu, name, owner, null);
+		} catch (SMSException e) {
+			// should not get here
+			return null;
+		}
 		SMSMenu.addMenu(name, menu, false);
 		return menu;
 	}

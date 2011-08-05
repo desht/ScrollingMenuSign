@@ -71,6 +71,8 @@ public class SMSPersistence {
 					SMSUtils.log(Level.WARNING, "caught exception while loading menu file " +
 							f + ": " + e.getMessage());
 					backupMenuFile(f);
+				} catch (SMSException e) {
+					SMSUtils.log(Level.WARNING, "caught exception while restoring menu " + f + ": " + e.getMessage());
 				}
 			}
 		}
@@ -96,6 +98,8 @@ public class SMSPersistence {
 		} catch (ReaderException e) {
 			SMSUtils.log(Level.WARNING, "caught exception while loading menu data: " + e.getMessage());
 			backupMenuFile(menusFile);
+		} catch (SMSException e) {
+			SMSUtils.log(Level.WARNING, "caught exception while restoring menus: " + e.getMessage());
 		}
 		SMSUtils.log(Level.INFO, "read " + SMSMenu.listMenus().size() + " menus from file.");
 	}	

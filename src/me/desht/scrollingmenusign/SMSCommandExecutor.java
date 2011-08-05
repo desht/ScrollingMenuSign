@@ -254,6 +254,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu.sortItems();
 			SMSUtils.statusMessage(player, "Menu &e" + menu.getName() + "&- has been sorted (autosort disabled)");
 		}
+		menu.updateSigns();
 	}
 
 	private void setMenuTitle(Player player, String[] args) throws SMSException {

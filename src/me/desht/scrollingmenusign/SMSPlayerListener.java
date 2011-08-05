@@ -130,9 +130,6 @@ public class SMSPlayerListener extends PlayerListener {
 			} else {
 				SMSUtils.errorMessage(player, "A menu called '" + name + "' already exists.");
 			}
-		} else if (SMSMenu.getMenuNameAt(b.getLocation()) != null) {
-			SMSUtils.errorMessage(player, "There is already a menu attached to that sign.");
-			return;
 		} else if (title.length() > 0) {
 			SMSPermissions.requirePerms(player, "scrollingmenusign.commands.create");
 			plugin.getHandler().createMenu(name, title, player.getName());
