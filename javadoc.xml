@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="public" author="true" classpath="/home/des/jars/bukkit-0.0.1-SNAPSHOT.jar:/home/des/jars/Permissions.jar:/home/des/jars/CommandSigns.jar" destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.6" sourcefiles="src/me/desht/scrollingmenusign/SMSHandler.java,src/me/desht/scrollingmenusign/SMSMenu.java,src/me/desht/scrollingmenusign/MessageBuffer.java,src/me/desht/scrollingmenusign/SMSMenuItem.java" sourcepath="src" splitindex="true" use="true" version="true"/>
+    </target>
+</project>

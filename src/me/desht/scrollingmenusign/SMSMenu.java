@@ -155,38 +155,79 @@ public class SMSMenu {
 		return l;
 	}
 
+	/**
+	 * Get the menu's unique name
+	 * 
+	 * @return	Name of this menu
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Get the menu's title string
+	 * 
+	 * @return	The title string
+	 */
 	public String getTitle() {
 		return title;
 	}
 
+	/**
+	 * Set the menu's title string
+	 * 
+	 * @param newTitle	The new title string
+	 */
 	public void setTitle(String newTitle) {
 		title = newTitle;
 		
 		autosave();
 	}
 
+	/**
+	 * Get the locations of all the menu's signs as a map.
+	 * 
+	 * @return	Map of location to integer - the current scroll position of the sign at each location
+	 */
 	public Map<Location,Integer> getLocations() {
 		return locations;
 	}
 
+	/**
+	 * Get the menu's owner string
+	 * 
+	 * @return	Name of the menu's owner
+	 */
 	public String getOwner() {
 		return owner;
 	}
 
+	/**
+	 * Set the menu's owner string.
+	 * 
+	 * @param owner	Name of the menu's owner
+	 */
 	public void setOwner(String owner) {
 		this.owner = owner;
 		
 		autosave();
 	}
 
+	/**
+	 * Get the menu's autosave status - will menus be automatically saved to disk when modified?
+	 *
+	 * @return	true or false
+	 */
 	public boolean isAutosave() {
 		return autosave;
 	}
 
+	/**
+	 * Set the menu's autosave status - will menus be automatically saved to disk when modified?
+	 * 
+	 * @param autosave	true or false
+	 * @return			the previous autosave status - true or false
+	 */
 	public boolean setAutosave(boolean autosave) {
 		boolean prev = this.autosave;
 		this.autosave = autosave;
@@ -195,10 +236,20 @@ public class SMSMenu {
 		return prev;
 	}
 
+	/**
+	 * Get the menu's autosort status - will menu items be automatically sorted when added?
+	 * 
+	 * @return	true or false
+	 */
 	public boolean isAutosort() {
 		return autosort;
 	}
 
+	/**
+	 * Set the menu's autosort status - will menu items be automatically sorted when added?
+	 * 
+	 * @param autosort	true or false
+	 */
 	public void setAutosort(boolean autosort) {
 		this.autosort = autosort;
 	}
@@ -221,14 +272,32 @@ public class SMSMenu {
 		return items.size();
 	}
 
+	/**
+	 * Get the item at the given numeric index
+	 * 
+	 * @param index	1-based numeric index
+	 * @return		The menu item at that index
+	 */
 	public SMSMenuItem getItem(int index) {
 		return items.get(index - 1);
 	}
 
+	/**
+	 * Get the menu item matching the given label
+	 * 
+	 * @param wanted	The label to match (case-insensitive)
+	 * @return			The menu item matching that index
+	 */
 	public SMSMenuItem getItem(String wanted) {
 		return items.get(indexOfItem(wanted) - 1);
 	}
 
+	/**
+	 * Get the index of the item matching the given label
+	 * 
+	 * @param wanted	Label to match
+	 * @return			1-based item index
+	 */
 	public int indexOfItem(String wanted) {
 		int index = -1;
 		try {
