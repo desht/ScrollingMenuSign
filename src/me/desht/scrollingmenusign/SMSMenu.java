@@ -185,6 +185,8 @@ public class SMSMenu {
 	public boolean setAutosave(boolean autosave) {
 		boolean prev = this.autosave;
 		this.autosave = autosave;
+		if (autosave)
+			autosave();
 		return prev;
 	}
 

@@ -262,7 +262,11 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 		SMSMenu menu = SMSMenu.getMenu(args[1]);
-		menu.setTitle(combine(args, 2));
+		String title = combine(args, 2);
+		menu.setTitle(SMSUtils.parseColourSpec(player, title));
+		menu.updateSigns();
+		
+		SMSUtils.statusMessage(player, "Title for menu &e" + menu.getName() + "&- has been set to &f" + title + "&-.");
 	}
 
 	private void addSMSItem(Player player, String[] args) throws SMSException {	

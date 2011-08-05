@@ -66,6 +66,9 @@ public class SMSPlayerListener extends PlayerListener {
 	}
 
 	private void processAction(SMSAction action, Player p, SMSMenu menu, Location l) throws SMSException {
+		if (action == null)
+			return;
+		
 		switch (action) {
 		case EXECUTE:
 			executeMenu(p, menu, l);

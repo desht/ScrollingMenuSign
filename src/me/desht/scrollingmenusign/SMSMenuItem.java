@@ -98,7 +98,11 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	}
 	
 	String formatUses(Player player) {
-		return uses.toString(player.getName());
+		if (player == null) {
+			return formatUses();
+		} else {
+			return uses.toString(player.getName());
+		}
 	}
 	
 	@Override
