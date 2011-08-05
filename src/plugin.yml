@@ -1,6 +1,6 @@
 name: ScrollingMenuSign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
-version: 0.5pre
+version: 0.5
 softdepend: [ Permissions, CommandSigns ]
 commands:
   sms:
@@ -16,6 +16,8 @@ commands:
       /sms title <name> <new-title>
       /sms add <name> <label|command|message>
       /sms remove <name> <index|label>
+      /sms sort <name> [auto]
+      /sms uses <name> <item> <count>|clear [global]
       /sms page <page-number>
       /sms getcfg [<key>]
       /sms setcfg <key> <value>

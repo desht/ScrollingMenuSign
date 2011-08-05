@@ -279,14 +279,16 @@ public class SMSMenu {
 	public void addSign(Location l, boolean updateSignText) throws SMSException {
 		Block b = l.getBlock();
 		
+		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
+			throw new SMSException("This location does not contain a sign.");
+		}
+		
 		String s = SMSMenu.getMenuNameAt(b.getLocation());
 		if (s != null) {
 			throw new SMSException("Location " + SMSUtils.formatLocation(l) + " already has a menu: " + s);
 		}
 		
-		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-			locations.put(l, 0);
-		}
+		locations.put(l, 0);
 		menuLocations.put(l, getName());
 		if (updateSignText) {
 			updateSign(l);

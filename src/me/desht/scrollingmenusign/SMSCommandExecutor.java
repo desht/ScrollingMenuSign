@@ -163,12 +163,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 			return;
 		}
 
-		Block b = player.getTargetBlock(null, 3);		
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			throw new SMSException("You are not looking at a sign.");
-		}
+		Block b = player.getTargetBlock(null, 3);
 		SMSMenu menu = SMSMenu.getMenu(args[1]);
-		menu.addSign(b.getLocation(), true);
+		menu.addSign(b.getLocation());
 		menu.updateSign(b.getLocation());
 
 		SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(b.getLocation()) +
