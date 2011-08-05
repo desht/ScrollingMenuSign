@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -151,7 +149,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			loc = SMSUtils.parseLocation(args[1], player);
 		}
 		SMSMenu menu = SMSMenu.getMenuAt(loc);
-		menu.removeSign(loc, MenuRemoveAction.BLANK_SIGN);
+		menu.removeSign(loc, MenuRemovalAction.BLANK_SIGN);
 		SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(loc) +
 		                       "&- was removed from menu &e" + menu.getName() + "&-");
 	}

@@ -9,8 +9,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
-import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -288,7 +286,7 @@ public class SMSMenu {
 	 * @param l Location of the sign to remove
 	 */
 	public void removeSign(Location l) {
-		removeSign(l, MenuRemoveAction.DO_NOTHING);
+		removeSign(l, MenuRemovalAction.DO_NOTHING);
 	}
 	
 	/**
@@ -297,7 +295,7 @@ public class SMSMenu {
 	 * @param l	Location of the sign to remove
 	 * @param action	Action to take on the sign.
 	 */
-	public void removeSign(Location l, MenuRemoveAction action) {
+	public void removeSign(Location l, MenuRemovalAction action) {
 		switch(action) {
 		case BLANK_SIGN:
 			blankSign(l);
@@ -486,7 +484,7 @@ public class SMSMenu {
 	 * Permanently delete a menu
 	 * @param action	Action to take on the menu's signs
 	 */
-	public void delete(MenuRemoveAction action) {
+	public void delete(MenuRemovalAction action) {
 		deletePermanent(action);
 	}
 
@@ -583,12 +581,12 @@ public class SMSMenu {
 	}
 	
 	void deletePermanent() {
-		deletePermanent(MenuRemoveAction.BLANK_SIGN);
+		deletePermanent(MenuRemovalAction.BLANK_SIGN);
 	}
 	
-	void deletePermanent(MenuRemoveAction action) {
+	void deletePermanent(MenuRemovalAction action) {
 		try {
-			SMSMenu.removeMenu(getName(), MenuRemoveAction.BLANK_SIGN);
+			SMSMenu.removeMenu(getName(), action);
 			plugin.getPersistence().unPersist(this);
 		} catch (SMSException e) {
 			// Should not get here
@@ -598,7 +596,7 @@ public class SMSMenu {
 
 	void deleteTemporary() {
 		try {
-			SMSMenu.removeMenu(getName(), MenuRemoveAction.DO_NOTHING);
+			SMSMenu.removeMenu(getName(), MenuRemovalAction.DO_NOTHING);
 		} catch (SMSException e) {
 			// Should not get here
 			SMSUtils.log(Level.WARNING, "Impossible: deleteTemporary got SMSException?");
@@ -640,7 +638,7 @@ public class SMSMenu {
 	 * @param action	Action to take on removal
 	 * @throws SMSException
 	 */
-	static void removeMenu(String menuName, MenuRemoveAction action) throws SMSException {
+	static void removeMenu(String menuName, MenuRemovalAction action) throws SMSException {
 		SMSMenu menu = getMenu(menuName);
 		switch(action) {
 		case DESTROY_SIGN:

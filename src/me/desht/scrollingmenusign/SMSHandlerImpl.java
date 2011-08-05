@@ -2,7 +2,6 @@ package me.desht.scrollingmenusign;
 
 import java.util.List;
 
-import me.desht.scrollingmenusign.ScrollingMenuSign.MenuRemoveAction;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -39,7 +38,7 @@ public class SMSHandlerImpl implements SMSHandler {
 	}
 
 	@Override
-	public void deleteMenu(String name, MenuRemoveAction action) throws SMSException {
+	public void deleteMenu(String name, MenuRemovalAction action) throws SMSException {
 		SMSMenu.getMenu(name).deletePermanent(action);
 	}
 

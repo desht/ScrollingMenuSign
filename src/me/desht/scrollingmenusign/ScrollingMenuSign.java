@@ -7,9 +7,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.Event;
 
-//@SuppressWarnings("serial")
 public class ScrollingMenuSign extends JavaPlugin {
-	static enum MenuRemoveAction { DESTROY_SIGN, BLANK_SIGN, DO_NOTHING };
 	private static PluginDescriptionFile description;
 
 	private final SMSPlayerListener signListener = new SMSPlayerListener(this);
@@ -20,7 +18,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSHandlerImpl handler = new SMSHandlerImpl(this);
 	
 	final SMSDebugger debugger = new SMSDebugger(this);
-//	final SMSMacro macroHandler = new SMSMacro(this);
 	
 	@Override
 	public void onEnable() {
@@ -41,7 +38,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 		getCommand("sms").setExecutor(commandExecutor);
 		
-		SMSUtils.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
+		loadMacros();
 		
 		// delayed loading of saved menu files to ensure all worlds are loaded first
 		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
@@ -53,7 +50,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 			SMSUtils.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
 			loadMenus();
 		}
-		loadMacros();
+
+		SMSUtils.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
 
 	@Override
