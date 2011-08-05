@@ -54,6 +54,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		uses.setUses(nUses);
 	}
 	
+	public int getRemainingUses(Player player) {
+		return uses.getRemainingUses(player.getName());
+	}
+	
 	public void clearUses(Player player) {
 		uses.clearUses(player.getName());
 		if (menu != null)
@@ -89,11 +93,11 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		return "SMSMenuItem [label=" + label + ", command=" + command + ", message=" + message + "]";
 	}
 	
-	public String getUsesAsString() {
+	String formatUses() {
 		return uses.toString();
 	}
 	
-	public String getUsesAsString(Player player) {
+	String formatUses(Player player) {
 		return uses.toString(player.getName());
 	}
 	

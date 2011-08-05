@@ -11,7 +11,7 @@ import org.bukkit.event.entity.EntityListener;
 public class SMSEntityListener extends EntityListener {
 	private ScrollingMenuSign plugin;
 	
-	public SMSEntityListener(ScrollingMenuSign plugin) {
+	SMSEntityListener(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
 	}
 	

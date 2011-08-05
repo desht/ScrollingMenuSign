@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 public class SMSCommandExecutor implements CommandExecutor {
 	private ScrollingMenuSign plugin;
 	
-	public SMSCommandExecutor(ScrollingMenuSign plugin) {
+	SMSCommandExecutor(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
 	}
 	
@@ -227,7 +227,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 		for (SMSMenuItem item : items) {
 			String s = String.format("&e%2d)" +
 					" &f%s " + "&f[%s] \"%s\"&f &c%s",
-					n, item.getLabel(), item.getCommand(), item.getMessage(), item.getUsesAsString(player));
+					n, item.getLabel(), item.getCommand(), item.getMessage(), item.formatUses(player));
 			n++;
 			MessageBuffer.add(player, s);
 		}

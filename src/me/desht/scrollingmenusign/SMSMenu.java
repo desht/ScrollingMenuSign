@@ -390,16 +390,6 @@ public class SMSMenu {
 	}
 
 	/**
-	 * Force a repaint of all of the menu's signs
-	 */
-	public void updateSigns() {
-		for (Location l : locations.keySet()) {
-			String[] lines = buildSignText(l);
-			updateSign(l, lines);
-		}
-	}		
-	
-	/**
 	 * Remove all items from a menu 
 	 */
 	public void removeAllItems() {
@@ -409,6 +399,16 @@ public class SMSMenu {
 		}
 		autosave();
 	}
+
+	/**
+	 * Force a repaint of all of the menu's signs
+	 */
+	public void updateSigns() {
+		for (Location l : locations.keySet()) {
+			String[] lines = buildSignText(l);
+			updateSign(l, lines);
+		}
+	}		
 	
 	/**
 	 * Force a repaint of the given sign according to the current menu state
@@ -476,7 +476,7 @@ public class SMSMenu {
 	/**
 	 * Permanently delete a menu, blanking all its signs
 	 */
-	public void delete() {
+	void delete() {
 		deletePermanent();
 	}
 
@@ -484,7 +484,7 @@ public class SMSMenu {
 	 * Permanently delete a menu
 	 * @param action	Action to take on the menu's signs
 	 */
-	public void delete(MenuRemovalAction action) {
+	void delete(MenuRemovalAction action) {
 		deletePermanent(action);
 	}
 

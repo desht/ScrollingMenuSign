@@ -134,7 +134,7 @@ public class MessageBuffer {
 	 * 
 	 * @return The page size
 	 */
-	public static int getPageSize() {
+	static int getPageSize() {
 		return pageSize;
 	}
 
