@@ -630,7 +630,6 @@ public class SMSMenu {
 		}
 		
 		menu.autosave();
-		System.out.println("added menu " + menuName);
 	}
 	
 	/**
