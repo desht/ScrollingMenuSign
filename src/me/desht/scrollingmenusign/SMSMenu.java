@@ -15,6 +15,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.util.config.ConfigurationNode;
 
 /**
  * @author des
@@ -29,10 +30,11 @@ public class SMSMenu {
 	Map<Location, Integer> locations;	// maps sign location to scroll pos
 	private boolean autosave;
 	private boolean autosort;
-	
+	private SMSRemainingUses uses;
+
 	private static final Map<Location, String> menuLocations = new HashMap<Location, String>();
 	private static final Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
-	
+
 	private static final SMSMenuItem blankItem = new SMSMenuItem(null, "", "", "");
 
 	/**
@@ -47,7 +49,8 @@ public class SMSMenu {
 	 */
 	SMSMenu(ScrollingMenuSign plugin, String n, String t, String o, Location l) throws SMSException {
 		initCommon(plugin, n, t, o);
-		
+		uses = new SMSRemainingUses(this);
+
 		if (l != null)
 			addSign(l);
 	}
@@ -64,7 +67,8 @@ public class SMSMenu {
 	 */
 	SMSMenu(ScrollingMenuSign plugin, SMSMenu other, String n, String o, Location l) throws SMSException {
 		initCommon(plugin, n, other.getTitle(), o);
-		
+		uses = new SMSRemainingUses(this);
+
 		if (l != null)
 			addSign(l);
 		for (SMSMenuItem item: other.getItems()) {
@@ -75,35 +79,38 @@ public class SMSMenu {
 	/**
 	 * Construct a new menu from data read from the save file
 	 * 
-	 * @param menuData A map of properties for the menu
+	 * @param node 		A Bukkit ConfigurationNode containg the menu's properties
 	 * @throws SMSException If there is already a menu at this location
 	 */
 	@SuppressWarnings("unchecked")
-	SMSMenu(ScrollingMenuSign plugin, Map<String, Object> menuData) throws SMSException {
+	SMSMenu(ScrollingMenuSign plugin, ConfigurationNode node) throws SMSException {
 		initCommon(plugin,
-				(String) menuData.get("name"),
-				SMSUtils.parseColourSpec(null, ((String) menuData.get("title"))),
-				(String) menuData.get("owner"));
-		autosort = menuData.containsKey("autosort") ? (Boolean) menuData.get("autosort") : false;
-		
-		if (menuData.get("locations") != null) {
+				node.getString("name"),
+				SMSUtils.parseColourSpec(null, node.getString("title")),
+				node.getString("owner"));
+
+		autosort = node.getBoolean("autosort", false);
+		uses = new SMSRemainingUses(this, node.getNode("usesRemaining"));
+
+		List<Object> locs = node.getList("locations");
+		if (locs != null) {
 			// v0.3 or newer format - multiple locations per menu
-			List<List<Object>> l0 = (List<List<Object>>) menuData.get("locations");			
-			for (List<Object> locList: l0) {
+			for (Object o : locs) {
+				List<Object> locList = (List<Object>) o;
 				World w = SMSUtils.findWorld((String) locList.get(0));
 				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
 				addSign(loc);
 			}
 		} else {
 			// v0.2 or older
-			String worldName = (String) menuData.get("world");
+			String worldName = node.getString("world");
 			World w = SMSUtils.findWorld(worldName);
-			List<Integer>locList = (List<Integer>) menuData.get("location");
+			List<Integer>locList = (List<Integer>) node.getIntList("location", null);
 			addSign(new Location(w, locList.get(0), locList.get(1), locList.get(2)));
 		}
-		List<Map<String,Object>>items = (List<Map<String, Object>>) menuData.get("items");
-		for (Map<String,Object> itemMap : items) {
-			SMSMenuItem menuItem = new SMSMenuItem(this, itemMap);
+	
+		for (ConfigurationNode itemNode : node.getNodeList("items", null)) {
+			SMSMenuItem menuItem = new SMSMenuItem(this, itemNode);
 			addItem(menuItem);
 		}
 	}
@@ -117,11 +124,12 @@ public class SMSMenu {
 		locations = new HashMap<Location, Integer>();
 		autosave = SMSConfig.getConfiguration().getBoolean("sms.autosave", true);
 		autosort = false;
+		uses = new SMSRemainingUses(this);
 	}
-	
+
 	Map<String, Object> freeze() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
-		
+
 		map.put("name", getName());
 		map.put("title", SMSUtils.unParseColourSpec(getTitle()));
 		map.put("owner", getOwner());
@@ -132,21 +140,22 @@ public class SMSMenu {
 		map.put("locations", locs);
 		map.put("items", freezeItemList(getItems()));
 		map.put("autosort", autosort);
-		
+		map.put("usesRemaining", uses.freeze());
+
 		return map;
 	}
-	
+
 	private List<Object> freezeLocation(Location l) {
-        List<Object> list = new ArrayList<Object>();
-        list.add(l.getWorld().getName());
-        list.add(l.getBlockX());
-        list.add(l.getBlockY());
-        list.add(l.getBlockZ());
+		List<Object> list = new ArrayList<Object>();
+		list.add(l.getWorld().getName());
+		list.add(l.getBlockX());
+		list.add(l.getBlockY());
+		list.add(l.getBlockZ());
 
-        return list;
-    }
+		return list;
+	}
 
-	
+
 	private List<Map<String, Object>> freezeItemList(List<SMSMenuItem> items) {
 		List<Map<String,Object>> l = new ArrayList<Map<String, Object>>();
 		for (SMSMenuItem item : items) {
@@ -180,7 +189,7 @@ public class SMSMenu {
 	 */
 	public void setTitle(String newTitle) {
 		title = newTitle;
-		
+
 		autosave();
 	}
 
@@ -209,7 +218,7 @@ public class SMSMenu {
 	 */
 	public void setOwner(String owner) {
 		this.owner = owner;
-		
+
 		autosave();
 	}
 
@@ -327,7 +336,7 @@ public class SMSMenu {
 		}
 		return items.get(locations.get(l));
 	}
-	
+
 	/**
 	 * Add a new sign to the menu.  Equivalent to <b>addSign(l, false)</b>
 	 * 
@@ -337,7 +346,7 @@ public class SMSMenu {
 	public void addSign(Location l) throws SMSException {
 		addSign(l, false);
 	}
-	
+
 	/**
 	 * Add a new sign to the menu, possibly updating its text.
 	 * 
@@ -347,25 +356,25 @@ public class SMSMenu {
 	 */
 	public void addSign(Location l, boolean updateSignText) throws SMSException {
 		Block b = l.getBlock();
-		
+
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
 			throw new SMSException("This location does not contain a sign.");
 		}
-		
+
 		String s = SMSMenu.getMenuNameAt(b.getLocation());
 		if (s != null) {
 			throw new SMSException("Location " + SMSUtils.formatLocation(l) + " already has a menu: " + s);
 		}
-		
+
 		locations.put(l, 0);
 		menuLocations.put(l, getName());
 		if (updateSignText) {
 			updateSign(l);
 		}
-		
+
 		autosave();
 	}
-	
+
 	/**
 	 * Remove a sign from the menu.  Don't do anything with the sign's text.
 	 * 
@@ -374,7 +383,7 @@ public class SMSMenu {
 	public void removeSign(Location l) {
 		removeSign(l, MenuRemovalAction.DO_NOTHING);
 	}
-	
+
 	/**
 	 * Remove a sign from the menu.
 	 * 
@@ -392,7 +401,7 @@ public class SMSMenu {
 		}
 		locations.remove(l);
 		menuLocations.remove(l);
-		
+
 		autosave();
 	}
 
@@ -406,7 +415,7 @@ public class SMSMenu {
 	public void addItem(String label, String command, String message) {
 		addItem(new SMSMenuItem(this, label, command, message));
 	}
-	
+
 	/**
 	 * Add a new item to the menu
 	 * 
@@ -415,23 +424,23 @@ public class SMSMenu {
 	public void addItem(SMSMenuItem item) {
 		if (item == null)
 			throw new NullPointerException();
-		
+
 		items.add(item);
 		if (autosort)
 			Collections.sort(items);
-		
+
 		autosave();
 	}
-	
+
 	/**
 	 * Sort the menu's items by label text (see SMSMenuItem.compareTo())
 	 */
 	public void sortItems() {
 		Collections.sort(items);
-		
+
 		autosave();
 	}
-	
+
 	/**
 	 * Remove an item from the menu by matching label.  If the label string is
 	 * just an integer value, remove the item at that 1-based numeric index.
@@ -457,7 +466,7 @@ public class SMSMenu {
 		}
 		removeItem(index);
 	}
-	
+
 	/**
 	 * Remove an item from the menu by numeric index
 	 * 
@@ -471,7 +480,7 @@ public class SMSMenu {
 				locations.put(l, items.size() == 0 ? 0 : items.size() - 1);
 			}
 		}
-		
+
 		autosave();
 	}
 
@@ -495,7 +504,7 @@ public class SMSMenu {
 			updateSign(l, lines);
 		}
 	}		
-	
+
 	/**
 	 * Force a repaint of the given sign according to the current menu state
 	 * 
@@ -504,7 +513,7 @@ public class SMSMenu {
 	public void updateSign(Location l) {
 		updateSign(l, null);
 	}
-	
+
 	private void updateSign(Location l, String[] lines) {
 		Sign sign = getSign(l);
 		if (sign == null)
@@ -516,7 +525,7 @@ public class SMSMenu {
 		}
 		sign.update();
 	}
-	
+
 	/**
 	 * Set the currently selected item for this sign to the next item.
 	 * @param l	Location of the sign
@@ -589,23 +598,23 @@ public class SMSMenu {
 		}
 		sign.update();
 	}
-	
+
 	// build the text for the sign based on current menu contents
 	private String[] buildSignText(Location l) {
 		String[] res = new String[4];
-		
+
 		// first line of the sign in the menu title
 		res[0] = title;
-		
+
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
 		String prefix1 = SMSConfig.getConfiguration().getString("sms.item_prefix.not_selected", "  ");
 		String prefix2 = SMSConfig.getConfiguration().getString("sms.item_prefix.selected", "> ");
-		
+
 		res[1] = String.format(makePrefix(prefix1), getLine2Item(l).getLabel());
 		res[2] = String.format(makePrefix(prefix2), getLine3Item(l).getLabel());
 		res[3] = String.format(makePrefix(prefix1), getLine4Item(l).getLabel());
-		
+
 		return res;
 	}
 
@@ -621,7 +630,7 @@ public class SMSMenu {
 			s = prefix + "%1$s";
 		return SMSUtils.parseColourSpec(null, s);
 	}
-	
+
 	// Get line 2 of the sign (item before the current item, or blank
 	// if the menu has less than 3 items)
 	private SMSMenuItem getLine2Item(Location l) {
@@ -642,7 +651,7 @@ public class SMSMenu {
 		}
 		return items.get(locations.get(l));
 	}
-	
+
 	// Get line 4 of the sign (item after the current item, or blank
 	// if the menu has less than 2 items)
 	private SMSMenuItem getLine4Item(Location l) {
@@ -655,21 +664,21 @@ public class SMSMenu {
 		}
 		return items.get(next_pos);
 	}
-	
+
 	private void destroySigns() {
 		for (Location l: getLocations().keySet()) {
 			destroySign(l);
 		}
 	}
-	
+
 	private void destroySign(Location l) {
 		l.getBlock().setTypeId(0);
 	}
-	
+
 	void deletePermanent() {
 		deletePermanent(MenuRemovalAction.BLANK_SIGN);
 	}
-	
+
 	void deletePermanent(MenuRemovalAction action) {
 		try {
 			SMSMenu.removeMenu(getName(), action);
@@ -696,7 +705,7 @@ public class SMSMenu {
 	}
 
 	/**************************************************************************/
-	
+
 	/**
 	 * Add a menu to the menu list, preserving a reference to it.
 	 * 
@@ -712,10 +721,10 @@ public class SMSMenu {
 		if (updateSign) {
 			menu.updateSigns();
 		}
-		
+
 		menu.autosave();
 	}
-	
+
 	/**
 	 * Remove a menu from the list, destroying the reference to it.
 	 * 
@@ -738,7 +747,7 @@ public class SMSMenu {
 		}
 		menus.remove(menuName);
 	}
-	
+
 	/**
 	 * Retrieve the menu with the given name
 	 * @param menuName	The name of the menu to retrieve
@@ -750,7 +759,7 @@ public class SMSMenu {
 			throw new SMSException("No such menu '" + menuName + "'.");
 		return menus.get(menuName);
 	}
-	
+
 	/**
 	 * Cause the signs on all menus to be redrawn
 	 */
@@ -759,7 +768,7 @@ public class SMSMenu {
 			menu.updateSigns();
 		}
 	}
-	
+
 	/**
 	 * Get the name of the menu at the given location.
 	 * 
@@ -769,7 +778,7 @@ public class SMSMenu {
 	static String getMenuNameAt(Location loc) {
 		return menuLocations.get(loc);
 	}
-	
+
 	/**
 	 * Get the menu at the given location
 	 * 
@@ -790,7 +799,7 @@ public class SMSMenu {
 	static Boolean checkForMenu(String menuName) {
 		return menus.containsKey(menuName);
 	}
-	
+
 	/**
 	 * Return the name of the menu sign that the player is looking at, if any
 	 * 
@@ -819,7 +828,7 @@ public class SMSMenu {
 	static List<SMSMenu> listMenus() {
 		return listMenus(false);
 	}
-	
+
 	/**
 	 * Return a list of all the known menus
 	 * 
@@ -839,4 +848,35 @@ public class SMSMenu {
 		}
 	}
 
+	/**
+	 * Get the usage limit details for this menu.
+	 * 
+	 * @return	The usage limit details
+	 */
+	public SMSRemainingUses getUseLimits() {
+		return uses;
+	}
+
+	/**
+	 * Returns a printable representation of the number of uses remaining for this item.
+	 * 
+	 * @return	Formatted usage information
+	 */
+	String formatUses() {
+		return uses.toString();
+	}
+
+	/**
+	 * Returns a printable representation of the number of uses remaining for this item, for the given player.
+	 * 
+	 * @param player	Player to retrieve the usage information for
+	 * @return			Formatted usage information
+	 */
+	String formatUses(Player player) {
+		if (player == null) {
+			return formatUses();
+		} else {
+			return uses.toString(player.getName());
+		}
+	}
 }

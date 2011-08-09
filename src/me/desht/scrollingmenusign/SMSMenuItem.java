@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
+import org.bukkit.util.config.ConfigurationNode;
 
 public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	private final String label;
@@ -22,15 +23,12 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		this.uses = new SMSRemainingUses(this);
 	}
 	
-	@SuppressWarnings("unchecked")
-	SMSMenuItem(SMSMenu menu, Map<String, Object> map) {
+	SMSMenuItem(SMSMenu menu, ConfigurationNode node) {
 		this.menu = menu;
-		this.label = SMSUtils.parseColourSpec(null, (String) map.get("label"));
-		this.command = (String) map.get("command");
-		this.message = SMSUtils.parseColourSpec(null, (String) map.get("message"));
-		this.uses = map.containsKey("usesRemaining") ?
-				new SMSRemainingUses(this, (Map<String, Integer>) map.get("usesRemaining")) :
-					new SMSRemainingUses(this);
+		this.label = SMSUtils.parseColourSpec(node.getString("label"));
+		this.command = node.getString("command");
+		this.message = SMSUtils.parseColourSpec(null, node.getString("message"));
+		this.uses = new SMSRemainingUses(this, node.getNode("usesRemaining"));
 	}
 	
 	/**
@@ -65,7 +63,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	 * This clears any per-player use counts for the item.
 	 * 
 	 * @param nUses	maximum use count
+	 * @deprecated	Use getUseLimits().setGlobalUses() instead
 	 */
+	@Deprecated
 	public void setGlobalUses(int nUses) {
 		uses.clearUses();
 		uses.setGlobalUses(nUses);
@@ -76,7 +76,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	 * This clears any global use count for the item.
 	 * 
 	 * @param nUses	maximum use count
+	 * @deprecated	Use getUseLimits().setUses() instead
 	 */
+	@Deprecated
 	public void setUses(int nUses) {
 		uses.setUses(nUses);
 	}
@@ -86,7 +88,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	 * 
 	 * @param player	Player to check for
 	 * @return			Number of uses remaining
+	 * @deprecated	Use getUseLimits().getRemainingUses() instead
 	 */
+	@Deprecated
 	public int getRemainingUses(Player player) {
 		return uses.getRemainingUses(player.getName());
 	}
@@ -95,7 +99,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	 * Clear (reset) the number of uses for the given player
 	 * 
 	 * @param player	Player to reset
+	 * @deprecated	Use getUseLimits().clearUses() instead
 	 */
+	@Deprecated
 	public void clearUses(Player player) {
 		uses.clearUses(player.getName());
 		if (menu != null)
@@ -104,7 +110,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	
 	/**
 	 * Clears all usage limits for this menu item
+	 * 
+	 * @deprecated	Use getUseLimits().clearUses() instead
 	 */
+	@Deprecated
 	public void clearUses() {
 		uses.clearUses();
 		if (menu != null)
@@ -118,17 +127,23 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	 * @throws SMSException	if the usage limit for this player is exhausted
 	 */
 	public void execute(Player player) throws SMSException {
+		checkRemainingUses(this.getUseLimits(), player);
+		checkRemainingUses(menu.getUseLimits(), player);
+		SMSMacro.executeCommand(getCommand(), player);
+	}
+
+	private void checkRemainingUses(SMSRemainingUses uses, Player player) throws SMSException {
 		String name = player.getName();
 		if (uses.hasLimitedUses(name)) {
+			String what = uses.getOwningObject().toString();
 			if (uses.getRemainingUses(name) == 0) {
-				throw new SMSException("You can't use that menu item anymore.");
+				throw new SMSException("You can't use that " + what + " anymore.");
 			}
 			uses.use(name);
 			if (menu != null)
 				menu.autosave();
-			SMSUtils.statusMessage(player, "&6[Uses remaining for this menu item: &e" + uses.getRemainingUses(name) + "&6]");
+			SMSUtils.statusMessage(player, "&6[Uses remaining for this " + what + ": &e" + uses.getRemainingUses(name) + "&6]");
 		}
-		SMSMacro.executeCommand(getCommand(), player);
 	}
 	
 	/**
@@ -146,6 +161,15 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	@Override
 	public String toString() {
 		return "SMSMenuItem [label=" + label + ", command=" + command + ", message=" + message + "]";
+	}
+	
+	/**
+	 * Get the remaining use details for this menu item
+	 *
+	 * @return	The remaining use details
+	 */
+	public SMSRemainingUses getUseLimits() {
+		return uses;
 	}
 	
 	/**

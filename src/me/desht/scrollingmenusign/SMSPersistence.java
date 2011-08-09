@@ -65,7 +65,7 @@ public class SMSPersistence {
 				try {
 					Configuration conf = new Configuration(f);
 					conf.load();
-					SMSMenu menu = new SMSMenu(plugin, conf.getAll());
+					SMSMenu menu = new SMSMenu(plugin, conf);
 					SMSMenu.addMenu(menu.getName(), menu, true);
 				} catch (ReaderException e)	{
 					SMSUtils.log(Level.WARNING, "caught exception while loading menu file " +
@@ -92,7 +92,7 @@ public class SMSPersistence {
 			for (String menuName : conf.getKeys()) {
 				ConfigurationNode cn = conf.getNode(menuName);
 				cn.setProperty("name", menuName);
-				SMSMenu menu = new SMSMenu(plugin, cn.getAll());
+				SMSMenu menu = new SMSMenu(plugin, cn);
 				SMSMenu.addMenu(menu.getName(), menu, true);
 			}
 		} catch (ReaderException e) {
