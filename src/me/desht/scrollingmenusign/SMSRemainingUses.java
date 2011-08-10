@@ -20,7 +20,7 @@ public class SMSRemainingUses {
 		this.item = item;
 	}
 	
-	public SMSRemainingUses(SMSMenuItem item, ConfigurationNode node) {
+	SMSRemainingUses(SMSMenuItem item, ConfigurationNode node) {
 		this.item = item;
 		if (node == null)
 			return;
