@@ -132,7 +132,8 @@ public class SMSPlayerListener extends PlayerListener {
 			}
 		} else if (title.length() > 0) {
 			SMSPermissions.requirePerms(player, "scrollingmenusign.commands.create");
-			plugin.getHandler().createMenu(name, title, player.getName());
+			SMSMenu menu = plugin.getHandler().createMenu(name, title, player.getName());
+			menu.addSign(b.getLocation(), true);
 			SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(b.getLocation()) +
 					"&- was added to new menu &e" + name + "&-");
 		}
