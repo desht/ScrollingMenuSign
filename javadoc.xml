@@ -4,6 +4,7 @@
         <javadoc access="public" author="true" classpath="/home/des/jars/bukkit-0.0.1-SNAPSHOT.jar:/home/des/jars/Permissions.jar:/home/des/jars/CommandSigns.jar" destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.6" sourcefiles="src/me/desht/scrollingmenusign/MenuRemovalAction.java,src/me/desht/scrollingmenusign/SMSHandler.java,src/me/desht/scrollingmenusign/SMSMenu.java,src/me/desht/scrollingmenusign/SMSMenuItem.java,src/me/desht/scrollingmenusign/SMSRemainingUses.java" sourcepath="src" splitindex="true" use="true" version="true">
             <link href="http://jd.bukkit.org/apidocs/"/>
             <link href="http://java.sun.com/javase/6/docs/api/"/>
+            <link href="file:/home/des/git/ScrollingMenuSign/doc/"/>
         </javadoc>
     </target>
 </project>
