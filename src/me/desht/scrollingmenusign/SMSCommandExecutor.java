@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -218,7 +219,8 @@ public class SMSCommandExecutor implements CommandExecutor {
 			menu = SMSMenu.getMenu(SMSMenu.getTargetedMenuSign(player, true));
 		}
 		MessageBuffer.clear(player);
-		MessageBuffer.add(player, "Menu &e" + menu.getName() + "&-: title &f" + menu.getTitle());
+		MessageBuffer.add(player, String.format("Menu &e%s&-: title &f%s&- &c%s",
+				menu.getName(),  menu.getTitle(),  menu.formatUses(player)));
 		List<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
@@ -322,39 +324,79 @@ public class SMSCommandExecutor implements CommandExecutor {
 	private void setItemUseCount(Player player, String[] args) throws SMSException {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.uses");
 		
-		if (args.length < 4) {
-			SMSUtils.errorMessage(player, "Usage: /sms uses <menu> <item> <count> [global|clear]");
+		if (args.length < 3) {
+			SMSUtils.errorMessage(player, "Usage: /sms uses <menu> <item> <count> [global]");
+			SMSUtils.errorMessage(player, "       /sms uses <menu> <item> clear");
+			SMSUtils.errorMessage(player, "       /sms uses <menu> <count> [global]");
+			SMSUtils.errorMessage(player, "       /sms uses <menu> clear");
 			return;
 		}
 		
-		SMSMenu menu = SMSMenu.getMenu(args[1]);
-		int idx = menu.indexOfItem(args[2]);
-		if (idx <= 0) {
-			throw new SMSException("Unknown menu item '" + args[2] + "'");
-		}
-		SMSMenuItem item = menu.getItem(idx);
+		ArrayList<String> a = new ArrayList<String>(Arrays.asList(args));
 		
-		if (partialMatch(args, 3, "c")) {
-			item.clearUses();
-			SMSUtils.statusMessage(player, "Unset all usage limits for item &e" + item.getLabel());			
-		} else {
-			int count;
-			try {
-				count = Integer.parseInt(args[3]);
-			} catch (NumberFormatException e) {
-				throw new SMSException("Invalid numeric argument '" + args[3] + "'");
+		boolean isGlobal = false;
+		boolean isClearing = false;
+		
+		if (partialMatch(a.get(a.size() - 1), "g")) {
+			isGlobal = true;
+			a.remove(a.size() - 1);
+		}
+		if (partialMatch(a.get(a.size() - 1), "c")) {
+			isClearing = true;
+		}
+		
+		SMSMenu menu = SMSMenu.getMenu(a.get(1));
+		
+		if (a.size() == 4) {
+			// dealing with an item
+			int idx = menu.indexOfItem(a.get(2));
+			if (idx <= 0) {
+				throw new SMSException("Unknown menu item: " + a.get(2));
 			}
-
-			if (partialMatch(args, 4, "g")) {
-				item.setGlobalUses(count);
-				SMSUtils.statusMessage(player, "Set GLOBAL use limit for item &e" + item.getLabel()
-						+ "&- to " + count + ".");
+			SMSMenuItem item = menu.getItem(idx);
+			if (isClearing) {
+				item.getUseLimits().clearUses();
+				SMSUtils.statusMessage(player, "Unset all usage limits for item &e" + item.getLabel());
 			} else {
-				SMSUtils.statusMessage(player, "Set PER-PLAYER use limit for item &e" + item.getLabel()
-						+ "&- to " + count + ".");
-				item.setUses(count);
+				int count = parseNumber(a.get(3));
+				if (isGlobal) {
+					item.getUseLimits().setGlobalUses(count);
+					SMSUtils.statusMessage(player, "Set GLOBAL use limit for item &e" + item.getLabel()
+							+ "&- to " + count + ".");
+				} else {
+					item.getUseLimits().setUses(count);
+					SMSUtils.statusMessage(player, "Set PER-PLAYER use limit for item &e" + item.getLabel()
+							+ "&- to " + count + ".");
+				}
+			}
+		} else if (a.size() == 3) {
+			// dealing with a menu
+			if (isClearing) {
+				menu.getUseLimits().clearUses();
+				SMSUtils.statusMessage(player, "Unset all usage limits for menu &e" + menu.getName());
+			} else {
+				int count = parseNumber(a.get(2));
+				if (isGlobal) {
+					menu.getUseLimits().setGlobalUses(count);
+					SMSUtils.statusMessage(player, "Set GLOBAL use limit for menu &e" + menu.getName()
+							+ "&- to " + count + ".");
+				} else {
+					menu.getUseLimits().setUses(count);
+					SMSUtils.statusMessage(player, "Set PER-PLAYER use limit for menu &e" + menu.getName()
+							+ "&- to " + count + ".");
+				}
 			}
 		}
+	}
+
+	private static int parseNumber(String s) throws SMSException {
+		int count;
+		try {
+			count = Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			throw new SMSException("Invalid numeric argument: " + s);
+		}
+		return count;
 	}
 
 	private void setConfig(Player player, String[] args) throws SMSException {
