@@ -31,6 +31,7 @@ public class SMSMenu {
 	private boolean autosave;
 	private boolean autosort;
 	private SMSRemainingUses uses;
+	private String defaultCommand;
 
 	private static final Map<Location, String> menuLocations = new HashMap<Location, String>();
 	private static final Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
@@ -91,6 +92,7 @@ public class SMSMenu {
 
 		autosort = node.getBoolean("autosort", false);
 		uses = new SMSRemainingUses(this, node.getNode("usesRemaining"));
+		defaultCommand = node.getString("defaultCommand", "");
 
 		List<Object> locs = node.getList("locations");
 		if (locs != null) {
@@ -125,6 +127,7 @@ public class SMSMenu {
 		autosave = SMSConfig.getConfiguration().getBoolean("sms.autosave", true);
 		autosort = false;
 		uses = new SMSRemainingUses(this);
+		defaultCommand = "";
 	}
 
 	Map<String, Object> freeze() {
@@ -141,6 +144,7 @@ public class SMSMenu {
 		map.put("items", freezeItemList(getItems()));
 		map.put("autosort", autosort);
 		map.put("usesRemaining", uses.freeze());
+		map.put("defaultCommand", defaultCommand);
 
 		return map;
 	}
@@ -261,6 +265,30 @@ public class SMSMenu {
 	 */
 	public void setAutosort(boolean autosort) {
 		this.autosort = autosort;
+		
+		autosave();
+	}
+
+	/**
+	 * Get the menu's default command.  This command will be used if the menu item
+	 * being executed has a missing command.
+	 * 
+	 * @return	The default command string
+	 */
+	public String getDefaultCommand() {
+		return defaultCommand;
+	}
+
+	/**
+	 * Set the menu's default command.  This command will be used if the menu item
+	 * being executed has a missing command.
+	 * 
+	 * @param defaultCommand
+	 */
+	public void setDefaultCommand(String defaultCommand) {
+		this.defaultCommand = defaultCommand;
+		
+		autosave();
 	}
 
 	/**

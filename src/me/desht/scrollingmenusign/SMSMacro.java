@@ -145,7 +145,8 @@ public class SMSMacro {
 	}
 
 	private static void executeCommand(String command, Player player, Set<String> history) {
-		if (command.length() == 0) return;
+		if (command == null || command.isEmpty())
+			return;
 
 		Pattern pattern = Pattern.compile("^(%|cs:)(.+)");
 		Matcher matcher = pattern.matcher(command);

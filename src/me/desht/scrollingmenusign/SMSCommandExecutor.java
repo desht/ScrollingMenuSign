@@ -68,6 +68,8 @@ public class SMSCommandExecutor implements CommandExecutor {
     				pageCommand(player, args);
     			} else if (partialMatch(args[0], "m")) {	// macro
     				doMacroCommand(player, args);
+    			} else if (partialMatch(args[0], "def")) {	// default command
+    				doDefcmdCommand(player, args);
     			} else if (partialMatch(args[0], "deb")) {	// debug
     				debugCommand(player, args);
     			} else {
@@ -220,6 +222,9 @@ public class SMSCommandExecutor implements CommandExecutor {
 		MessageBuffer.clear(player);
 		MessageBuffer.add(player, String.format("Menu &e%s&-: title &f%s&- &c%s",
 				menu.getName(),  menu.getTitle(),  menu.formatUses(player)));
+		if (!menu.getDefaultCommand().isEmpty()) {
+			MessageBuffer.add(player, " Default command: &f" + menu.getDefaultCommand());
+		}
 		List<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
@@ -272,22 +277,33 @@ public class SMSCommandExecutor implements CommandExecutor {
 		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.add");
 		
 		if (args.length < 3) {
-			SMSUtils.errorMessage(player, "Usage: /sms add <menu-name> <menu-entry>");
+			SMSUtils.errorMessage(player, "Usage: /sms add <menu-name> \"label\" [\"command\"] [\"message\"]");
 			return;
 		}
 			
 		String menuName = args[1];
-		String sep = plugin.getConfiguration().getString("sms.menuitem_separator", "|");
-		String[] entry_args = combine(args, 2).split(Pattern.quote(sep));		
-		if (entry_args.length < 2) {
-			SMSUtils.errorMessage(player, "menu-entry must include at least entry label & command");
-			return;
+
+		List<String> items;
+		String argStr = combine(args, 2);
+		String sep = SMSConfig.getConfiguration().getString("sms.menuitem_separator", "|");
+		
+		if (argStr.contains(sep)) {
+			items = Arrays.asList(argStr.split(Pattern.quote(sep)));
+			SMSUtils.statusMessage(player, "&6NOTE: preferred syntax is &f/sms add <menu> \"label\" [\"command\"] [\"message\"]");
+			SMSUtils.statusMessage(player, " &6(use double quotes if label, command or message contain whitespace)");
+		} else {
+			items = SMSUtils.splitQuotedString(argStr);
 		}
 		
-		SMSMenu menu = SMSMenu.getMenu(menuName);				
-		String label = SMSUtils.parseColourSpec(player, entry_args[0]);
-		String cmd = entry_args[1];
-		String msg = entry_args.length >= 3 ? entry_args[2] : "";
+		SMSMenu menu = SMSMenu.getMenu(menuName);
+
+		if (items.size() < 2 && menu.getDefaultCommand().isEmpty()) {
+			SMSUtils.statusMessage(player, "&6NOTE: added item with empty command (menu has no default command)");
+		}
+				
+		String label = SMSUtils.parseColourSpec(player, items.get(0));
+		String cmd = items.size() >= 2 ? items.get(1) : "";
+		String msg = items.size() >= 3 ? items.get(2) : "";
 
 		if (!SMSCommandSigns.isActive() || player == null || SMSCommandSigns.hasEnablingPermissions(player, cmd)) {
 			menu.addItem(label, cmd, msg);
@@ -295,6 +311,26 @@ public class SMSCommandExecutor implements CommandExecutor {
 			SMSUtils.statusMessage(player, "Menu entry &f" + label + "&- added to: &e" + menuName);
 		} else {
 			SMSUtils.errorMessage(player, "You do not have permission to add that kind of command.");
+		}
+	}
+
+	private void doDefcmdCommand(Player player, String[] args) throws SMSException {
+		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.defcmd");
+		
+		if (args.length < 2) {
+			SMSUtils.errorMessage(player, "Usage: /sms defcmd <menu-name> [<default-command>]s");
+			return;
+		}
+			
+		String menuName = args[1];
+		SMSMenu menu = SMSMenu.getMenu(menuName);
+		String cmd = combine(args, 2);
+		menu.setDefaultCommand(cmd);
+		
+		if (cmd.isEmpty()) {
+			SMSUtils.statusMessage(player, "Default command has been cleared for menu &e" + menuName);
+		} else {
+			SMSUtils.statusMessage(player, "Default command has been set for menu &e" + menuName);
 		}
 	}
 
@@ -405,10 +441,15 @@ public class SMSCommandExecutor implements CommandExecutor {
 			SMSUtils.errorMessage(player, "Usage: /sms setcfg <key> <value>");
 			return;
 		}
-		SMSConfig.setConfigItem(player, args[1], combine(args, 2));
+		
+		List<String> l = SMSUtils.splitQuotedString(combine(args, 2));
+		String val = combine(l.toArray(new String[l.size()]), 0);
+		
+		SMSConfig.setConfigItem(player, args[1], val);
 		if (args[1].matches("item_(justify|prefix.*)")) {
 			SMSMenu.updateAllMenus();
 		}
+		SMSUtils.statusMessage(player, args[1] + " is now set to \"&e" + val + "&-\"");
 	}
 
 	private void getConfig(Player player, String[] args) throws SMSException {
@@ -576,7 +617,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 	
 	private static String combine(String[] args, int idx1, int idx2) {
 		StringBuilder result = new StringBuilder();
-		for (int i = idx1; i <= idx2; i++) {
+		for (int i = idx1; i <= idx2 && i < args.length; i++) {
 			result.append(args[i]);
 			if (i < idx2) {
 				result.append(" ");

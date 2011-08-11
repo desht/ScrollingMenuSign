@@ -1,7 +1,11 @@
 package me.desht.scrollingmenusign;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,7 +17,7 @@ public class SMSUtils {
 	private static String prevColour = ChatColor.WHITE.toString();
 	protected static final Logger logger = Logger.getLogger("Minecraft");
 	protected static final String messageFormat = "ScrollingMenuSign: %s";
-	
+
 	static void errorMessage(Player player, String string) {
 		prevColour = ChatColor.RED.toString();
 		message(player, string, ChatColor.RED, Level.WARNING);
@@ -36,7 +40,7 @@ public class SMSUtils {
 		prevColour = ChatColor.WHITE.toString();
 		message(player, string, Level.INFO);
 	}
-	
+
 	static void broadcastMessage(String string) {
 		prevColour = ChatColor.YELLOW.toString();
 		Bukkit.getServer().broadcastMessage(parseColourSpec("&4::&-" + string)); //$NON-NLS-1$
@@ -74,7 +78,7 @@ public class SMSUtils {
 	static Location parseLocation(String arglist) {
 		return parseLocation(arglist, null);
 	}
-	
+
 	static Location parseLocation(String arglist, Player player) {
 		String s = player == null ? ",worldname" : "";
 		String args[] = arglist.split(",");
@@ -84,16 +88,16 @@ public class SMSUtils {
 			int z = Integer.parseInt(args[2]);
 			World w = (player == null) ?
 					Bukkit.getServer().getWorld(args[3]) :
-					player.getWorld();
-			if (w == null) throw new IllegalArgumentException("Unknown world: " + args[3]);
-			return new Location(w, x, y, z);
+						player.getWorld();
+					if (w == null) throw new IllegalArgumentException("Unknown world: " + args[3]);
+					return new Location(w, x, y, z);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new IllegalArgumentException("You must specify all of x,y,z" + s + ".");
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
 		}
 	}
-	
+
 	static void log(String message) {
 		if (message != null) {
 			logger.log(Level.INFO, String.format(messageFormat, message));
@@ -129,25 +133,45 @@ public class SMSUtils {
 			return spec;
 		}		
 	}
-		
+
 	static String unParseColourSpec(String spec) {
 		return spec.replaceAll("\u00A7", "&");
 	}
-	
+
 
 	static String deColourise(String s) {
 		return s.replaceAll("\u00A7.", "");
 	}
 
 	static World findWorld(String worldName) {
-        World w = Bukkit.getServer().getWorld(worldName);
+		World w = Bukkit.getServer().getWorld(worldName);
 
-        if (w != null) {
-        	return w;
-        } else {
-        	throw new IllegalArgumentException("World " + worldName + " was not found on the server.");
-        }
-    }
+		if (w != null) {
+			return w;
+		} else {
+			throw new IllegalArgumentException("World " + worldName + " was not found on the server.");
+		}
+	}
 
+	static List<String> splitQuotedString(String s) {
+		List<String> matchList = new ArrayList<String>();
+		
+		Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
+		Matcher regexMatcher = regex.matcher(s);
+		
+		while (regexMatcher.find()) {
+			if (regexMatcher.group(1) != null) {
+				// Add double-quoted string without the quotes
+				matchList.add(regexMatcher.group(1));
+			} else if (regexMatcher.group(2) != null) {
+				// Add single-quoted string without the quotes
+				matchList.add(regexMatcher.group(2));
+			} else {
+				// Add unquoted word
+				matchList.add(regexMatcher.group());
+			}
+		}
 
+		return matchList;
+	}
 }

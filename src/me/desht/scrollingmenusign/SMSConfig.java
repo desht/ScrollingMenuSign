@@ -31,6 +31,7 @@ public class SMSConfig {
 		put("sms.item_prefix.not_selected", "  ");
 		put("sms.item_prefix.selected", "> ");
 		put("sms.item_justify", "left");
+		put("sms.legacy_sms_add", false);
 		put("sms.menuitem_separator", "|");
 		put("sms.actions.leftclick.normal", "execute");
 		put("sms.actions.leftclick.sneak", "none");
@@ -137,7 +138,7 @@ public class SMSConfig {
 		} else {
 			getConfiguration().setProperty(key, val);
 		}
-		SMSUtils.statusMessage(player, key + " is now set to " + val);
+		
 		getConfiguration().save();
 	}
 	

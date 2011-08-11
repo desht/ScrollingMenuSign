@@ -129,6 +129,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	public void execute(Player player) throws SMSException {
 		checkRemainingUses(this.getUseLimits(), player);
 		checkRemainingUses(menu.getUseLimits(), player);
+		String cmd = getCommand();
+		if (cmd == null || cmd.isEmpty()) {
+			cmd = menu.getDefaultCommand().replaceAll("<LABEL>", getLabel());
+		}
 		SMSMacro.executeCommand(getCommand(), player);
 	}
 
