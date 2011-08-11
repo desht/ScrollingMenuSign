@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
@@ -497,16 +496,16 @@ public class SMSCommandExecutor implements CommandExecutor {
 			MessageBuffer.clear(player);
 			int i = 1;
 			if (args.length < 3) {
-				Set<String> macros = SMSMacro.getCommands();
+				List<String> macros = SMSMacro.getMacros();
 				MessageBuffer.add(player, "&e" + macros.size() + " macros");
 				for (String m : macros) {
-					MessageBuffer.add(player, "&e" + i++ + ") &f" + m);
+					MessageBuffer.add(player, " &e" + i++ + ") &f" + m);
 				}
 			} else {
 				List<String> cmds = SMSMacro.getCommands(args[2]);
 				MessageBuffer.add(player, "&e" + cmds.size() + " macro entries");
 				for (String c : cmds) {
-					MessageBuffer.add(player, "&e" + i++ + ") &f" + c);
+					MessageBuffer.add(player, " &e" + i++ + ") &f" + c);
 				}
 			}
 			MessageBuffer.showPage(player);
@@ -519,7 +518,7 @@ public class SMSCommandExecutor implements CommandExecutor {
 			}
 		} else if (partialMatch(args[1], "r")) {	// remove
 			if (args.length < 4) {
-				SMSMacro.removeCommand(args[2]);
+				SMSMacro.removeMacro(args[2]);
 				SMSUtils.statusMessage(player, "Removed macro &e" + args[2] + "&-.");
 				needSave = true;
 			} else {

@@ -16,8 +16,11 @@ public class SMSConfig {
 
 	private static File pluginDir;
 	private static File dataDir, menusDir;
+	private static File commandFile;
+	
 	private static final String dataDirName = "data";
 	private static final String menusDirName = "menus";
+	private static final String commandFileName = "commands.yml";
 	
 	@SuppressWarnings("serial")
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
@@ -51,6 +54,7 @@ public class SMSConfig {
 	}
 
 	private static void setupDirectoryStructure() {
+		commandFile = new File(pluginDir, commandFileName);
 		dataDir = new File(pluginDir, dataDirName);
 		menusDir = new File(dataDir, menusDirName);
 		
@@ -85,6 +89,10 @@ public class SMSConfig {
 		}
 		
 		if (saveNeeded) config.save();
+	}
+	
+	static File getCommandFile() {
+		return commandFile;
 	}
 	
 	static File getPluginFolder() {

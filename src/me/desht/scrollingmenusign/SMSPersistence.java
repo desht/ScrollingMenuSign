@@ -67,6 +67,7 @@ public class SMSPersistence {
 					conf.load();
 					SMSMenu menu = new SMSMenu(plugin, conf);
 					SMSMenu.addMenu(menu.getName(), menu, true);
+					
 				} catch (ReaderException e)	{
 					SMSUtils.log(Level.WARNING, "caught exception while loading menu file " +
 							f + ": " + e.getMessage());
@@ -75,6 +76,7 @@ public class SMSPersistence {
 					SMSUtils.log(Level.WARNING, "caught exception while restoring menu " + f + ": " + e.getMessage());
 				}
 			}
+			SMSUtils.log(Level.INFO, "Loaded " + SMSMenu.listMenus().size() + " menus from file.");
 		}
 	}
 	
