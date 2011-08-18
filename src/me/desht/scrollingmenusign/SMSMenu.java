@@ -101,7 +101,11 @@ public class SMSMenu {
 				List<Object> locList = (List<Object>) o;
 				World w = SMSUtils.findWorld((String) locList.get(0));
 				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
-				addSign(loc);
+				try {
+					addSign(loc);
+				} catch (SMSException e) {
+					SMSUtils.log(Level.WARNING, "Could not add sign to menu " + name + ": " + e.getMessage());
+				}
 			}
 		} else {
 			// v0.2 or older
@@ -386,7 +390,7 @@ public class SMSMenu {
 		Block b = l.getBlock();
 
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			throw new SMSException("This location does not contain a sign.");
+			throw new SMSException("Location " + SMSUtils.formatLocation(l) + " does not contain a sign.");
 		}
 
 		String s = SMSMenu.getMenuNameAt(b.getLocation());
