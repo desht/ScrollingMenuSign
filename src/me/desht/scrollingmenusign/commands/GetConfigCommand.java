@@ -1,10 +1,10 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.MessageBuffer;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MessagePager;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -18,18 +18,18 @@ public class GetConfigCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {	
-		MessageBuffer.clear(player);
+		MessagePager.clear(player);
 		if (args.length == 0) {
 			for (String line : SMSConfig.getConfigList()) {
-				MessageBuffer.add(player, line);
+				MessagePager.add(player, line);
 			}
-			MessageBuffer.showPage(player);
+			MessagePager.showPage(player);
 		} else {
 			String res = SMSConfig.getConfiguration().getString(args[0]);
 			if (res != null) {
-				SMSUtils.statusMessage(player, args[0] + " = '" + res + "'");
+				MiscUtil.statusMessage(player, args[0] + " = '" + res + "'");
 			} else {
-				SMSUtils.errorMessage(player, "No such config item " + args[0]);
+				MiscUtil.errorMessage(player, "No such config item " + args[0]);
 			}
 		}
 		

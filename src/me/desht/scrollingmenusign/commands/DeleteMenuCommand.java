@@ -3,8 +3,8 @@ package me.desht.scrollingmenusign.commands;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -28,7 +28,7 @@ public class DeleteMenuCommand extends AbstractCommand {
 			menu = handler.getMenu(SMSMenu.getTargetedMenuSign(player, true));
 		}
 		handler.deleteMenu(menu.getName());
-		SMSUtils.statusMessage(player, "Deleted menu &e" + menu.getName());
+		MiscUtil.statusMessage(player, "Deleted menu &e" + menu.getName());
 
 		return true;
 	}

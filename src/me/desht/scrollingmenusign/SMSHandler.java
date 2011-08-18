@@ -2,6 +2,8 @@ package me.desht.scrollingmenusign;
 
 import java.util.List;
 
+import me.desht.scrollingmenusign.enums.MenuRemovalAction;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

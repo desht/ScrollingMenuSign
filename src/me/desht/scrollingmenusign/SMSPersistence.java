@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
+import me.desht.util.MiscUtil;
+
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 import org.yaml.snakeyaml.reader.ReaderException;
@@ -34,7 +36,7 @@ public class SMSPersistence {
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			save(menu);
 		}
-		SMSUtils.log(Level.INFO, "saved " + SMSMenu.listMenus().size() + " menus to file.");
+		MiscUtil.log(Level.INFO, "saved " + SMSMenu.listMenus().size() + " menus to file.");
 	}
 	
 	void save(SMSMenu menu) {
@@ -59,7 +61,7 @@ public class SMSPersistence {
 			oldStyleLoad(oldMenusFile);
 			oldMenusFile.renameTo(new File(oldMenusFile.getParent(), oldMenusFile.getName() + ".OLD"));
 			saveAll();
-			SMSUtils.log(Level.INFO, "Converted old-style menu data file to new v0.5+ format");
+			MiscUtil.log(Level.INFO, "Converted old-style menu data file to new v0.5+ format");
 		} else {
 			for (File f : SMSConfig.getMenusFolder().listFiles(ymlFilter)) {
 				try {
@@ -69,21 +71,21 @@ public class SMSPersistence {
 					SMSMenu.addMenu(menu.getName(), menu, true);
 					
 				} catch (ReaderException e)	{
-					SMSUtils.log(Level.WARNING, "caught exception while loading menu file " +
+					MiscUtil.log(Level.WARNING, "caught exception while loading menu file " +
 							f + ": " + e.getMessage());
 					backupMenuFile(f);
 				} catch (SMSException e) {
-					SMSUtils.log(Level.WARNING, "caught exception while restoring menu " + f + ": " + e.getMessage());
+					MiscUtil.log(Level.WARNING, "caught exception while restoring menu " + f + ": " + e.getMessage());
 				}
 			}
-			SMSUtils.log(Level.INFO, "Loaded " + SMSMenu.listMenus().size() + " menus from file.");
+			MiscUtil.log(Level.INFO, "Loaded " + SMSMenu.listMenus().size() + " menus from file.");
 		}
 	}
 	
 	void unPersist(SMSMenu menu) {
 		File menusFile = new File(SMSConfig.getMenusFolder(), menu.getName() + ".yml");
 		if (!menusFile.delete()) {
-			SMSUtils.log(Level.WARNING, "can't delete " + menusFile);
+			MiscUtil.log(Level.WARNING, "can't delete " + menusFile);
 		}
 	}
 
@@ -98,23 +100,23 @@ public class SMSPersistence {
 				SMSMenu.addMenu(menu.getName(), menu, true);
 			}
 		} catch (ReaderException e) {
-			SMSUtils.log(Level.WARNING, "caught exception while loading menu data: " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "caught exception while loading menu data: " + e.getMessage());
 			backupMenuFile(menusFile);
 		} catch (SMSException e) {
-			SMSUtils.log(Level.WARNING, "caught exception while restoring menus: " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "caught exception while restoring menus: " + e.getMessage());
 		}
-		SMSUtils.log(Level.INFO, "read " + SMSMenu.listMenus().size() + " menus from file.");
+		MiscUtil.log(Level.INFO, "read " + SMSMenu.listMenus().size() + " menus from file.");
 	}	
 
 	void backupMenuFile(File original) {
         try {
         	File backup = getBackupFileName(original.getParentFile(), original.getName());
 
-            SMSUtils.log(Level.INFO, "An error occurred while loading the menus file, so a backup copy of "
+            MiscUtil.log(Level.INFO, "An error occurred while loading the menus file, so a backup copy of "
                 + original + " is being created. The backup can be found at " + backup.getPath());
             copy(original, backup);
         } catch (IOException e) {
-            SMSUtils.log(Level.SEVERE, "Error while trying to write backup file: " + e);
+            MiscUtil.log(Level.SEVERE, "Error while trying to write backup file: " + e);
         }
     }
 	

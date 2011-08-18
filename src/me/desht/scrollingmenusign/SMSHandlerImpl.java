@@ -3,6 +3,9 @@ package me.desht.scrollingmenusign;
 import java.util.List;
 
 
+import me.desht.scrollingmenusign.enums.MenuRemovalAction;
+import me.desht.util.MiscUtil;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -17,7 +20,7 @@ public class SMSHandlerImpl implements SMSHandler {
 	public SMSMenu createMenu(String name, String title, String owner) {
 		SMSMenu menu;
 		try {
-			menu = new SMSMenu(plugin, name, SMSUtils.parseColourSpec(title), owner, null);
+			menu = new SMSMenu(plugin, name, MiscUtil.parseColourSpec(title), owner, null);
 		} catch (SMSException e) {
 			// should not get here
 			return null;

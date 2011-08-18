@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import me.desht.scrollingmenusign.MessageBuffer;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MessagePager;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -26,7 +26,7 @@ public class ListMenusCommand extends AbstractCommand {
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {		
 		
-		MessageBuffer.clear(player);
+		MessagePager.clear(player);
 		SMSHandler handler = plugin.getHandler();
 		if (args.length > 0) {
 			SMSMenu menu = handler.getMenu(args[0]);
@@ -34,14 +34,14 @@ public class ListMenusCommand extends AbstractCommand {
 		} else {
 			List<SMSMenu> menus = handler.listMenus(true);
 			if (menus.size() == 0) {
-				SMSUtils.statusMessage(player, "No menu signs exist.");
+				MiscUtil.statusMessage(player, "No menu signs exist.");
 			} else {
 				for (SMSMenu menu : menus) {
 					listMenu(player, menu);
 				}
 			}
 		}
-		MessageBuffer.showPage(player);
+		MessagePager.showPage(player);
 		
 		return true;
 	}
@@ -55,8 +55,8 @@ public class ListMenusCommand extends AbstractCommand {
 		List<String> l = new ArrayList<String>();
 		l.add(message);
 		for (Location loc: locs.keySet()) {
-			l.add(" &5*&- " + SMSUtils.formatLocation(loc));
+			l.add(" &5*&- " + MiscUtil.formatLocation(loc));
 		}
-		MessageBuffer.add(player, l);
+		MessagePager.add(player, l);
 	}
 }

@@ -9,8 +9,8 @@ import me.desht.scrollingmenusign.SMSCommandSigns;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -33,8 +33,8 @@ public class AddItemCommand extends AbstractCommand {
 		if (args[1].contains(sep)) {
 			items = Arrays.asList(combine(args, 1).split(Pattern.quote(sep)));
 			String[] usage = getUsage();
-			SMSUtils.statusMessage(player, "&6NOTE: preferred syntax is &f" + usage[0]);
-			SMSUtils.statusMessage(player, " &6(label/command/message can be quoted if they contain whitespace)");
+			MiscUtil.statusMessage(player, "&6NOTE: preferred syntax is &f" + usage[0]);
+			MiscUtil.statusMessage(player, " &6(label/command/message can be quoted if they contain whitespace)");
 		} else {
 			items = new ArrayList<String>();
 			for (int i = 1; i < args.length; i++) {
@@ -48,7 +48,7 @@ public class AddItemCommand extends AbstractCommand {
 			throw new SMSException("Missing command and feedback message");
 		}
 				
-		String label = SMSUtils.parseColourSpec(player, items.get(0));
+		String label = MiscUtil.parseColourSpec(player, items.get(0));
 		String cmd = items.size() >= 2 ? items.get(1) : "";
 		String msg = items.size() >= 3 ? items.get(2) : "";
 
@@ -59,7 +59,7 @@ public class AddItemCommand extends AbstractCommand {
 		menu.addItem(label, cmd, msg);
 		menu.updateSigns();
 		
-		SMSUtils.statusMessage(player, "Menu entry &f" + label + "&- added to: &e" + menuName);
+		MiscUtil.statusMessage(player, "Menu entry &f" + label + "&- added to: &e" + menuName);
 		
 		return true;
 	}

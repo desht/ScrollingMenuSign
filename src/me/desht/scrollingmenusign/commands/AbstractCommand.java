@@ -5,8 +5,8 @@ import java.util.List;
 import org.bukkit.entity.Player;
 
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
 
 public abstract class AbstractCommand {
 	private String command;	// the command
@@ -59,7 +59,7 @@ public abstract class AbstractCommand {
 
 		int nArgs;
 		if (isQuotedArgs()) {
-			List<String> a = SMSUtils.splitQuotedString(combine(args, 0));
+			List<String> a = MiscUtil.splitQuotedString(combine(args, 0));
 			nArgs = a.size() - subCommands.length;
 		} else {
 			nArgs = args.length - subCommands.length;
@@ -75,7 +75,7 @@ public abstract class AbstractCommand {
 			result[i - subCommands.length] = args[i];
 		}
 		if (isQuotedArgs()) {
-			List<String>a = SMSUtils.splitQuotedString(combine(result, 0));
+			List<String>a = MiscUtil.splitQuotedString(combine(result, 0));
 			return a.toArray(new String[a.size()]);
 		} else {
 			return result;
@@ -150,9 +150,9 @@ public abstract class AbstractCommand {
 		if (usage != null) {
 			for (int i = 0; i < usage.length; i++) {
 				if (i == 0) {
-					SMSUtils.errorMessage(player, "Usage: " + usage[i]);
+					MiscUtil.errorMessage(player, "Usage: " + usage[i]);
 				} else {
-					SMSUtils.errorMessage(player, "         " + usage[i]);
+					MiscUtil.errorMessage(player, "         " + usage[i]);
 				}
 			}
 		}

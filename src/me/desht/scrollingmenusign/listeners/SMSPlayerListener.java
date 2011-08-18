@@ -1,6 +1,15 @@
-package me.desht.scrollingmenusign;
+package me.desht.scrollingmenusign.listeners;
 
 import java.util.logging.Level;
+
+import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSHandler;
+import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.SMSAction;
+import me.desht.util.MiscUtil;
+import me.desht.util.PermissionsUtils;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -29,7 +38,8 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 		Player player = event.getPlayer();
 		
-		String menuName = SMSMenu.getMenuNameAt(block.getLocation());
+		SMSHandler handler = plugin.getHandler();
+		String menuName = handler.getMenuNameAt(block.getLocation());
 		try {
 			if (menuName == null) {
 				// No menu attached to this sign, but a left-click could create a new menu if the sign's
@@ -40,28 +50,29 @@ public class SMSPlayerListener extends PlayerListener {
 			} else {
 				// ok, it's a sign, and there's a menu on it
 				plugin.debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + menuName);
-				SMSMenu menu = SMSMenu.getMenu(menuName);
+				SMSMenu menu = handler.getMenu(menuName);
 				SMSAction action = SMSAction.getAction(event);
 				processAction(action, player, menu, block.getLocation());
 			}
 		} catch (SMSException e) {
-			SMSUtils.errorMessage(player, e.getMessage());
+			MiscUtil.errorMessage(player, e.getMessage());
 		}
 	}
 
 	@Override
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
 		try {
+			SMSHandler handler = plugin.getHandler();
 			Player player = event.getPlayer();
 			Block b = player.getTargetBlock(null, 3);
-			String menuName = SMSMenu.getMenuNameAt(b.getLocation());
+			String menuName = handler.getMenuNameAt(b.getLocation());
 			if (menuName == null)
 				return;
-			SMSMenu menu = SMSMenu.getMenu(menuName);
+			SMSMenu menu = handler.getMenu(menuName);
 			SMSAction action = SMSAction.getAction(event);
 			processAction(action, player, menu, b.getLocation());
 		} catch (SMSException e) {
-			SMSUtils.log(Level.WARNING, e.getMessage());
+			MiscUtil.log(Level.WARNING, e.getMessage());
 		}
 	}
 
@@ -81,7 +92,7 @@ public class SMSPlayerListener extends PlayerListener {
 	}
 	
 	private void scrollMenu(Player player, SMSMenu menu, Location l, SMSAction dir) throws SMSException {
-		if (!SMSPermissions.isAllowedTo(player, "scrollingmenusign.scroll"))
+		if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.scroll"))
 			return;
 		
 		switch (dir) {
@@ -96,7 +107,7 @@ public class SMSPlayerListener extends PlayerListener {
 	}
 
 	private void executeMenu(Player player, SMSMenu menu, Location l) throws SMSException {
-		if (!SMSPermissions.isAllowedTo(player, "scrollingmenusign.execute"))
+		if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute"))
 			return;
 		
 		SMSMenuItem item = menu.getCurrentItem(l);
@@ -112,29 +123,30 @@ public class SMSPlayerListener extends PlayerListener {
 			return;
 
 		String name = sign.getLine(1);
-		String title = SMSUtils.parseColourSpec(player, sign.getLine(2));
+		String title = MiscUtil.parseColourSpec(player, sign.getLine(2));
 		if (name.isEmpty())
 			return;
 		
-		if (SMSMenu.checkForMenu(name)) {
+		SMSHandler handler = plugin.getHandler();
+		if (handler.checkMenu(name)) {
 			if (title.isEmpty()) {
-				SMSPermissions.requirePerms(player, "scrollingmenusign.commands.sync");
+				PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 				try {
-					SMSMenu menu = SMSMenu.getMenu(name);
+					SMSMenu menu = handler.getMenu(name);
 					menu.addSign(b.getLocation(), true);
-					SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(b.getLocation()) +
+					MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(b.getLocation()) +
 							"&- was added to menu &e" + name + "&-");
 				} catch (SMSException e) {
-					SMSUtils.errorMessage(player, e.getMessage());
+					MiscUtil.errorMessage(player, e.getMessage());
 				}
 			} else {
-				SMSUtils.errorMessage(player, "A menu called '" + name + "' already exists.");
+				MiscUtil.errorMessage(player, "A menu called '" + name + "' already exists.");
 			}
 		} else if (title.length() > 0) {
-			SMSPermissions.requirePerms(player, "scrollingmenusign.commands.create");
+			PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.create");
 			SMSMenu menu = plugin.getHandler().createMenu(name, title, player.getName());
 			menu.addSign(b.getLocation(), true);
-			SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(b.getLocation()) +
+			MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(b.getLocation()) +
 					"&- was added to new menu &e" + name + "&-");
 		}
 

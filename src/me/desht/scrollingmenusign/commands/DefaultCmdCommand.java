@@ -2,8 +2,8 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -23,9 +23,9 @@ public class DefaultCmdCommand extends AbstractCommand {
 		menu.setDefaultCommand(cmd);
 		
 		if (cmd.isEmpty()) {
-			SMSUtils.statusMessage(player, "Default command has been cleared for menu &e" + menuName);
+			MiscUtil.statusMessage(player, "Default command has been cleared for menu &e" + menuName);
 		} else {
-			SMSUtils.statusMessage(player, "Default command has been set for menu &e" + menuName);
+			MiscUtil.statusMessage(player, "Default command has been set for menu &e" + menuName);
 		}
 		
 		return false;

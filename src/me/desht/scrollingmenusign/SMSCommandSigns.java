@@ -2,6 +2,8 @@ package me.desht.scrollingmenusign;
 
 import java.util.logging.Level;
 
+import me.desht.util.MiscUtil;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -20,9 +22,9 @@ public class SMSCommandSigns {
 		if (csHandler == null) {
 			if (csPlugin != null) {
 				csHandler = ((CommandSigns) csPlugin).getHandler();
-				SMSUtils.log(Level.INFO, "CommandSigns API integration enabled");
+				MiscUtil.log(Level.INFO, "CommandSigns API integration enabled");
 			} else {
-				SMSUtils.log(Level.INFO, "CommandSigns API not available");
+				MiscUtil.log(Level.INFO, "CommandSigns API not available");
 			}
 		}
 	}

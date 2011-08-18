@@ -1,4 +1,4 @@
-package me.desht.scrollingmenusign;
+package me.desht.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,13 +7,14 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-public class SMSUtils {
+public class MiscUtil {
 	private static String prevColour = ChatColor.WHITE.toString();
 	protected static final Logger logger = Logger.getLogger("Minecraft");
 	protected static final String messageFormat = "ScrollingMenuSign: %s";
@@ -28,7 +29,7 @@ public class SMSUtils {
 		message(player, string, ChatColor.AQUA, Level.INFO);
 	}
 
-	static void alertMessage(Player player, String string) {
+	public static void alertMessage(Player player, String string) {
 		if (player == null) {
 			return;
 		}
@@ -36,12 +37,12 @@ public class SMSUtils {
 		message(player, string, ChatColor.YELLOW, Level.INFO);
 	}
 
-	static void generalMessage(Player player, String string) {
+	public static void generalMessage(Player player, String string) {
 		prevColour = ChatColor.WHITE.toString();
 		message(player, string, Level.INFO);
 	}
 
-	static void broadcastMessage(String string) {
+	public static void broadcastMessage(String string) {
 		prevColour = ChatColor.YELLOW.toString();
 		Bukkit.getServer().broadcastMessage(parseColourSpec("&4::&-" + string)); //$NON-NLS-1$
 	}
@@ -66,7 +67,7 @@ public class SMSUtils {
 		}
 	}
 
-	static String parseColourSpec(String spec) {
+	public static String parseColourSpec(String spec) {
 		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
 		return res.replace("&-", prevColour).replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
@@ -75,7 +76,7 @@ public class SMSUtils {
 		return String.format("%d,%d,%d,%s", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName());
 	}
 
-	static Location parseLocation(String arglist) {
+	public static Location parseLocation(String arglist) {
 		return parseLocation(arglist, null);
 	}
 
@@ -98,13 +99,13 @@ public class SMSUtils {
 		}
 	}
 
-	static void log(String message) {
+	public static void log(String message) {
 		if (message != null) {
 			logger.log(Level.INFO, String.format(messageFormat, message));
 		}
 	}
 
-	static void log(Level level, String message) {
+	public static void log(Level level, String message) {
 		if (level == null) {
 			level = Level.INFO;
 		}
@@ -113,7 +114,7 @@ public class SMSUtils {
 		}
 	}
 
-	static void log(Level level, String message, Exception err) {
+	public static void log(Level level, String message, Exception err) {
 		if (err == null) {
 			log(level, message);
 		} else {
@@ -124,8 +125,8 @@ public class SMSUtils {
 
 	public static String parseColourSpec(Player player, String spec) {
 		if (player == null ||
-				SMSPermissions.isAllowedTo(player, "scrollingmenusign.coloursigns") || 
-				SMSPermissions.isAllowedTo(player, "scrollingmenusign.colorsigns"))
+				PermissionsUtils.isAllowedTo(player, "scrollingmenusign.coloursigns") || 
+				PermissionsUtils.isAllowedTo(player, "scrollingmenusign.colorsigns"))
 		{
 			String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7");
 			return res.replace("&&", "&");
@@ -134,16 +135,16 @@ public class SMSUtils {
 		}		
 	}
 
-	static String unParseColourSpec(String spec) {
+	public static String unParseColourSpec(String spec) {
 		return spec.replaceAll("\u00A7", "&");
 	}
 
 
-	static String deColourise(String s) {
+	public static String deColourise(String s) {
 		return s.replaceAll("\u00A7.", "");
 	}
 
-	static World findWorld(String worldName) {
+	public static World findWorld(String worldName) {
 		World w = Bukkit.getServer().getWorld(worldName);
 
 		if (w != null) {

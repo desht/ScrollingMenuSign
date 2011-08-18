@@ -6,8 +6,8 @@ import java.util.List;
 import org.bukkit.entity.Player;
 
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSPermissions;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.PermissionsUtils;
 
 public class CommandManager {
 	private ScrollingMenuSign plugin;
@@ -26,7 +26,7 @@ public class CommandManager {
 		for (AbstractCommand cmd : cmdList) {
 			if (cmd.matchesSubCommand(label, args)) {
 				if (cmd.matchesArgCount(label, args)) {
-					SMSPermissions.requirePerms(player, cmd.getPermissionNode());
+					PermissionsUtils.requirePerms(player, cmd.getPermissionNode());
 					String[] actualArgs = cmd.getArgs(args);
 					res = cmd.execute(plugin, player, actualArgs);
 				} else {

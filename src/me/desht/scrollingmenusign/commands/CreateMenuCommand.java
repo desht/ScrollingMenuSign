@@ -8,8 +8,8 @@ import org.bukkit.entity.Player;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
 
 public class CreateMenuCommand extends AbstractCommand {
 
@@ -51,15 +51,15 @@ public class CreateMenuCommand extends AbstractCommand {
 			SMSMenu otherMenu = plugin.getHandler().getMenu(args[2]);
 			menu = handler.createMenu(menuName, otherMenu, owner);
 		} else {
-			String menuTitle = SMSUtils.parseColourSpec(player, combine(args, 1));
+			String menuTitle = MiscUtil.parseColourSpec(player, combine(args, 1));
 			menu = handler.createMenu(menuName, menuTitle, owner);
 		}
 		if (loc != null) {
 			menu.addSign(loc, true);
 		}
 		
-		SMSUtils.statusMessage(player, "Created new menu &e" + menuName + "&-" +
-				(loc == null ? " with no signs" : " with sign @ &f" + SMSUtils.formatLocation(loc)));
+		MiscUtil.statusMessage(player, "Created new menu &e" + menuName + "&-" +
+				(loc == null ? " with no signs" : " with sign @ &f" + MiscUtil.formatLocation(loc)));
 		
 		return true;
 	}

@@ -9,6 +9,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
+import me.desht.scrollingmenusign.enums.MenuRemovalAction;
+import me.desht.util.MiscUtil;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -87,7 +90,7 @@ public class SMSMenu {
 	SMSMenu(ScrollingMenuSign plugin, ConfigurationNode node) throws SMSException {
 		initCommon(plugin,
 				node.getString("name"),
-				SMSUtils.parseColourSpec(null, node.getString("title")),
+				MiscUtil.parseColourSpec(null, node.getString("title")),
 				node.getString("owner"));
 
 		autosort = node.getBoolean("autosort", false);
@@ -99,18 +102,18 @@ public class SMSMenu {
 			// v0.3 or newer format - multiple locations per menu
 			for (Object o : locs) {
 				List<Object> locList = (List<Object>) o;
-				World w = SMSUtils.findWorld((String) locList.get(0));
+				World w = MiscUtil.findWorld((String) locList.get(0));
 				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
 				try {
 					addSign(loc);
 				} catch (SMSException e) {
-					SMSUtils.log(Level.WARNING, "Could not add sign to menu " + name + ": " + e.getMessage());
+					MiscUtil.log(Level.WARNING, "Could not add sign to menu " + name + ": " + e.getMessage());
 				}
 			}
 		} else {
 			// v0.2 or older
 			String worldName = node.getString("world");
-			World w = SMSUtils.findWorld(worldName);
+			World w = MiscUtil.findWorld(worldName);
 			List<Integer>locList = (List<Integer>) node.getIntList("location", null);
 			addSign(new Location(w, locList.get(0), locList.get(1), locList.get(2)));
 		}
@@ -138,7 +141,7 @@ public class SMSMenu {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 
 		map.put("name", getName());
-		map.put("title", SMSUtils.unParseColourSpec(getTitle()));
+		map.put("title", MiscUtil.unParseColourSpec(getTitle()));
 		map.put("owner", getOwner());
 		List<List<Object>> locs = new ArrayList<List<Object>>();
 		for (Location l: getLocations().keySet()) {
@@ -346,7 +349,7 @@ public class SMSMenu {
 		} catch (NumberFormatException e) {
 			// not an integer - try to remove by label
 			for (int i = 0; i < items.size(); i++) {
-				String label = SMSUtils.deColourise(items.get(i).getLabel());
+				String label = MiscUtil.deColourise(items.get(i).getLabel());
 				if (wanted.equalsIgnoreCase(label)) {
 					index = i + 1;
 					break;
@@ -390,12 +393,12 @@ public class SMSMenu {
 		Block b = l.getBlock();
 
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			throw new SMSException("Location " + SMSUtils.formatLocation(l) + " does not contain a sign.");
+			throw new SMSException("Location " + MiscUtil.formatLocation(l) + " does not contain a sign.");
 		}
 
 		String s = SMSMenu.getMenuNameAt(b.getLocation());
 		if (s != null) {
-			throw new SMSException("Location " + SMSUtils.formatLocation(l) + " already has a menu: " + s);
+			throw new SMSException("Location " + MiscUtil.formatLocation(l) + " already has a menu: " + s);
 		}
 
 		locations.put(l, 0);
@@ -487,7 +490,7 @@ public class SMSMenu {
 		} catch (NumberFormatException e) {
 			// not an integer - try to remove by label
 			for (int i = 0; i < items.size(); i++) {
-				String label = SMSUtils.deColourise(items.get(i).getLabel());
+				String label = MiscUtil.deColourise(items.get(i).getLabel());
 				if (indexStr.equalsIgnoreCase(label)) {
 					index = i + 1;
 					break;
@@ -660,7 +663,7 @@ public class SMSMenu {
 			s = prefix + "%1$" + l + "s";
 		else
 			s = prefix + "%1$s";
-		return SMSUtils.parseColourSpec(null, s);
+		return MiscUtil.parseColourSpec(null, s);
 	}
 
 	// Get line 2 of the sign (item before the current item, or blank
@@ -717,7 +720,7 @@ public class SMSMenu {
 			plugin.getPersistence().unPersist(this);
 		} catch (SMSException e) {
 			// Should not get here
-			SMSUtils.log(Level.WARNING, "Impossible: deletePermanent got SMSException?");
+			MiscUtil.log(Level.WARNING, "Impossible: deletePermanent got SMSException?");
 		}
 	}
 
@@ -726,7 +729,7 @@ public class SMSMenu {
 			SMSMenu.removeMenu(getName(), MenuRemovalAction.DO_NOTHING);
 		} catch (SMSException e) {
 			// Should not get here
-			SMSUtils.log(Level.WARNING, "Impossible: deleteTemporary got SMSException?");
+			MiscUtil.log(Level.WARNING, "Impossible: deleteTemporary got SMSException?");
 		}
 	}
 

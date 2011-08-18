@@ -2,8 +2,8 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -24,8 +24,8 @@ public class AddViewCommand extends AbstractCommand {
 		SMSMenu menu = plugin.getHandler().getMenu(args[0]);
 		menu.addSign(b.getLocation(), true);
 
-		SMSUtils.statusMessage(player, String.format("Sign @ &f%s&- was added to menu &e%s&-.",
-		                                             SMSUtils.formatLocation(b.getLocation()), menu.getName()));
+		MiscUtil.statusMessage(player, String.format("Sign @ &f%s&- was added to menu &e%s&-.",
+		                                             MiscUtil.formatLocation(b.getLocation()), menu.getName()));
 
 		return true;
 	}

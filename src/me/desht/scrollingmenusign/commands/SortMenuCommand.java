@@ -3,9 +3,9 @@ package me.desht.scrollingmenusign.commands;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSPermissions;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
+import me.desht.util.PermissionsUtils;
 
 import org.bukkit.entity.Player;
 
@@ -19,7 +19,7 @@ public class SortMenuCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		SMSPermissions.requirePerms(player, "scrollingmenusign.commands.sort");
+		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sort");
 		
 		SMSHandler handler = plugin.getHandler();
 		SMSMenu menu = null;
@@ -33,11 +33,11 @@ public class SortMenuCommand extends AbstractCommand {
 		if (partialMatch(args, 1, "a")) {	// autosort
 			menu.setAutosort(true);
 			menu.sortItems();
-			SMSUtils.statusMessage(player, "Menu &e" + menu.getName() + "&- has been sorted (autosort enabled)");
+			MiscUtil.statusMessage(player, "Menu &e" + menu.getName() + "&- has been sorted (autosort enabled)");
 		} else {
 			menu.setAutosort(false);
 			menu.sortItems();
-			SMSUtils.statusMessage(player, "Menu &e" + menu.getName() + "&- has been sorted (autosort disabled)");
+			MiscUtil.statusMessage(player, "Menu &e" + menu.getName() + "&- has been sorted (autosort disabled)");
 		}
 		menu.updateSigns();
 		

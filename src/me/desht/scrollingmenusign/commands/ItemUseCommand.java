@@ -6,8 +6,8 @@ import java.util.Arrays;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -50,16 +50,16 @@ public class ItemUseCommand extends AbstractCommand {
 			SMSMenuItem item = menu.getItem(idx);
 			if (isClearing) {
 				item.getUseLimits().clearUses();
-				SMSUtils.statusMessage(player, "Unset all usage limits for item &e" + item.getLabel());
+				MiscUtil.statusMessage(player, "Unset all usage limits for item &e" + item.getLabel());
 			} else {
 				int count = parseNumber(a.get(2));
 				if (isGlobal) {
 					item.getUseLimits().setGlobalUses(count);
-					SMSUtils.statusMessage(player, "Set GLOBAL use limit for item &e" + item.getLabel()
+					MiscUtil.statusMessage(player, "Set GLOBAL use limit for item &e" + item.getLabel()
 							+ "&- to " + count + ".");
 				} else {
 					item.getUseLimits().setUses(count);
-					SMSUtils.statusMessage(player, "Set PER-PLAYER use limit for item &e" + item.getLabel()
+					MiscUtil.statusMessage(player, "Set PER-PLAYER use limit for item &e" + item.getLabel()
 							+ "&- to " + count + ".");
 				}
 			}
@@ -67,16 +67,16 @@ public class ItemUseCommand extends AbstractCommand {
 			// dealing with a menu
 			if (isClearing) {
 				menu.getUseLimits().clearUses();
-				SMSUtils.statusMessage(player, "Unset all usage limits for menu &e" + menu.getName());
+				MiscUtil.statusMessage(player, "Unset all usage limits for menu &e" + menu.getName());
 			} else {
 				int count = parseNumber(a.get(1));
 				if (isGlobal) {
 					menu.getUseLimits().setGlobalUses(count);
-					SMSUtils.statusMessage(player, "Set GLOBAL use limit for menu &e" + menu.getName()
+					MiscUtil.statusMessage(player, "Set GLOBAL use limit for menu &e" + menu.getName()
 							+ "&- to " + count + ".");
 				} else {
 					menu.getUseLimits().setUses(count);
-					SMSUtils.statusMessage(player, "Set PER-PLAYER use limit for menu &e" + menu.getName()
+					MiscUtil.statusMessage(player, "Set PER-PLAYER use limit for menu &e" + menu.getName()
 							+ "&- to " + count + ".");
 				}
 			}

@@ -1,6 +1,8 @@
-package me.desht.scrollingmenusign;
+package me.desht.util;
 
 import java.util.logging.Level;
+
+import me.desht.scrollingmenusign.SMSException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -9,21 +11,21 @@ import org.bukkit.plugin.Plugin;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
-public class SMSPermissions {
+public class PermissionsUtils {
 	private static PermissionHandler permissionHandler = null;
 	
-	private SMSPermissions() {	
+	private PermissionsUtils() {	
 	}
 	
-	static void setup() {
+	public static void setup() {
 		Plugin permissionsPlugin = Bukkit.getServer().getPluginManager().getPlugin("Permissions");
 
 		if (permissionHandler == null) {
 			if (permissionsPlugin != null) {
 				permissionHandler = ((Permissions) permissionsPlugin).getHandler();
-				SMSUtils.log(Level.INFO, "Permissions detected");
+				MiscUtil.log(Level.INFO, "Permissions detected");
 			} else {
-				SMSUtils.log(Level.INFO, "Permissions not detected, using Bukkit superperms");
+				MiscUtil.log(Level.INFO, "Permissions not detected, using Bukkit superperms");
 			}
 		}
 	}

@@ -10,6 +10,8 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.desht.util.MiscUtil;
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
@@ -25,9 +27,9 @@ public class SMSMacro {
 
 		try {
 			cmdSet.load();
-			SMSUtils.log(Level.INFO, "read " + cmdSet.getKeys().size() + " macros from file.");
+			MiscUtil.log(Level.INFO, "read " + cmdSet.getKeys().size() + " macros from file.");
 		} catch (ReaderException e) {
-			SMSUtils.log(Level.SEVERE, "caught exception loading " + f + ": " + e.getMessage());
+			MiscUtil.log(Level.SEVERE, "caught exception loading " + f + ": " + e.getMessage());
 			backupCommandsFile(f);
 		}		
 	}
@@ -157,14 +159,14 @@ public class SMSMacro {
 			} else if (matcher.group(1).equalsIgnoreCase("%")) {
 				// a macro expansion
 				if (history.contains(cmd)) {
-					SMSUtils.log(Level.WARNING, "executeCommandSet [" + cmd + "]: recursion detected");
-					SMSUtils.errorMessage(player, "Recursive loop detected in macro " + cmd + "!");
+					MiscUtil.log(Level.WARNING, "executeCommandSet [" + cmd + "]: recursion detected");
+					MiscUtil.errorMessage(player, "Recursive loop detected in macro " + cmd + "!");
 					return;
 				} else if (hasMacro(cmd)) {
 					history.add(cmd);
 					executeCommandSet(cmd, player, history);
 				} else {
-					SMSUtils.errorMessage(player, "No such macro '" + cmd + "'.");
+					MiscUtil.errorMessage(player, "No such macro '" + cmd + "'.");
 				}
 			}
 		} else if (SMSCommandSigns.isActive() &&
@@ -186,17 +188,17 @@ public class SMSMacro {
 			// macro expansion
 			String macro = message.substring(1);
 			if (history.contains(macro)) {
-				SMSUtils.log(Level.WARNING, "sendFeedback [" + macro + "]: recursion detected");
-				SMSUtils.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
+				MiscUtil.log(Level.WARNING, "sendFeedback [" + macro + "]: recursion detected");
+				MiscUtil.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
 				return;
 			} else if (hasMacro(macro)) {
 				history.add(macro);
 				sendFeedback(player, getCommands(macro), history);
 			} else {
-				SMSUtils.errorMessage(player, "No such macro '" + macro + "'.");
+				MiscUtil.errorMessage(player, "No such macro '" + macro + "'.");
 			}
 		} else {
-			player.sendMessage(ChatColor.YELLOW + SMSUtils.parseColourSpec(null, message));
+			player.sendMessage(ChatColor.YELLOW + MiscUtil.parseColourSpec(null, message));
 		}	
 	}
 
@@ -210,11 +212,11 @@ public class SMSMacro {
 		try {
 			File backup = SMSPersistence.getBackupFileName(original.getParentFile(), original.getName());
 
-			SMSUtils.log(Level.INFO, "An error occurred while loading the commands file, so a backup copy of "
+			MiscUtil.log(Level.INFO, "An error occurred while loading the commands file, so a backup copy of "
 					+ original + " is being created. The backup can be found at " + backup.getPath());
 			SMSPersistence.copy(original, backup);
 		} catch (IOException e) {
-			SMSUtils.log(Level.SEVERE, "Error while trying to write backup file: " + e);
+			MiscUtil.log(Level.SEVERE, "Error while trying to write backup file: " + e);
 		}
 	}
 }

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import me.desht.util.MiscUtil;
+
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
@@ -23,7 +25,7 @@ public class SMSConfig {
 	private static final String commandFileName = "commands.yml";
 	
 	@SuppressWarnings("serial")
-	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
+	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {{
 		put("sms.always_use_commandsigns", true);
 		put("sms.autosave", true);
 		put("sms.no_physics", false);
@@ -69,17 +71,17 @@ public class SMSConfig {
 			return;
 		}
 		if (!dir.mkdir()) {
-			SMSUtils.log(Level.WARNING, "Can't make directory " + dir.getName()); //$NON-NLS-1$
+			MiscUtil.log(Level.WARNING, "Can't make directory " + dir.getName()); //$NON-NLS-1$
 		}
 	}
 
 	private static void initConfigFile() {
 		Boolean saveNeeded = false;
 		Configuration config = plugin.getConfiguration();
-		for (String k : configItems.keySet()) {
+		for (String k : configDefaults.keySet()) {
 			if (config.getProperty(k) == null) {
 				saveNeeded = true;
-				config.setProperty(k, configItems.get(k));
+				config.setProperty(k, configDefaults.get(k));
 			}
 		}
 		
@@ -112,26 +114,26 @@ public class SMSConfig {
 		if (key.length() < 5 || !key.substring(0, 4).equals("sms.")) {
 			key = "sms." + key;
 		}
-		if (configItems.get(key) == null) {
+		if (configDefaults.get(key) == null) {
 			throw new SMSException("No such config key " + key);
 		}
-		if (configItems.get(key) instanceof Boolean) {
+		if (configDefaults.get(key) instanceof Boolean) {
 			Boolean bVal = false;
 			if (val.equals("false") || val.equals("no")) {
 				bVal = false;
 			} else if (val.equals("true") || val.equals("yes")) {
 				bVal = true;
 			} else {
-				SMSUtils.errorMessage(player, "Invalid boolean value " + val + " - use true/yes or false/no.");
+				MiscUtil.errorMessage(player, "Invalid boolean value " + val + " - use true/yes or false/no.");
 				return;
 			}
 			getConfiguration().setProperty(key, bVal);
-		} else if (configItems.get(key) instanceof Integer) {
+		} else if (configDefaults.get(key) instanceof Integer) {
 			try {
 				int nVal = Integer.parseInt(val);
 				getConfiguration().setProperty(key, nVal);
 			} catch (NumberFormatException e) {
-				SMSUtils.errorMessage(player, "Invalid numeric value: " + val);
+				MiscUtil.errorMessage(player, "Invalid numeric value: " + val);
 			}
 		} else {
 			getConfiguration().setProperty(key, val);
@@ -143,7 +145,7 @@ public class SMSConfig {
 	// return a sorted list of all config keys
 	public static List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
-		for (String k : configItems.keySet()) {
+		for (String k : configDefaults.keySet()) {
 			res.add(k + " = '" + getConfiguration().getString(k) + "'");
 		}
 		Collections.sort(res);

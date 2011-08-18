@@ -1,11 +1,11 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.MenuRemovalAction;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.MenuRemovalAction;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -28,7 +28,7 @@ public class RemoveViewCommand extends AbstractCommand {
 			loc = b.getLocation();
 		} else {
 			try {
-				loc = SMSUtils.parseLocation(args[0], player);
+				loc = MiscUtil.parseLocation(args[0], player);
 			} catch (IllegalArgumentException e) {
 				throw new SMSException(e.getMessage());
 			}
@@ -39,7 +39,7 @@ public class RemoveViewCommand extends AbstractCommand {
 		if (menuName != null) {
 			SMSMenu menu = handler.getMenu(menuName);
 			menu.removeSign(loc, MenuRemovalAction.BLANK_SIGN);
-			SMSUtils.statusMessage(player, "Sign @ &f" + SMSUtils.formatLocation(loc) +
+			MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(loc) +
 			                       "&- was removed from menu &e" + menu.getName() + "&-.");	
 		} else {
 			throw new SMSException("You are not looking at a menu.");

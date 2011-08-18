@@ -2,8 +2,8 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -25,11 +25,11 @@ public class RemoveItemCommand extends AbstractCommand {
 			SMSMenu menu = plugin.getHandler().getMenu(menuName);
 			menu.removeItem(item);
 			menu.updateSigns();
-			SMSUtils.statusMessage(player, "Menu entry &f#" + item + "&- removed from &e" + menuName);
+			MiscUtil.statusMessage(player, "Menu entry &f#" + item + "&- removed from &e" + menuName);
 		} catch (IndexOutOfBoundsException e) {
-			SMSUtils.errorMessage(player, "Item index " + item + " out of range");
+			MiscUtil.errorMessage(player, "Item index " + item + " out of range");
 		} catch (IllegalArgumentException e) {
-			SMSUtils.errorMessage(player, e.getMessage());
+			MiscUtil.errorMessage(player, e.getMessage());
 		}
 		
 		return true;

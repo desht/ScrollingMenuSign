@@ -1,21 +1,24 @@
-package me.desht.scrollingmenusign;
+package me.desht.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import me.jascotty2.bukkit.MinecraftChatStr;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-public class MessageBuffer {
+public class MessagePager {
 
 	private static final Map<String, List<String>> bufferMap = new HashMap<String, List<String>>();
 	private static final Map<String, Integer> currentPage = new HashMap<String, Integer>();
 	private static final int pageSize = 18;	// 20 lines total, minus 2 for header and footer
 
+	private static String pageCmd = null; // "/sms page [#|n|p]";
+	
 	/**
 	 * initialize the buffer for the player if necessary
 	 * 
@@ -26,6 +29,14 @@ public class MessageBuffer {
 			bufferMap.put(name(p), new ArrayList<String>());
 			currentPage.put(name(p), 1);
 		}
+	}
+
+	public static String getPageCmd() {
+		return pageCmd;
+	}
+
+	public static void setPageCmd(String pageCmd) {
+		MessagePager.pageCmd = pageCmd;
 	}
 
 	/**
@@ -243,7 +254,7 @@ public class MessageBuffer {
 			int pageNum = Integer.parseInt(pageStr);
 			showPage(player, pageNum);
 		} catch (NumberFormatException e) {
-			SMSUtils.errorMessage(player, "invalid argument '" + pageStr + "'");
+			MiscUtil.errorMessage(player, "invalid argument '" + pageStr + "'");
 		}
 	}
 
@@ -272,20 +283,23 @@ public class MessageBuffer {
 			String header = String.format("| %d-%d of %d lines (page %d/%d) |",
 			                              i + 1, Math.min(pageNum * pageSize, nMessages),
 			                              nMessages, pageNum, getPageCount(player));
-			SMSUtils.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(header, 310, '-'));
+			MiscUtil.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(header, 310, '-'));
 
 			for (; i < nMessages && i < pageNum * pageSize; ++i) {
-				SMSUtils.statusMessage(player, getLine(player, i));
+				MiscUtil.statusMessage(player, getLine(player, i));
 			}
 
-			String footer = nMessages > pageSize * pageNum ? "| Use /sms page [#|n|p] to see other pages |" : "";
-			SMSUtils.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(footer, 310, '-'));
+			String footer = "";
+			if (nMessages > pageSize * pageNum && pageCmd != null) {
+				footer = "| Use " + pageCmd + " to see other pages |";
+			}
+			MiscUtil.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(footer, 310, '-'));
 
 			setPage(player, pageNum);
 		} else {
 			// just dump the whole message buffer to the console
 			for (String s : bufferMap.get(name(player))) {
-				SMSUtils.statusMessage(null, ChatColor.stripColor(SMSUtils.parseColourSpec(s)));
+				MiscUtil.statusMessage(null, ChatColor.stripColor(MiscUtil.parseColourSpec(s)));
 			}
 		}
 	}

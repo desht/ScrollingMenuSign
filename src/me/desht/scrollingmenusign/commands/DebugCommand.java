@@ -1,8 +1,8 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -19,9 +19,9 @@ public class DebugCommand extends AbstractCommand {
 		plugin.getDebugger().toggleDebug(player);
 		int level = plugin.getDebugger().getDebugLevel(player);
 		if (level > 0) {
-			SMSUtils.statusMessage(player, "Debugging enabled.");
+			MiscUtil.statusMessage(player, "Debugging enabled.");
 		} else {
-			SMSUtils.statusMessage(player, "Debugging disabled.");
+			MiscUtil.statusMessage(player, "Debugging disabled.");
 		}
 	
 		return true;

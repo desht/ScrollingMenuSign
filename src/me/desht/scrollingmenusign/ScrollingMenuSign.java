@@ -24,6 +24,13 @@ import me.desht.scrollingmenusign.commands.SaveCommand;
 import me.desht.scrollingmenusign.commands.SetConfigCommand;
 import me.desht.scrollingmenusign.commands.ShowMenuCommand;
 import me.desht.scrollingmenusign.commands.SortMenuCommand;
+import me.desht.scrollingmenusign.listeners.SMSBlockListener;
+import me.desht.scrollingmenusign.listeners.SMSEntityListener;
+import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
+import me.desht.util.Debugger;
+import me.desht.util.MessagePager;
+import me.desht.util.MiscUtil;
+import me.desht.util.PermissionsUtils;
 
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -43,7 +50,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSHandlerImpl handler = new SMSHandlerImpl(this);
 	private final CommandManager cmds = new CommandManager(this);
 	
-	private final SMSDebugger debugger = new SMSDebugger(this);
+	private final Debugger debugger = new Debugger();
 	
 	@Override
 	public void onEnable() {
@@ -51,7 +58,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 		SMSConfig.init(this);
 
-		SMSPermissions.setup();
+		PermissionsUtils.setup();
 		SMSCommandSigns.setup();
 		
 		PluginManager pm = getServer().getPluginManager();
@@ -66,6 +73,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 		
 		loadMacros();
 		
+		MessagePager.setPageCmd("/sms page [#|n|p]");
+		
 		// delayed loading of saved menu files to ensure all worlds are loaded first
 		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 			@Override
@@ -73,11 +82,11 @@ public class ScrollingMenuSign extends JavaPlugin {
 				loadMenus();
 			}
 		})==-1) {
-			SMSUtils.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
+			MiscUtil.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
 			loadMenus();
 		}
 
-		SMSUtils.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
+		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
 
 	private void registerCommands() {
@@ -113,7 +122,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		try {
 			return cmds.dispatch(player, label, args);
 		} catch (SMSException e) {
-			SMSUtils.errorMessage(player, e.getMessage());
+			MiscUtil.errorMessage(player, e.getMessage());
 			return true;
 		}
 	}
@@ -122,7 +131,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public void onDisable() {
 		saveMenus();
 		saveMacros();
-		SMSUtils.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is disabled!" );
+		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is disabled!" );
 	}
 
 	public void loadMenus() {
@@ -141,7 +150,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		SMSMacro.saveCommands();
 	}
 	
-	void debug(String message) {
+	public void debug(String message) {
 		getDebugger().debug(message);
 	}
 	
@@ -153,7 +162,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		return handler;
 	}
 
-	public SMSDebugger getDebugger() {
+	public Debugger getDebugger() {
 		return debugger;
 	}
 }

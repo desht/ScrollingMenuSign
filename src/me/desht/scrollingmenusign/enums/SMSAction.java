@@ -1,4 +1,6 @@
-package me.desht.scrollingmenusign;
+package me.desht.scrollingmenusign.enums;
+
+import me.desht.scrollingmenusign.SMSConfig;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -8,7 +10,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 public enum SMSAction {
 	NONE, SCROLLDOWN, SCROLLUP, EXECUTE;
 	
-	static SMSAction getAction(PlayerInteractEvent event) {
+	public static SMSAction getAction(PlayerInteractEvent event) {
 		Action a = event.getAction();
 		Player player = event.getPlayer();
 		
@@ -23,7 +25,7 @@ public enum SMSAction {
 		return _makeAction(player, key);
 	}
 
-	static SMSAction getAction(PlayerItemHeldEvent event) {
+	public static SMSAction getAction(PlayerItemHeldEvent event) {
 		Player player = event.getPlayer();
 		
 		int delta = event.getNewSlot() - event.getPreviousSlot();

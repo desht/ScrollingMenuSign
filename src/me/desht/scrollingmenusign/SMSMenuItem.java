@@ -3,6 +3,8 @@ package me.desht.scrollingmenusign;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.desht.util.MiscUtil;
+
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
 
@@ -25,9 +27,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	
 	SMSMenuItem(SMSMenu menu, ConfigurationNode node) {
 		this.menu = menu;
-		this.label = SMSUtils.parseColourSpec(node.getString("label"));
+		this.label = MiscUtil.parseColourSpec(node.getString("label"));
 		this.command = node.getString("command");
-		this.message = SMSUtils.parseColourSpec(null, node.getString("message"));
+		this.message = MiscUtil.parseColourSpec(null, node.getString("message"));
 		this.uses = new SMSRemainingUses(this, node.getNode("usesRemaining"));
 	}
 	
@@ -146,7 +148,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 			uses.use(name);
 			if (menu != null)
 				menu.autosave();
-			SMSUtils.statusMessage(player, "&6[Uses remaining for this " + what + ": &e" + uses.getRemainingUses(name) + "&6]");
+			MiscUtil.statusMessage(player, "&6[Uses remaining for this " + what + ": &e" + uses.getRemainingUses(name) + "&6]");
 		}
 	}
 	
@@ -247,15 +249,15 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	 */
 	@Override
 	public int compareTo(SMSMenuItem other) {
-		return SMSUtils.deColourise(label).compareTo(SMSUtils.deColourise(other.label));
+		return MiscUtil.deColourise(label).compareTo(MiscUtil.deColourise(other.label));
 	}
 	
 	Map<String, Object> freeze() {
 		Map<String, Object> map = new HashMap<String, Object>();
 		
-		map.put("label", SMSUtils.unParseColourSpec(label));
+		map.put("label", MiscUtil.unParseColourSpec(label));
 		map.put("command", command);
-		map.put("message", SMSUtils.unParseColourSpec(message));
+		map.put("message", MiscUtil.unParseColourSpec(message));
 		map.put("usesRemaining", uses.freeze());
 		
 		return map;
