@@ -18,12 +18,12 @@ public class SMSUtils {
 	protected static final Logger logger = Logger.getLogger("Minecraft");
 	protected static final String messageFormat = "ScrollingMenuSign: %s";
 
-	static void errorMessage(Player player, String string) {
+	public static void errorMessage(Player player, String string) {
 		prevColour = ChatColor.RED.toString();
 		message(player, string, ChatColor.RED, Level.WARNING);
 	}
 
-	static void statusMessage(Player player, String string) {
+	public static void statusMessage(Player player, String string) {
 		prevColour = ChatColor.AQUA.toString();
 		message(player, string, ChatColor.AQUA, Level.INFO);
 	}
@@ -71,7 +71,7 @@ public class SMSUtils {
 		return res.replace("&-", prevColour).replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
-	static String formatLocation(Location loc) {
+	public static String formatLocation(Location loc) {
 		return String.format("%d,%d,%d,%s", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName());
 	}
 
@@ -122,7 +122,7 @@ public class SMSUtils {
 		}
 	}
 
-	static String parseColourSpec(Player player, String spec) {
+	public static String parseColourSpec(Player player, String spec) {
 		if (player == null ||
 				SMSPermissions.isAllowedTo(player, "scrollingmenusign.coloursigns") || 
 				SMSPermissions.isAllowedTo(player, "scrollingmenusign.colorsigns"))

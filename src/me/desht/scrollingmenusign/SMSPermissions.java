@@ -28,7 +28,7 @@ public class SMSPermissions {
 		}
 	}
 	
-	static Boolean isAllowedTo(Player player, String node) {
+	public static Boolean isAllowedTo(Player player, String node) {
 		if (player == null) return true;
 		// if Permissions is in force, then use that
 		if (permissionHandler != null) {
@@ -38,7 +38,7 @@ public class SMSPermissions {
 		}
 	}
 	
-	static void requirePerms(Player player, String node) throws SMSException {
+	public static void requirePerms(Player player, String node) throws SMSException {
 		if (permissionHandler == null) {
 			// Once support for Permissions is dropped, this check will be all that's required
 			if (player == null) {
