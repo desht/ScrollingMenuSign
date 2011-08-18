@@ -108,14 +108,12 @@ public class SMSConfig {
 		return menusDir;
 	}
 
-	static void setConfigItem(Player player, String key, String val) {
+	public static void setConfigItem(Player player, String key, String val) throws SMSException {
 		if (key.length() < 5 || !key.substring(0, 4).equals("sms.")) {
 			key = "sms." + key;
 		}
 		if (configItems.get(key) == null) {
-			SMSUtils.errorMessage(player, "No such config key " + key);
-			SMSUtils.errorMessage(player, "Use /sms getcfg to list all valid keys");
-			return;
+			throw new SMSException("No such config key " + key);
 		}
 		if (configItems.get(key) instanceof Boolean) {
 			Boolean bVal = false;
@@ -143,7 +141,7 @@ public class SMSConfig {
 	}
 	
 	// return a sorted list of all config keys
-	static List<String> getConfigList() {
+	public static List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
 		for (String k : configItems.keySet()) {
 			res.add(k + " = '" + getConfiguration().getString(k) + "'");
@@ -152,7 +150,7 @@ public class SMSConfig {
 		return res;
 	}
 	
-	static Configuration getConfiguration() {
+	public static Configuration getConfiguration() {
 		return plugin.getConfiguration();
 	}
 }

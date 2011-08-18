@@ -79,7 +79,7 @@ public class SMSUtils {
 		return parseLocation(arglist, null);
 	}
 
-	static Location parseLocation(String arglist, Player player) {
+	public static Location parseLocation(String arglist, Player player) {
 		String s = player == null ? ",worldname" : "";
 		String args[] = arglist.split(",");
 		try {
@@ -94,7 +94,7 @@ public class SMSUtils {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new IllegalArgumentException("You must specify all of x,y,z" + s + ".");
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
+			throw new IllegalArgumentException("Invalid number in " + arglist);
 		}
 	}
 
@@ -153,7 +153,7 @@ public class SMSUtils {
 		}
 	}
 
-	static List<String> splitQuotedString(String s) {
+	public static List<String> splitQuotedString(String s) {
 		List<String> matchList = new ArrayList<String>();
 		
 		Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");

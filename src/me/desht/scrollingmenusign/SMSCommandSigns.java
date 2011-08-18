@@ -27,11 +27,11 @@ public class SMSCommandSigns {
 		}
 	}
 	
-	static boolean isActive() {
+	public static boolean isActive() {
 		return csHandler != null;
 	}
 	
-	static boolean hasEnablingPermissions(Player player, String cmd) {
+	public static boolean hasEnablingPermissions(Player player, String cmd) {
 		return csHandler.hasEnablingPermissions(player, cmd);
 	}
 	

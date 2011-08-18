@@ -795,7 +795,7 @@ public class SMSMenu {
 	/**
 	 * Cause the signs on all menus to be redrawn
 	 */
-	static void updateAllMenus(){
+	public static void updateAllMenus(){
 		for (SMSMenu menu : listMenus()) {
 			menu.updateSigns();
 		}
@@ -840,15 +840,11 @@ public class SMSMenu {
 	 * @return	The menu name, or null if there is no menu and <b>complain</b> is false
 	 * @throws SMSException	if there is not menu and <b>complain</b> is true
 	 */
-	static String getTargetedMenuSign(Player player, Boolean complain) throws SMSException {
+	public static String getTargetedMenuSign(Player player, Boolean complain) throws SMSException {
 		Block b = player.getTargetBlock(null, 3);
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			if (complain) SMSUtils.errorMessage(player, "You are not looking at a sign.");
-			return null;
-		}
 		String name = SMSMenu.getMenuNameAt(b.getLocation());
 		if (name == null && complain)
-			throw new SMSException("There is no menu associated with that sign.");
+			throw new SMSException("You are not looking at a menu.");
 		return name;
 	}
 
@@ -904,7 +900,7 @@ public class SMSMenu {
 	 * @param player	Player to retrieve the usage information for
 	 * @return			Formatted usage information
 	 */
-	String formatUses(Player player) {
+	public String formatUses(Player player) {
 		if (player == null) {
 			return formatUses();
 		} else {

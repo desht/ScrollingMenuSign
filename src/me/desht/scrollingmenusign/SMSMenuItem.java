@@ -191,7 +191,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	 * @param player	Player to retrieve the usage information for
 	 * @return			Formatted usage information
 	 */
-	String formatUses(Player player) {
+	public String formatUses(Player player) {
 		if (player == null) {
 			return formatUses();
 		} else {

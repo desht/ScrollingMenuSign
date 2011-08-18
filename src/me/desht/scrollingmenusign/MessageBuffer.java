@@ -47,7 +47,7 @@ public class MessageBuffer {
 	 * @param message
 	 *            The message line to add
 	 */
-	static void add(Player p, String message) {
+	public static void add(Player p, String message) {
 		init(p);
 		bufferMap.get(name(p)).add(message);
 	}
@@ -62,12 +62,12 @@ public class MessageBuffer {
 	 * @param messages
 	 *            List of message lines to add
 	 */
-	static void add(Player p, String[] lines) {
+	public static void add(Player p, String[] lines) {
 		init(p);
 		add(p, Arrays.asList(lines));
 	}
 
-	static void add(Player p, List<String> lines) {
+	public static void add(Player p, List<String> lines) {
 		init(p);
 		//TODO: apply MinecraftChatStr.alignTags(lines, true)
 		//		in pagesize segments before adding to buffer
@@ -92,7 +92,7 @@ public class MessageBuffer {
 	 * @param p
 	 *            The player
 	 */
-	static void clear(Player p) {
+	public static void clear(Player p) {
 		if (!bufferMap.containsKey(name(p))) {
 			return;
 		}
@@ -195,7 +195,7 @@ public class MessageBuffer {
 	 * @param player
 	 *            The player
 	 */
-	static void nextPage(Player player) {
+	public static void nextPage(Player player) {
 		setPage(player, getPage(player) + 1, true);
 	}
 
@@ -205,7 +205,7 @@ public class MessageBuffer {
 	 * @param player
 	 *            The player
 	 */
-	static void prevPage(Player player) {
+	public static void prevPage(Player player) {
 		setPage(player, getPage(player) - 1, true);
 	}
 
@@ -226,7 +226,7 @@ public class MessageBuffer {
 	 * @param player
 	 *            The player
 	 */
-	static void showPage(Player player) {
+	public static void showPage(Player player) {
 		showPage(player, currentPage.get(name(player)));
 	}
 
@@ -255,7 +255,7 @@ public class MessageBuffer {
 	 * @param pageNum
 	 *            The page number to display
 	 */
-	static void showPage(Player player, int pageNum) {
+	public static void showPage(Player player, int pageNum) {
 		if (!bufferMap.containsKey(name(player))) {
 			return;
 		}

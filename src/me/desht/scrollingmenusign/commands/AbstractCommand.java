@@ -1,8 +1,11 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.List;
+
 import org.bukkit.entity.Player;
 
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 public abstract class AbstractCommand {
@@ -11,39 +14,38 @@ public abstract class AbstractCommand {
 	private String usage[];
 	private int minArgs, maxArgs;
 	private String permissionNode;
+	private boolean quotedArgs;
 	
 	public AbstractCommand(String label) {
-		_initArgs(label.split(" "));
-		
-		minArgs = subCommands.length;
-		maxArgs = Integer.MAX_VALUE;
+		this(label, 0, Integer.MAX_VALUE);
+	}
+
+	public AbstractCommand(String label, int minArgs) {
+		this(label, minArgs, Integer.MAX_VALUE);
 	}
 	
 	public AbstractCommand(String label, int minArgs, int maxArgs) {
-		_initArgs(label.split(" "));
-		
-		this.minArgs = minArgs + subCommands.length;
-		this.maxArgs = maxArgs + subCommands.length;
-	}
-	
-	private void _initArgs(String[] fields) {
+		quotedArgs = false;
+		String[] fields = label.split(" ");
 		this.command = fields[0];
 		this.subCommands = new String[fields.length - 1];
 		for (int i = 1; i < fields.length; i++) {
-			subCommands[i] = fields[i];
+			subCommands[i - 1] = fields[i];
 		}
+		
+		this.minArgs = minArgs;
+		this.maxArgs = maxArgs;
 	}
 	
-	public boolean matches(String label, String[] args) {
+	public boolean matchesSubCommand(String label, String[] args) {
 		if (!label.equalsIgnoreCase(this.command))
 			return false;
-		
-		if (args.length < minArgs || args.length > maxArgs) {
+		if (args.length < subCommands.length)
 			return false;
-		}
 		
-		for (int i = 1; i < args.length; i++) {
-			if (!CommandManager.partialMatch(args[i], this.subCommands[i])) {
+		for (int i = 0; i < subCommands.length; i++) {
+//			System.out.println(String.format("match subcmd %d: %s", i, subCommands[i]));
+			if (!partialMatch(args[i], subCommands[i])) {
 				return false;
 			}
 		}
@@ -51,23 +53,48 @@ public abstract class AbstractCommand {
 		return true;
 	}
 	
+	public boolean matchesArgCount(String label, String args[]) {
+		if (!label.equalsIgnoreCase(this.command))
+			return false;
+
+		int nArgs;
+		if (isQuotedArgs()) {
+			List<String> a = SMSUtils.splitQuotedString(combine(args, 0));
+			nArgs = a.size() - subCommands.length;
+		} else {
+			nArgs = args.length - subCommands.length;
+		}
+//		System.out.println(String.format("match %s, nArgs=%d min=%d max=%d", label, nArgs, minArgs, maxArgs));
+		
+		return nArgs >= minArgs && nArgs <= maxArgs;
+	}
+	
 	String[] getArgs(String[] args) {
 		String[] result = new String[args.length - subCommands.length];
 		for (int i = subCommands.length; i < args.length; i++) {
 			result[i - subCommands.length] = args[i];
 		}
-		return result;
+		if (isQuotedArgs()) {
+			List<String>a = SMSUtils.splitQuotedString(combine(result, 0));
+			return a.toArray(new String[a.size()]);
+		} else {
+			return result;
+		}
 	}
 	
 	protected void setPermissionNode(String node) {
 		this.permissionNode = node;
 	}
 	
-	void setUsage(String[] usage) {
+	protected void setUsage(String usage) {
+		this.usage = new String[] { usage };
+	}
+	
+	protected void setUsage(String[] usage) {
 		this.usage = usage;
 	}
 	
-	String[] getUsage() {
+	protected String[] getUsage() {
 		return usage;
 	}
 
@@ -75,5 +102,59 @@ public abstract class AbstractCommand {
 		return permissionNode;
 	}
 	
+	public boolean isQuotedArgs() {
+		return quotedArgs;
+	}
+
+	public void setQuotedArgs(boolean usesQuotedArgs) {
+		this.quotedArgs = usesQuotedArgs;
+	}
+
+	protected void notFromConsole(Player player) throws SMSException {
+		if (player == null) {
+			throw new SMSException("This command can't be run from the console.");
+		}	
+	}
+	
+	static boolean partialMatch(String[] args, int index, String match) {
+		if (index >= args.length) {
+			return false;
+		}
+		return partialMatch(args[index], match);
+	}
+
+	static Boolean partialMatch(String str, String match) {
+		int l = match.length();
+		if (str.length() < l) return false;
+		return str.substring(0, l).equalsIgnoreCase(match);
+	}
+	
+	static String combine(String[] args, int idx) {
+		return combine(args, idx, args.length - 1);
+	}
+	
+	static String combine(String[] args, int idx1, int idx2) {
+		StringBuilder result = new StringBuilder();
+		for (int i = idx1; i <= idx2 && i < args.length; i++) {
+			result.append(args[i]);
+			if (i < idx2) {
+				result.append(" ");
+			}
+		}
+		return result.toString();
+	}
+	
 	public abstract boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException;
+
+	void showUsage(Player player) {
+		if (usage != null) {
+			for (int i = 0; i < usage.length; i++) {
+				if (i == 0) {
+					SMSUtils.errorMessage(player, "Usage: " + usage[i]);
+				} else {
+					SMSUtils.errorMessage(player, "         " + usage[i]);
+				}
+			}
+		}
+	}
 }

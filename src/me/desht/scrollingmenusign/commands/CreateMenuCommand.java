@@ -13,12 +13,12 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 public class CreateMenuCommand extends AbstractCommand {
 
-	CreateMenuCommand() {
-		super("sms c", 1, 1);
+	public CreateMenuCommand() {
+		super("sms c", 1, 3);
 		setPermissionNode("scrollingmenusign.commands.create");
 		setUsage(new String[] { 
-				"Usage: /sms create <menu> <title>",
-				"       /sms create <menu> from <other-menu>",
+				"/sms create <menu> <title>",
+				"/sms create <menu> from <other-menu>",
 		});
 	}
 
@@ -50,12 +50,15 @@ public class CreateMenuCommand extends AbstractCommand {
 		if (args.length == 3 && args[1].equals("from")) {
 			SMSMenu otherMenu = plugin.getHandler().getMenu(args[2]);
 			menu = handler.createMenu(menuName, otherMenu, owner);
-		} else if (args.length >= 2) {
-			String menuTitle = SMSUtils.parseColourSpec(player, CommandManager.combine(args, 1));
+		} else {
+			String menuTitle = SMSUtils.parseColourSpec(player, combine(args, 1));
 			menu = handler.createMenu(menuName, menuTitle, owner);
 		}
-		menu.addSign(loc, true);
-		SMSUtils.statusMessage(player, "Created new menu &e" + menuName + "&- " +
+		if (loc != null) {
+			menu.addSign(loc, true);
+		}
+		
+		SMSUtils.statusMessage(player, "Created new menu &e" + menuName + "&-" +
 				(loc == null ? " with no signs" : " with sign @ &f" + SMSUtils.formatLocation(loc)));
 		
 		return true;

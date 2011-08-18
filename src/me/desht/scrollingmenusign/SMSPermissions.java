@@ -29,7 +29,8 @@ public class SMSPermissions {
 	}
 	
 	public static Boolean isAllowedTo(Player player, String node) {
-		if (player == null) return true;
+		if (player == null || node == null)
+			return true;
 		// if Permissions is in force, then use that
 		if (permissionHandler != null) {
 			return permissionHandler.has(player, node);

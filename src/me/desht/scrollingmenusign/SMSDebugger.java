@@ -24,7 +24,7 @@ public class SMSDebugger {
 		debuggers.remove(debuggerName(p));
 	}
 	
-	int getDebugLevel(Player p) {
+	public int getDebugLevel(Player p) {
 		String name = debuggerName(p);
 		if (!debuggers.containsKey(name) || debuggers.get(name) == 0) {
 			return 0;
@@ -33,7 +33,7 @@ public class SMSDebugger {
 		}
 	}
 	
-	void toggleDebug(Player p) {
+	public void toggleDebug(Player p) {
 		if (getDebugLevel(p) == 0) {
 			addDebugger(p, 1);
 		} else {
