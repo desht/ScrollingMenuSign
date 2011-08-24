@@ -7,6 +7,7 @@ import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MessagePager;
 
 import org.bukkit.entity.Player;
@@ -28,7 +29,10 @@ public class ShowMenuCommand extends AbstractCommand {
 			menu = handler.getMenu(args[0]);
 		} else {
 			notFromConsole(player);
-			menu = handler.getMenu(SMSMenu.getTargetedMenuSign(player, true));
+			SMSView v = SMSView.getViewForLocation(player.getTargetBlock(null, 3).getLocation());
+			if (v == null)
+				throw new SMSException("You are not looking at a menu view.");
+			menu = v.getMenu();
 		}
 		
 		MessagePager.clear(player);

@@ -10,6 +10,7 @@ import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
@@ -57,7 +58,7 @@ public class AddItemCommand extends AbstractCommand {
 		}
 		
 		menu.addItem(label, cmd, msg);
-		menu.updateSigns();
+		menu.notifyObservers(SMSMenuAction.REPAINT);
 		
 		MiscUtil.statusMessage(player, "Menu entry &f" + label + "&- added to: &e" + menuName);
 		

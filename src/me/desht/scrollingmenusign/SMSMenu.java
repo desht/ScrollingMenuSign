@@ -1,22 +1,26 @@
 package me.desht.scrollingmenusign;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
-import me.desht.scrollingmenusign.enums.MenuRemovalAction;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.views.SMSScrollableView;
+import me.desht.scrollingmenusign.views.SMSSignView;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
 
@@ -24,22 +28,18 @@ import org.bukkit.util.config.ConfigurationNode;
  * @author des
  *
  */
-public class SMSMenu {
-	private ScrollingMenuSign plugin;
+public class SMSMenu extends Observable implements Freezable {
 	private String name;
 	private String title;
 	private String owner;
 	private List<SMSMenuItem> items;
-	Map<Location, Integer> locations;	// maps sign location to scroll pos
 	private boolean autosave;
 	private boolean autosort;
 	private SMSRemainingUses uses;
 	private String defaultCommand;
 
-	private static final Map<Location, String> menuLocations = new HashMap<Location, String>();
 	private static final Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
-
-	private static final SMSMenuItem blankItem = new SMSMenuItem(null, "", "", "");
+//	private static final SMSMenuItem blankItem = new SMSMenuItem(null, "", "", "");
 
 	/**
 	 * Construct a new menu
@@ -51,12 +51,9 @@ public class SMSMenu {
 	 * @param l			Location of the menu's first sign (may be null)
 	 * @throws SMSException If there is already a menu at this location
 	 */
-	SMSMenu(ScrollingMenuSign plugin, String n, String t, String o, Location l) throws SMSException {
-		initCommon(plugin, n, t, o);
+	SMSMenu(String n, String t, String o) throws SMSException {
+		initCommon(n, t, o);
 		uses = new SMSRemainingUses(this);
-
-		if (l != null)
-			addSign(l);
 	}
 
 	/**
@@ -69,12 +66,10 @@ public class SMSMenu {
 	 * @param l			Location of the menu's first sign (may be null)
 	 * @throws SMSException  If there is already a menu at this location
 	 */
-	SMSMenu(ScrollingMenuSign plugin, SMSMenu other, String n, String o, Location l) throws SMSException {
-		initCommon(plugin, n, other.getTitle(), o);
+	SMSMenu(SMSMenu other, String n, String o) throws SMSException {
+		initCommon(n, other.getTitle(), o);
 		uses = new SMSRemainingUses(this);
 
-		if (l != null)
-			addSign(l);
 		for (SMSMenuItem item: other.getItems()) {
 			addItem(item.getLabel(), item.getCommand(), item.getMessage());
 		}
@@ -86,17 +81,32 @@ public class SMSMenu {
 	 * @param node 		A Bukkit ConfigurationNode containg the menu's properties
 	 * @throws SMSException If there is already a menu at this location
 	 */
-	@SuppressWarnings("unchecked")
-	SMSMenu(ScrollingMenuSign plugin, ConfigurationNode node) throws SMSException {
-		initCommon(plugin,
-				node.getString("name"),
-				MiscUtil.parseColourSpec(null, node.getString("title")),
-				node.getString("owner"));
+	SMSMenu(ConfigurationNode node) throws SMSException {
+		initCommon(node.getString("name"),
+		           MiscUtil.parseColourSpec(null, node.getString("title")),
+		           node.getString("owner"));
 
 		autosort = node.getBoolean("autosort", false);
 		uses = new SMSRemainingUses(this, node.getNode("usesRemaining"));
 		defaultCommand = node.getString("defaultCommand", "");
 
+		loadLegacyLocations(node);	
+
+		for (ConfigurationNode itemNode : node.getNodeList("items", null)) {
+			SMSMenuItem menuItem = new SMSMenuItem(this, itemNode);
+			addItem(menuItem);
+		}
+	}
+
+	/**
+	 * In v0.5 and older, locations were in the menu object.  Now they are in the view
+	 * object.
+	 * 
+	 * @param node
+	 * @throws SMSException
+	 */
+	@SuppressWarnings("unchecked")
+	private void loadLegacyLocations(ConfigurationNode node) throws SMSException {
 		List<Object> locs = node.getList("locations");
 		if (locs != null) {
 			// v0.3 or newer format - multiple locations per menu
@@ -105,74 +115,56 @@ public class SMSMenu {
 				World w = MiscUtil.findWorld((String) locList.get(0));
 				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
 				try {
-					addSign(loc);
+					SMSView v = SMSSignView.addSignToMenu(this, loc);
+					System.out.println("add view " + v.getName() + " to menu " + getName());
+					SMSPersistence.save(v);
 				} catch (SMSException e) {
 					MiscUtil.log(Level.WARNING, "Could not add sign to menu " + name + ": " + e.getMessage());
 				}
+				SMSPersistence.save(this);
 			}
+
 		} else {
 			// v0.2 or older
 			String worldName = node.getString("world");
-			World w = MiscUtil.findWorld(worldName);
-			List<Integer>locList = (List<Integer>) node.getIntList("location", null);
-			addSign(new Location(w, locList.get(0), locList.get(1), locList.get(2)));
-		}
-	
-		for (ConfigurationNode itemNode : node.getNodeList("items", null)) {
-			SMSMenuItem menuItem = new SMSMenuItem(this, itemNode);
-			addItem(menuItem);
+			if (worldName != null) {
+				World w = MiscUtil.findWorld(worldName);
+				List<Integer>locList = (List<Integer>) node.getIntList("location", null);
+				SMSView v = SMSSignView.addSignToMenu(this, new Location(w, locList.get(0), locList.get(1), locList.get(2)));
+				SMSPersistence.save(v);
+				SMSPersistence.save(this);
+			}
 		}
 	}
 
-	private void initCommon(ScrollingMenuSign plugin, String n, String t, String o) {
-		this.plugin = plugin;
+	private void initCommon(String n, String t, String o) {
 		items = new ArrayList<SMSMenuItem>();
 		name = n;
 		title = t;
 		owner = o;
-		locations = new HashMap<Location, Integer>();
 		autosave = SMSConfig.getConfiguration().getBoolean("sms.autosave", true);
 		autosort = false;
 		uses = new SMSRemainingUses(this);
 		defaultCommand = "";
 	}
 
-	Map<String, Object> freeze() {
+	public Map<String, Object> freeze() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 
+		List<Map<String,Object>> l = new ArrayList<Map<String, Object>>();
+		for (SMSMenuItem item : items) {
+			l.add(item.freeze());
+		}
+		
 		map.put("name", getName());
 		map.put("title", MiscUtil.unParseColourSpec(getTitle()));
 		map.put("owner", getOwner());
-		List<List<Object>> locs = new ArrayList<List<Object>>();
-		for (Location l: getLocations().keySet()) {
-			locs.add(freezeLocation(l));
-		}
-		map.put("locations", locs);
-		map.put("items", freezeItemList(getItems()));
+		map.put("items", l);
 		map.put("autosort", autosort);
 		map.put("usesRemaining", uses.freeze());
 		map.put("defaultCommand", defaultCommand);
 
 		return map;
-	}
-
-	private List<Object> freezeLocation(Location l) {
-		List<Object> list = new ArrayList<Object>();
-		list.add(l.getWorld().getName());
-		list.add(l.getBlockX());
-		list.add(l.getBlockY());
-		list.add(l.getBlockZ());
-
-		return list;
-	}
-
-
-	private List<Map<String, Object>> freezeItemList(List<SMSMenuItem> items) {
-		List<Map<String,Object>> l = new ArrayList<Map<String, Object>>();
-		for (SMSMenuItem item : items) {
-			l.add(item.freeze());
-		}
-		return l;
 	}
 
 	/**
@@ -200,6 +192,7 @@ public class SMSMenu {
 	 */
 	public void setTitle(String newTitle) {
 		title = newTitle;
+		setChanged();
 
 		autosave();
 	}
@@ -207,10 +200,22 @@ public class SMSMenu {
 	/**
 	 * Get the locations of all the menu's signs as a map.
 	 * 
+	 * @deprecated This is a view method - use query methods in SMSView instead 
 	 * @return	Map of location to integer - the current scroll position of the sign at each location
 	 */
+	@Deprecated
 	public Map<Location,Integer> getLocations() {
-		return locations;
+		Map<Location, Integer> result = new HashMap<Location, Integer>();
+		for (SMSView v : SMSView.getViewsAsArray()) {
+			if (!(v instanceof SMSSignView))
+				continue;
+			if (v.getMenu().getName().equals(getName())) {
+				for (Location loc : v.getLocations()) {
+					result.put(loc, ((SMSSignView) v).getScrollPos());
+				}
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -272,7 +277,7 @@ public class SMSMenu {
 	 */
 	public void setAutosort(boolean autosort) {
 		this.autosort = autosort;
-		
+
 		autosave();
 	}
 
@@ -294,7 +299,7 @@ public class SMSMenu {
 	 */
 	public void setDefaultCommand(String defaultCommand) {
 		this.defaultCommand = defaultCommand;
-		
+
 		autosave();
 	}
 
@@ -362,14 +367,23 @@ public class SMSMenu {
 	/**
 	 * Get the currently-selected menu item for the given sign location
 	 * 
+	 * @deprecated This is a view method - use query methods in SMSView instead 
 	 * @param l	Location of the item to check
 	 * @return	The menu item that is currently selected
 	 */
+	@Deprecated
 	public SMSMenuItem getCurrentItem(Location l) {
 		if (items.size() == 0) {
 			return null;
 		}
-		return items.get(locations.get(l));
+
+		SMSView v = SMSView.getViewForLocation(l);
+		if (v instanceof SMSSignView) {
+			int scrollPos = ((SMSSignView) v).getScrollPos();
+			return items.get(scrollPos);
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -377,7 +391,9 @@ public class SMSMenu {
 	 * 
 	 * @param l	Location of the sign to add
 	 * @throws SMSException 
+	 * @deprecated This is a view method - use query methods in SMSView instead 
 	 */
+	@Deprecated
 	public void addSign(Location l) throws SMSException {
 		addSign(l, false);
 	}
@@ -385,26 +401,27 @@ public class SMSMenu {
 	/**
 	 * Add a new sign to the menu, possibly updating its text.
 	 * 
-	 * @param l Location of the sign to add
+	 * @param loc Location of the sign to add
 	 * @param updateSignText true to immediately repaint the sign, false to leave it as is
 	 * @throws SMSException 
+	 * @deprecated This is a view method - use query methods in SMSView instead 
 	 */
-	public void addSign(Location l, boolean updateSignText) throws SMSException {
-		Block b = l.getBlock();
-
+	@Deprecated
+	public void addSign(Location loc, boolean updateSignText) throws SMSException {
+		Block b = loc.getBlock();
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			throw new SMSException("Location " + MiscUtil.formatLocation(l) + " does not contain a sign.");
+			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " does not contain a sign.");
 		}
 
-		String s = SMSMenu.getMenuNameAt(b.getLocation());
-		if (s != null) {
-			throw new SMSException("Location " + MiscUtil.formatLocation(l) + " already has a menu: " + s);
+		SMSView v = SMSView.getViewForLocation(loc);
+		if (v != null) {
+			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " already has a menu: " + v.getMenu().getName());
 		}
 
-		locations.put(l, 0);
-		menuLocations.put(l, getName());
+		SMSSignView view = new SMSSignView(this, loc);
+		addObserver(view);
 		if (updateSignText) {
-			updateSign(l);
+			view.update(this, SMSMenuAction.REPAINT);
 		}
 
 		autosave();
@@ -414,9 +431,11 @@ public class SMSMenu {
 	 * Remove a sign from the menu.  Don't do anything with the sign's text.
 	 * 
 	 * @param l Location of the sign to remove
+	 * @deprecated View method - use SMSSignView to manage views
 	 */
+	@Deprecated
 	public void removeSign(Location l) {
-		removeSign(l, MenuRemovalAction.DO_NOTHING);
+		removeSign(l, SMSMenuAction.DO_NOTHING);
 	}
 
 	/**
@@ -424,18 +443,23 @@ public class SMSMenu {
 	 * 
 	 * @param l	Location of the sign to remove
 	 * @param action	Action to take on the sign.
+	 * @deprecated View method - use SMSSignView to manage views
 	 */
-	public void removeSign(Location l, MenuRemovalAction action) {
+	@Deprecated
+	public void removeSign(Location loc, SMSMenuAction action) {
+		SMSView v = SMSView.getViewForLocation(loc);
+		if (!(v instanceof SMSSignView))
+			return;
+		SMSSignView sv = (SMSSignView) v;
+
 		switch(action) {
 		case BLANK_SIGN:
-			blankSign(l);
+			sv.blankSign();
 			break;
 		case DESTROY_SIGN:
-			destroySign(l);
+			sv.destroySign();
 			break;
 		}
-		locations.remove(l);
-		menuLocations.remove(l);
 
 		autosave();
 	}
@@ -464,6 +488,8 @@ public class SMSMenu {
 		if (autosort)
 			Collections.sort(items);
 
+		setChanged();
+		
 		autosave();
 	}
 
@@ -472,7 +498,7 @@ public class SMSMenu {
 	 */
 	public void sortItems() {
 		Collections.sort(items);
-
+		setChanged();
 		autosave();
 	}
 
@@ -510,11 +536,7 @@ public class SMSMenu {
 	public void removeItem(int index) {
 		// Java lists are 0-indexed, our signs are 1-indexed
 		items.remove(index - 1);
-		for (Location l : locations.keySet()) {
-			if (locations.get(l) >= items.size()) {
-				locations.put(l, items.size() == 0 ? 0 : items.size() - 1);
-			}
-		}
+		setChanged();
 
 		autosave();
 	}
@@ -524,83 +546,59 @@ public class SMSMenu {
 	 */
 	public void removeAllItems() {
 		items.clear();
-		for (Location l : locations.keySet()) {
-			locations.put(l, 0);
-		}
+		setChanged();
+
 		autosave();
 	}
 
 	/**
 	 * Force a repaint of all of the menu's signs
+	 * 
+	 * @deprecated  View method - use SMSSignView to manage views
 	 */
 	public void updateSigns() {
-		for (Location l : locations.keySet()) {
-			String[] lines = buildSignText(l);
-			updateSign(l, lines);
-		}
-	}		
+		notifyObservers(SMSMenuAction.REPAINT);
+	}
 
 	/**
 	 * Force a repaint of the given sign according to the current menu state
 	 * 
 	 * @param l	Location of the sign to repaint
+	 * @deprecated View method - use SMSSignView to manage views
 	 */
+	@Deprecated
 	public void updateSign(Location l) {
-		updateSign(l, null);
-	}
-
-	private void updateSign(Location l, String[] lines) {
-		Sign sign = getSign(l);
-		if (sign == null)
-			return;
-		if (lines == null)
-			lines = buildSignText(l);
-		for (int i = 0; i < lines.length; i++) {
-			sign.setLine(i, lines[i]);
-		}
-		sign.update();
+		SMSView v = SMSView.getViewForLocation(l);
+		if (v != null) 
+			v.update(this, SMSMenuAction.REPAINT);
 	}
 
 	/**
 	 * Set the currently selected item for this sign to the next item.
+	 * 
+	 * @deprecated Use SMSSignView.scrollDown()
 	 * @param l	Location of the sign
 	 */
+	@Deprecated
 	public void nextItem(Location l) {
-		if (!locations.containsKey(l))
-			return;
-		int pos = locations.get(l) + 1;
-		if (pos >= items.size())
-			pos = 0;
-		locations.put(l, pos);
+		SMSView v = SMSView.getViewForLocation(l);
+		if (v != null && v instanceof SMSScrollableView) {
+			((SMSScrollableView) v).scrollDown();
+		}
 	}
 
 	/**
 	 * Set the currently selected item for this sign to the previous item.
+	 * 
+	 * @deprecated Use SMSSignView.scrollUp()
 	 * @param l	Location of the sign
 	 */
+	@Deprecated
 	public void prevItem(Location l) {
-		if (items.size() == 0 || !locations.containsKey(l))
-			return;
-		int pos = locations.get(l) - 1;
-		if (pos < 0) pos = items.size() - 1;
-		locations.put(l, pos);
-	}
-
-	/**
-	 * Get the Bukkit Sign object at the given location.  The sign must belong to this menu.
-	 * 
-	 * @param l A location
-	 * @return	The sign
-	 */
-	private Sign getSign(Location l) {
-		if (locations.get(l) == null) {
-			return null;
+		SMSView v = SMSView.getViewForLocation(l);
+		if (v != null && v instanceof SMSScrollableView) {
+			((SMSScrollableView) v).scrollUp();
 		}
-		Block b = l.getBlock();
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			return null;
-		}
-		return (Sign) b.getState();
 	}
 
 	/**
@@ -614,110 +612,33 @@ public class SMSMenu {
 	 * Permanently delete a menu
 	 * @param action	Action to take on the menu's signs
 	 */
-	void delete(MenuRemovalAction action) {
+	void delete(SMSMenuAction action) {
 		deletePermanent(action);
 	}
 
-	// blank the signs
-	private void blankSigns() {
-		for (Location l : locations.keySet()) {
-			blankSign(l);
+	private void deleteCommon(SMSMenuAction action) throws SMSException {
+		SMSMenu.removeMenu(getName(), action);
+		
+		List<SMSView> toDelete = new ArrayList<SMSView>();
+		for (SMSView view : SMSView.listViews()) {
+			if (view.getMenu() == this)	{
+				toDelete.add(view);
+			}
+		}
+		for (SMSView view : toDelete) {
+			System.out.println("delete view " + view.getName());
+			view.deletePermanent();
 		}
 	}
-	// blank the sign at location l
-	private void blankSign(Location l) {
-		Sign sign = getSign(l);
-		if (sign == null) return;
-		for (int i = 0; i < 4; i++) {
-			sign.setLine(i, "");
-		}
-		sign.update();
-	}
-
-	// build the text for the sign based on current menu contents
-	private String[] buildSignText(Location l) {
-		String[] res = new String[4];
-
-		// first line of the sign in the menu title
-		res[0] = title;
-
-		// line 2-4 are the menu items around the current menu position
-		// line 3 is the current position
-		String prefix1 = SMSConfig.getConfiguration().getString("sms.item_prefix.not_selected", "  ");
-		String prefix2 = SMSConfig.getConfiguration().getString("sms.item_prefix.selected", "> ");
-
-		res[1] = String.format(makePrefix(prefix1), getLine2Item(l).getLabel());
-		res[2] = String.format(makePrefix(prefix2), getLine3Item(l).getLabel());
-		res[3] = String.format(makePrefix(prefix1), getLine4Item(l).getLabel());
-
-		return res;
-	}
-
-	private String makePrefix(String prefix) {
-		String just = SMSConfig.getConfiguration().getString("sms.item_justify", "left");
-		int l = 15 - prefix.length();
-		String s = "";
-		if (just.equals("left"))
-			s =  prefix + "%1$-" + l + "s";
-		else if (just.equals("right"))
-			s = prefix + "%1$" + l + "s";
-		else
-			s = prefix + "%1$s";
-		return MiscUtil.parseColourSpec(null, s);
-	}
-
-	// Get line 2 of the sign (item before the current item, or blank
-	// if the menu has less than 3 items)
-	private SMSMenuItem getLine2Item(Location l) {
-		if (items.size() < 3) {
-			return blankItem;	
-		}
-		int prev_pos = locations.get(l) - 1;
-		if (prev_pos < 0) {
-			prev_pos = items.size() - 1;
-		}
-		return items.get(prev_pos);
-	}
-
-	// Get line 3 of the sign (this is the currently selected item)
-	private SMSMenuItem getLine3Item(Location l) {
-		if (items.size() < 1) {
-			return blankItem;
-		}
-		return items.get(locations.get(l));
-	}
-
-	// Get line 4 of the sign (item after the current item, or blank
-	// if the menu has less than 2 items)
-	private SMSMenuItem getLine4Item(Location l) {
-		if (items.size() < 2) {
-			return blankItem;
-		}
-		int next_pos = locations.get(l) + 1;
-		if (next_pos >= items.size()) {
-			next_pos = 0;
-		}
-		return items.get(next_pos);
-	}
-
-	private void destroySigns() {
-		for (Location l: getLocations().keySet()) {
-			destroySign(l);
-		}
-	}
-
-	private void destroySign(Location l) {
-		l.getBlock().setTypeId(0);
-	}
-
+	
 	void deletePermanent() {
-		deletePermanent(MenuRemovalAction.BLANK_SIGN);
+		deletePermanent(SMSMenuAction.BLANK_SIGN);
 	}
 
-	void deletePermanent(MenuRemovalAction action) {
+	void deletePermanent(SMSMenuAction action) {
 		try {
-			SMSMenu.removeMenu(getName(), action);
-			plugin.getPersistence().unPersist(this);
+			deleteCommon(action);
+			SMSPersistence.unPersist(this);
 		} catch (SMSException e) {
 			// Should not get here
 			MiscUtil.log(Level.WARNING, "Impossible: deletePermanent got SMSException?");
@@ -726,7 +647,7 @@ public class SMSMenu {
 
 	void deleteTemporary() {
 		try {
-			SMSMenu.removeMenu(getName(), MenuRemovalAction.DO_NOTHING);
+			deleteCommon(SMSMenuAction.DO_NOTHING);
 		} catch (SMSException e) {
 			// Should not get here
 			MiscUtil.log(Level.WARNING, "Impossible: deleteTemporary got SMSException?");
@@ -736,7 +657,7 @@ public class SMSMenu {
 	void autosave() {
 		// we only save menus which have been registered via SMSMenu.addMenu()
 		if (autosave && SMSMenu.checkForMenu(getName()))
-			plugin.getPersistence().save(this);
+			SMSPersistence.save(this);
 	}
 
 	/**************************************************************************/
@@ -750,11 +671,9 @@ public class SMSMenu {
 	 */
 	static void addMenu(String menuName, SMSMenu menu, Boolean updateSign) {
 		menus.put(menuName, menu);
-		for (Location l: menu.getLocations().keySet()) {
-			menuLocations.put(l, menuName);
-		}
+
 		if (updateSign) {
-			menu.updateSigns();
+			menu.notifyObservers(SMSMenuAction.REPAINT);
 		}
 
 		menu.autosave();
@@ -767,19 +686,9 @@ public class SMSMenu {
 	 * @param action	Action to take on removal
 	 * @throws SMSException
 	 */
-	static void removeMenu(String menuName, MenuRemovalAction action) throws SMSException {
+	static void removeMenu(String menuName, SMSMenuAction action) throws SMSException {
 		SMSMenu menu = getMenu(menuName);
-		switch(action) {
-		case DESTROY_SIGN:
-			menu.destroySigns();
-			break;
-		case BLANK_SIGN:
-			menu.blankSigns();
-			break;
-		}
-		for (Location loc: menu.getLocations().keySet()) {
-			menuLocations.remove(loc);
-		}
+		menu.notifyObservers(action);
 		menus.remove(menuName);
 	}
 
@@ -789,18 +698,18 @@ public class SMSMenu {
 	 * @return	The menu object
 	 * @throws SMSException if the menu name is not found
 	 */
-	static SMSMenu getMenu(String menuName) throws SMSException {
+	public static SMSMenu getMenu(String menuName) throws SMSException {
 		if (!menus.containsKey(menuName))
 			throw new SMSException("No such menu '" + menuName + "'.");
 		return menus.get(menuName);
 	}
 
 	/**
-	 * Cause the signs on all menus to be redrawn
+	 * Cause the views on all menus to be redrawn
 	 */
 	public static void updateAllMenus(){
 		for (SMSMenu menu : listMenus()) {
-			menu.updateSigns();
+			menu.notifyObservers(SMSMenuAction.REPAINT);
 		}
 	}
 
@@ -811,7 +720,8 @@ public class SMSMenu {
 	 * @return	The menu name, or null if there is no menu sign at the location
 	 */
 	static String getMenuNameAt(Location loc) {
-		return menuLocations.get(loc);
+		SMSView v = SMSView.getViewForLocation(loc);
+		return v == null ? null : v.getMenu().getName();
 	}
 
 	/**
@@ -909,5 +819,10 @@ public class SMSMenu {
 		} else {
 			return uses.toString(player.getName());
 		}
+	}
+
+	@Override
+	public File getSaveFolder() {
+		return SMSConfig.getMenusFolder();
 	}
 }

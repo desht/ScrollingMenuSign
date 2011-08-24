@@ -2,10 +2,9 @@ package me.desht.scrollingmenusign.listeners;
 
 import java.util.logging.Level;
 
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
@@ -25,27 +24,23 @@ public class SMSEntityListener extends EntityListener {
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
 		Boolean noExplode = plugin.getConfiguration().getBoolean("sms.no_explosions", false);
-		SMSHandler handler = plugin.getHandler();
 		for (Block b : event.blockList()) {
 			if (b.getType() != Material.WALL_SIGN && b.getType() != Material.SIGN_POST)
 				continue;
-			String menuName = handler.getMenuNameAt(b.getLocation());
-			if (menuName == null)
+			
+			Location loc = b.getLocation();
+			SMSView view = SMSView.getViewForLocation(loc);
+			if (view == null)
 				continue;
 			
-			plugin.debug("entity explode event @ " + b.getLocation() + ", menu=" + menuName);
-			Location loc = b.getLocation();
+			SMSMenu menu = view.getMenu();
+			plugin.debug("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
 			if (noExplode) {
-				MiscUtil.log(Level.INFO, "stopped an explosion to protect sign @ " + MiscUtil.formatLocation(loc) + " (menu " + menuName + ")");
+				MiscUtil.log(Level.INFO, "stopped an explosion to protect view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ")");
 				event.setCancelled(true);
 				break;
 			} else {
-				try {
-					SMSMenu menu = handler.getMenuAt(loc);
-					menu.removeSign(loc);
-				} catch (SMSException e) {
-					MiscUtil.log(Level.WARNING, e.getMessage());
-				}
+				view.deletePermanent();
 			}
 		}
 	}

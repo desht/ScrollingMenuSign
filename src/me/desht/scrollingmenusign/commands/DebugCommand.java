@@ -1,6 +1,5 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.util.MiscUtil;
 
@@ -15,7 +14,7 @@ public class DebugCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) {
 		plugin.getDebugger().toggleDebug(player);
 		int level = plugin.getDebugger().getDebugLevel(player);
 		if (level > 0) {

@@ -2,12 +2,12 @@ package me.desht.scrollingmenusign.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MessagePager;
 import me.desht.util.MiscUtil;
 
@@ -47,16 +47,18 @@ public class ListMenusCommand extends AbstractCommand {
 	}
 
 	private void listMenu(Player player, SMSMenu menu) {
-		Map<Location,Integer> locs = menu.getLocations();
-		ChatColor signCol = locs.size() > 0 ? ChatColor.YELLOW : ChatColor.RED;
-		String message = String.format("&e%s &2\"%s&2\" &e[%d items] %s[%d signs]",
+		List<SMSView> views = SMSView.getViewsForMenu(menu);
+		
+		ChatColor viewCol = views.size() > 0 ? ChatColor.YELLOW : ChatColor.RED;
+		String message = String.format("&e%s &2\"%s&2\" &e[%d items] %s[%d views]",
 		                               menu.getName(), menu.getTitle(), menu.getItemCount(),
-		                               signCol.toString(), locs.size());
-		List<String> l = new ArrayList<String>();
-		l.add(message);
-		for (Location loc: locs.keySet()) {
-			l.add(" &5*&- " + MiscUtil.formatLocation(loc));
+		                               viewCol.toString(), views.size());
+		List<String> lines = new ArrayList<String>();
+		lines.add(message);
+		for (SMSView v : views) {
+			Location[] locs = v.getLocationsArray();
+			lines.add(" &5*&- " + MiscUtil.formatLocation(locs[0]));
 		}
-		MessagePager.add(player, l);
+		MessagePager.add(player, lines);
 	}
 }

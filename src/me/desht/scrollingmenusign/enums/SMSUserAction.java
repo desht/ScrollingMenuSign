@@ -7,46 +7,46 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 
-public enum SMSAction {
+public enum SMSUserAction {
 	NONE, SCROLLDOWN, SCROLLUP, EXECUTE;
 	
-	public static SMSAction getAction(PlayerInteractEvent event) {
+	public static SMSUserAction getAction(PlayerInteractEvent event) {
 		Action a = event.getAction();
 		Player player = event.getPlayer();
 		
-		String key;
+		StringBuilder key;
 		if (a == Action.RIGHT_CLICK_BLOCK ) {
-			key = "sms.actions.rightclick.";
+			key = new StringBuilder("sms.actions.rightclick.");
 		} else if (a == Action.LEFT_CLICK_BLOCK) {
-			key = "sms.actions.leftclick.";
+			key = new StringBuilder("sms.actions.leftclick.");
 		} else {
 			return null;
 		}
 		return _makeAction(player, key);
 	}
 
-	public static SMSAction getAction(PlayerItemHeldEvent event) {
+	public static SMSUserAction getAction(PlayerItemHeldEvent event) {
 		Player player = event.getPlayer();
 		
 		int delta = event.getNewSlot() - event.getPreviousSlot();
-		String key;
+		StringBuilder key;
 		if (delta == -1 || delta == 8) {
-			key = "sms.actions.wheelup.";
+			key = new StringBuilder("sms.actions.wheelup.");
 		} else if (delta == 1 || delta == -8) {
-			key = "sms.actions.wheeldown.";
+			key = new StringBuilder("sms.actions.wheeldown.");
 		} else {
 			return null;
 		}
 		return _makeAction(player, key);
 	}
 
-	private static SMSAction _makeAction(Player player, String key) {
+	private static SMSUserAction _makeAction(Player player, StringBuilder key) {
 		if (player.isSneaking())
-			key = key + "sneak";
+			key.append("sneak");
 		else 
-			key = key + "normal";
+			key.append("normal");
 		
-		String s = SMSConfig.getConfiguration().getString(key, "none");
-		return SMSAction.valueOf(s.toUpperCase());
+		String s = SMSConfig.getConfiguration().getString(key.toString(), "none");
+		return SMSUserAction.valueOf(s.toUpperCase());
 	}
 }

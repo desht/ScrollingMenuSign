@@ -4,6 +4,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
@@ -39,7 +40,7 @@ public class SortMenuCommand extends AbstractCommand {
 			menu.sortItems();
 			MiscUtil.statusMessage(player, "Menu &e" + menu.getName() + "&- has been sorted (autosort disabled)");
 		}
-		menu.updateSigns();
+		menu.notifyObservers(SMSMenuAction.REPAINT);
 		
 		return true;
 	}

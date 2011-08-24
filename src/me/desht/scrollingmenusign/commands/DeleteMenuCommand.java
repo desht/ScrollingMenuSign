@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 public class DeleteMenuCommand extends AbstractCommand {
 	
 	public DeleteMenuCommand() {
-		super("sms d", 0, 1);
+		super("sms del", 0, 1);
 		setPermissionNode("scrollingmenusign.commands.delete");
 		setUsage("/sms delete <menu>");
 	}

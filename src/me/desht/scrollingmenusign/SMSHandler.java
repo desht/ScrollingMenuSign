@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign;
 import java.util.List;
 
 import me.desht.scrollingmenusign.enums.MenuRemovalAction;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -33,12 +34,23 @@ public interface SMSHandler {
 	 * @throws SMSException	if the menu does not exist
 	 */
 	public void deleteMenu(String name) throws SMSException;
+	
 	/**
 	 * Delete a menu, carrying out an action on each of the menu's signs
 	 * @param menuName	Name of the menu to delete
 	 * @param action	One of DO_NOTHING, BLANK_SIGNS, DESTROY_SIGNS
 	 * @throws SMSException	if the menu does not exist
 	 */
+	public void deleteMenu(String menuName, SMSMenuAction action) throws SMSException;
+	
+	/**
+	 * Delete a menu, carrying out an action on each of the menu's signs
+	 * @param menuName	Name of the menu to delete
+	 * @param action	One of DO_NOTHING, BLANK_SIGNS, DESTROY_SIGNS
+	 * @throws SMSException	if the menu does not exist
+	 * @deprecated Use deleteMenu(String menuName, SMSMenuAction action)
+	 */
+	@Deprecated
 	public void deleteMenu(String menuName, MenuRemovalAction action) throws SMSException;
 	
 	/**

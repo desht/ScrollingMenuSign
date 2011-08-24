@@ -17,11 +17,12 @@ public class SMSConfig {
 	private static ScrollingMenuSign plugin = null;
 
 	private static File pluginDir;
-	private static File dataDir, menusDir;
+	private static File dataDir, menusDir, viewsDir;
 	private static File commandFile;
 	
 	private static final String dataDirName = "data";
 	private static final String menusDirName = "menus";
+	private static final String viewsDirName = "views";
 	private static final String commandFileName = "commands.yml";
 	
 	@SuppressWarnings("serial")
@@ -60,10 +61,12 @@ public class SMSConfig {
 		commandFile = new File(pluginDir, commandFileName);
 		dataDir = new File(pluginDir, dataDirName);
 		menusDir = new File(dataDir, menusDirName);
+		viewsDir = new File(dataDir, viewsDirName);
 		
 		createDirectory(pluginDir);
 		createDirectory(dataDir);
 		createDirectory(menusDir);
+		createDirectory(viewsDir);
 	}
 
 	private static void createDirectory(File dir) {
@@ -94,22 +97,26 @@ public class SMSConfig {
 		if (saveNeeded) config.save();
 	}
 	
-	static File getCommandFile() {
+	public static File getCommandFile() {
 		return commandFile;
 	}
 	
-	static File getPluginFolder() {
+	public static File getPluginFolder() {
 		return pluginDir;
 	}
 	
-	static File getDataFolder() {
+	public static File getDataFolder() {
 		return dataDir;
 	}
 	
-	static File getMenusFolder() {
+	public static File getMenusFolder() {
 		return menusDir;
 	}
 
+	public static File getViewsFolder() {
+		return viewsDir;
+	}
+	
 	public static void setConfigItem(Player player, String key, String val) throws SMSException {
 		if (key.length() < 5 || !key.substring(0, 4).equals("sms.")) {
 			key = "sms." + key;

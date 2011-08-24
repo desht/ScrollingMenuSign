@@ -4,23 +4,22 @@ import java.util.List;
 
 
 import me.desht.scrollingmenusign.enums.MenuRemovalAction;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class SMSHandlerImpl implements SMSHandler {
-	private ScrollingMenuSign plugin;
 	
-	SMSHandlerImpl(ScrollingMenuSign plugin) {
-		this.plugin = plugin;
+	SMSHandlerImpl() {
 	}
 	
 	@Override
 	public SMSMenu createMenu(String name, String title, String owner) {
 		SMSMenu menu;
 		try {
-			menu = new SMSMenu(plugin, name, MiscUtil.parseColourSpec(title), owner, null);
+			menu = new SMSMenu(name, MiscUtil.parseColourSpec(title), owner);
 		} catch (SMSException e) {
 			// should not get here
 			return null;
@@ -33,7 +32,7 @@ public class SMSHandlerImpl implements SMSHandler {
 	public SMSMenu createMenu(String name, SMSMenu otherMenu, String owner) {
 		SMSMenu menu;
 		try {
-			menu = new SMSMenu(plugin, otherMenu, name, owner, null);
+			menu = new SMSMenu(otherMenu, name, owner);
 		} catch (SMSException e) {
 			// should not get here
 			return null;
@@ -53,8 +52,15 @@ public class SMSHandlerImpl implements SMSHandler {
 	}
 
 	@Override
-	public void deleteMenu(String name, MenuRemovalAction action) throws SMSException {
+	public void deleteMenu(String name, SMSMenuAction action) throws SMSException {
 		SMSMenu.getMenu(name).deletePermanent(action);
+	}
+
+	@Override
+	@Deprecated
+	public void deleteMenu(String menuName, MenuRemovalAction action) throws SMSException {
+		SMSMenuAction sAction = SMSMenuAction.valueOf(action.toString());
+		deleteMenu(menuName, sAction);
 	}
 
 	@Override

@@ -1,11 +1,8 @@
 package me.desht.scrollingmenusign.listeners;
 
-import java.util.logging.Level;
-
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
@@ -31,29 +28,23 @@ public class SMSBlockListener extends BlockListener {
 	public void onBlockDamage(BlockDamageEvent event) {
 		if (event.isCancelled()) return;
 		
-		SMSHandler handler = plugin.getHandler();
 		Block b = event.getBlock();
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
 			return;
-		}
-		String menuName = handler.getMenuNameAt(b.getLocation());
-		if (menuName == null) {
+		}	
+		Location loc = b.getLocation();
+		SMSView view = SMSView.getViewForLocation(loc);
+		if (view == null)
 			return;
-		}
-		plugin.debug("block damage event @ " + b.getLocation() + ", menu=" + menuName);
+		
+		SMSMenu menu = view.getMenu();
+		plugin.debug("block damage event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
 		Player p = event.getPlayer();
-		try { 
-			SMSMenu menu = handler.getMenu(menuName);
-			if (p.getName().equals(menu.getOwner()) || PermissionsUtils.isAllowedTo(p, "scrollingmenusign.destroy")) {
-				// do nothing, allow damage to continue
-			} else {
-				// don't allow destruction
-				event.setCancelled(true);
-				handler.getMenu(menuName).updateSign(b.getLocation());
-			}
-		} catch (SMSException e) {
-			MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
-		}
+		if (p.getName().equalsIgnoreCase(menu.getOwner()) || PermissionsUtils.isAllowedTo(p, "scrollingmenusign.destroy")) 
+			return;
+
+		// don't allow destruction
+		event.setCancelled(true);
 	}
 	
 	@Override
@@ -62,21 +53,15 @@ public class SMSBlockListener extends BlockListener {
 		
 		Block b = event.getBlock();
 		Player p = event.getPlayer();
-
-		try {
-			SMSHandler handler = plugin.getHandler();
-			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-				String menuName = handler.getMenuNameAt(b.getLocation());
-				if (menuName != null) {
-					SMSMenu menu = handler.getMenu(menuName);
-					plugin.debug("block break event @ " + b.getLocation() + ", menu=" + menuName);
-					Location l = b.getLocation();
-					menu.removeSign(l);
-					MiscUtil.statusMessage(p, "Sign @ &f" + MiscUtil.formatLocation(l) + "&- was removed from menu &e" + menuName + "&-");
-				}
+		
+		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
+			Location loc = b.getLocation();
+			SMSView view = SMSView.getViewForLocation(loc);
+			if (view != null) {
+				plugin.debug("block break event @ " + b.getLocation() + ", menu=" + view.getMenu().getName());
+				view.deletePermanent();
+				MiscUtil.statusMessage(p, "Sign @ &f" + MiscUtil.formatLocation(loc) + "&- was removed from menu &e" + view.getMenu().getName() + "&-");
 			}
-		} catch (SMSException e) {
-			MiscUtil.errorMessage(p, e.getMessage());
 		}
 	}
 
@@ -84,25 +69,20 @@ public class SMSBlockListener extends BlockListener {
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (event.isCancelled()) return;
 		
-		SMSHandler handler = plugin.getHandler();
 		Block b = event.getBlock();
 		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-			String menuName = handler.getMenuNameAt(b.getLocation());
-			if (menuName != null) {
-				plugin.debug("block physics event @ " + b.getLocation() + ", menu=" + menuName);
+			Location loc = b.getLocation();
+			SMSView view = SMSView.getViewForLocation(loc);
+			if (view != null) {
+				plugin.debug("block physics event @ " + b.getLocation() + ", menu=" + view.getMenu().getName());
 				if (plugin.getConfiguration().getBoolean("sms.no_physics", false)) {
 					event.setCancelled(true);
 				} else {
-					try {
-						Sign s = (Sign) b.getState().getData();
-						Block attachedBlock = b.getRelative(s.getAttachedFace());
-						if (attachedBlock.getTypeId() == 0) {
-							// attached to air? looks like the sign has become detached
-							SMSMenu menu = handler.getMenu(menuName);
-							menu.removeSign(b.getLocation());
-						}
-					} catch (SMSException e) {
-						MiscUtil.log(Level.WARNING, e.getMessage());
+					Sign s = (Sign) b.getState().getData();
+					Block attachedBlock = b.getRelative(s.getAttachedFace());
+					if (attachedBlock.getTypeId() == 0) {
+						// attached to air? looks like the sign has become detached
+						view.deletePermanent();
 					}
 				}
 			}

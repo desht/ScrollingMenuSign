@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.util.config.Configuration;
@@ -18,7 +20,6 @@ import org.bukkit.util.config.ConfigurationNode;
 import org.yaml.snakeyaml.reader.ReaderException;
 
 public class SMSPersistence {
-	private ScrollingMenuSign plugin;
 
 	private static final FilenameFilter ymlFilter = new FilenameFilter() {
 
@@ -28,28 +29,65 @@ public class SMSPersistence {
 		}
 	};
 	
-	SMSPersistence(ScrollingMenuSign plugin) {
-		this.plugin = plugin;
+	static void init() {
 	}
 	
-	void saveAll() {
+	public static void unPersist(Freezable object) {
+		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
+		if (!saveFile.delete()) {
+			MiscUtil.log(Level.WARNING, "can't delete " + saveFile);
+		}
+	}
+
+	static void saveAll() {
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			save(menu);
 		}
-		MiscUtil.log(Level.INFO, "saved " + SMSMenu.listMenus().size() + " menus to file.");
+		for (SMSView view : SMSView.listViews()) {
+			save(view);
+		}
+		MiscUtil.log(Level.INFO, "saved " + SMSMenu.listMenus().size() + " menus " +
+		             " and " + SMSView.listViews().size() + " views to file.");
 	}
 	
-	void save(SMSMenu menu) {
-		File menusFile = new File(SMSConfig.getMenusFolder(), menu.getName() + ".yml");
-		Configuration conf = new Configuration(menusFile);
-		Map<String, Object> map = menu.freeze();
+	public static void save(Freezable object) {
+		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
+		Configuration conf = new Configuration(saveFile);
+		Map<String, Object> map = object.freeze();
 		for (Entry<String, Object> e : map.entrySet()) {
 			conf.setProperty(e.getKey(), e.getValue());
 		}
 		conf.save();
 	}
 	
-	void loadAll() {
+	static void loadAll() {
+		loadMenus();
+		loadViews();
+	}
+
+	private static void loadViews() {
+		for (SMSView view : SMSView.listViews()) {
+			view.deleteTemporary();
+		}
+		
+		for (File f : SMSConfig.getViewsFolder().listFiles(ymlFilter)) {
+			try {
+				Configuration conf = new Configuration(f);
+				conf.load();
+				SMSView view = SMSView.load(conf);
+				if (view != null) {
+					view.getMenu().addObserver(view);
+					view.update(view.getMenu(), SMSMenuAction.REPAINT);
+				}
+			} catch (ReaderException e)	{
+				MiscUtil.log(Level.WARNING, "caught exception while loading view file " +
+						f + ": " + e.getMessage());
+				backupMenuFile(f);
+			}
+		}
+	}
+
+	private static void loadMenus() {
 		final File oldMenusFile = new File(SMSConfig.getPluginFolder(), "scrollingmenus.yml");
 		
 		for (SMSMenu menu : SMSMenu.listMenus()) {
@@ -67,7 +105,7 @@ public class SMSPersistence {
 				try {
 					Configuration conf = new Configuration(f);
 					conf.load();
-					SMSMenu menu = new SMSMenu(plugin, conf);
+					SMSMenu menu = new SMSMenu(conf);
 					SMSMenu.addMenu(menu.getName(), menu, true);
 					
 				} catch (ReaderException e)	{
@@ -82,21 +120,14 @@ public class SMSPersistence {
 		}
 	}
 	
-	void unPersist(SMSMenu menu) {
-		File menusFile = new File(SMSConfig.getMenusFolder(), menu.getName() + ".yml");
-		if (!menusFile.delete()) {
-			MiscUtil.log(Level.WARNING, "can't delete " + menusFile);
-		}
-	}
-
-	private void oldStyleLoad(File menusFile) {	
+	private static void oldStyleLoad(File menusFile) {	
 		try {
 			Configuration conf = new Configuration(menusFile);
 			conf.load();
 			for (String menuName : conf.getKeys()) {
 				ConfigurationNode cn = conf.getNode(menuName);
 				cn.setProperty("name", menuName);
-				SMSMenu menu = new SMSMenu(plugin, cn);
+				SMSMenu menu = new SMSMenu(cn);
 				SMSMenu.addMenu(menu.getName(), menu, true);
 			}
 		} catch (ReaderException e) {
@@ -108,7 +139,7 @@ public class SMSPersistence {
 		MiscUtil.log(Level.INFO, "read " + SMSMenu.listMenus().size() + " menus from file.");
 	}	
 
-	void backupMenuFile(File original) {
+	static void backupMenuFile(File original) {
         try {
         	File backup = getBackupFileName(original.getParentFile(), original.getName());
 

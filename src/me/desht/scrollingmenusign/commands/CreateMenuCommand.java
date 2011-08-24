@@ -9,6 +9,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.util.MiscUtil;
 
 public class CreateMenuCommand extends AbstractCommand {
@@ -55,11 +56,11 @@ public class CreateMenuCommand extends AbstractCommand {
 			menu = handler.createMenu(menuName, menuTitle, owner);
 		}
 		if (loc != null) {
-			menu.addSign(loc, true);
+			SMSSignView.addSignToMenu(menu, loc);
 		}
 		
 		MiscUtil.statusMessage(player, "Created new menu &e" + menuName + "&-" +
-				(loc == null ? " with no signs" : " with sign @ &f" + MiscUtil.formatLocation(loc)));
+				(loc == null ? " with no views" : " with sign view @ &f" + MiscUtil.formatLocation(loc)));
 		
 		return true;
 	}

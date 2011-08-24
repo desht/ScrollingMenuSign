@@ -45,9 +45,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	private final SMSPlayerListener signListener = new SMSPlayerListener(this);
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
-	private final SMSPersistence persistence = new SMSPersistence(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
-	private final SMSHandlerImpl handler = new SMSHandlerImpl(this);
+	private final SMSHandlerImpl handler = new SMSHandlerImpl();
 	private final CommandManager cmds = new CommandManager(this);
 	
 	private final Debugger debugger = new Debugger();
@@ -56,6 +55,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public void onEnable() {
 		description = this.getDescription();
 
+		SMSPersistence.init();
 		SMSConfig.init(this);
 
 		PermissionsUtils.setup();
@@ -135,7 +135,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 
 	public void loadMenus() {
-		persistence.loadAll();
+		SMSPersistence.loadAll();
 	}
 	
 	public void loadMacros() {
@@ -143,7 +143,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 	
 	public void saveMenus() {
-		persistence.saveAll();
+		SMSPersistence.saveAll();
 	}
 	
 	public void saveMacros() {
@@ -152,10 +152,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 	
 	public void debug(String message) {
 		getDebugger().debug(message);
-	}
-	
-	SMSPersistence getPersistence() {
-		return persistence;
 	}
 	
 	public SMSHandler getHandler() {

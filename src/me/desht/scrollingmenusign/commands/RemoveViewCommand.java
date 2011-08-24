@@ -1,10 +1,8 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSHandler;
-import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.MenuRemovalAction;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
@@ -34,16 +32,13 @@ public class RemoveViewCommand extends AbstractCommand {
 			}
 		}
 		
-		SMSHandler handler = plugin.getHandler();
-		String menuName = handler.getMenuNameAt(loc);
-		if (menuName != null) {
-			SMSMenu menu = handler.getMenu(menuName);
-			menu.removeSign(loc, MenuRemovalAction.BLANK_SIGN);
-			MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(loc) +
-			                       "&- was removed from menu &e" + menu.getName() + "&-.");	
-		} else {
-			throw new SMSException("You are not looking at a menu.");
-		}
+		SMSView view = SMSView.getViewForLocation(loc);
+		if (view == null)
+			throw new SMSException("You are not looking at a menu view.");
+		
+		MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(loc) +
+		                       "&- was removed from menu &e" + view.getMenu().getName() + "&-.");	
+		view.deletePermanent();
 		
 		return true;
 	}

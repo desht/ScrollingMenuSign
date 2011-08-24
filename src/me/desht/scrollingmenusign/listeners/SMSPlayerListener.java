@@ -7,7 +7,11 @@ import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSAction;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.enums.SMSUserAction;
+import me.desht.scrollingmenusign.views.SMSScrollableView;
+import me.desht.scrollingmenusign.views.SMSSignView;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
@@ -29,30 +33,27 @@ public class SMSPlayerListener extends PlayerListener {
 	
 	@Override
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.isCancelled()) {
+		if (event.isCancelled())
 			return;
-		}
 		Block block = event.getClickedBlock();
-		if (block == null || !(block.getState() instanceof Sign)) {
+		if (block == null)
 			return;
-		}
+		
 		Player player = event.getPlayer();
 		
-		SMSHandler handler = plugin.getHandler();
-		String menuName = handler.getMenuNameAt(block.getLocation());
+		SMSView view = SMSView.getViewForLocation(block.getLocation());
 		try {
-			if (menuName == null) {
-				// No menu attached to this sign, but a left-click could create a new menu if the sign's
+			if (view == null && block.getState() instanceof Sign) {
+				// No view present at this location, but a left-click could create a new sign view if the sign's
 				// text is in the right format...
 				if (event.getAction() == Action.LEFT_CLICK_BLOCK && player.getItemInHand().getTypeId() == 0) {
 					tryToActivateSign(block, player); 
 				}
-			} else {
-				// ok, it's a sign, and there's a menu on it
-				plugin.debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + menuName);
-				SMSMenu menu = handler.getMenu(menuName);
-				SMSAction action = SMSAction.getAction(event);
-				processAction(action, player, menu, block.getLocation());
+			} else if (view != null) {
+				// ok, there's a view here
+				plugin.debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + view.getMenu().getName());
+				SMSUserAction action = SMSUserAction.getAction(event);
+				processAction(action, player, view, block.getLocation());
 			}
 		} catch (SMSException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
@@ -62,55 +63,46 @@ public class SMSPlayerListener extends PlayerListener {
 	@Override
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
 		try {
-			SMSHandler handler = plugin.getHandler();
 			Player player = event.getPlayer();
-			Block b = player.getTargetBlock(null, 3);
-			String menuName = handler.getMenuNameAt(b.getLocation());
-			if (menuName == null)
+			Block block = player.getTargetBlock(null, 3);
+			SMSView view = SMSView.getViewForLocation(block.getLocation());
+			if (view == null)
 				return;
-			SMSMenu menu = handler.getMenu(menuName);
-			SMSAction action = SMSAction.getAction(event);
-			processAction(action, player, menu, b.getLocation());
+			SMSUserAction action = SMSUserAction.getAction(event);
+			processAction(action, player, view, block.getLocation());
 		} catch (SMSException e) {
 			MiscUtil.log(Level.WARNING, e.getMessage());
 		}
 	}
 
-	private void processAction(SMSAction action, Player p, SMSMenu menu, Location l) throws SMSException {
+	private void processAction(SMSUserAction action, Player p, SMSView view, Location l) throws SMSException {
 		if (action == null)
 			return;
 		
+		SMSScrollableView sview;
+		if (view instanceof SMSScrollableView) {
+			sview = (SMSScrollableView) view;
+		} else {
+			return;
+		}
+		SMSMenu menu = sview.getMenu();
 		switch (action) {
 		case EXECUTE:
-			executeMenu(p, menu, l);
+			SMSMenuItem item = menu.getItem(sview.getScrollPos());
+			executeItem(p, item);
 			break;
 		case SCROLLDOWN:
+			sview.scrollDown();
+			sview.update(menu, SMSMenuAction.REPAINT);
+			break;
 		case SCROLLUP:
-			scrollMenu(p, menu, l, action);
+			sview.scrollUp();
+			sview.update(menu, SMSMenuAction.REPAINT);
 			break;
 		}
 	}
 	
-	private void scrollMenu(Player player, SMSMenu menu, Location l, SMSAction dir) throws SMSException {
-		if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.scroll"))
-			return;
-		
-		switch (dir) {
-		case SCROLLDOWN:
-			menu.nextItem(l);
-			break;
-		case SCROLLUP:
-			menu.prevItem(l);
-			break;
-		}
-		menu.updateSign(l);
-	}
-
-	private void executeMenu(Player player, SMSMenu menu, Location l) throws SMSException {
-		if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute"))
-			return;
-		
-		SMSMenuItem item = menu.getCurrentItem(l);
+	private void executeItem(Player player, SMSMenuItem item) throws SMSException {
 		if (item != null) {
 			item.execute(player);
 			item.feedbackMessage(player);
@@ -133,7 +125,7 @@ public class SMSPlayerListener extends PlayerListener {
 				PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 				try {
 					SMSMenu menu = handler.getMenu(name);
-					menu.addSign(b.getLocation(), true);
+					SMSSignView.addSignToMenu(menu, b.getLocation());
 					MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(b.getLocation()) +
 							"&- was added to menu &e" + name + "&-");
 				} catch (SMSException e) {
@@ -145,7 +137,7 @@ public class SMSPlayerListener extends PlayerListener {
 		} else if (title.length() > 0) {
 			PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.create");
 			SMSMenu menu = plugin.getHandler().createMenu(name, title, player.getName());
-			menu.addSign(b.getLocation(), true);
+			SMSSignView.addSignToMenu(menu, b.getLocation());
 			MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(b.getLocation()) +
 					"&- was added to new menu &e" + name + "&-");
 		}
