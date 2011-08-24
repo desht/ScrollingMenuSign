@@ -79,11 +79,11 @@ public class ScrollingMenuSign extends JavaPlugin {
 		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 			@Override
 			public void run() {
-				loadMenus();
+				loadMenusAndViews();
 			}
 		})==-1) {
 			MiscUtil.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
-			loadMenus();
+			loadMenusAndViews();
 		}
 
 		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
@@ -134,7 +134,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is disabled!" );
 	}
 
-	public void loadMenus() {
+	public void loadMenusAndViews() {
 		SMSPersistence.loadAll();
 	}
 	

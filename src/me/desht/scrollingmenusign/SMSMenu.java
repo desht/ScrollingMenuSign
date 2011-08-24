@@ -617,8 +617,10 @@ public class SMSMenu extends Observable implements Freezable {
 	}
 
 	private void deleteCommon(SMSMenuAction action) throws SMSException {
-		SMSMenu.removeMenu(getName(), action);
-		
+		SMSMenu.removeMenu(getName(), action);	
+	}
+
+	private void deleteAllViews() {
 		List<SMSView> toDelete = new ArrayList<SMSView>();
 		for (SMSView view : SMSView.listViews()) {
 			if (view.getMenu() == this)	{
@@ -638,6 +640,7 @@ public class SMSMenu extends Observable implements Freezable {
 	void deletePermanent(SMSMenuAction action) {
 		try {
 			deleteCommon(action);
+			deleteAllViews();
 			SMSPersistence.unPersist(this);
 		} catch (SMSException e) {
 			// Should not get here

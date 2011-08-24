@@ -28,10 +28,10 @@ public class SMSPersistence {
 			return name.endsWith(".yml");
 		}
 	};
-	
+
 	static void init() {
 	}
-	
+
 	public static void unPersist(Freezable object) {
 		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
 		if (!saveFile.delete()) {
@@ -49,7 +49,7 @@ public class SMSPersistence {
 		MiscUtil.log(Level.INFO, "saved " + SMSMenu.listMenus().size() + " menus " +
 		             " and " + SMSView.listViews().size() + " views to file.");
 	}
-	
+
 	public static void save(Freezable object) {
 		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
 		Configuration conf = new Configuration(saveFile);
@@ -59,7 +59,7 @@ public class SMSPersistence {
 		}
 		conf.save();
 	}
-	
+
 	static void loadAll() {
 		loadMenus();
 		loadViews();
@@ -69,7 +69,7 @@ public class SMSPersistence {
 		for (SMSView view : SMSView.listViews()) {
 			view.deleteTemporary();
 		}
-		
+
 		for (File f : SMSConfig.getViewsFolder().listFiles(ymlFilter)) {
 			try {
 				Configuration conf = new Configuration(f);
@@ -81,7 +81,7 @@ public class SMSPersistence {
 				}
 			} catch (ReaderException e)	{
 				MiscUtil.log(Level.WARNING, "caught exception while loading view file " +
-						f + ": " + e.getMessage());
+				             f + ": " + e.getMessage());
 				backupMenuFile(f);
 			}
 		}
@@ -89,11 +89,11 @@ public class SMSPersistence {
 
 	private static void loadMenus() {
 		final File oldMenusFile = new File(SMSConfig.getPluginFolder(), "scrollingmenus.yml");
-		
+
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			menu.deleteTemporary();
 		}
-		
+
 		if (oldMenusFile.exists()) {
 			// old-style data file, all menus in one file
 			oldStyleLoad(oldMenusFile);
@@ -107,10 +107,10 @@ public class SMSPersistence {
 					conf.load();
 					SMSMenu menu = new SMSMenu(conf);
 					SMSMenu.addMenu(menu.getName(), menu, true);
-					
+
 				} catch (ReaderException e)	{
 					MiscUtil.log(Level.WARNING, "caught exception while loading menu file " +
-							f + ": " + e.getMessage());
+					             f + ": " + e.getMessage());
 					backupMenuFile(f);
 				} catch (SMSException e) {
 					MiscUtil.log(Level.WARNING, "caught exception while restoring menu " + f + ": " + e.getMessage());
@@ -119,7 +119,7 @@ public class SMSPersistence {
 			MiscUtil.log(Level.INFO, "Loaded " + SMSMenu.listMenus().size() + " menus from file.");
 		}
 	}
-	
+
 	private static void oldStyleLoad(File menusFile) {	
 		try {
 			Configuration conf = new Configuration(menusFile);
@@ -140,41 +140,41 @@ public class SMSPersistence {
 	}	
 
 	static void backupMenuFile(File original) {
-        try {
-        	File backup = getBackupFileName(original.getParentFile(), original.getName());
+		try {
+			File backup = getBackupFileName(original.getParentFile(), original.getName());
 
-            MiscUtil.log(Level.INFO, "An error occurred while loading the menus file, so a backup copy of "
-                + original + " is being created. The backup can be found at " + backup.getPath());
-            copy(original, backup);
-        } catch (IOException e) {
-            MiscUtil.log(Level.SEVERE, "Error while trying to write backup file: " + e);
-        }
-    }
-	
+			MiscUtil.log(Level.INFO, "An error occurred while loading the menus file, so a backup copy of "
+			             + original + " is being created. The backup can be found at " + backup.getPath());
+			copy(original, backup);
+		} catch (IOException e) {
+			MiscUtil.log(Level.SEVERE, "Error while trying to write backup file: " + e);
+		}
+	}
+
 	static void copy(File src, File dst) throws IOException {
-        InputStream in = new FileInputStream(src);
-        OutputStream out = new FileOutputStream(dst);
+		InputStream in = new FileInputStream(src);
+		OutputStream out = new FileOutputStream(dst);
 
-        // Transfer bytes from in to out
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = in.read(buf)) > 0) {
-            out.write(buf, 0, len);
-        }
-        in.close();
-        out.close();
-}
+		// Transfer bytes from in to out
+		byte[] buf = new byte[1024];
+		int len;
+		while ((len = in.read(buf)) > 0) {
+			out.write(buf, 0, len);
+		}
+		in.close();
+		out.close();
+	}
 
-    static File getBackupFileName(File parentFile, String template) {
-        String ext = ".BACKUP.";
-        File backup;
-        int idx = 0;
+	static File getBackupFileName(File parentFile, String template) {
+		String ext = ".BACKUP.";
+		File backup;
+		int idx = 0;
 
-        do {
-            backup = new File(parentFile, template + ext + idx);
-            idx++;
-        } while (backup.exists());
-        return backup;
-    }
+		do {
+			backup = new File(parentFile, template + ext + idx);
+			idx++;
+		} while (backup.exists());
+		return backup;
+	}
 
 }	

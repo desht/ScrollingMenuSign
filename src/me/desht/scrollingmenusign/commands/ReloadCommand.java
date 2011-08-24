@@ -42,7 +42,7 @@ public class ReloadCommand extends AbstractCommand {
 				SMSMenu.updateAllMenus();
 		}
 		if (loadAll || loadMenus)
-			plugin.loadMenus();
+			plugin.loadMenusAndViews();
 		if (loadAll || loadMacros)
 			plugin.loadMacros();
 		
