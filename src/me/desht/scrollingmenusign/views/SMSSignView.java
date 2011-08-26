@@ -80,12 +80,16 @@ public class SMSSignView extends SMSScrollableView {
 		if (!(menu instanceof SMSMenu))
 			return;
 
+		int pos = getScrollPos();
+		if (pos < 1 || pos > getMenu().getItemCount())
+			setScrollPos(1);
 		String[] lines = buildSignText(getScrollPos());
 		for (int i = 0; i < lines.length; i++) {
 			sign.setLine(i, lines[i]);
 		}
 		
 		sign.update();
+		setDirty(false);
 	}
 
 
@@ -204,5 +208,9 @@ public class SMSSignView extends SMSScrollableView {
 	public void deletePermanent() {
 		blankSign();
 		super.deletePermanent();
+	}
+	
+	public String toString() {
+		return "sign @ " + MiscUtil.formatLocation(getLocationsArray()[0]);
 	}
 }

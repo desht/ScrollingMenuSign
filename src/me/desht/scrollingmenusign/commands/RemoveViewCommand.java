@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 
@@ -19,27 +20,35 @@ public class RemoveViewCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		Location loc = null;
-		if (args.length == 0) {
-			notFromConsole(player);
-			Block b = player.getTargetBlock(null, 3);
-			loc = b.getLocation();
-		} else {
-			try {
-				loc = MiscUtil.parseLocation(args[0], player);
-			} catch (IllegalArgumentException e) {
-				throw new SMSException(e.getMessage());
+		if (player != null && player.getItemInHand().getTypeId() == 358) {
+			SMSMapView view = SMSMapView.getViewForId(player.getItemInHand().getDurability());
+			if (view != null) {
+				view.deletePermanent();
+				MiscUtil.statusMessage(player, "Map &fmap_" + view.getMapView().getId() +
+				                       "&- was removed from menu &e" + view.getMenu().getName() + "&-.");
 			}
+		} else {
+			Location loc = null;
+			if (args.length == 0) {
+				notFromConsole(player);
+				Block b = player.getTargetBlock(null, 3);
+				loc = b.getLocation();
+			} else {
+				try {
+					loc = MiscUtil.parseLocation(args[0], player);
+				} catch (IllegalArgumentException e) {
+					throw new SMSException(e.getMessage());
+				}
+			}
+			
+			SMSView view = SMSView.getViewForLocation(loc);
+			if (view == null)
+				throw new SMSException("You are not looking at a menu view.");
+			view.deletePermanent();
+			MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(loc) +
+			                       "&- was removed from menu &e" + view.getMenu().getName() + "&-.");	
 		}
-		
-		SMSView view = SMSView.getViewForLocation(loc);
-		if (view == null)
-			throw new SMSException("You are not looking at a menu view.");
-		
-		MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(loc) +
-		                       "&- was removed from menu &e" + view.getMenu().getName() + "&-.");	
-		view.deletePermanent();
-		
+			
 		return true;
 	}
 }

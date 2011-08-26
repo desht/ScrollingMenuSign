@@ -35,12 +35,15 @@ public abstract class SMSView implements Observer, Freezable {
 	private SMSMenu menu;
 	private final Set<Location> locations = new HashSet<Location>();
 	private String name;
+	private boolean autosave;
+
+	private boolean dirty;
 
 	@Override
 	public abstract void update(Observable menu, Object arg1);
 
 	protected abstract void thaw(ConfigurationNode node);
-
+	
 	public SMSView(SMSMenu menu) {
 		this(null, menu);
 	}
@@ -51,6 +54,8 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 		this.name = name;
 		this.menu = menu;
+		this.dirty = true;
+		this.autosave = SMSConfig.getConfiguration().getBoolean("sms.autosave", true);
 		
 		menu.addObserver(this);
 		
@@ -66,14 +71,21 @@ public abstract class SMSView implements Observer, Freezable {
 			viewIdx.put(base, 1);
 		}
 		
-		StringBuilder sb = new StringBuilder(base).append("-");
-		String s = sb.append(idx.toString()).toString();
+		String s = String.format("%s-%d", base, idx);
 		while (SMSView.checkForView(s)) {
 			idx++;
-			s = sb.append(idx.toString()).toString();
+			s = String.format("%s-%d", base, idx);
 		}
 		viewIdx.put(base, idx + 1);
 		return s;
+	}
+
+	public boolean isAutosave() {
+		return autosave;
+	}
+
+	public void setAutosave(boolean autosave) {
+		this.autosave = autosave;
 	}
 
 	public String getName() {
@@ -108,6 +120,14 @@ public abstract class SMSView implements Observer, Freezable {
 		return list;
 	}
 
+	public boolean isDirty() {
+		return dirty;
+	}
+
+	public void setDirty(boolean dirty) {
+		this.dirty = dirty;
+	}
+
 	public Set<Location> getLocations() {	
 		return locations;
 	}
@@ -132,7 +152,7 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 
 	void autosave() {
-		if (SMSConfig.getConfiguration().getBoolean("sms.autosave", true) && SMSView.checkForView(getName()))
+		if (isAutosave() && SMSView.checkForView(getName()))
 			SMSPersistence.save(this);
 	}
 	
@@ -147,7 +167,7 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 		
 		System.out.println("registered view " + getName());
-		autosave();
+		
 	}
 
 	private void deleteCommon() {
@@ -218,6 +238,7 @@ public abstract class SMSView implements Observer, Freezable {
 			System.out.println("got class " + c.getName());
 			Constructor<? extends SMSView> ctor = c.getDeclaredConstructor(String.class, SMSMenu.class);
 			SMSView v = ctor.newInstance(viewName, SMSMenu.getMenu(node.getString("menu")));
+			v.setAutosave(false);
 			List<Object> locs = node.getList("locations");
 			for (Object o : locs) {
 				@SuppressWarnings("unchecked")
@@ -227,6 +248,7 @@ public abstract class SMSView implements Observer, Freezable {
 				v.addLocation(loc);
 			}
 			v.thaw(node);
+			v.setAutosave(true);
 			return v;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();

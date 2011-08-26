@@ -12,7 +12,6 @@ import me.desht.util.MessagePager;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class ListMenusCommand extends AbstractCommand {
@@ -56,8 +55,9 @@ public class ListMenusCommand extends AbstractCommand {
 		List<String> lines = new ArrayList<String>();
 		lines.add(message);
 		for (SMSView v : views) {
-			Location[] locs = v.getLocationsArray();
-			lines.add(" &5*&- " + MiscUtil.formatLocation(locs[0]));
+//			Location[] locs = v.getLocationsArray();
+//			if (locs.length > 0)
+			lines.add(" &5*&- " + v.toString()); //MiscUtil.formatLocation(locs[0]));
 		}
 		MessagePager.add(player, lines);
 	}

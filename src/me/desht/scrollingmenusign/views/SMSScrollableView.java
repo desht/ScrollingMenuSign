@@ -41,6 +41,7 @@ public abstract class SMSScrollableView extends SMSView {
 
 	public void setScrollPos(int scrollPos) {
 		this.scrollPos = scrollPos;
+		setDirty(true);
 	}
 
 	/**
@@ -52,6 +53,7 @@ public abstract class SMSScrollableView extends SMSView {
 		scrollPos++;
 		if (scrollPos > getMenu().getItemCount())
 			scrollPos = 1;
+		setDirty(true);
 	}
 
 	/**
@@ -66,6 +68,7 @@ public abstract class SMSScrollableView extends SMSView {
 		scrollPos--;
 		if (scrollPos <= 0)
 			scrollPos = getMenu().getItemCount();
+		setDirty(true);
 	}
 	
 	@Override
