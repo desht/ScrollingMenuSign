@@ -49,11 +49,11 @@ public class PermissionsUtils {
 			} else if (player.hasPermission(node)) {
 				return;
 			} else {
-				throw new SMSException("You are not allowed to do that.");
+				throw new SMSException("You are not allowed to do that (need node " + node + ").");
 			}
 		} else {
 			if (!isAllowedTo(player, node)) {
-				throw new SMSException("You are not allowed to do that.");
+				throw new SMSException("You are not allowed to do that (need node " + node + ").");
 			}
 		}
 	}
