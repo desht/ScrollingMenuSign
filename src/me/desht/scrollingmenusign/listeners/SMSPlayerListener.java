@@ -142,8 +142,8 @@ public class SMSPlayerListener extends PlayerListener {
 	 * @throws SMSException
 	 */
 	private void tryToActivateSign(Block block, Player player, SMSMapView mapView) throws SMSException {
-		System.out.println("hello");
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
+		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 		SMSMenu menu = mapView.getMenu();
 		SMSSignView.addSignToMenu(menu, block.getLocation());
 		MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(block.getLocation()) +
@@ -159,6 +159,7 @@ public class SMSPlayerListener extends PlayerListener {
 	 */
 	private void tryToDeactivateMap(Block block, Player player) throws SMSException {
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.break");
+		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 		short mapId = player.getItemInHand().getDurability();
 		SMSMapView mapView = SMSMapView.getViewForId(mapId);
 		if (mapView != null) {
@@ -176,6 +177,7 @@ public class SMSPlayerListener extends PlayerListener {
 	 */
 	private void tryToActivateMap(Block block, Player player) throws SMSException {
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
+		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 		SMSView currentView = SMSSignView.getViewForLocation(block.getLocation());
 		if (currentView == null)
 			return;
@@ -201,6 +203,8 @@ public class SMSPlayerListener extends PlayerListener {
 		SMSMenu menu = sview.getMenu();
 		switch (action) {
 		case EXECUTE:
+			if (sview instanceof SMSMapView)
+				PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 			SMSMenuItem item = menu.getItem(sview.getScrollPos());
 			if (item != null) {
 				item.execute(player);

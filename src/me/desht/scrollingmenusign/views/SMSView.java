@@ -31,7 +31,7 @@ public abstract class SMSView implements Observer, Freezable {
 	private static final Map<Location, SMSView> allViewLocations = new HashMap<Location, SMSView>();
 
 	private static final Map<String,Integer> viewIdx = new HashMap<String, Integer>();
-	
+
 	private SMSMenu menu;
 	private final Set<Location> locations = new HashSet<Location>();
 	private String name;
@@ -43,7 +43,7 @@ public abstract class SMSView implements Observer, Freezable {
 	public abstract void update(Observable menu, Object arg1);
 
 	protected abstract void thaw(ConfigurationNode node);
-	
+
 	public SMSView(SMSMenu menu) {
 		this(null, menu);
 	}
@@ -56,9 +56,9 @@ public abstract class SMSView implements Observer, Freezable {
 		this.menu = menu;
 		this.dirty = true;
 		this.autosave = SMSConfig.getConfiguration().getBoolean("sms.autosave", true);
-		
+
 		menu.addObserver(this);
-		
+
 		registerView();
 	}
 
@@ -70,7 +70,7 @@ public abstract class SMSView implements Observer, Freezable {
 			idx = 1;
 			viewIdx.put(base, 1);
 		}
-		
+
 		String s = String.format("%s-%d", base, idx);
 		while (SMSView.checkForView(s)) {
 			idx++;
@@ -140,14 +140,14 @@ public abstract class SMSView implements Observer, Freezable {
 	public void addLocation(Location loc) throws SMSException {
 		locations.add(loc);
 		allViewLocations.put(loc, this);
-		
+
 		autosave();
 	}
 
 	public void removeLocation(Location loc) {
 		locations.remove(loc);
 		allViewLocations.remove(loc);
-		
+
 		autosave();
 	}
 
@@ -155,7 +155,7 @@ public abstract class SMSView implements Observer, Freezable {
 		if (isAutosave() && SMSView.checkForView(getName()))
 			SMSPersistence.save(this);
 	}
-	
+
 	void registerView() {
 		if (checkForView(getName())) {
 			throw new IllegalArgumentException("duplicate name: " + getName());
@@ -165,9 +165,8 @@ public abstract class SMSView implements Observer, Freezable {
 		for (Location l : getLocations()) {
 			allViewLocations.put(l, this);
 		}
-		
-		System.out.println("registered view " + getName());
-		
+
+		//		System.out.println("registered view " + getName());
 	}
 
 	private void deleteCommon() {
@@ -206,7 +205,7 @@ public abstract class SMSView implements Observer, Freezable {
 	public static SMSView getView(String name) throws SMSException {
 		if (!checkForView(name))
 			throw new SMSException("No such view " + name);
-		
+
 		return allViewNames.get(name);
 	}
 
@@ -235,7 +234,7 @@ public abstract class SMSView implements Observer, Freezable {
 		String viewName = node.getString("name");
 		try {
 			Class<? extends SMSView> c = Class.forName(className).asSubclass(SMSView.class);
-			System.out.println("got class " + c.getName());
+			//			System.out.println("got class " + c.getName());
 			Constructor<? extends SMSView> ctor = c.getDeclaredConstructor(String.class, SMSMenu.class);
 			SMSView v = ctor.newInstance(viewName, SMSMenu.getMenu(node.getString("menu")));
 			v.setAutosave(false);

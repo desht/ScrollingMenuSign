@@ -27,7 +27,7 @@ public class SMSMapRenderer extends MapRenderer {
 	@Override
 	public void render(MapView map, MapCanvas canvas, Player player) {
 		if (smsMapView.isDirty()) {
-			System.out.println("rendering " + smsMapView.getMenu().getName() + " on map_" + map.getId());
+//			System.out.println("rendering " + smsMapView.getMenu().getName() + " on map_" + map.getId());
 			int y = smsMapView.getY();
 
 			SMSMenu menu = smsMapView.getMenu();
@@ -79,7 +79,7 @@ public class SMSMapRenderer extends MapRenderer {
 
 		for (int i = 0; i < words.length; i++) {
 			int wordWidth = getWidth(font, words[i]);
-			System.out.println("word = " + words[i] + " font = " + font + " width = " + wordWidth + " xPos = " + xPos);
+//			System.out.println("word = " + words[i] + " font = " + font + " width = " + wordWidth + " xPos = " + xPos);
 			if (wordWidth <= xLimit) {
 				if (xPos + lineWidth + wordWidth <= xLimit) {
 					lineBuffer.append(words[i]).append(" ");

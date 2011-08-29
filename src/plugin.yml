@@ -111,3 +111,6 @@ permissions:
   scrollingmenusign.commands.page:
     description: Allows output data to be paged
     default: true
+  scrollingmenusign.maps:
+    description: Allows manipulation of map views
+    default: op

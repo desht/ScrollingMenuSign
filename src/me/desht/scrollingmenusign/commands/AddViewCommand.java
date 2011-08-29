@@ -8,6 +8,7 @@ import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
+import me.desht.util.PermissionsUtils;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -32,6 +33,7 @@ public class AddViewCommand extends AbstractCommand {
 			MiscUtil.statusMessage(player, String.format("Sign @ &f%s&- was added to menu &e%s&-.",
 			                                             MiscUtil.formatLocation(b.getLocation()), menu.getName()));
 		} else if (player.getItemInHand().getTypeId() == 358) {		// map
+			PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 			short mapId = player.getItemInHand().getDurability();
 			SMSMapView view = SMSMapView.addMapToMenu(mapId, menu);
 			MiscUtil.statusMessage(player, String.format("Map &fmap_%d&- was added to menu &e%s&-.",

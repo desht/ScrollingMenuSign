@@ -5,6 +5,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
+import me.desht.util.PermissionsUtils;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -21,6 +22,7 @@ public class RemoveViewCommand extends AbstractCommand {
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
 		if (player != null && player.getItemInHand().getTypeId() == 358) {
+			PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 			SMSMapView view = SMSMapView.getViewForId(player.getItemInHand().getDurability());
 			if (view != null) {
 				view.deletePermanent();
