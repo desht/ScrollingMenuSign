@@ -14,6 +14,7 @@ public class RemoveItemCommand extends AbstractCommand {
 		super("sms rem", 2, 2);
 		setPermissionNode("scrollingmenusign.commands.remove");
 		setUsage("/sms remove <menu-name> <item-index|item-label>");
+		setQuotedArgs(true);
 	}
 
 	@Override
