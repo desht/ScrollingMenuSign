@@ -66,62 +66,6 @@ public class SMSMapRenderer extends MapRenderer {
 		}
 	}
 
-	static int writeLines(SMSMapView view, MapCanvas canvas, int x, int y, MapFont font, String text) {
-		int xPos = x;
-		int yPos = y;
-		int xLimit = view.getWidth() - x;
-
-		// Bukkit Map routines throw NPE's if you pass colour codes...
-
-		String[] words = text.split("\\s");
-		StringBuilder lineBuffer = new StringBuilder();
-		int lineWidth = 0;
-
-		for (int i = 0; i < words.length; i++) {
-			int wordWidth = getWidth(font, words[i]);
-//			System.out.println("word = " + words[i] + " font = " + font + " width = " + wordWidth + " xPos = " + xPos);
-			if (wordWidth <= xLimit) {
-				if (xPos + lineWidth + wordWidth <= xLimit) {
-					lineBuffer.append(words[i]).append(" ");
-					lineWidth = getWidth(font, lineBuffer.toString());
-				} else {
-					drawText(canvas, xPos, yPos, font, lineBuffer.toString());
-					lineBuffer.setLength(0);
-					lineWidth = 0;
-					yPos += font.getHeight() + view.getLineSpacing();
-					i--;
-					continue;
-				}
-			} else {
-				char[] chars = words[i].toCharArray();
-				for (int j = 0; j < chars.length; j++) {
-					String sChar = Character.toString(chars[j]);
-					int charWidth = getWidth(font, sChar);
-					if (xPos + lineWidth + charWidth < xLimit) {
-						lineBuffer.append(sChar);
-						lineWidth = getWidth(font, lineBuffer.toString());
-					} else {
-						drawText(canvas, xPos, yPos, font, lineBuffer.toString());
-						lineBuffer.setLength(0);
-						lineWidth = 0;
-						yPos += font.getHeight() + view.getLineSpacing();
-						j--;
-						continue;
-					}
-				}
-				if (lineWidth != 0) {
-					lineBuffer.append(" ");
-					lineWidth = getWidth(font, lineBuffer.toString());
-				}
-			}
-		}
-		if (lineWidth != 0) {
-			drawText(canvas, xPos, yPos, font, lineBuffer.toString());
-			yPos += font.getHeight() + view.getLineSpacing();
-		}
-		return yPos;
-	}
-
 	static void drawText(MapCanvas canvas, int x, int y, MapFont font, String text) {
 		int xStart = x;
 		byte color = MapPalette.DARK_GRAY;
