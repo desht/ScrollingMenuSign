@@ -39,6 +39,7 @@ permissions:
       scrollingmenusign.commands.macro: true
       scrollingmenusign.commands.setcfg: true
       scrollingmenusign.destroy: true
+      scrollingmenusign.maps: true
       scrollingmenusign.user: true
   scrollingmenusign.user:
     description: Gives access to basic SMS functionality

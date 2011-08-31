@@ -9,5 +9,12 @@
 	</classpathentry>
 	<classpathentry kind="var" path="LOCAL_JARS/CommandSigns.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/Permissions.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/BOSEconomy.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/currency.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/iConomy-4.6.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/iConomy-6.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/iConomy.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/Essentials.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/PermissionsBukkit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

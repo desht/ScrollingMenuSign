@@ -554,7 +554,7 @@ public class SMSMenu extends Observable implements Freezable {
 	/**
 	 * Force a repaint of all of the menu's signs
 	 * 
-	 * @deprecated  View method - use SMSSignView to manage views
+	 * @deprecated  Use notifyObservers()
 	 */
 	public void updateSigns() {
 		notifyObservers(SMSMenuAction.REPAINT);

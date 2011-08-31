@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign;
 
 import java.util.logging.Level;
 
+import me.desht.register.payment.Method;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
 import me.desht.scrollingmenusign.commands.AddViewCommand;
@@ -27,6 +28,7 @@ import me.desht.scrollingmenusign.commands.SortMenuCommand;
 import me.desht.scrollingmenusign.listeners.SMSBlockListener;
 import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
+import me.desht.scrollingmenusign.listeners.SMSServerListener;
 import me.desht.util.Debugger;
 import me.desht.util.MessagePager;
 import me.desht.util.MiscUtil;
@@ -47,7 +49,10 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
+	private final SMSServerListener serverListener = new SMSServerListener(this);
 	private final CommandManager cmds = new CommandManager(this);
+	
+	private static Method economy = null;
 	
 	private final Debugger debugger = new Debugger();
 	
@@ -68,7 +73,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
-
+		pm.registerEvent(Event.Type.PLUGIN_ENABLE, serverListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLUGIN_DISABLE, serverListener, Event.Priority.Normal, this);
+		
 		registerCommands();
 		
 		loadMacros();
@@ -160,5 +167,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	public Debugger getDebugger() {
 		return debugger;
+	}
+
+	public static void setEconomy(Method economy) {
+		ScrollingMenuSign.economy = economy;
+	}
+
+	public static Method getEconomy() {
+		return economy;
 	}
 }

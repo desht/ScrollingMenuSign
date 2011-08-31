@@ -173,7 +173,7 @@ public class SMSMacro {
 				SMSConfig.getConfiguration().getBoolean("sms.always_use_commandsigns", true)) {
 			SMSCommandSigns.runCommandString(player, command);
 		} else {
-			player.chat(command);
+			CommandParser.runCommandString(player, command);
 		}
 	}
 
