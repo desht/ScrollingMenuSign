@@ -1,8 +1,15 @@
 package me.desht.scrollingmenusign;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.logging.Level;
 
-import me.desht.register.payment.Method;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
 import me.desht.scrollingmenusign.commands.AddViewCommand;
@@ -42,6 +49,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
+import com.LRFLEW.register.payment.Method;
+
 public class ScrollingMenuSign extends JavaPlugin {
 	private static PluginDescriptionFile description;
 
@@ -49,7 +58,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
-	private final SMSServerListener serverListener = new SMSServerListener(this);
+	private SMSServerListener serverListener;
 	private final CommandManager cmds = new CommandManager(this);
 	
 	private static Method economy = null;
@@ -59,9 +68,12 @@ public class ScrollingMenuSign extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		description = this.getDescription();
-
+		
 		SMSPersistence.init();
 		SMSConfig.init(this);
+
+		if (!loadRegister())
+			return;
 
 		PermissionsUtils.setup();
 		SMSCommandSigns.setup();
@@ -176,4 +188,33 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public static Method getEconomy() {
 		return economy;
 	}
+
+	private boolean loadRegister() {
+		try {
+            Class.forName("com.LRFLEW.register.payment.Methods");
+            serverListener = new SMSServerListener(this);
+            return true;
+        } catch (ClassNotFoundException e) {
+            try {
+                MiscUtil.log(Level.INFO, "[ScrollingMenuSign] Register library not found! Downloading...");
+                if (!new File("lib").isDirectory())
+                    if (!new File("lib").mkdir())
+                        MiscUtil.log(Level.SEVERE, "[ScrollingMenuSign] Error creating lib directory. Please make sure Craftbukkit has permissions to write to the Minecraft directory and there is no file named \"lib\" in that location.");
+                URL Register = new URL("https://github.com/iConomy/Register/raw/master/dist/_Register.jar");
+                ReadableByteChannel rbc = Channels.newChannel(Register.openStream());
+                FileOutputStream fos = new FileOutputStream("lib/Register.jar");
+                fos.getChannel().transferFrom(rbc, 0, 1 << 24);
+                MiscUtil.log(Level.INFO, "[ScrollingMenuSign] Register library downloaded. Server reboot required to load.");
+            } catch (MalformedURLException ex) {
+                MiscUtil.log(Level.WARNING, "[ScrollingMenuSign] Error accessing Register lib URL: " + ex);
+            } catch (FileNotFoundException ex) {
+                MiscUtil.log(Level.WARNING, "[ScrollingMenuSign] Error accessing Register lib URL: " + ex);
+            } catch (IOException ex) {
+                MiscUtil.log(Level.WARNING, "[ScrollingMenuSign] Error downloading Register lib: " + ex);
+            } finally {
+                getServer().getPluginManager().disablePlugin(this);
+            }
+            return false;
+        }
+    }
 }
