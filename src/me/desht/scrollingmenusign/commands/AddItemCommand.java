@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import me.desht.scrollingmenusign.CommandParser;
 import me.desht.scrollingmenusign.SMSCommandSigns;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
@@ -34,7 +35,7 @@ public class AddItemCommand extends AbstractCommand {
 		if (args[1].contains(sep)) {
 			items = Arrays.asList(combine(args, 1).split(Pattern.quote(sep)));
 			String[] usage = getUsage();
-			MiscUtil.statusMessage(player, "&6NOTE: preferred syntax is &f" + usage[0]);
+			MiscUtil.statusMessage(player, "&6NOTE: preferred syntax is now &f" + usage[0]);
 			MiscUtil.statusMessage(player, " &6(label/command/message can be quoted if they contain whitespace)");
 		} else {
 			items = new ArrayList<String>();
@@ -53,8 +54,13 @@ public class AddItemCommand extends AbstractCommand {
 		String cmd = items.size() >= 2 ? items.get(1) : "";
 		String msg = items.size() >= 3 ? items.get(2) : "";
 
-		if (player != null && SMSCommandSigns.isActive() && !SMSCommandSigns.hasEnablingPermissions(player, cmd)) {
-			throw new SMSException("You do not have permission to add that kind of command.");
+		if (player != null) {
+			if (SMSCommandSigns.isActive() && !SMSCommandSigns.hasEnablingPermissions(player, cmd)) {
+				throw new SMSException("You do not have permission to add that kind of command.");
+			}
+			if (!SMSCommandSigns.isActive() && !CommandParser.verifyCreationPerms(player, cmd)) {
+				throw new SMSException("You do not have permission to add that kind of command.");
+			}
 		}
 		
 		menu.addItem(label, cmd, msg);

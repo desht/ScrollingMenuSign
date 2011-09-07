@@ -41,6 +41,8 @@ permissions:
       scrollingmenusign.destroy: true
       scrollingmenusign.maps: true
       scrollingmenusign.user: true
+      scrollingmenusign.super.elevated: true
+      scrollingmenusign.super.cost: true
   scrollingmenusign.user:
     description: Gives access to basic SMS functionality
     children:
@@ -114,4 +116,10 @@ permissions:
     default: true
   scrollingmenusign.maps:
     description: Allows manipulation of map views
+    default: op
+  scrollingmenusign.super.cost:
+    description: Allows creation of menu items which have a cost
+    default: op
+  scrollingmenusign.super.elevated:
+    description: Allows creation of menu item which bypass permissions checks
     default: op

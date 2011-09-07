@@ -135,18 +135,18 @@ public class SMSMacro {
 		autosave();
 	}
 
-	static void executeCommand(String command, Player player) {
+	static void executeCommand(String command, Player player) throws SMSException {
 		executeCommand(command, player, new HashSet<String>());
 	}
 
-	private static void executeCommandSet(String macro, Player player, Set<String> history) {
+	private static void executeCommandSet(String macro, Player player, Set<String> history) throws SMSException {
 		List<String>c = cmdSet.getStringList(macro, null);
 		for (String cmd : c) {
 			executeCommand(cmd, player, history);
 		}
 	}
 
-	private static void executeCommand(String command, Player player, Set<String> history) {
+	private static void executeCommand(String command, Player player, Set<String> history) throws SMSException {
 		if (command == null || command.isEmpty())
 			return;
 

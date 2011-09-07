@@ -11,5 +11,8 @@
 	<classpathentry kind="var" path="LOCAL_JARS/Permissions.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/PermissionsBukkit.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/_Register.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/craftbukkit-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/PermissionsEx.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/bPermissions.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
