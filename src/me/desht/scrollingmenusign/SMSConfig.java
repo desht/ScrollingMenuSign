@@ -44,6 +44,7 @@ public class SMSConfig {
 		put("sms.actions.wheelup.sneak", "scrollup");
 		put("sms.actions.wheeldown.normal", "none");
 		put("sms.actions.wheeldown.sneak", "scrolldown");
+		put("sms.elevation_user", "&SMS");
 	}};
 	
 	static void init(ScrollingMenuSign plugin) {
