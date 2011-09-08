@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import me.desht.util.MiscUtil;
 
@@ -150,29 +148,28 @@ public class SMSMacro {
 		if (command == null || command.isEmpty())
 			return;
 
-		Pattern pattern = Pattern.compile("^(%|cs:)(.+)");
-		Matcher matcher = pattern.matcher(command);
-		if (matcher.find()) {
-			String cmd = matcher.group(2);
-			if (matcher.group(1).equalsIgnoreCase("cs:") && SMSCommandSigns.isActive()) {
-				SMSCommandSigns.runCommandString(player, cmd);
-			} else if (matcher.group(1).equalsIgnoreCase("%")) {
-				// a macro expansion
-				if (history.contains(cmd)) {
-					MiscUtil.log(Level.WARNING, "executeCommandSet [" + cmd + "]: recursion detected");
-					MiscUtil.errorMessage(player, "Recursive loop detected in macro " + cmd + "!");
-					return;
-				} else if (hasMacro(cmd)) {
-					history.add(cmd);
-					executeCommandSet(cmd, player, history);
-				} else {
-					MiscUtil.errorMessage(player, "No such macro '" + cmd + "'.");
-				}
+		if (command.startsWith("cs:")) {
+			// explicit call to CommandSigns
+			SMSCommandSigns.runCommandString(player, command.substring(3));
+		} else if (command.startsWith("%")) {
+			// a macro expansion
+			String macro = command.substring(1);
+			if (history.contains(macro)) {
+				MiscUtil.log(Level.WARNING, "executeCommandSet [" + macro + "]: recursion detected");
+				MiscUtil.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
+				return;
+			} else if (hasMacro(macro)) {
+				history.add(macro);
+				executeCommandSet(macro, player, history);
+			} else {
+				MiscUtil.errorMessage(player, "No such macro '" + macro + "'.");
 			}
 		} else if (SMSCommandSigns.isActive() &&
 				SMSConfig.getConfiguration().getBoolean("sms.always_use_commandsigns", true)) {
+			// implicit call to CommandSigns
 			SMSCommandSigns.runCommandString(player, command);
 		} else {
+			// call to built-in command parser
 			CommandParser.runCommandString(player, command);
 		}
 	}
