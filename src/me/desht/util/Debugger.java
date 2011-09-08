@@ -39,6 +39,10 @@ public class Debugger {
 		}
 	}
 	
+	public boolean isDebugging(Player p) {
+		return getDebugLevel(p) > 0;
+	}
+	
 	public void toggleDebug(Player p) {
 		if (getDebugLevel(p) == 0) {
 			addDebugger(p, 1);
@@ -46,7 +50,7 @@ public class Debugger {
 			removeDebugger(p);
 		}
 	}
-	
+
 	public void debug(String message) {
 		debug(message, 1);
 	}
