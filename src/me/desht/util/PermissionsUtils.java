@@ -171,7 +171,7 @@ public class PermissionsUtils {
 		}
 
 		for (String perm: tempPerms) {
-			System.out.println("grant perm " + perm);
+			Debugger.getDebugger().debug("grant perm " + perm);
 			if (permissionsBukkit != null) {
 				// PermissionsBukkit has no API call to modify permissions - use a console command to do it
 				String cmd = String.format("permissions player setperm %s %s true", player.getName(), perm);
@@ -211,7 +211,7 @@ public class PermissionsUtils {
 		QuietConsoleCommandSender console = new QuietConsoleCommandSender(Bukkit.getServer());
 		for (String perm : tempPerms) {
 
-			System.out.println("withdraw perm " + perm);
+			Debugger.getDebugger().debug("withdraw perm " + perm);
 
 			if (permissionsBukkit != null) {		
 				String cmd = String.format("permissions player unsetperm %s %s true", player.getName(), perm);

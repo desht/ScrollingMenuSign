@@ -3,15 +3,13 @@ package me.desht.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class Debugger {
 	private static Debugger debuggerInstance = null;
-	
-	private ScrollingMenuSign plugin;
+
 	private Map<String,Integer> debuggers;
 	
 	public static Debugger getDebugger() {
@@ -60,7 +58,7 @@ public class Debugger {
 				if (name.equals("&console")) {
 					debugMessage(null, message);
 				} else {
-					Player p = plugin.getServer().getPlayer(name);
+					Player p = Bukkit.getServer().getPlayer(name);
 					if (p != null) {
 						debugMessage(p, message);
 					} else {
@@ -82,6 +80,8 @@ public class Debugger {
 	}
 
 	private void debugMessage(Player p, String message) {
-		MiscUtil.statusMessage(p, ChatColor.DARK_GREEN + "[SMS] " + ChatColor.GREEN + message);
+		StringBuilder msg = new StringBuilder(ChatColor.GREEN.toString()).append("[DEBUG] ");
+		msg.append(ChatColor.DARK_GREEN.toString()).append(message);
+		MiscUtil.statusMessage(p, msg.toString());
 	}
 }
