@@ -5,10 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
-import me.desht.util.PermittedPlayer;
+import me.desht.util.FakePlayer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -104,23 +105,40 @@ public class CommandParser {
 			sb.append(a).append(" ");
 		}
 
+		String elevatedUser = SMSConfig.getConfiguration().getString("elevation_user", "&SMS");
+		
+		FakePlayer fakePlayer = FakePlayer.fromPlayer(player, elevatedUser);
+		
 		if (cmd.isFakeuser()) {
+			// this is a /* command, to be run as the fake player
 			System.out.println("execute fakeuser: " + sb.toString());
-			PermittedPlayer pp = PermittedPlayer.fromPlayer(player);
-			String command = sb.toString().trim().substring(1);
-			if (!Bukkit.getServer().dispatchCommand(pp, command)) {
-				MiscUtil.errorMessage(player, "Execution of [" + command + "] failed.");
+			
+			String command = sb.toString().trim();
+			if (command.startsWith("/")) {
+				if (!Bukkit.getServer().dispatchCommand(fakePlayer, command.substring(1))) {
+					MiscUtil.errorMessage(player, "Execution of [" + command + "] failed.");
+				}
+			} else {
+				fakePlayer.chat(command);
 			}
 		} else if (cmd.isElevated()) {
+			// this is a /@ command, to be run as the real player but with borrowed permissions
 			System.out.println("execute elevated: " + sb.toString());
+			
+			Set<String> opsSet = null;
+			if (fakePlayer.isOp())
+				opsSet = PermissionsUtils.grantOpStatus(player);
+			
 			List<String> tempPerms = null;
 			try {
-				tempPerms = PermissionsUtils.elevate(player, SMSConfig.getConfiguration().getString("elevation_user", "&SMS"));
+				tempPerms = PermissionsUtils.elevate(player, elevatedUser);
 				player.chat(sb.toString().trim());
 			} finally {
 				PermissionsUtils.deElevate(player, tempPerms);
+				PermissionsUtils.revokeOpStatus(player, opsSet);
 			}
 		} else {
+			// just an ordinary command, no special privilege elevation
 			System.out.println("execute normal: " + sb.toString());
 			player.chat(sb.toString().trim());
 		}

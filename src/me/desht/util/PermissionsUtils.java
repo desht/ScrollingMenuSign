@@ -1,17 +1,21 @@
 package me.desht.util;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSException;
+import net.minecraft.server.ServerConfigurationManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -68,7 +72,7 @@ public class PermissionsUtils {
 			MiscUtil.log(Level.INFO, "bPermissions detected");
 			return;
 		}
-		
+
 		MiscUtil.log(Level.INFO, "No Permissions plugin detected - command elevation/restriction not available.");
 		MiscUtil.log(Level.INFO, "Using built-in Bukkit superperms for permissions.");
 	}
@@ -208,7 +212,7 @@ public class PermissionsUtils {
 		for (String perm : tempPerms) {
 
 			System.out.println("withdraw perm " + perm);
-			
+
 			if (permissionsBukkit != null) {		
 				String cmd = String.format("permissions player unsetperm %s %s true", player.getName(), perm);
 				Bukkit.getServer().dispatchCommand(console, cmd);
@@ -232,7 +236,7 @@ public class PermissionsUtils {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get a full list of the player's permission nodes.
 	 * 
@@ -283,5 +287,38 @@ public class PermissionsUtils {
 		}
 
 		return res;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Set<String> grantOpStatus(Player player) {
+		Field opsSetField = null;
+		Set<String> opsSet = null;
+
+		try {
+			// The private .h field in ServerConfigurationManager represents a 
+			// set of player name who have Op status
+			opsSetField = ServerConfigurationManager.class.getDeclaredField("h");
+			opsSetField.setAccessible(true);
+			opsSet = (Set<String>) opsSetField.get(((CraftServer)player.getServer()).getHandle());
+		} catch (Exception e) {
+			MiscUtil.log(Level.WARNING, "Exception thrown when finding opsSet: " + e.getMessage()); 
+			return null;
+		}
+
+		if (opsSet != null) {
+			if (opsSet.contains(player.getName().toLowerCase())) {
+				// player is already an Op
+				opsSet = null;
+			} else {
+				opsSet.add(player.getName().toLowerCase());
+			}
+		}
+		return opsSet;
+	}
+	
+	public static void revokeOpStatus(Player player, Set<String> opsSet) {
+		if (opsSet != null) {
+            opsSet.remove(player.getName().toLowerCase());
+        }
 	}
 }

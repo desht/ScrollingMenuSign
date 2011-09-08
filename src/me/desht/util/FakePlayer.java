@@ -19,28 +19,39 @@ import org.bukkit.permissions.Permission;
  * @author desht
  *
  */
-public class PermittedPlayer extends CraftPlayer {
+public class FakePlayer extends CraftPlayer {
+	
+	/**
+	 * Convenience method.  Create a new PermittedPlayer from the given Player.
+	 * 
+	 * @param player	The player to use
+	 * @return			The fake player
+	 */
+	public static FakePlayer fromPlayer(Player player) {
+		return fromPlayer(player, player.getName());
+	}
 
 	/**
 	 * Convenience method.  Create a new PermittedPlayer from the given Player.
 	 * 
 	 * @param player	The player to use
-	 * @return			The permitted player
+	 * @param fakeName	The name for the fake player
+	 * @return			The fake player
 	 */
-	public static PermittedPlayer fromPlayer(Player player) {
+	public static FakePlayer fromPlayer(Player player, String fakeName) {
 		CraftServer cServer = (CraftServer) Bukkit.getServer();
 		CraftWorld cWorld = (CraftWorld) player.getWorld();
 		EntityPlayer fakeEntityPlayer = new EntityPlayer(cServer.getHandle().server,
-		                                                 cWorld.getHandle(), player.getName(), new ItemInWorldManager(cWorld.getHandle()));
+		                                                 cWorld.getHandle(), fakeName, new ItemInWorldManager(cWorld.getHandle()));
 		NetServerHandler playerNSH = ((CraftPlayer)player).getHandle().netServerHandler;
 		FakeNetServerHandler fakeNSH = new FakeNetServerHandler(cServer.getServer(), playerNSH.networkManager, fakeEntityPlayer);
 		playerNSH.networkManager.a(playerNSH);
         fakeEntityPlayer.netServerHandler = fakeNSH;
 
-		return new PermittedPlayer(cServer, fakeEntityPlayer);
+		return new FakePlayer(cServer, fakeEntityPlayer);
 	}
 
-	public PermittedPlayer(CraftServer server, EntityPlayer entity) {
+	public FakePlayer(CraftServer server, EntityPlayer entity) {
 		super(server, entity);
 	}
 
