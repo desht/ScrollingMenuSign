@@ -13,6 +13,7 @@ import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.util.Debugger;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
@@ -63,12 +64,12 @@ public class SMSPlayerListener extends PlayerListener {
 				tryToActivateSign(block, player, mapView);
 			} else if (mapView != null) {
 				// Holding an active map, use that as the view
-				plugin.debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
+				Debugger.getDebugger().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
 				processAction(action, player, mapView, block.getLocation());
 			} else if (locView != null) {
 				// There's a view at the targeted block, use that as the view
-				plugin.debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
+				Debugger.getDebugger().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
 				processAction(action, player, locView, block.getLocation());
 			}

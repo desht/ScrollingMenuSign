@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.util.Debugger;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
@@ -34,7 +35,7 @@ public class SMSEntityListener extends EntityListener {
 				continue;
 			
 			SMSMenu menu = view.getMenu();
-			plugin.debug("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
+			Debugger.getDebugger().debug("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
 			if (noExplode) {
 				MiscUtil.log(Level.INFO, "stopped an explosion to protect view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ")");
 				event.setCancelled(true);

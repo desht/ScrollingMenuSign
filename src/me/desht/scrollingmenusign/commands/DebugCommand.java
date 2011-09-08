@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.Debugger;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
@@ -15,8 +16,8 @@ public class DebugCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) {
-		plugin.getDebugger().toggleDebug(player);
-		int level = plugin.getDebugger().getDebugLevel(player);
+		Debugger.getDebugger().toggleDebug(player);
+		int level = Debugger.getDebugger().getDebugLevel(player);
 		if (level > 0) {
 			MiscUtil.statusMessage(player, "Debugging enabled.");
 		} else {

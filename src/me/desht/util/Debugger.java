@@ -9,10 +9,18 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class Debugger {
+	private static Debugger debuggerInstance = null;
+	
 	private ScrollingMenuSign plugin;
 	private Map<String,Integer> debuggers;
 	
-	public Debugger() {
+	public static Debugger getDebugger() {
+		if (debuggerInstance == null)
+			debuggerInstance = new Debugger();
+		return debuggerInstance;
+	}
+	
+	private Debugger() {
 		debuggers = new HashMap<String,Integer>();
 	}
 

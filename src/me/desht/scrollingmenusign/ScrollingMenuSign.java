@@ -36,7 +36,6 @@ import me.desht.scrollingmenusign.listeners.SMSBlockListener;
 import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
 import me.desht.scrollingmenusign.listeners.SMSServerListener;
-import me.desht.util.Debugger;
 import me.desht.util.MessagePager;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
@@ -62,9 +61,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final CommandManager cmds = new CommandManager(this);
 	
 	private static Method economy = null;
-	
-	private final Debugger debugger = new Debugger();
-	
+
 	@Override
 	public void onEnable() {
 		description = this.getDescription();
@@ -169,16 +166,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 		SMSMacro.saveCommands();
 	}
 	
-	public void debug(String message) {
-		getDebugger().debug(message);
-	}
-	
 	public SMSHandler getHandler() {
 		return handler;
-	}
-
-	public Debugger getDebugger() {
-		return debugger;
 	}
 
 	public static void setEconomy(Method economy) {

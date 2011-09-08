@@ -7,6 +7,7 @@ import java.util.Scanner;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import me.desht.util.Debugger;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 import me.desht.util.FakePlayer;
@@ -17,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class CommandParser {
+	
 	enum ReturnStatus { CMD_OK, CMD_STOPPED, CMD_IGNORED, MACRO_STOPPED, NO_PERMS, CMD_FAILED };
 	private enum RunMode { CHECK_PERMS, EXECUTE };
 
@@ -111,7 +113,7 @@ public class CommandParser {
 		
 		if (cmd.isFakeuser()) {
 			// this is a /* command, to be run as the fake player
-			System.out.println("execute fakeuser: " + sb.toString());
+			Debugger.getDebugger().debug("execute (fakeuser): " + sb.toString());
 			
 			String command = sb.toString().trim();
 			if (command.startsWith("/")) {
@@ -123,7 +125,7 @@ public class CommandParser {
 			}
 		} else if (cmd.isElevated()) {
 			// this is a /@ command, to be run as the real player but with borrowed permissions
-			System.out.println("execute elevated: " + sb.toString());
+			Debugger.getDebugger().debug("execute (elevated): " + sb.toString());
 			
 			Set<String> opsSet = null;
 			if (fakePlayer.isOp())
@@ -139,7 +141,7 @@ public class CommandParser {
 			}
 		} else {
 			// just an ordinary command, no special privilege elevation
-			System.out.println("execute normal: " + sb.toString());
+			Debugger.getDebugger().debug("execute (normal): " + sb.toString());
 			player.chat(sb.toString().trim());
 		}
 	}

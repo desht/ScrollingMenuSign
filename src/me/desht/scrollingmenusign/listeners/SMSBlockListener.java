@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.listeners;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.util.Debugger;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
@@ -38,7 +39,7 @@ public class SMSBlockListener extends BlockListener {
 			return;
 		
 		SMSMenu menu = view.getMenu();
-		plugin.debug("block damage event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
+		Debugger.getDebugger().debug("block damage event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
 		Player p = event.getPlayer();
 		if (p.getName().equalsIgnoreCase(menu.getOwner()) || PermissionsUtils.isAllowedTo(p, "scrollingmenusign.destroy")) 
 			return;
@@ -58,7 +59,7 @@ public class SMSBlockListener extends BlockListener {
 			Location loc = b.getLocation();
 			SMSView view = SMSView.getViewForLocation(loc);
 			if (view != null) {
-				plugin.debug("block break event @ " + b.getLocation() + ", menu=" + view.getMenu().getName());
+				Debugger.getDebugger().debug("block break event @ " + b.getLocation() + ", menu=" + view.getMenu().getName());
 				view.deletePermanent();
 				MiscUtil.statusMessage(p, "Sign @ &f" + MiscUtil.formatLocation(loc) + "&- was removed from menu &e" + view.getMenu().getName() + "&-");
 			}
@@ -74,7 +75,7 @@ public class SMSBlockListener extends BlockListener {
 			Location loc = b.getLocation();
 			SMSView view = SMSView.getViewForLocation(loc);
 			if (view != null) {
-				plugin.debug("block physics event @ " + b.getLocation() + ", menu=" + view.getMenu().getName());
+				Debugger.getDebugger().debug("block physics event @ " + b.getLocation() + ", menu=" + view.getMenu().getName());
 				if (plugin.getConfiguration().getBoolean("sms.no_physics", false)) {
 					event.setCancelled(true);
 				} else {
