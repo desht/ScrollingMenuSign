@@ -132,10 +132,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		checkRemainingUses(this.getUseLimits(), player);
 		checkRemainingUses(menu.getUseLimits(), player);
 		String cmd = getCommand();
-		if (cmd == null || cmd.isEmpty()) {
+		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty() ) {
 			cmd = menu.getDefaultCommand().replaceAll("<LABEL>", getLabel());
 		}
-		SMSMacro.executeCommand(getCommand(), player);
+		SMSMacro.executeCommand(cmd, player);
 	}
 
 	private void checkRemainingUses(SMSRemainingUses uses, Player player) throws SMSException {
