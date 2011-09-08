@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
+import me.desht.scrollingmenusign.CommandParser.ReturnStatus;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.ChatColor;
@@ -137,40 +138,47 @@ public class SMSMacro {
 		executeCommand(command, player, new HashSet<String>());
 	}
 
-	private static void executeCommandSet(String macro, Player player, Set<String> history) throws SMSException {
+	private static ReturnStatus executeCommandSet(String macro, Player player, Set<String> history) throws SMSException {
 		List<String>c = cmdSet.getStringList(macro, null);
+		ReturnStatus rs = ReturnStatus.CMD_OK;
 		for (String cmd : c) {
-			executeCommand(cmd, player, history);
+			rs = executeCommand(cmd, player, history);
+			if (rs == ReturnStatus.MACRO_STOPPED)
+				break;
 		}
+		return rs;
 	}
 
-	private static void executeCommand(String command, Player player, Set<String> history) throws SMSException {
+	private static ReturnStatus executeCommand(String command, Player player, Set<String> history) throws SMSException {
 		if (command == null || command.isEmpty())
-			return;
+			return ReturnStatus.CMD_IGNORED;
 
 		if (command.startsWith("cs:")) {
 			// explicit call to CommandSigns
 			SMSCommandSigns.runCommandString(player, command.substring(3));
+			return ReturnStatus.CMD_OK;
 		} else if (command.startsWith("%")) {
 			// a macro expansion
 			String macro = command.substring(1);
 			if (history.contains(macro)) {
 				MiscUtil.log(Level.WARNING, "executeCommandSet [" + macro + "]: recursion detected");
 				MiscUtil.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
-				return;
+				return ReturnStatus.MACRO_STOPPED;
 			} else if (hasMacro(macro)) {
 				history.add(macro);
-				executeCommandSet(macro, player, history);
+				return executeCommandSet(macro, player, history);
 			} else {
 				MiscUtil.errorMessage(player, "No such macro '" + macro + "'.");
+				return ReturnStatus.CMD_IGNORED;
 			}
 		} else if (SMSCommandSigns.isActive() &&
 				SMSConfig.getConfiguration().getBoolean("sms.always_use_commandsigns", true)) {
 			// implicit call to CommandSigns
 			SMSCommandSigns.runCommandString(player, command);
+			return ReturnStatus.CMD_OK;
 		} else {
 			// call to built-in command parser
-			CommandParser.runCommandString(player, command);
+			return CommandParser.runCommandString(player, command);
 		}
 	}
 
