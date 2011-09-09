@@ -4,9 +4,9 @@ import net.minecraft.server.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.NetServerHandler;
 import net.minecraft.server.NetworkManager;
-import net.minecraft.server.Packet;
+//import net.minecraft.server.Packet;
 import net.minecraft.server.Packet10Flying;
-import net.minecraft.server.Packet3Chat;
+//import net.minecraft.server.Packet3Chat;
 
 public class FakeNetServerHandler extends NetServerHandler {
 	public FakeNetServerHandler(MinecraftServer minecraftserver, NetworkManager networkmanager, EntityPlayer entityplayer)

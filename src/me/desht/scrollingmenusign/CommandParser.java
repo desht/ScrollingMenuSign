@@ -272,9 +272,9 @@ public class CommandParser {
 			String[] s1 = costSpec.split(",");
 			if (s1.length != 2)
 				throw new IllegalArgumentException("cost: format must be <item,quantity>");
-			String[] s2 = s1[0].split(";");
+			String[] s2 = s1[0].split(":");
 			if (s2.length < 1 || s2.length > 2)
-				throw new IllegalArgumentException("cost: item format must be <id[,data]>");
+				throw new IllegalArgumentException("cost: item format must be <id[:data]>");
 			id = Integer.parseInt(s2[0]);
 			data = s2.length == 2 ? Byte.parseByte(s2[1]) : null;
 			quantity = Integer.parseInt(s1[1]);
