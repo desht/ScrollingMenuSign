@@ -317,12 +317,12 @@ public class PermissionsUtils {
 		Debugger.getDebugger().debug("granted op to " + player.getName());
 		return opsSet;
 	}
-	
+
 	public static void revokeOpStatus(Player player, Set<String> opsSet) {
 		if (opsSet != null) {
-            opsSet.remove(player.getName().toLowerCase());
-        }
-		player.recalculatePermissions();
-		Debugger.getDebugger().debug("revoked op from " + player.getName());
+			opsSet.remove(player.getName().toLowerCase());
+			player.recalculatePermissions();
+			Debugger.getDebugger().debug("revoked op from " + player.getName());
+		}
 	}
 }
