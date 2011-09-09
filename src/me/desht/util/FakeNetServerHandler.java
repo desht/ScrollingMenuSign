@@ -15,13 +15,13 @@ public class FakeNetServerHandler extends NetServerHandler {
 	}
 
 	//In space, no one can hear you scream.
-	@Override
-	public void sendPacket(Packet packet)
-	{
-		//For real, don't say ANYTHING to the fake player.
-		if (!(packet instanceof Packet3Chat))
-			super.sendPacket(packet);
-	}
+//	@Override
+//	public void sendPacket(Packet packet)
+//	{
+//		//For real, don't say ANYTHING to the fake player.
+//		if (!(packet instanceof Packet3Chat))
+//			super.sendPacket(packet);
+//	}
 
 	//I believe I can fly!
 	@Override

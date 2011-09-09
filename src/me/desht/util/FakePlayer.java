@@ -38,7 +38,7 @@ public class FakePlayer extends CraftPlayer {
 	 * @param fakeName	The name for the fake player
 	 * @return			The fake player
 	 */
-	public static FakePlayer fromPlayer(Player player, String fakeName) {
+	public static FakePlayer fromPlayer(Player player, String fakeName) {	
 		CraftServer cServer = (CraftServer) Bukkit.getServer();
 		CraftWorld cWorld = (CraftWorld) player.getWorld();
 		EntityPlayer fakeEntityPlayer = new EntityPlayer(cServer.getHandle().server,
@@ -57,7 +57,7 @@ public class FakePlayer extends CraftPlayer {
 
 	@Override
 	public boolean hasPermission(String perm) {
-		System.out.println("haspermission str: " + perm);
+		System.out.println("haspermission str: " + perm + " - " + getName());
 		return true;
 	}
 	
@@ -66,5 +66,5 @@ public class FakePlayer extends CraftPlayer {
 		System.out.println("haspermission perm: " + perm.getName());
 		return true;
 	}
-	
+
 }

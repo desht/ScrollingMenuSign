@@ -93,6 +93,9 @@ permissions:
   scrollingmenusign.commands.getcfg:
     description: Allows configuration items to be viewed
     default: true
+  scrollingmenusign.commands.setcfg:
+    description: Allows configuration items to be changed
+    default: op
   scrollingmenusign.destroy:
     description: Allows destruction of signs belonging to a menu created by someone else
     default: op

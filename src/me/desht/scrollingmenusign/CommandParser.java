@@ -127,7 +127,7 @@ public class CommandParser {
 			// this is a /@ command, to be run as the real player but with borrowed permissions
 			Debugger.getDebugger().debug("execute (elevated): " + sb.toString());
 			
-			Set<String> opsSet = null;
+			Set<String>opsSet = null;
 			if (fakePlayer.isOp())
 				opsSet = PermissionsUtils.grantOpStatus(player);
 			

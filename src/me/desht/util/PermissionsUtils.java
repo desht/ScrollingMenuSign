@@ -296,7 +296,7 @@ public class PermissionsUtils {
 
 		try {
 			// The private .h field in ServerConfigurationManager represents a 
-			// set of player name who have Op status
+			// set of player names who have Op status
 			opsSetField = ServerConfigurationManager.class.getDeclaredField("h");
 			opsSetField.setAccessible(true);
 			opsSet = (Set<String>) opsSetField.get(((CraftServer)player.getServer()).getHandle());
@@ -313,6 +313,8 @@ public class PermissionsUtils {
 				opsSet.add(player.getName().toLowerCase());
 			}
 		}
+		player.recalculatePermissions();
+		Debugger.getDebugger().debug("granted op to " + player.getName());
 		return opsSet;
 	}
 	
@@ -320,5 +322,7 @@ public class PermissionsUtils {
 		if (opsSet != null) {
             opsSet.remove(player.getName().toLowerCase());
         }
+		player.recalculatePermissions();
+		Debugger.getDebugger().debug("revoked op from " + player.getName());
 	}
 }

@@ -85,6 +85,8 @@ public class SMSPersistence {
 				backupMenuFile(f);
 			}
 		}
+		
+		MiscUtil.log(Level.INFO, "Loaded " + SMSView.listViews().size() + " views from file.");
 	}
 
 	private static void loadMenus() {

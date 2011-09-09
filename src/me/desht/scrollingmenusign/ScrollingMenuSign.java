@@ -53,7 +53,7 @@ import com.LRFLEW.register.payment.Method;
 public class ScrollingMenuSign extends JavaPlugin {
 	private static PluginDescriptionFile description;
 
-	private final SMSPlayerListener signListener = new SMSPlayerListener(this);
+	private final SMSPlayerListener playerListener = new SMSPlayerListener(this);
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
@@ -76,8 +76,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 		SMSCommandSigns.setup();
 		
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_INTERACT, signListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, signListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
