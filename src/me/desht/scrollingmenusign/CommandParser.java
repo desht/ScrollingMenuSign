@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.Set;
 
 import me.desht.util.Debugger;
@@ -19,7 +20,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class CommandParser {
 	
-	enum ReturnStatus { CMD_OK, CMD_STOPPED, CMD_IGNORED, MACRO_STOPPED, NO_PERMS, CMD_FAILED };
+	enum ReturnStatus { CMD_OK, CMD_STOPPED, CMD_IGNORED, MACRO_STOPPED, NO_PERMS, CMD_FAILED, CANT_AFFORD };
 	private enum RunMode { CHECK_PERMS, EXECUTE };
 
 	static boolean runSimpleCommandString(Player player, String command) {
@@ -27,6 +28,14 @@ public class CommandParser {
 		return true;
 	}
 
+	/**
+	 * Parse and run a command string via the SMS command engine
+	 * 
+	 * @param player	Player who is running the command
+	 * @param command	Command to be run
+	 * @return			A return status indicating the outcome of the command
+	 * @throws SMSException	
+	 */
 	public static ReturnStatus runCommandString(Player player, String command) throws SMSException {
 		return handleCommandString(player, command, RunMode.EXECUTE);
 	}
@@ -49,15 +58,17 @@ public class CommandParser {
 
 		Scanner scanner = new Scanner(command);
 		
+		ReturnStatus rs = ReturnStatus.CMD_OK;
+		
 		while (scanner.hasNext()) {
 			ParsedCommand cmd = new ParsedCommand(player, scanner);
 
 			if (mode == RunMode.EXECUTE) {
-				execute(player, cmd);
+				rs = execute(player, cmd);
 			} else if (mode == RunMode.CHECK_PERMS) {
-				if (cmd.isElevated() && !PermissionsUtils.isAllowedTo(player, "scrollingmenusign.super.elevated"))
+				if (cmd.isElevated() && !PermissionsUtils.isAllowedTo(player, "scrollingmenusign.create.elevated"))
 					return ReturnStatus.NO_PERMS;
-				if (!cmd.getCosts().isEmpty() && !PermissionsUtils.isAllowedTo(player, "scrollingmenusign.super.cost"))
+				if (!cmd.getCosts().isEmpty() && !PermissionsUtils.isAllowedTo(player, "scrollingmenusign.create.cost"))
 					return ReturnStatus.NO_PERMS;
 			} else {
 				// should never get here
@@ -69,7 +80,7 @@ public class CommandParser {
 			}
 		}
 		
-		return ReturnStatus.CMD_OK;
+		return rs;
 	}
 
 	private static boolean checkPlayer(Player player, String playerSpec) {
@@ -88,19 +99,17 @@ public class CommandParser {
 		return PermissionsUtils.isInGroup(player, groupName);
 	}
 
-	private static void execute(Player player, ParsedCommand cmd) {
+	private static ReturnStatus execute(Player player, ParsedCommand cmd) {
 		if (cmd.isRestricted())
-			return;
+			return ReturnStatus.CMD_IGNORED;
 		
-		if (!playerCanAfford(player, cmd.getCosts())) {
-			MiscUtil.errorMessage(player, "You can't afford that.");
-			return;
-		} else {
-			chargePlayer(player, cmd.getCosts());
-		}
+		if (!playerCanAfford(player, cmd.getCosts()))
+			return ReturnStatus.CANT_AFFORD;
+		
+		chargePlayer(player, cmd.getCosts());
 
 		if (cmd.getCommand() == null || cmd.getCommand().isEmpty())
-			return;
+			return ReturnStatus.CMD_IGNORED;
 
 		StringBuilder sb = new StringBuilder().append(cmd.getCommand()).append(" ");
 		for (String a : cmd.getArgs()) {
@@ -112,18 +121,23 @@ public class CommandParser {
 		FakePlayer fakePlayer = FakePlayer.fromPlayer(player, elevatedUser);
 		
 		if (cmd.isFakeuser()) {
+			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated"))
+				return ReturnStatus.NO_PERMS;
+			
 			// this is a /* command, to be run as the fake player
 			Debugger.getDebugger().debug("execute (fakeuser): " + sb.toString());
 			
 			String command = sb.toString().trim();
 			if (command.startsWith("/")) {
-				if (!Bukkit.getServer().dispatchCommand(fakePlayer, command.substring(1))) {
-					MiscUtil.errorMessage(player, "Execution of [" + command + "] failed.");
-				}
+				if (!Bukkit.getServer().dispatchCommand(fakePlayer, command.substring(1)))
+					return ReturnStatus.CMD_FAILED;
 			} else {
 				fakePlayer.chat(command);
 			}
 		} else if (cmd.isElevated()) {
+			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated"))
+				return ReturnStatus.NO_PERMS;
+			
 			// this is a /@ command, to be run as the real player but with borrowed permissions
 			Debugger.getDebugger().debug("execute (elevated): " + sb.toString());
 			
@@ -134,6 +148,11 @@ public class CommandParser {
 			List<String> tempPerms = null;
 			try {
 				tempPerms = PermissionsUtils.elevate(player, elevatedUser);
+				if (tempPerms == null && !player.isOp()) {
+					MiscUtil.log(Level.WARNING,
+					             "No permission nodes found for " + fakePlayer.getName() + " and " + player.getName() + " is not an op. " +
+								 "SMS permission elevation is not likely to succeed.");
+				}
 				player.chat(sb.toString().trim());
 			} finally {
 				PermissionsUtils.deElevate(player, tempPerms);
@@ -144,6 +163,8 @@ public class CommandParser {
 			Debugger.getDebugger().debug("execute (normal): " + sb.toString());
 			player.chat(sb.toString().trim());
 		}
+		
+		return ReturnStatus.CMD_OK;
 	}
 
 	@SuppressWarnings("deprecation")

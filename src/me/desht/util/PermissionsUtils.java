@@ -44,37 +44,24 @@ public class PermissionsUtils {
 
 	public static void setup() {
 		PluginManager pm = Bukkit.getServer().getPluginManager();
+		Plugin plugin;
 
-		Plugin permissionsBukkitPlugin = pm.getPlugin("PermissionsBukkit");
-		if (permissionsBukkitPlugin != null && permissionsBukkit == null) {
-			permissionsBukkit = (PermissionsPlugin) permissionsBukkitPlugin;
-			MiscUtil.log(Level.INFO, "PermissionsBukkit detected");
-			return;
-		}
-
-		Plugin permissionsPlugin = pm.getPlugin("Permissions");
-		if (permissionsPlugin != null && permissionHandler == null) {
-			permissionHandler = ((Permissions) permissionsPlugin).getHandler();
-			MiscUtil.log(Level.INFO, "Permissions detected");
-			return;
-		}
-
-		Plugin permissionsExPlugin = pm.getPlugin("PermissionsEx");
-		if (permissionsExPlugin != null && permissionManager == null) {
+		if ((plugin = pm.getPlugin("PermissionsBukkit")) != null) {
+			permissionsBukkit = (PermissionsPlugin) plugin;
+		} else if ((plugin = pm.getPlugin("PermissionsEx")) != null) {
 			permissionManager = PermissionsEx.getPermissionManager();
-			MiscUtil.log(Level.INFO, "PermissionsEx detected");
-			return;
-		}
-
-		Plugin bPermissionsPlugin = pm.getPlugin("bPermissions");
-		if (bPermissionsPlugin != null && wpm == null) {
+		} else if ((plugin = pm.getPlugin("bPermissions")) != null) {
 			wpm = de.bananaco.permissions.Permissions.getWorldPermissionsManager();
-			MiscUtil.log(Level.INFO, "bPermissions detected");
-			return;
+		} else if ((plugin = pm.getPlugin("Permissions")) != null) {
+			permissionHandler = ((Permissions) plugin).getHandler();
 		}
 
-		MiscUtil.log(Level.INFO, "No Permissions plugin detected - command elevation/restriction not available.");
-		MiscUtil.log(Level.INFO, "Using built-in Bukkit superperms for permissions.");
+		if (plugin != null) {
+			MiscUtil.log(Level.INFO, "Permissions plugin detected: " + plugin.getDescription().getName() + " v" + plugin.getDescription().getVersion());
+		} else {
+			MiscUtil.log(Level.INFO, "No Permissions plugin detected - command elevation/restriction not available.");
+			MiscUtil.log(Level.INFO, "Using built-in Bukkit superperms for permissions.");
+		}
 	}
 
 	/**
@@ -150,7 +137,7 @@ public class PermissionsUtils {
 	 * @return			List of temporary nodes which were granted
 	 */
 	public static List<String> elevate(Player player, String target) {
-		List<String> tempPerms = new ArrayList<String>();
+		List<String> tempNodes = new ArrayList<String>();
 
 		if (wpm != null) {
 			// bPermissions does things a bit differently - we copy the target's group(s)
@@ -159,18 +146,21 @@ public class PermissionsUtils {
 			for (String grp : ps.getGroups(target)) {
 				if (!isInGroup(player, grp)) {
 					ps.addGroup(player, grp);
-					tempPerms.add(grp);
+					tempNodes.add(grp);
 				}
 			}
-			return tempPerms;
+			return tempNodes;
 		} else {
-			for (String perm : getPermissionNodes(target, player.getWorld())) {
-				if (!isAllowedTo(player, perm))
-					tempPerms.add(perm);
+			List<String> nodes = getPermissionNodes(target, player.getWorld());
+			if (nodes == null)
+				return null;
+			for (String node : nodes) {
+				if (!isAllowedTo(player, node))
+					tempNodes.add(node);
 			}
 		}
 
-		for (String perm: tempPerms) {
+		for (String perm: tempNodes) {
 			Debugger.getDebugger().debug("grant perm " + perm);
 			if (permissionsBukkit != null) {
 				// PermissionsBukkit has no API call to modify permissions - use a console command to do it
@@ -189,13 +179,13 @@ public class PermissionsUtils {
 				}
 			} else if (wpm != null) {
 				PermissionSet ps = wpm.getPermissionSet(player.getWorld());
-				for (String grp : tempPerms) {
+				for (String grp : tempNodes) {
 					ps.addGroup(player, grp);
 				}
 			}
 		}
 
-		return tempPerms;
+		return tempNodes;
 	}
 
 	/**
@@ -252,6 +242,9 @@ public class PermissionsUtils {
 		if (permissionsBukkit != null) {
 			Map<String, Boolean> perms;
 			PermissionInfo info = permissionsBukkit.getPlayerInfo(playerName);
+			if (info == null)
+				return null;
+
 			try {
 				// this call currently throws an NPE if no explicit permissions defined
 				perms = info.getPermissions();
@@ -271,11 +264,16 @@ public class PermissionsUtils {
 			}
 			res = new ArrayList<String>(perms.keySet());
 		} else if (permissionHandler != null) {
-			com.nijiko.permissions.User user = permissionHandler.getUserObject(w.getName(), playerName);
-			if (user != null) {
-				res = new ArrayList<String>();
-				for (String s : user.getAllPermissions())
-					res.add(s);
+			try {
+				com.nijiko.permissions.User user = permissionHandler.getUserObject(w.getName(), playerName);
+				if (user != null) {
+					res = new ArrayList<String>();
+					for (String s : user.getAllPermissions())
+						res.add(s);
+				}
+			} catch (NoSuchMethodError e) {
+				MiscUtil.log(Level.WARNING, "This version of Permissions doesn't appear to support permissions elevation (need Permissions 3.x)");
+				return null;
 			}
 		} else if (permissionManager != null) {
 			PermissionUser user = permissionManager.getUser(playerName);

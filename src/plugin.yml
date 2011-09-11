@@ -120,9 +120,12 @@ permissions:
   scrollingmenusign.maps:
     description: Allows manipulation of map views
     default: op
-  scrollingmenusign.super.cost:
+  scrollingmenusign.create.cost:
     description: Allows creation of menu items which have a cost
     default: op
-  scrollingmenusign.super.elevated:
-    description: Allows creation of menu item which bypass permissions checks
+  scrollingmenusign.create.elevated:
+    description: Allows creation of menu items which bypass permissions checks
     default: op
+  scrollingmenusign.execute.elevated:
+    description: Allow execution of menu items which bypass permissions checks
+    default: true

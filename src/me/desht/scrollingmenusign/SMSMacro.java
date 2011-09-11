@@ -178,7 +178,20 @@ public class SMSMacro {
 			return ReturnStatus.CMD_OK;
 		} else {
 			// call to built-in command parser
-			return CommandParser.runCommandString(player, command);
+			ReturnStatus rs = CommandParser.runCommandString(player, command);
+			System.out.println("command returns " + rs.toString());
+			switch (rs) {
+			case NO_PERMS:
+				MiscUtil.errorMessage(player, "You lack sufficient permission to run that.");
+				break;
+			case CANT_AFFORD:
+				MiscUtil.errorMessage(player, "You can't afford to do that.");
+				break;
+			case CMD_FAILED:
+				MiscUtil.errorMessage(player, "Execution of [" + command + "] failed.");
+				break;
+			}
+			return rs;
 		}
 	}
 

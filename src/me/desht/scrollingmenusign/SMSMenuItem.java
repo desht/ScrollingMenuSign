@@ -249,7 +249,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	 */
 	@Override
 	public int compareTo(SMSMenuItem other) {
-		return MiscUtil.deColourise(label).compareTo(MiscUtil.deColourise(other.label));
+		return MiscUtil.deColourise(label).compareToIgnoreCase(MiscUtil.deColourise(other.label));
 	}
 	
 	Map<String, Object> freeze() {
