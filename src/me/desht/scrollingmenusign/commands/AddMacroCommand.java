@@ -11,7 +11,7 @@ public class AddMacroCommand extends AbstractCommand {
 
 	public AddMacroCommand() {
 		super("sms m a", 2);
-		setPermissionNode("scrollingmenusign.commands.macro.add");
+		setPermissionNode("scrollingmenusign.commands.macro");
 		setUsage("/sms macro add <macro> <command>");
 	}
 

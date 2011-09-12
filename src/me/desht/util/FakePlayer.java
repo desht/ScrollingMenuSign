@@ -57,13 +57,11 @@ public class FakePlayer extends CraftPlayer {
 
 	@Override
 	public boolean hasPermission(String perm) {
-		System.out.println("haspermission str: " + perm + " - " + getName());
 		return true;
 	}
 	
 	@Override
 	public boolean hasPermission(Permission perm) {
-		System.out.println("haspermission perm: " + perm.getName());
 		return true;
 	}
 
