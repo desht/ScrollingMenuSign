@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 public class GetConfigCommand extends AbstractCommand {
 
 	public GetConfigCommand() {
-		super("sms g", 0, 1);
+		super("sms ge", 0, 1);
 		setPermissionNode("scrollingmenusign.commands.getcfg");
 		setUsage("/sms getcfg [<key>]");
 	}
