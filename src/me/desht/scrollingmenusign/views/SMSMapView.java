@@ -36,10 +36,21 @@ public class SMSMapView extends SMSScrollableView {
 
 	private static Map<Short,SMSMapView> allMapViews = new HashMap<Short, SMSMapView>();
 	
+	/**
+	 * Create a new map view on the given menu.  The view name is chosen automatically.
+	 * 
+	 * @param menu	The menu to attach the new view to
+	 */
 	public SMSMapView (SMSMenu menu) {
 		this(null, menu);
 	}
 
+	/**
+	 * Create a new map view on the given menu.
+	 * 
+	 * @param name	The new view's name.
+	 * @param menu	The menu to attach the new view to.
+	 */
 	public SMSMapView(String name, SMSMenu menu) {
 		super(name, menu);
 
@@ -98,62 +109,135 @@ public class SMSMapView extends SMSScrollableView {
 		super.deletePermanent();
 	}
 
+	/**
+	 * Get the Bukkit @see org.bukkit.map.MapView associated with this map view object.
+	 * 
+	 * @return	The Bukkit MapView object
+	 */
 	public MapView getMapView() {
 		return mapView;
 	}
 
+	/**
+	 * Get the custom map renderer for this map view object.
+	 * 
+	 * @return	The SMSMapRenderer object
+	 */
 	public SMSMapRenderer getMapRenderer() {
 		return mapRenderer;
 	}
 
+	/**
+	 * Get the X co-ordinate to start drawing at - the left-hand bounds of the drawing space
+	 * 
+	 * @return	The X co-ordinate
+	 */
 	public int getX() {
 		return x;
 	}
 
+	/**
+	 * Set the X co-ordinate to start drawing at - the left-hand bounds of the drawing space
+	 * 
+	 * @param x	The X co-ordinate
+	 */
 	public void setX(int x) {
 		this.x = x;
 	}
-
+	
+	/**
+	 * Get the Y co-ordinate to start drawing at - the upper bounds of the drawing space
+	 * 
+	 * @return	The Y co-ordinate
+	 */
 	public int getY() {
 		return y;
 	}
 
+	/**
+	 * Set the Y co-ordinate to start drawing at - the upper bounds of the drawing space
+	 * 
+	 * @param y		The Y co-ordinate
+	 */
 	public void setY(int y) {
 		this.y = y;
 	}
 
+	/**
+	 * Get the width of the drawing area on the map
+	 * 
+	 * @return	The width
+	 */
 	public int getWidth() {
 		return width;
 	}
 
+	/**
+	 * Set the width of the drawing area on the map
+	 * 
+	 * @param width	The width
+	 */
 	public void setWidth(int width) {
 		this.width = width;
 	}
 
+	/**
+	 * Get the height of the drawing area on the map
+	 * 
+	 * @return	The height
+	 */
 	public int getHeight() {
 		return height;
 	}
 
+	/**
+	 * Set the height of the drawing area on the map
+	 * 
+	 * @param height	The height
+	 */
 	public void setHeight(int height) {
 		this.height = height;
 	}
 
+	/**
+	 * Get the pixel spacing between each line of text in the menu
+	 * 
+	 * @return	The spacing
+	 */
 	public int getLineSpacing() {
 		return lineSpacing;
 	}
 
+	/**
+	 * Set the pixel spacing between each line of text in the menu
+	 * 
+	 * @param lineSpacing	The spacing
+	 */
 	public void setLineSpacing(int lineSpacing) {
 		this.lineSpacing = lineSpacing;
 	}
 
+	/**
+	 * Get the font used for drawing menu text
+	 * 
+	 * @return	The font
+	 */
 	public MapFont getMapFont() {
 		return mapFont;
 	}
 
+	/**
+	 * Set the font used for drawing menu text
+	 * 
+	 * @param mapFont	The font
+	 */
 	public void setMapFont(MapFont mapFont) {
 		this.mapFont = mapFont;
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
+	 */
 	@Override
 	public void update(Observable menu, Object arg1) {
 		if (mapView == null)
@@ -166,14 +250,29 @@ public class SMSMapView extends SMSScrollableView {
 		setDirty(true);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		return "map id: " + mapView.getId();
 	}
 
+	/**
+	 * Given a map ID, return the map view object for that ID, if any.
+	 * 
+	 * @param mapId	The ID of the map
+	 * @return	The SMSMapView object for the ID, or null if this map ID isn't used for a SMSMapView
+	 */
 	public static SMSMapView getViewForId(short mapId) {
 		return allMapViews.get(mapId);
 	}
 
+	/**
+	 * Check if the given map ID is used for a SMSMapView
+	 * 
+	 * @param mapId	The ID of the map
+	 * @return	true if the ID is used for a SMSMapView, false otherwise
+	 */
 	public static boolean checkForMapId(short mapId) {
 		return allMapViews.containsKey(mapId);
 	}

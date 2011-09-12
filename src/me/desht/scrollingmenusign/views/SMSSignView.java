@@ -19,6 +19,14 @@ import org.bukkit.block.Sign;
  */
 public class SMSSignView extends SMSScrollableView {
 
+	/**
+	 * Create a new sign view object with no registered location.  A location
+	 * which contains a sign must be added with @see #addLocation(Location) before
+	 * this view is useful.
+	 * 
+	 * @param name	Unique name for this view.
+	 * @param menu	The SMSMenu object to attach this view to.
+	 */
 	public SMSSignView(String name, SMSMenu menu) {
 		super(name, menu);
 	}
@@ -54,7 +62,7 @@ public class SMSSignView extends SMSScrollableView {
 	public void addLocation(Location loc) throws SMSException {
 		// a sign view has only one location: the sign
 		if (getLocations().size() > 0)
-			return;
+			throw new SMSException("SignView " + getName() + " already has a registered location.");
 
 		Block b = loc.getBlock();
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
@@ -63,7 +71,7 @@ public class SMSSignView extends SMSScrollableView {
 
 		SMSView v = SMSView.getViewForLocation(loc);
 		if (v != null) {
-			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " already has a menu: " + v.getMenu().getName());
+			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " is already a view on menu: " + v.getMenu().getName());
 		}
 		
 		super.addLocation(loc);
@@ -159,6 +167,9 @@ public class SMSSignView extends SMSScrollableView {
 	 * @return	The Sign object
 	 */
 	private Sign getSign() {
+		if (getLocations().isEmpty())
+			return null;
+		
 		Location loc = getLocationsArray()[0];
 		Block b = loc.getBlock();
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
@@ -204,6 +215,9 @@ public class SMSSignView extends SMSScrollableView {
 		return view;
 	}
 	
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#deletePermanent()
+	 */
 	@Override
 	public void deletePermanent() {
 		blankSign();

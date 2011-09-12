@@ -25,6 +25,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.config.ConfigurationNode;
 
+/**
+ * @author des
+ *
+ */
 public abstract class SMSView implements Observer, Freezable {
 
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
@@ -92,6 +96,11 @@ public abstract class SMSView implements Observer, Freezable {
 		return name;	
 	}
 
+	/**
+	 * Get the menu associated with this view.
+	 * 
+	 * @return	The SMSMenu object that this view is a view for.
+	 */
 	public SMSMenu getMenu() {
 		return menu;
 	}
@@ -128,15 +137,33 @@ public abstract class SMSView implements Observer, Freezable {
 		this.dirty = dirty;
 	}
 
+	/**
+	 * Get a set of all locations for this view.  Views may have zero or more locations (e.g. a sign
+	 * view has one location, a map view has zero locations, a hypothetical multi-sign view might have
+	 * several locations...)
+	 * 
+	 * @return	A Set of all locations for this view object
+	 */
 	public Set<Location> getLocations() {	
 		return locations;
 	}
 
+	/**
+	 * Get a list of all locations for this view as a Java array.
+	 * 
+	 * @return	An array of all locations for this view object
+	 */
 	public Location[] getLocationsArray() {
 		Set<Location> locs = getLocations();
 		return locs.toArray(new Location[locs.size()]);
 	}
 
+	/**
+	 * Register a new location as being part of this view object
+	 * 
+	 * @param loc	The location to register
+	 * @throws SMSException if the location is not suitable for adding to this view
+	 */
 	public void addLocation(Location loc) throws SMSException {
 		locations.add(loc);
 		allViewLocations.put(loc, this);
@@ -144,6 +171,11 @@ public abstract class SMSView implements Observer, Freezable {
 		autosave();
 	}
 
+	/**
+	 * Unregister a location from the given view.
+	 * 
+	 * @param loc	The lcoation to unregister.
+	 */
 	public void removeLocation(Location loc) {
 		locations.remove(loc);
 		allViewLocations.remove(loc);
@@ -177,31 +209,63 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 	}
 
+	/**
+	 * Temporarily delete a view.  The view is deactivated, but not removed from disk.
+	 */
 	public void deleteTemporary() {
 		deleteCommon();
 	}
 
+	/**
+	 * Permanently delete a view.  The view is deactivated and purged from persisted storage on disk.
+	 */
 	public void deletePermanent() {
 		deleteCommon();
 		SMSPersistence.unPersist(this);
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.Freezable#getSaveFolder()
+	 */
 	public File getSaveFolder() {
 		return SMSConfig.getViewsFolder();
 	}
 
+	/**
+	 * Check to see if the name view exists
+	 * 
+	 * @param name	The view name
+	 * @return		true if the named view exists, false otherwise
+	 */
 	public static boolean checkForView(String name) {
 		return allViewNames.containsKey(name);
 	}
 
+	/**
+	 * Get all known view objects as a List
+	 * 
+	 * @return	A list of all known views
+	 */
 	public static List<SMSView> listViews() {
 		return new ArrayList<SMSView>(allViewNames.values());
 	}
 
+	/**
+	 * Get all known view objects as a Java array
+	 * 
+	 * @return	An array of all known views
+	 */
 	public static SMSView[] getViewsAsArray() {
 		return allViewNames.values().toArray(new SMSView[allViewNames.size()]);
 	}
 
+	/**
+	 * Get the named SMSView object
+	 * 
+	 * @param name	The view name
+	 * @return		The SMSView object of that name
+	 * @throws SMSException	if there is no such view with the given name
+	 */
 	public static SMSView getView(String name) throws SMSException {
 		if (!checkForView(name))
 			throw new SMSException("No such view " + name);
@@ -209,10 +273,22 @@ public abstract class SMSView implements Observer, Freezable {
 		return allViewNames.get(name);
 	}
 
+	/**
+	 * Get the view object at the given location, if any.
+	 * 
+	 * @param loc	The location to check
+	 * @return		The SMSView object at that location, or null if there is none
+	 */
 	public static SMSView getViewForLocation(Location loc) {
 		return allViewLocations.get(loc);
 	}
 
+	/**
+	 * Find all the views for the given menu
+	 * 
+	 * @param menu	The menu object to check
+	 * @return	A list of SMSView objects which are views for that menu
+	 */
 	public static List<SMSView> getViewsForMenu(SMSMenu menu) {
 		List<SMSView> l = new ArrayList<SMSView>();
 		for (Entry<String, SMSView> e : allViewNames.entrySet()) {

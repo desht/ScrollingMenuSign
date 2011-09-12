@@ -35,10 +35,20 @@ public abstract class SMSScrollableView extends SMSView {
 			scrollPos = 1;
 	}
 
+	/**
+	 * Get the scroll position (currently-selected item) for this view
+	 * 
+	 * @return	The scroll position
+	 */
 	public int getScrollPos() {
 		return scrollPos;
 	}
 
+	/**
+	 * Set the scroll position (currently-selected item) for this view
+	 * 
+	 * @param scrollPos	The scroll position
+	 */
 	public void setScrollPos(int scrollPos) {
 		this.scrollPos = scrollPos;
 		setDirty(true);
