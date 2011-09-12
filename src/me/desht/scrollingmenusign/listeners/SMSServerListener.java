@@ -1,6 +1,9 @@
 package me.desht.scrollingmenusign.listeners;
 
+import java.util.logging.Level;
+
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.util.MiscUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.server.PluginDisableEvent;
@@ -10,11 +13,9 @@ import org.bukkit.event.server.ServerListener;
 import com.LRFLEW.register.payment.Methods;
 
 public class SMSServerListener extends ServerListener {
-	private ScrollingMenuSign plugin;
 	private Methods methods = null;
 	
-	public SMSServerListener(ScrollingMenuSign plugin) {
-		this.plugin = plugin;
+	public SMSServerListener() {
 		this.methods = new Methods();
 	}
 	
@@ -26,7 +27,7 @@ public class SMSServerListener extends ServerListener {
 
             if (check) {
                 ScrollingMenuSign.setEconomy(null);
-                System.out.println("[" + plugin.getDescription().getName() + "] Payment method was disabled. No longer accepting payments.");
+                MiscUtil.log(Level.INFO, "Payment method was disabled. No longer accepting payments.");
             }
         }
     }
@@ -37,7 +38,7 @@ public class SMSServerListener extends ServerListener {
         if (!Methods.hasMethod()) {
             if (Methods.setMethod(Bukkit.getServer().getPluginManager())) {
             	ScrollingMenuSign.setEconomy(Methods.getMethod());
-                System.out.println("[" + plugin.getDescription().getName() + "] Payment method found ("
+            	MiscUtil.log(Level.INFO, "Payment method found ("
                                    + ScrollingMenuSign.getEconomy().getName() + " version: " + ScrollingMenuSign.getEconomy().getVersion() + ")");
             }
         }

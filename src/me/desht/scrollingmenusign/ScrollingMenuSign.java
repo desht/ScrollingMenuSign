@@ -181,7 +181,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private boolean loadRegister() {
 		try {
             Class.forName("com.LRFLEW.register.payment.Methods");
-            serverListener = new SMSServerListener(this);
+            serverListener = new SMSServerListener();
             return true;
         } catch (ClassNotFoundException e) {
             try {
