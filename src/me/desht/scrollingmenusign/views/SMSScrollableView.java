@@ -56,8 +56,6 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Set the currently selected item for this sign to the next item.
-	 * 
-	 * @param l	Location of the sign
 	 */
 	public void scrollDown() {
 		scrollPos++;
@@ -68,8 +66,6 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Set the currently selected item for this sign to the previous item.
-	 * 
-	 * @param l	Location of the sign
 	 */
 	public void scrollUp() {
 		if (getMenu().getItemCount() == 0)

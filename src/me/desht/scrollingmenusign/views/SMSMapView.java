@@ -282,7 +282,7 @@ public class SMSMapView extends SMSScrollableView {
 	 * 
 	 * @param mapId
 	 * @param menu
-	 * @return
+	 * @return	The SMSMapView object that was just created
 	 * @throws SMSException if the given mapId is already a view
 	 */
 	public static SMSMapView addMapToMenu(short mapId, SMSMenu menu) throws SMSException {

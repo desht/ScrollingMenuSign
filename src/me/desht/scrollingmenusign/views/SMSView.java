@@ -84,14 +84,27 @@ public abstract class SMSView implements Observer, Freezable {
 		return s;
 	}
 
+	/**
+	 * Get the view's autosave status - will the view be automatically saved to disk when modified?
+	 * 
+	 * @return	true or false
+	 */
 	public boolean isAutosave() {
 		return autosave;
 	}
 
+	/**
+	 * Set the view's autosave status - will the view be automatically saved to disk when modified?
+	 * 
+	 * @param autosave	true or false
+	 */
 	public void setAutosave(boolean autosave) {
 		this.autosave = autosave;
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.Freezable#getName()
+	 */
 	public String getName() {
 		return name;	
 	}
@@ -129,10 +142,20 @@ public abstract class SMSView implements Observer, Freezable {
 		return list;
 	}
 
+	/**
+	 * Get the "dirty" status for this view - whether or not a repaint is needed.
+	 * 
+	 * @return true if a repaint is needed, false otherwise
+	 */
 	public boolean isDirty() {
 		return dirty;
 	}
 
+	/**
+	 * Set the "dirty" status for this view - whether or not a repaint is needed.
+	 * 
+	 * @param dirty	true if a repaint is needed, false otherwise
+	 */
 	public void setDirty(boolean dirty) {
 		this.dirty = dirty;
 	}

@@ -441,7 +441,7 @@ public class SMSMenu extends Observable implements Freezable {
 	/**
 	 * Remove a sign from the menu.
 	 * 
-	 * @param l	Location of the sign to remove
+	 * @param loc	Location of the sign to remove
 	 * @param action	Action to take on the sign.
 	 * @deprecated View method - use SMSSignView to manage views
 	 */

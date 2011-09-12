@@ -18,6 +18,10 @@ import org.yaml.snakeyaml.reader.ReaderException;
 public class SMSMacro {
 	private static Configuration cmdSet;
 
+	private SMSMacro() {
+		
+	}
+	
 	static void loadCommands() {
 		File f = SMSConfig.getCommandFile();
 		if (cmdSet == null)
