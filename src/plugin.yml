@@ -38,11 +38,12 @@ permissions:
       scrollingmenusign.commands.reload: true
       scrollingmenusign.commands.macro: true
       scrollingmenusign.commands.setcfg: true
+      scrollingmenusign.commands.givemap: true
       scrollingmenusign.destroy: true
       scrollingmenusign.maps: true
       scrollingmenusign.user: true
-      scrollingmenusign.super.elevated: true
-      scrollingmenusign.super.cost: true
+      scrollingmenusign.create.elevated: true
+      scrollingmenusign.create.cost: true
   scrollingmenusign.user:
     description: Gives access to basic SMS functionality
     children:
@@ -95,6 +96,9 @@ permissions:
     default: true
   scrollingmenusign.commands.setcfg:
     description: Allows configuration items to be changed
+    default: op
+  scrollingmenusign.commands.givemap:
+    description: Allows giving of maps with a specific map ID
     default: op
   scrollingmenusign.destroy:
     description: Allows destruction of signs belonging to a menu created by someone else

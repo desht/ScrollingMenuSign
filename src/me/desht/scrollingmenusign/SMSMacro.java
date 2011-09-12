@@ -182,7 +182,6 @@ public class SMSMacro {
 		} else {
 			// call to built-in command parser
 			ReturnStatus rs = CommandParser.runCommandString(player, command);
-			System.out.println("command returns " + rs.toString());
 			switch (rs) {
 			case NO_PERMS:
 				MiscUtil.errorMessage(player, "You lack sufficient permission to run that.");
