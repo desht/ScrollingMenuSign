@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import me.desht.scrollingmenusign.CommandParser.ReturnStatus;
 import me.desht.util.MiscUtil;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 import org.yaml.snakeyaml.reader.ReaderException;
@@ -216,7 +215,7 @@ public class SMSMacro {
 				MiscUtil.errorMessage(player, "No such macro '" + macro + "'.");
 			}
 		} else {
-			player.sendMessage(ChatColor.YELLOW + MiscUtil.parseColourSpec(null, message));
+			MiscUtil.alertMessage(player, message);
 		}	
 	}
 

@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 public class MiscUtil {
 	private static String prevColour = ChatColor.WHITE.toString();
 	protected static final Logger logger = Logger.getLogger("Minecraft");
-	protected static final String messageFormat = "ScrollingMenuSign: %s";
+	protected static final String messageFormat = "[ScrollingMenuSign]: %s";
 
 	public static void errorMessage(Player player, String string) {
 		prevColour = ChatColor.RED.toString();
@@ -68,8 +68,19 @@ public class MiscUtil {
 	}
 
 	public static String parseColourSpec(String spec) {
-		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
-		return res.replace("&-", prevColour).replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7"); 
+		return res.replace("&-", prevColour).replace("&&", "&");
+	}
+
+	public static String parseColourSpec(Player player, String spec) {
+		if (player == null ||
+				PermissionsUtils.isAllowedTo(player, "scrollingmenusign.coloursigns") || 
+				PermissionsUtils.isAllowedTo(player, "scrollingmenusign.colorsigns"))
+		{
+			return parseColourSpec(spec);
+		} else {
+			return spec;
+		}		
 	}
 
 	public static String formatLocation(Location loc) {
@@ -121,18 +132,6 @@ public class MiscUtil {
 			logger.log(level, String.format(messageFormat,
 					message == null ? (err == null ? "?" : err.getMessage()) : message), err);
 		}
-	}
-
-	public static String parseColourSpec(Player player, String spec) {
-		if (player == null ||
-				PermissionsUtils.isAllowedTo(player, "scrollingmenusign.coloursigns") || 
-				PermissionsUtils.isAllowedTo(player, "scrollingmenusign.colorsigns"))
-		{
-			String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7");
-			return res.replace("&&", "&");
-		} else {
-			return spec;
-		}		
 	}
 
 	public static String unParseColourSpec(String spec) {
