@@ -34,6 +34,8 @@ import de.bananaco.permissions.interfaces.PermissionSet;
 import de.bananaco.permissions.worlds.WorldPermissionsManager;
 
 public class PermissionsUtils {
+	private static Plugin activePlugin = null;
+	
 	private static PermissionHandler permissionHandler = null;	// Permissions 2.x/3.x
 	private static PermissionsPlugin permissionsBukkit = null;	// PermissionsBukkit
 	private static PermissionManager permissionManager = null;	// PermissionsEx
@@ -42,9 +44,12 @@ public class PermissionsUtils {
 	private PermissionsUtils() {	
 	}
 
+	/**
+	 * Try to detect a supported permissions plugin.
+	 */
 	public static void setup() {
 		PluginManager pm = Bukkit.getServer().getPluginManager();
-		Plugin plugin;
+		Plugin plugin = null;
 
 		if ((plugin = pm.getPlugin("PermissionsBukkit")) != null) {
 			permissionsBukkit = (PermissionsPlugin) plugin;
@@ -56,14 +61,24 @@ public class PermissionsUtils {
 			permissionHandler = ((Permissions) plugin).getHandler();
 		}
 
+		activePlugin = plugin;
+		
 		if (plugin != null) {
 			MiscUtil.log(Level.INFO, "Permissions plugin detected: " + plugin.getDescription().getName() + " v" + plugin.getDescription().getVersion());
 		} else {
-			MiscUtil.log(Level.INFO, "No Permissions plugin detected - command elevation/restriction not available.");
-			MiscUtil.log(Level.INFO, "Using built-in Bukkit superperms for permissions.");
+			MiscUtil.log(Level.INFO, "No Permissions plugin detected - using built-in Bukkit superperms for permissions.");
 		}
 	}
 
+	/**
+	 * Is there a supported permissions plugin active?
+	 * 
+	 * @return true if a supported permissions plugin is active, false otherwise
+	 */
+	public static boolean isPluginActive() {
+		return activePlugin != null;
+	}
+	
 	/**
 	 * Check if the player has the specified permission node.
 	 * 
@@ -232,7 +247,7 @@ public class PermissionsUtils {
 	 * 
 	 * @param playerName	Name of the player to check for
 	 * @param w				Player's world (use first known world if null is passed)
-	 * @return				List of permission strings
+	 * @return				A list of permission node strings
 	 */
 	public static List<String> getPermissionNodes(String playerName, World w) {
 		if (w == null)
@@ -287,6 +302,13 @@ public class PermissionsUtils {
 		return res;
 	}
 
+	/**
+	 * Temporarily grant op status to a player.  We don't use player.setOp() because we don't
+	 * want the ops.txt file to be written.
+	 * 
+	 * @param player	The player to grant ops status to
+	 * @return			A set of all player names who currently have ops status
+	 */
 	@SuppressWarnings("unchecked")
 	public static Set<String> grantOpStatus(Player player) {
 		Field opsSetField = null;
@@ -316,6 +338,12 @@ public class PermissionsUtils {
 		return opsSet;
 	}
 
+	/**
+	 * Revoke ops status from a player
+	 * 
+	 * @param player	The player to revoke ops status from
+	 * @param opsSet	A set of all player names who currently have ops status, as returned by @see #grantOpStatus(Player)
+	 */
 	public static void revokeOpStatus(Player player, Set<String> opsSet) {
 		if (opsSet != null) {
 			opsSet.remove(player.getName().toLowerCase());
