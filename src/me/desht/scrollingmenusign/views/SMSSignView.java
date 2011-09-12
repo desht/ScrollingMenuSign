@@ -225,6 +225,7 @@ public class SMSSignView extends SMSScrollableView {
 	}
 	
 	public String toString() {
-		return "sign @ " + MiscUtil.formatLocation(getLocationsArray()[0]);
+		Location[] locs = getLocationsArray();
+		return "sign @ " + (locs.length == 0 ? "NONE" : MiscUtil.formatLocation(getLocationsArray()[0]));
 	}
 }

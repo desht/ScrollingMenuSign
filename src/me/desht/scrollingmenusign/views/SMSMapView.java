@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.map.MapFont;
@@ -17,6 +18,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
+import me.desht.util.MiscUtil;
 
 /**
  * @author des
@@ -84,6 +86,10 @@ public class SMSMapView extends SMSScrollableView {
 	 */
 	public void setMapId(short id) {
 		mapView = Bukkit.getServer().getMap(id);
+		if (mapView == null) {
+			MiscUtil.log(Level.WARNING, "No such map view for map ID " + id);
+			return;
+		}
 
 		for (MapRenderer r : mapView.getRenderers()) {
 			previousRenderers.add(r);
@@ -101,10 +107,12 @@ public class SMSMapView extends SMSScrollableView {
 	 */
 	@Override
 	public void deletePermanent() {
-		allMapViews.remove(mapView.getId());
-		mapView.removeRenderer(getMapRenderer());
-		for (MapRenderer r : previousRenderers) {
-			mapView.addRenderer(r);
+		if (mapView != null) {
+			allMapViews.remove(mapView.getId());
+			mapView.removeRenderer(getMapRenderer());
+			for (MapRenderer r : previousRenderers) {
+				mapView.addRenderer(r);
+			}
 		}
 		super.deletePermanent();
 	}
@@ -254,7 +262,7 @@ public class SMSMapView extends SMSScrollableView {
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return "map id: " + mapView.getId();
+		return "map id: " + (mapView == null ? "NONE" : mapView.getId());
 	}
 
 	/**

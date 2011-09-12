@@ -1,7 +1,7 @@
 name: ScrollingMenuSign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
-version: 0.6
-softdepend: [ Permissions, CommandSigns ]
+version: 0.6.1
+softdepend: [ Permissions, PermissionsEx, bPermissions, PermissionsBukkit, CommandSigns ]
 commands:
   sms:
     description: Scrolling menu sign control
@@ -24,11 +24,14 @@ commands:
       /sms macro <list|add|remove> <macro-name> ...
       /sms save [<all|menus|macros|config>]
       /sms reload [<all|menus|macros|config>]
+      /sms defcmd <menu> <command>
+      /sms givemap <map-id> <quantity>
 permissions:
   scrollingmenusign.admin:
     description: Gives access to SMS administration
     children:
       scrollingmenusign.commands.create: true
+      scrollingmenusign.commands.title: true
       scrollingmenusign.commands.delete: true
       scrollingmenusign.commands.break: true
       scrollingmenusign.commands.sync: true
@@ -38,12 +41,16 @@ permissions:
       scrollingmenusign.commands.reload: true
       scrollingmenusign.commands.macro: true
       scrollingmenusign.commands.setcfg: true
+      scrollingmenusign.commands.debug: true
+      scrollingmenusign.commands.sort: true
+      scrollingmenusign.commands.defcmd: true
       scrollingmenusign.commands.givemap: true
+      scrollingmenusign.commands.uses: true
       scrollingmenusign.destroy: true
       scrollingmenusign.maps: true
-      scrollingmenusign.user: true
       scrollingmenusign.create.elevated: true
       scrollingmenusign.create.cost: true
+      scrollingmenusign.user: true
   scrollingmenusign.user:
     description: Gives access to basic SMS functionality
     children:
@@ -52,8 +59,12 @@ permissions:
       scrollingmenusign.commands.show: true
       scrollingmenusign.scroll: true
       scrollingmenusign.execute: true
+      scrollingmenusign.execute.elevated: true
   scrollingmenusign.commands.create:
     description: Allow creation of new menus
+    default: op
+  scrollingmenusign.commands.title:
+    description: Allow the title of menus to be changed
     default: op
   scrollingmenusign.commands.delete:
     description: Allow deletion of menus

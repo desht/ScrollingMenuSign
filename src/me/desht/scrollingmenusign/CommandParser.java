@@ -19,8 +19,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class CommandParser {
-	
-	enum ReturnStatus { CMD_OK, CMD_STOPPED, CMD_IGNORED, MACRO_STOPPED, NO_PERMS, CMD_FAILED, CANT_AFFORD };
+
+	enum ReturnStatus { CMD_OK, CMD_STOPPED, CMD_IGNORED, MACRO_STOPPED, NO_PERMS, CMD_FAILED, CANT_AFFORD, CMD_RESTRICTED };
 	private enum RunMode { CHECK_PERMS, EXECUTE };
 
 	static boolean runSimpleCommandString(Player player, String command) {
@@ -45,7 +45,7 @@ public class CommandParser {
 	}
 
 	static ReturnStatus handleCommandString(Player player, String command, RunMode mode) throws SMSException {
-		
+
 		// some preprocessing ...
 		command = command.replace("<X>", "" + player.getLocation().getBlockX());
 		command = command.replace("<Y>", "" + player.getLocation().getBlockY());
@@ -57,14 +57,16 @@ public class CommandParser {
 		command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
 
 		Scanner scanner = new Scanner(command);
-		
+
 		ReturnStatus rs = ReturnStatus.CMD_OK;
-		
+
 		while (scanner.hasNext()) {
 			ParsedCommand cmd = new ParsedCommand(player, scanner);
 
 			if (mode == RunMode.EXECUTE) {
 				rs = execute(player, cmd);
+				if (rs == ReturnStatus.CMD_RESTRICTED || rs == ReturnStatus.CANT_AFFORD)
+					continue;	// bypassing any potential CMD_STOPPED or MACRO_STOPPED
 			} else if (mode == RunMode.CHECK_PERMS) {
 				if (cmd.isElevated() && !PermissionsUtils.isAllowedTo(player, "scrollingmenusign.create.elevated"))
 					return ReturnStatus.NO_PERMS;
@@ -74,12 +76,12 @@ public class CommandParser {
 				// should never get here
 				throw new IllegalArgumentException("unexpected run mode for parseCommandString()");
 			}
-			
+
 			if (cmd.getStatus() == ReturnStatus.CMD_STOPPED || cmd.getStatus() == ReturnStatus.MACRO_STOPPED) {
 				return cmd.getStatus();
 			}
 		}
-		
+
 		return rs;
 	}
 
@@ -101,33 +103,35 @@ public class CommandParser {
 
 	private static ReturnStatus execute(Player player, ParsedCommand cmd) {
 		if (cmd.isRestricted())
-			return ReturnStatus.CMD_IGNORED;
-		
+			return ReturnStatus.CMD_RESTRICTED;
+
 		if (!playerCanAfford(player, cmd.getCosts()))
 			return ReturnStatus.CANT_AFFORD;
-		
+
 		chargePlayer(player, cmd.getCosts());
 
 		if (cmd.getCommand() == null || cmd.getCommand().isEmpty())
-			return ReturnStatus.CMD_IGNORED;
+			return cmd.getStatus();
 
 		StringBuilder sb = new StringBuilder().append(cmd.getCommand()).append(" ");
 		for (String a : cmd.getArgs()) {
 			sb.append(a).append(" ");
 		}
+		String command = sb.toString().trim();
 
-		String elevatedUser = SMSConfig.getConfiguration().getString("elevation_user", "&SMS");
-		
+		String elevatedUser = SMSConfig.getConfiguration().getString("elevation_user", "&SMS");	
 		FakePlayer fakePlayer = FakePlayer.fromPlayer(player, elevatedUser);
-		
-		if (cmd.isFakeuser()) {
+
+		if (cmd.isWhisper()) {
+			// private message to the player
+			MiscUtil.alertMessage(fakePlayer, command);
+		} else if (cmd.isFakeuser()) {
 			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated"))
 				return ReturnStatus.NO_PERMS;
-			
+
 			// this is a /* command, to be run as the fake player
-			Debugger.getDebugger().debug("execute (fakeuser): " + sb.toString());
-			
-			String command = sb.toString().trim();
+			Debugger.getDebugger().debug("execute (fakeuser): " + command);
+
 			if (command.startsWith("/")) {
 				if (!Bukkit.getServer().dispatchCommand(fakePlayer, command.substring(1)))
 					return ReturnStatus.CMD_FAILED;
@@ -137,21 +141,21 @@ public class CommandParser {
 		} else if (cmd.isElevated()) {
 			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated"))
 				return ReturnStatus.NO_PERMS;
-			
+
 			// this is a /@ command, to be run as the real player but with borrowed permissions
 			Debugger.getDebugger().debug("execute (elevated): " + sb.toString());
-			
+
 			Set<String>opsSet = null;
 			if (fakePlayer.isOp())
 				opsSet = PermissionsUtils.grantOpStatus(player);
-			
+
 			List<String> tempPerms = null;
 			try {
 				tempPerms = PermissionsUtils.elevate(player, elevatedUser);
 				if (tempPerms == null && !player.isOp()) {
 					MiscUtil.log(Level.WARNING,
 					             "No permission nodes found for " + fakePlayer.getName() + " and " + player.getName() + " is not an op. " +
-								 "SMS permission elevation is not likely to succeed.");
+					"SMS permission elevation is not likely to succeed.");
 				}
 				player.chat(sb.toString().trim());
 			} finally {
@@ -163,8 +167,8 @@ public class CommandParser {
 			Debugger.getDebugger().debug("execute (normal): " + sb.toString());
 			player.chat(sb.toString().trim());
 		}
-		
-		return ReturnStatus.CMD_OK;
+
+		return cmd.getStatus();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -289,7 +293,7 @@ public class CommandParser {
 		}
 
 		Cost(String costSpec) {
-			System.out.println("cost = " + costSpec);
+//			System.out.println("cost = " + costSpec);
 			String[] s1 = costSpec.split(",");
 			if (s1.length != 2)
 				throw new IllegalArgumentException("cost: format must be <item,quantity>");
@@ -313,7 +317,7 @@ public class CommandParser {
 			return quantity;
 		}
 	}
-	
+
 	static class ParsedCommand {
 		private String command;
 		private List<String> args;
@@ -322,14 +326,15 @@ public class CommandParser {
 		private List<Cost> costs;
 		private ReturnStatus status;
 		private boolean fakeuser;
-		
+		private boolean whisper;
+
 		ParsedCommand (Player player, Scanner scanner) throws SMSException {
 			args = new ArrayList<String>();
 			costs = new ArrayList<Cost>();
-			elevated = restricted = false;
+			elevated = restricted = whisper = false;
 			command = null;
-			status = null;
-			
+			status = ReturnStatus.CMD_OK;
+
 			while (scanner.hasNext()) {
 				String token = scanner.next();
 
@@ -345,6 +350,10 @@ public class CommandParser {
 					// regular command
 					command = token;
 					elevated = false;
+				} else if (token.startsWith("\\\\") && command == null) {
+					// a whisper string
+					command = token.substring(2);
+					whisper = true;
 				} else if (token.startsWith("\\") && command == null) {
 					// a chat string
 					command = token.substring(1);
@@ -380,7 +389,6 @@ public class CommandParser {
 					return;
 				} else if (token.equals("&&")) {
 					// command separator - start another command
-					status = ReturnStatus.CMD_OK;
 					return;
 				} else {
 					// just a plain string
@@ -389,7 +397,7 @@ public class CommandParser {
 					else
 						args.add(token);
 				}
-			}		
+			}
 		}
 
 		public String getCommand() {
@@ -418,6 +426,10 @@ public class CommandParser {
 
 		public boolean isFakeuser() {
 			return fakeuser;
+		}
+
+		public boolean isWhisper() {
+			return whisper;
 		}
 	}
 }
