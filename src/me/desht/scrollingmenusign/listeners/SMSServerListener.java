@@ -10,7 +10,7 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
 
-import com.LRFLEW.register.payment.Methods;
+import com.nijikokun.register.payment.Methods;
 
 public class SMSServerListener extends ServerListener {
 	private Methods methods = null;

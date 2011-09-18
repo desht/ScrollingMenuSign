@@ -49,7 +49,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
-import com.LRFLEW.register.payment.Method;
+import com.nijikokun.register.payment.Method;
 
 public class ScrollingMenuSign extends JavaPlugin {
 	private static PluginDescriptionFile description;
@@ -182,7 +182,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	private boolean loadRegister() {
 		try {
-            Class.forName("com.LRFLEW.register.payment.Methods");
+            Class.forName("com.nijikokun.register.payment.Methods");
             serverListener = new SMSServerListener();
             return true;
         } catch (ClassNotFoundException e) {
@@ -191,9 +191,9 @@ public class ScrollingMenuSign extends JavaPlugin {
                 if (!new File("lib").isDirectory())
                     if (!new File("lib").mkdir())
                         MiscUtil.log(Level.SEVERE, "[ScrollingMenuSign] Error creating lib directory. Please make sure Craftbukkit has permissions to write to the Minecraft directory and there is no file named \"lib\" in that location.");
-                URL Register = new URL("https://github.com/iConomy/Register/raw/master/dist/_Register.jar");
+                URL Register = new URL("https://github.com/iConomy/Register/raw/master/dist/Register.jar");
                 ReadableByteChannel rbc = Channels.newChannel(Register.openStream());
-                FileOutputStream fos = new FileOutputStream("lib/Register.jar");
+                FileOutputStream fos = new FileOutputStream(new File("lib", "Register.jar"));
                 fos.getChannel().transferFrom(rbc, 0, 1 << 24);
                 MiscUtil.log(Level.INFO, "[ScrollingMenuSign] Register library downloaded. Server reboot required to load.");
             } catch (MalformedURLException ex) {
