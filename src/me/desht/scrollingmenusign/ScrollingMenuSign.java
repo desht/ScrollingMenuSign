@@ -187,7 +187,7 @@ public class ScrollingMenuSign extends JavaPlugin {
             return true;
         } catch (ClassNotFoundException e) {
             try {
-                MiscUtil.log(Level.INFO, "[ScrollingMenuSign] Register library not found! Downloading...");
+                MiscUtil.log(Level.INFO, "Register library not found! Downloading...");
                 if (!new File("lib").isDirectory())
                     if (!new File("lib").mkdir())
                         MiscUtil.log(Level.SEVERE, "[ScrollingMenuSign] Error creating lib directory. Please make sure Craftbukkit has permissions to write to the Minecraft directory and there is no file named \"lib\" in that location.");
@@ -195,13 +195,13 @@ public class ScrollingMenuSign extends JavaPlugin {
                 ReadableByteChannel rbc = Channels.newChannel(Register.openStream());
                 FileOutputStream fos = new FileOutputStream(new File("lib", "Register.jar"));
                 fos.getChannel().transferFrom(rbc, 0, 1 << 24);
-                MiscUtil.log(Level.INFO, "[ScrollingMenuSign] Register library downloaded. Server reboot required to load.");
+                MiscUtil.log(Level.INFO, "Register library downloaded. Server reload/restart required to activate ScrollingMenuSign.");
             } catch (MalformedURLException ex) {
-                MiscUtil.log(Level.WARNING, "[ScrollingMenuSign] Error accessing Register lib URL: " + ex);
+                MiscUtil.log(Level.WARNING, "Error accessing Register lib URL: " + ex);
             } catch (FileNotFoundException ex) {
-                MiscUtil.log(Level.WARNING, "[ScrollingMenuSign] Error accessing Register lib URL: " + ex);
+                MiscUtil.log(Level.WARNING, "Error accessing Register lib URL: " + ex);
             } catch (IOException ex) {
-                MiscUtil.log(Level.WARNING, "[ScrollingMenuSign] Error downloading Register lib: " + ex);
+                MiscUtil.log(Level.WARNING, "Error downloading Register lib: " + ex);
             } finally {
                 getServer().getPluginManager().disablePlugin(this);
             }

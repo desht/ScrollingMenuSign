@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.Set;
 
+import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.util.Debugger;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
@@ -20,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 
 public class CommandParser {
 
-	enum ReturnStatus { CMD_OK, CMD_STOPPED, CMD_IGNORED, MACRO_STOPPED, NO_PERMS, CMD_FAILED, CANT_AFFORD, CMD_RESTRICTED };
 	private enum RunMode { CHECK_PERMS, EXECUTE };
 
 	static boolean runSimpleCommandString(Player player, String command) {

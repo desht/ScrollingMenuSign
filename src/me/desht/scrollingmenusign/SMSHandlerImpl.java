@@ -4,6 +4,7 @@ import java.util.List;
 
 
 import me.desht.scrollingmenusign.enums.MenuRemovalAction;
+import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.util.MiscUtil;
 
@@ -91,5 +92,10 @@ public class SMSHandlerImpl implements SMSHandler {
 	@Override
 	public List<SMSMenu> listMenus(boolean isSorted) {
 		return SMSMenu.listMenus(isSorted);
+	}
+
+	@Override
+	public ReturnStatus runCommandString(Player player, String command) throws SMSException {
+		return CommandParser.runCommandString(player, command);
 	}
 }

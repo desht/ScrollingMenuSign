@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-import me.desht.scrollingmenusign.CommandParser.ReturnStatus;
+import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
