@@ -27,7 +27,8 @@ public class SMSBlockListener extends BlockListener {
 
 	@Override
 	public void onBlockDamage(BlockDamageEvent event) {
-		if (event.isCancelled()) return;
+		if (event.isCancelled())
+			return;
 		
 		Block b = event.getBlock();
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
@@ -50,7 +51,8 @@ public class SMSBlockListener extends BlockListener {
 	
 	@Override
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (event.isCancelled()) return;
+		if (event.isCancelled())
+			return;
 		
 		Block b = event.getBlock();
 		Player p = event.getPlayer();
@@ -60,15 +62,20 @@ public class SMSBlockListener extends BlockListener {
 			SMSView view = SMSView.getViewForLocation(loc);
 			if (view != null) {
 				Debugger.getDebugger().debug("block break event @ " + b.getLocation() + ", menu=" + view.getMenu().getName());
-				view.deletePermanent();
-				MiscUtil.statusMessage(p, "Sign @ &f" + MiscUtil.formatLocation(loc) + "&- was removed from menu &e" + view.getMenu().getName() + "&-");
+				if (plugin.getConfiguration().getBoolean("sms.no_destroy_signs", false)) {
+					event.setCancelled(true);
+				} else {
+					view.deletePermanent();
+					MiscUtil.statusMessage(p, "Sign @ &f" + MiscUtil.formatLocation(loc) + "&- was removed from menu &e" + view.getMenu().getName() + "&-");
+				}
 			}
 		}
 	}
 
 	@Override
 	public void onBlockPhysics(BlockPhysicsEvent event) {
-		if (event.isCancelled()) return;
+		if (event.isCancelled())
+			return;
 		
 		Block b = event.getBlock();
 		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
