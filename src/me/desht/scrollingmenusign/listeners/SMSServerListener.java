@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.listeners;
 
 import java.util.logging.Level;
 
+import me.desht.register.payment.Methods;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.util.MiscUtil;
 
@@ -10,7 +11,6 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
 
-import com.nijikokun.register.payment.Methods;
 
 public class SMSServerListener extends ServerListener {
 	private Methods methods = null;
@@ -34,6 +34,7 @@ public class SMSServerListener extends ServerListener {
 
     @Override
     public void onPluginEnable(PluginEnableEvent event) {
+    	System.out.println("plugin enable: " + event.getPlugin().getDescription().getName());
         // Check to see if we need a payment method
         if (!Methods.hasMethod()) {
             if (Methods.setMethod(Bukkit.getServer().getPluginManager())) {
