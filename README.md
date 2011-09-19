@@ -1,4 +1,4 @@
-# ScrollingMenuSign v0.6.2
+# ScrollingMenuSign 
 
 ScrollingMenuSign is a Bukkit plugin that allows you to attach a scrolling command menu to any sign on your CraftBukkit
 Minecraft server.  A command menu consists of a title and zero or more entries: a label, a command to execute, and an optional
