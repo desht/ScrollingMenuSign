@@ -37,11 +37,10 @@ public class SMSMacro {
 	}
 
 	static void saveCommands() {
-		File f = SMSConfig.getCommandFile();
 		if (cmdSet == null)
-			cmdSet = new Configuration(f);
-
-		cmdSet.save();
+			return;
+		else
+			cmdSet.save();
 	}
 
 	static void autosave() {
