@@ -1,14 +1,8 @@
 package me.desht.scrollingmenusign;
 
-//import java.io.File;
-//import java.io.FileNotFoundException;
-//import java.io.FileOutputStream;
-//import java.io.IOException;
-//import java.net.MalformedURLException;
-//import java.net.URL;
-//import java.nio.channels.Channels;
-//import java.nio.channels.ReadableByteChannel;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import me.desht.register.payment.Method;
 import me.desht.register.payment.Methods;
@@ -38,7 +32,6 @@ import me.desht.scrollingmenusign.commands.SortMenuCommand;
 import me.desht.scrollingmenusign.listeners.SMSBlockListener;
 import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
-//import me.desht.scrollingmenusign.listeners.SMSServerListener;
 import me.desht.util.MessagePager;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
@@ -59,7 +52,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
-//	private SMSServerListener serverListener;
 	private final CommandManager cmds = new CommandManager(this);
 
 	private static Method economy = null;
@@ -67,25 +59,25 @@ public class ScrollingMenuSign extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		description = this.getDescription();
-
+		
+		PluginManager pm = getServer().getPluginManager();
+		
+		if (!validateVersions(description.getVersion(), getServer().getVersion())) {		
+			pm.disablePlugin(this);
+			return;
+		}	
+		
 		SMSPersistence.init();
 		SMSConfig.init(this);
-
-		//		if (!loadRegister())
-		//			return;
-
 		PermissionsUtils.setup();
 		SMSCommandSigns.setup();
 
-		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
-		//		pm.registerEvent(Event.Type.PLUGIN_ENABLE, serverListener, Event.Priority.Normal, this);
-		//		pm.registerEvent(Event.Type.PLUGIN_DISABLE, serverListener, Event.Priority.Normal, this);
 
 		setupEconomy();
 
@@ -191,35 +183,63 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public static Method getEconomy() {
 		return economy;
 	}
+	
+	boolean validateVersions(String pVer, String cbVer) {
+		Pattern pat = Pattern.compile("b([0-9]+)jnks");
+		Matcher m = pat.matcher(cbVer);
+		int pluginBuild = getRelease(pVer);
+		int bukkitBuild;
+		if (m.find()) {
+			bukkitBuild = Integer.parseInt(m.group(1));
+		} else {
+			MiscUtil.log(Level.WARNING, "Can't determine build number for CraftBukkit from " + cbVer);
+			return true;
+		}
+		System.out.println("SMS " + pVer + ", CB " + bukkitBuild);
+		if (pluginBuild < 7000 && bukkitBuild >= 1093) {
+			notCompatible(pVer, bukkitBuild, "0.7 or later");
+			return false;
+		} else if (pluginBuild >= 7000 && bukkitBuild < 1093) {
+			notCompatible(pVer, bukkitBuild, "0.6.x earlier");
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	/**
+	 * Get the internal version number for the given string version, which is
+	 * <major> * 1,000,000 + <minor> * 1,000 + <release>.  This assumes minor and
+	 * release each won't go above 999, hopefully a safe assumption!
+	 * 
+	 * @param oldVersion
+	 * @return
+	 */
+	private static int getRelease(String ver) {
+		String[] a = ver.split("\\.");
+		try {
+			int major = Integer.parseInt(a[0]);
+			int minor;
+			int rel;
+			if (a.length < 2) {
+				minor = 0;
+			} else {
+				minor = Integer.parseInt(a[1]);
+			}
+			if (a.length < 3) {
+				rel = 0;
+			} else {
+				rel = Integer.parseInt(a[2]);
+			}
+			return major * 1000000 + minor * 1000 + rel;
+		} catch (NumberFormatException e) {
+			MiscUtil.log(Level.WARNING, "Version string [" + ver + "] doesn't look right!");
+			return 0;
+		}
+	}
 
-	//	private boolean loadRegister() {
-	//		System.out.println("loading register...");
-	//		try {
-	//            Class.forName("com.nijikokun.register.payment.Methods");
-	//    		System.out.println("found Methods ok...");
-	//            serverListener = new SMSServerListener();
-	//            return true;
-	//        } catch (ClassNotFoundException e) {
-	//            try {
-	//                MiscUtil.log(Level.INFO, "Register library not found! Downloading...");
-	//                if (!new File("lib").isDirectory())
-	//                    if (!new File("lib").mkdir())
-	//                        MiscUtil.log(Level.SEVERE, "[ScrollingMenuSign] Error creating lib directory. Please make sure Craftbukkit has permissions to write to the Minecraft directory and there is no file named \"lib\" in that location.");
-	//                URL Register = new URL("https://github.com/iConomy/Register/raw/master/dist/Register.jar");
-	//                ReadableByteChannel rbc = Channels.newChannel(Register.openStream());
-	//                FileOutputStream fos = new FileOutputStream(new File("lib", "Register.jar"));
-	//                fos.getChannel().transferFrom(rbc, 0, 1 << 24);
-	//                MiscUtil.log(Level.INFO, "Register library downloaded. Server reload/restart required to activate ScrollingMenuSign.");
-	//            } catch (MalformedURLException ex) {
-	//                MiscUtil.log(Level.WARNING, "Error accessing Register lib URL: " + ex);
-	//            } catch (FileNotFoundException ex) {
-	//                MiscUtil.log(Level.WARNING, "Error accessing Register lib URL: " + ex);
-	//            } catch (IOException ex) {
-	//                MiscUtil.log(Level.WARNING, "Error downloading Register lib: " + ex);
-	//            } finally {
-	//                getServer().getPluginManager().disablePlugin(this);
-	//            }
-	//            return false;
-	//        }
-	//    }
+	private void notCompatible(String pVer, int bukkitBuild, String needed) {
+		MiscUtil.log(Level.SEVERE, "ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
+		MiscUtil.log(Level.SEVERE, "You need to use ScrollingMenuSign v" + needed);
+	}
 }
