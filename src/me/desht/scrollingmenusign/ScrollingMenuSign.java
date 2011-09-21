@@ -195,7 +195,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 			MiscUtil.log(Level.WARNING, "Can't determine build number for CraftBukkit from " + cbVer);
 			return true;
 		}
-		System.out.println("SMS " + pVer + ", CB " + bukkitBuild);
 		if (pluginBuild < 7000 && bukkitBuild >= 1093) {
 			notCompatible(pVer, bukkitBuild, "0.7 or later");
 			return false;
