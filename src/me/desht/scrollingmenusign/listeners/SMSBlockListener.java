@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.listeners;
 
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.Debugger;
 import me.desht.util.MiscUtil;
@@ -68,6 +69,11 @@ public class SMSBlockListener extends BlockListener {
 					view.deletePermanent();
 					MiscUtil.statusMessage(p, "Sign @ &f" + MiscUtil.formatLocation(loc) + "&- was removed from menu &e" + view.getMenu().getName() + "&-");
 				}
+			}
+		} else if (p.getItemInHand().getTypeId() == 358) {
+			if (SMSMapView.getViewForId(p.getItemInHand().getDurability()) != null) {
+				// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
+				event.setCancelled(true);
 			}
 		}
 	}

@@ -20,7 +20,7 @@ import me.desht.util.PermissionsUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerAnimationEvent;
+//import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerListener;
@@ -93,31 +93,35 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 	}
 
-	@Override
-	public void onPlayerAnimation(PlayerAnimationEvent event) {
-		if (event.isCancelled())
-			return;
-		
-		Player player = event.getPlayer();
-		
-		SMSMapView mapView = null;
-		if (player.getItemInHand().getTypeId() == 358) {
-			mapView = SMSMapView.getViewForId(player.getItemInHand().getDurability());
-		}
-		
-		try {
-			switch (event.getAnimationType()) {
-			case ARM_SWING:
-				if (mapView != null) {
-					Debugger.getDebugger().debug("player animation event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + ", menu=" + mapView.getMenu().getName());
-					SMSUserAction action = SMSUserAction.getAction(event);
-					processAction(action, player, mapView);
-				}	
-			}
-		} catch (SMSException e) {
-			MiscUtil.log(Level.WARNING, e.getMessage());
-		}
-	}
+//	@Override
+//	public void onPlayerAnimation(PlayerAnimationEvent event) {
+//		if (event.isCancelled())
+//			return;
+//		
+//		Player player = event.getPlayer();
+//		
+//		SMSMapView mapView = null;
+//		if (player.getItemInHand().getTypeId() == 358) {
+//			mapView = SMSMapView.getViewForId(player.getItemInHand().getDurability());
+//		}
+//		
+//		try {
+//			switch (event.getAnimationType()) {
+//			case ARM_SWING:
+//				if (mapView != null) {
+//					Block b = player.getTargetBlock(null, 2);
+//					if (b.getTypeId() == 0) {
+//						// we'll only do this if the player is targeting air - if a block is targeted, the onPlayerInteract handler deals with it
+//						Debugger.getDebugger().debug("player animation event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + ", menu=" + mapView.getMenu().getName());
+//						SMSUserAction action = SMSUserAction.getAction(event);
+//						processAction(action, player, mapView);
+//					}
+//				}	
+//			}
+//		} catch (SMSException e) {
+//			MiscUtil.log(Level.WARNING, e.getMessage());
+//		}
+//	}
 	
 	/**
 	 * Try to activate a sign by punching it.  The sign needs to contain "[sms]"
