@@ -3,7 +3,7 @@ package me.desht.scrollingmenusign.enums;
 import me.desht.scrollingmenusign.SMSConfig;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 
@@ -11,23 +11,24 @@ public enum SMSUserAction {
 	NONE, SCROLLDOWN, SCROLLUP, EXECUTE;
 	
 	public static SMSUserAction getAction(PlayerInteractEvent event) {
-		Action a = event.getAction();
-		Player player = event.getPlayer();
-		
 		StringBuilder key;
-		if (a == Action.RIGHT_CLICK_BLOCK ) {
+		switch (event.getAction()) {
+		case RIGHT_CLICK_BLOCK:
+//		case RIGHT_CLICK_AIR:
 			key = new StringBuilder("sms.actions.rightclick.");
-		} else if (a == Action.LEFT_CLICK_BLOCK) {
+			break;
+		case LEFT_CLICK_BLOCK:
+//		case LEFT_CLICK_AIR:
 			key = new StringBuilder("sms.actions.leftclick.");
-		} else {
-			return null;
+			break;
+		default:
+			return null;	
 		}
-		return _makeAction(player, key);
+		
+		return _makeAction(event.getPlayer(), key);
 	}
 
 	public static SMSUserAction getAction(PlayerItemHeldEvent event) {
-		Player player = event.getPlayer();
-		
 		int delta = event.getNewSlot() - event.getPreviousSlot();
 		StringBuilder key;
 		if (delta == -1 || delta == 8) {
@@ -37,7 +38,17 @@ public enum SMSUserAction {
 		} else {
 			return null;
 		}
-		return _makeAction(player, key);
+		return _makeAction(event.getPlayer(), key);
+	}
+
+	public static SMSUserAction getAction(PlayerAnimationEvent event) {
+		switch (event.getAnimationType()) {
+		case ARM_SWING:
+			StringBuilder key = new StringBuilder("sms.actions.leftclick.");
+			return _makeAction(event.getPlayer(), key);
+		default:
+			return null;	
+		}
 	}
 
 	private static SMSUserAction _makeAction(Player player, StringBuilder key) {

@@ -17,10 +17,10 @@ import me.desht.util.Debugger;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerListener;
@@ -66,12 +66,12 @@ public class SMSPlayerListener extends PlayerListener {
 				// Holding an active map, use that as the view
 				Debugger.getDebugger().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
-				processAction(action, player, mapView, block.getLocation());
+				processAction(action, player, mapView);
 			} else if (locView != null) {
 				// There's a view at the targeted block, use that as the view
 				Debugger.getDebugger().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
-				processAction(action, player, locView, block.getLocation());
+				processAction(action, player, locView);
 			}
 		} catch (SMSException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
@@ -87,12 +87,38 @@ public class SMSPlayerListener extends PlayerListener {
 			if (view == null)
 				return;
 			SMSUserAction action = SMSUserAction.getAction(event);
-			processAction(action, player, view, block.getLocation());
+			processAction(action, player, view);
 		} catch (SMSException e) {
 			MiscUtil.log(Level.WARNING, e.getMessage());
 		}
 	}
 
+	@Override
+	public void onPlayerAnimation(PlayerAnimationEvent event) {
+		if (event.isCancelled())
+			return;
+		
+		Player player = event.getPlayer();
+		
+		SMSMapView mapView = null;
+		if (player.getItemInHand().getTypeId() == 358) {
+			mapView = SMSMapView.getViewForId(player.getItemInHand().getDurability());
+		}
+		
+		try {
+			switch (event.getAnimationType()) {
+			case ARM_SWING:
+				if (mapView != null) {
+					Debugger.getDebugger().debug("player animation event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + ", menu=" + mapView.getMenu().getName());
+					SMSUserAction action = SMSUserAction.getAction(event);
+					processAction(action, player, mapView);
+				}	
+			}
+		} catch (SMSException e) {
+			MiscUtil.log(Level.WARNING, e.getMessage());
+		}
+	}
+	
 	/**
 	 * Try to activate a sign by punching it.  The sign needs to contain "[sms]"
 	 * on the first line, the menu name on the second line, and (only if a new menu
@@ -191,7 +217,7 @@ public class SMSPlayerListener extends PlayerListener {
 		MiscUtil.statusMessage(player, "Added new map view to menu &e" + mapView.getMenu().getName() + "&-.");
 	}
 
-	private void processAction(SMSUserAction action, Player player, SMSView view, Location l) throws SMSException {
+	private void processAction(SMSUserAction action, Player player, SMSView view) throws SMSException {
 		if (action == null)
 			return;
 		
