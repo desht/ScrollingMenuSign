@@ -19,13 +19,15 @@ public class SMSCommandSigns {
 	
 	static void setup() {
 		Plugin csPlugin = Bukkit.getServer().getPluginManager().getPlugin("CommandSigns");
-		if (csHandler == null) {
-			if (csPlugin != null) {
-				csHandler = ((CommandSigns) csPlugin).getHandler();
-				MiscUtil.log(Level.INFO, "CommandSigns API integration enabled");
-			} else {
-				MiscUtil.log(Level.INFO, "CommandSigns API not available");
-			}
+		
+		if (csPlugin != null && csPlugin instanceof com.edwardhand.commandsigns.CommandSigns) {
+			csHandler = ((CommandSigns) csPlugin).getHandler();
+		}
+		
+		if (csHandler != null) {
+			MiscUtil.log(Level.INFO, "CommandSigns API integration enabled");
+		} else {
+			MiscUtil.log(Level.INFO, "CommandSigns API not available");
 		}
 	}
 	
