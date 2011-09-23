@@ -88,9 +88,6 @@ public class SMSSignView extends SMSScrollableView {
 		if (!(menu instanceof SMSMenu))
 			return;
 
-		int pos = getScrollPos();
-		if (pos < 1 || pos > getMenu().getItemCount())
-			setScrollPos(1);
 		String[] lines = buildSignText(getScrollPos());
 		for (int i = 0; i < lines.length; i++) {
 			sign.setLine(i, lines[i]);

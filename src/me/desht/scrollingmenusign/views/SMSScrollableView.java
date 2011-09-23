@@ -36,11 +36,18 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	/**
-	 * Get the scroll position (currently-selected item) for this view
+	 * Get the scroll position (currently-selected item) for this view.  If the scroll position
+	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
+	 * adjusted to be in range before being returned.
 	 * 
 	 * @return	The scroll position
 	 */
 	public int getScrollPos() {
+		if (scrollPos < 1)
+			setScrollPos(1);
+		else if (scrollPos > getMenu().getItemCount())
+			setScrollPos(getMenu().getItemCount());
+		
 		return scrollPos;
 	}
 
