@@ -86,6 +86,7 @@ public class SMSPlayerListener extends PlayerListener {
 			SMSView view = SMSView.getViewForLocation(block.getLocation());
 			if (view == null)
 				return;
+			Debugger.getDebugger().debug("player item held change event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getPreviousSlot() + "->" + event.getNewSlot() + ", menu =" + view.getMenu().getName());
 			SMSUserAction action = SMSUserAction.getAction(event);
 			processAction(action, player, view);
 		} catch (SMSException e) {
