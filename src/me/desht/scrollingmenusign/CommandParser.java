@@ -227,17 +227,18 @@ public class CommandParser {
 		HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(Material.getMaterial(c.getId()));
 
 		int remainingCheck = c.getQuantity();
+		System.out.println("start, remaining = " + remainingCheck);
 		for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
 			if (c.getData() == null || (entry.getValue().getData() != null && entry.getValue().getData().getData() == c.getData())) {
 				remainingCheck -= entry.getValue().getAmount();
-				if (remainingCheck <= 0) {
-					if (remainingCheck == 0)
-						player.getInventory().remove(entry.getValue());
-					else
-						entry.getValue().setAmount(-remainingCheck);
+				if (remainingCheck < 0) {
+					entry.getValue().setAmount(-remainingCheck);
+					break;
+				} else if (remainingCheck == 0) {	
+					player.getInventory().removeItem(entry.getValue());
 					break;
 				} else {
-					player.getInventory().remove(entry.getValue());
+					player.getInventory().removeItem(entry.getValue());
 				}
 			}
 		}
