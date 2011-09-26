@@ -119,7 +119,7 @@ public class CommandParser {
 		}
 		String command = sb.toString().trim();
 
-		String elevatedUser = SMSConfig.getConfiguration().getString("elevation_user", "&SMS");	
+		String elevatedUser = SMSConfig.getConfiguration().getString("sms.elevation_user", "&SMS");	
 		FakePlayer fakePlayer = FakePlayer.fromPlayer(player, elevatedUser);
 
 		if (cmd.isWhisper()) {
@@ -227,7 +227,6 @@ public class CommandParser {
 		HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(Material.getMaterial(c.getId()));
 
 		int remainingCheck = c.getQuantity();
-		System.out.println("start, remaining = " + remainingCheck);
 		for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
 			if (c.getData() == null || (entry.getValue().getData() != null && entry.getValue().getData().getData() == c.getData())) {
 				remainingCheck -= entry.getValue().getAmount();
@@ -294,7 +293,7 @@ public class CommandParser {
 		}
 
 		Cost(String costSpec) {
-//			System.out.println("cost = " + costSpec);
+			//			System.out.println("cost = " + costSpec);
 			String[] s1 = costSpec.split(",");
 			if (s1.length != 2)
 				throw new IllegalArgumentException("cost: format must be <item,quantity>");

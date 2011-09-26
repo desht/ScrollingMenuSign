@@ -119,7 +119,7 @@ public class SMSConfig {
 	}
 	
 	public static void setConfigItem(Player player, String key, String val) throws SMSException {
-		if (key.length() < 5 || !key.substring(0, 4).equals("sms.")) {
+		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
 		if (configDefaults.get(key) == null) {
@@ -127,9 +127,9 @@ public class SMSConfig {
 		}
 		if (configDefaults.get(key) instanceof Boolean) {
 			Boolean bVal = false;
-			if (val.equals("false") || val.equals("no")) {
+			if (val.equalsIgnoreCase("false") || val.equalsIgnoreCase("no")) {
 				bVal = false;
-			} else if (val.equals("true") || val.equals("yes")) {
+			} else if (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("yes")) {
 				bVal = true;
 			} else {
 				MiscUtil.errorMessage(player, "Invalid boolean value " + val + " - use true/yes or false/no.");
@@ -141,7 +141,7 @@ public class SMSConfig {
 				int nVal = Integer.parseInt(val);
 				getConfiguration().setProperty(key, nVal);
 			} catch (NumberFormatException e) {
-				MiscUtil.errorMessage(player, "Invalid numeric value: " + val);
+				throw new SMSException("Invalid numeric value: " + val);
 			}
 		} else {
 			getConfiguration().setProperty(key, val);
