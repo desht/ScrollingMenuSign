@@ -154,8 +154,8 @@ public class CommandParser {
 				tempPerms = PermissionsUtils.elevate(player, elevatedUser);
 				if (tempPerms == null && !player.isOp()) {
 					MiscUtil.log(Level.WARNING,
-					             "No permission nodes found for " + fakePlayer.getName() + " and " + player.getName() + " is not an op. " +
-					"SMS permission elevation is not likely to succeed.");
+							"No permission nodes found for " + fakePlayer.getName() + " and " + player.getName() + " is not an op. " +
+							"SMS permission elevation is not likely to succeed.");
 				}
 				player.chat(sb.toString().trim());
 			} finally {
@@ -174,20 +174,42 @@ public class CommandParser {
 	@SuppressWarnings("deprecation")
 	private static void chargePlayer(Player player, List<Cost> costs) {
 		for (Cost c : costs) {
-			if (c.getQuantity() == 0)
+			if (c.getQuantity() == 0.0)
 				continue;
-			if (c.getId() == 0) {
+			switch (c.getType()) {
+			case MONEY:
 				if (ScrollingMenuSign.getEconomy() != null) {
 					ScrollingMenuSign.getEconomy().getAccount(player.getName()).subtract(c.getQuantity());
 				}
-			} else {
+				break;
+			case ITEM:
 				if (c.getQuantity() > 0) 
 					chargeItems(player, c);
 				else
 					grantItems(player, c);
+				player.updateInventory();
+				break;
+			case EXPERIENCE:
+				player.setTotalExperience(getNewQuantity(player.getTotalExperience(), c.getQuantity(), 0, Integer.MAX_VALUE));
+				break;
+			case FOOD:
+				player.setFoodLevel(getNewQuantity(player.getFoodLevel(), c.getQuantity(), 1, 20));
+				break;
+			case HEALTH:
+				player.setHealth(getNewQuantity(player.getHealth(), c.getQuantity(), 1, 20));
+				break;
 			}
 		}
-		player.updateInventory();
+	}
+
+	private static int getNewQuantity(int original, double adjust, int min, int max) {
+		int newQuantity = original - (int) adjust;
+		if (newQuantity < min) {
+			newQuantity = min;
+		} else if (newQuantity > max) {
+			newQuantity = max;	
+		}
+		return newQuantity;
 	}
 
 	/**
@@ -197,7 +219,7 @@ public class CommandParser {
 	 * @param c
 	 */
 	private static void grantItems(Player player, Cost c) {
-		int quantity = -c.getQuantity();
+		int quantity = (int) -c.getQuantity();
 
 		ItemStack stack = null;
 		while (quantity > 64) {
@@ -226,7 +248,7 @@ public class CommandParser {
 	private static void chargeItems(Player player, Cost c) {
 		HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(Material.getMaterial(c.getId()));
 
-		int remainingCheck = c.getQuantity();
+		int remainingCheck = (int) c.getQuantity();
 		for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
 			if (c.getData() == null || (entry.getValue().getData() != null && entry.getValue().getData().getData() == c.getData())) {
 				remainingCheck -= entry.getValue().getAmount();
@@ -254,14 +276,15 @@ public class CommandParser {
 		for (Cost c : costs) {
 			if (c.getQuantity() <= 0)
 				continue;
-			if (c.getId() == 0) {
-				if (ScrollingMenuSign.getEconomy() != null) {
-					if (!ScrollingMenuSign.getEconomy().getAccount(player.getName()).hasEnough(c.getQuantity()))
-						return false;
-				}
-			} else {
+			
+			switch (c.getType()) {
+			case MONEY:
+				if (!ScrollingMenuSign.getEconomy().getAccount(player.getName()).hasEnough(c.getQuantity()))
+					return false;
+				break;
+			case ITEM:
 				HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(Material.getMaterial(c.getId()));
-				int remainingCheck = c.getQuantity();
+				int remainingCheck = (int) c.getQuantity();
 				for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
 					if(c.getData() == null || (entry.getValue().getData() != null && entry.getValue().getData().getData() == c.getData())) {
 						remainingCheck -= entry.getValue().getAmount();
@@ -272,21 +295,42 @@ public class CommandParser {
 				if (remainingCheck > 0) {
 					return false;
 				}
+				break;
+			case EXPERIENCE:
+				if (player.getTotalExperience() < c.getQuantity())
+					return false;
+				break;
+			case FOOD:
+				if (player.getFoodLevel() <= c.getQuantity())
+					return false;
+				break;
+			case HEALTH:
+				if (player.getHealth() <= c.getQuantity())
+					return false;
+				break;
 			}
 		}
 		return true;
 	}
 
+	enum CostType { ITEM, MONEY, EXPERIENCE, FOOD, HEALTH };
+
 	static class Cost {
+		private CostType type;
 		private int id;
 		private Byte data;
-		private int quantity;
+		private double quantity;
 
 		Cost(int id) {
-			this(id, (byte) 0, 1);
+			this(id, null, 1);
 		}
 
-		Cost(int id, byte data, int quantity) {
+		Cost(int id, Byte data, double quantity) {
+			this(id == 0 ? CostType.MONEY : CostType.ITEM, id, data, quantity);
+		}
+
+		Cost(CostType type, int id, Byte data, double quantity) {
+			this.type = type;
 			this.id = id;
 			this.data = data;
 			this.quantity = quantity;
@@ -300,9 +344,21 @@ public class CommandParser {
 			String[] s2 = s1[0].split(":");
 			if (s2.length < 1 || s2.length > 2)
 				throw new IllegalArgumentException("cost: item format must be <id[:data]>");
-			id = Integer.parseInt(s2[0]);
+			String itemType = s2[0];
+			if (itemType.equalsIgnoreCase("E")) {
+				type = CostType.MONEY;
+			} else if (itemType.equalsIgnoreCase("X")) {
+				type = CostType.EXPERIENCE;
+			} else if (itemType.equalsIgnoreCase("F")) {
+				type = CostType.FOOD;
+			} else if (itemType.equalsIgnoreCase("H")) {
+				type = CostType.HEALTH;
+			} else {
+				id = Integer.parseInt(s2[0]);
+				type = id == 0 ? CostType.MONEY : CostType.ITEM;
+			}
 			data = s2.length == 2 ? Byte.parseByte(s2[1]) : null;
-			quantity = Integer.parseInt(s1[1]);
+			quantity = Double.parseDouble(s1[1]);
 		}
 
 		public int getId() {
@@ -313,8 +369,12 @@ public class CommandParser {
 			return data;
 		}
 
-		public int getQuantity() {
+		public double getQuantity() {
 			return quantity;
+		}
+
+		public CostType getType() {
+			return type;
 		}
 	}
 
