@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -19,12 +20,12 @@ public class SMSConfig {
 	private static File pluginDir;
 	private static File dataDir, menusDir, viewsDir;
 	private static File commandFile;
-	
+
 	private static final String dataDirName = "data";
 	private static final String menusDirName = "menus";
 	private static final String viewsDirName = "views";
 	private static final String commandFileName = "commands.yml";
-	
+
 	@SuppressWarnings("serial")
 	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {{
 		put("sms.always_use_commandsigns", true);
@@ -45,16 +46,20 @@ public class SMSConfig {
 		put("sms.actions.wheeldown.normal", "none");
 		put("sms.actions.wheeldown.sneak", "scrolldown");
 		put("sms.elevation_user", "&SMS");
+		List<String>samplePerm = new ArrayList<String>();
+		samplePerm.add("a.sample.permission.node");
+		put("sms.elevation.nodes", samplePerm);
+		put("sms.elevation.grant_op", false);
 	}};
-	
+
 	static void init(ScrollingMenuSign plugin) {
 		SMSConfig.plugin = plugin;
 		if (plugin != null) {
 			pluginDir = plugin.getDataFolder();
 		}
-		
+
 		setupDirectoryStructure();
-		
+
 		initConfigFile();
 	}
 
@@ -63,7 +68,7 @@ public class SMSConfig {
 		dataDir = new File(pluginDir, dataDirName);
 		menusDir = new File(dataDir, menusDirName);
 		viewsDir = new File(dataDir, viewsDirName);
-		
+
 		createDirectory(pluginDir);
 		createDirectory(dataDir);
 		createDirectory(menusDir);
@@ -88,28 +93,28 @@ public class SMSConfig {
 				config.setProperty(k, configDefaults.get(k));
 			}
 		}
-		
+
 		if (config.getString("sms.menuitem_separator").equals("\\|")) {
 			// special case - convert from v0.3 or older where it was a regexp
 			config.setProperty("sms.menuitem_separator", "|");
 			saveNeeded = true;
 		}
-		
+
 		if (saveNeeded) config.save();
 	}
-	
+
 	public static File getCommandFile() {
 		return commandFile;
 	}
-	
+
 	public static File getPluginFolder() {
 		return pluginDir;
 	}
-	
+
 	public static File getDataFolder() {
 		return dataDir;
 	}
-	
+
 	public static File getMenusFolder() {
 		return menusDir;
 	}
@@ -117,13 +122,13 @@ public class SMSConfig {
 	public static File getViewsFolder() {
 		return viewsDir;
 	}
-	
+
 	public static void setConfigItem(Player player, String key, String val) throws SMSException {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
 		if (configDefaults.get(key) == null) {
-			throw new SMSException("No such config key " + key);
+			throw new SMSException("No such config key '" + key + "'");
 		}
 		if (configDefaults.get(key) instanceof Boolean) {
 			Boolean bVal = false;
@@ -143,13 +148,49 @@ public class SMSConfig {
 			} catch (NumberFormatException e) {
 				throw new SMSException("Invalid numeric value: " + val);
 			}
+		} else if (configDefaults.get(key) instanceof List<?>) {
+			List<String>list = new ArrayList<String>(1);
+			list.add(val);
+			handleListValue(key, list);
 		} else {
 			getConfiguration().setProperty(key, val);
 		}
-		
+
 		getConfiguration().save();
 	}
-	
+
+	public static void setConfigItem(Player player, String key, List<String> list) throws SMSException {
+		if (!key.startsWith("sms.")) {
+			key = "sms." + key;
+		}
+		if (configDefaults.get(key) == null) {
+			throw new SMSException("No such config key '" + key + "'");
+		}
+		if (!(configDefaults.get(key) instanceof List<?>))
+			throw new SMSException("Config item '" + key + "' does not accept a list of values");
+
+		handleListValue(key, list);
+
+		getConfiguration().save();
+	}
+
+	private static void handleListValue(String key, List<String> list) {
+		HashSet<String> current;
+		if (list.get(0).equals("+")) {
+			list.remove(0);
+			current = new HashSet<String>(getConfiguration().getStringList(key, null));
+			current.addAll(list);
+			getConfiguration().setProperty(key, new ArrayList<String>(current));
+		} else if (list.get(0).equals("-")) {
+			list.remove(0);
+			current = new HashSet<String>(getConfiguration().getStringList(key, null));
+			current.removeAll(list);
+			getConfiguration().setProperty(key, new ArrayList<String>(current));
+		} else {
+			getConfiguration().setProperty(key, list);
+		}
+	}
+
 	// return a sorted list of all config keys
 	public static List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
@@ -159,8 +200,15 @@ public class SMSConfig {
 		Collections.sort(res);
 		return res;
 	}
-	
+
 	public static Configuration getConfiguration() {
 		return plugin.getConfiguration();
+	}
+
+	public static String getConfigItem(String key) {
+		if (!key.startsWith("sms.")) {
+			key = "sms." + key;
+		}
+		return getConfiguration().getString(key);
 	}
 }

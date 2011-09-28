@@ -6,6 +6,7 @@ import java.util.List;
 import me.desht.scrollingmenusign.enums.MenuRemovalAction;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
@@ -96,6 +97,6 @@ public class SMSHandlerImpl implements SMSHandler {
 
 	@Override
 	public ReturnStatus runCommandString(Player player, String command) throws SMSException {
-		return CommandParser.runCommandString(player, command);
+		return new CommandParser().runCommandString(player, command);
 	}
 }

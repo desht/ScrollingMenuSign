@@ -1,5 +1,8 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -11,7 +14,7 @@ import org.bukkit.entity.Player;
 public class SetConfigCommand extends AbstractCommand {
 
 	public SetConfigCommand() {
-		super("sms se", 2, 2);
+		super("sms se", 2);
 		setPermissionNode("scrollingmenusign.commands.setcfg");
 		setUsage("/sms setcfg <key> <value>");
 		setQuotedArgs(true);
@@ -22,13 +25,20 @@ public class SetConfigCommand extends AbstractCommand {
 		String key = args[0], val = args[1];
 		
 		try {
-			SMSConfig.setConfigItem(player, key, val);
+			if (args.length > 2) {
+				List<String> list = new ArrayList<String>(args.length - 1);
+				for (int i = 1; i < args.length; i++)
+					list.add(args[i]);
+				SMSConfig.setConfigItem(player, key, list);
+			} else {
+				SMSConfig.setConfigItem(player, key, val);
+			}
 			if (key.matches("item_(justify|prefix.*)")) {
 				SMSMenu.updateAllMenus();
 			}
-			MiscUtil.statusMessage(player, key + " is now set to \"&e" + val + "&-\"");
+			MiscUtil.statusMessage(player, key + " is now set to \"&e" + SMSConfig.getConfigItem(key) + "&-\"");
 		} catch (SMSException e) {
-			MiscUtil.errorMessage(player, "No such config key " + key);
+			MiscUtil.errorMessage(player, e.getMessage());
 			MiscUtil.errorMessage(player, "Use /sms getcfg to list all valid keys");
 		}
 		return true;

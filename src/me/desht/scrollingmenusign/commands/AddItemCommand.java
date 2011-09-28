@@ -5,13 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import me.desht.scrollingmenusign.CommandParser;
-import me.desht.scrollingmenusign.SMSCommandSigns;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
@@ -27,7 +26,7 @@ public class AddItemCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		
+
 		String menuName = args[0];
 
 		String sep = SMSConfig.getConfiguration().getString("sms.menuitem_separator", "|");
@@ -43,31 +42,26 @@ public class AddItemCommand extends AbstractCommand {
 				items.add(args[i]);
 			}
 		}
-		
+
 		SMSMenu menu = plugin.getHandler().getMenu(menuName);
 
 		if (items.size() < 2 && menu.getDefaultCommand().isEmpty()) {
 			throw new SMSException("Missing command and feedback message");
 		}
-				
+
 		String label = MiscUtil.parseColourSpec(player, items.get(0));
 		String cmd = items.size() >= 2 ? items.get(1) : "";
 		String msg = items.size() >= 3 ? items.get(2) : "";
 
-		if (player != null) {
-			if (SMSCommandSigns.isActive() && !SMSCommandSigns.hasEnablingPermissions(player, cmd)) {
-				throw new SMSException("You do not have permission to add that kind of command.");
-			}
-			if (!SMSCommandSigns.isActive() && !CommandParser.verifyCreationPerms(player, cmd)) {
-				throw new SMSException("You do not have permission to add that kind of command.");
-			}
+		if (player != null && !new CommandParser().verifyCreationPerms(player, cmd)) {
+			throw new SMSException("You do not have permission to add that kind of command.");
 		}
-		
+
 		menu.addItem(label, cmd, msg);
 		menu.notifyObservers(SMSMenuAction.REPAINT);
-		
+
 		MiscUtil.statusMessage(player, "Menu entry &f" + label + "&- added to: &e" + menuName);
-		
+
 		return true;
 	}
 

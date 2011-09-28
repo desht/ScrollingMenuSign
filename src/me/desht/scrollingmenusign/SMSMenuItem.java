@@ -1,8 +1,14 @@
 package me.desht.scrollingmenusign;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
 
+import me.desht.scrollingmenusign.enums.ReturnStatus;
+import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
@@ -135,7 +141,27 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty() ) {
 			cmd = menu.getDefaultCommand().replaceAll("<LABEL>", getLabel());
 		}
-		SMSMacro.executeCommand(cmd, player);
+		
+//		SMSMacro.executeCommand(cmd, player);
+		
+		ReturnStatus rs = new CommandParser().runCommandString(player, command);
+		switch (rs) {
+		case NO_PERMS:
+			MiscUtil.errorMessage(player, "You lack sufficient permission to run that.");
+			break;
+		case CANT_AFFORD:
+			MiscUtil.errorMessage(player, "You can't afford to do that.");
+			break;
+		case CMD_FAILED:
+			MiscUtil.errorMessage(player, "Execution of [" + command + "] failed.");
+			break;
+		case WOULD_RECURSE:
+			MiscUtil.errorMessage(player, "Recursion detected when running " + command);
+			break;
+		case BAD_MACRO:
+			MiscUtil.errorMessage(player, "Unknown macro found when running " + command);
+			break;	
+		}
 	}
 
 	private void checkRemainingUses(SMSRemainingUses uses, Player player) throws SMSException {
@@ -158,7 +184,38 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	 * @param player	Player to show the message to
 	 */
 	public void feedbackMessage(Player player) {
-		SMSMacro.sendFeedback(player, getMessage());
+		sendFeedback(player, getMessage());
+	}
+
+	private static void sendFeedback(Player player, String message) {
+		sendFeedback(player, message, new HashSet<String>());
+	}
+
+	private static void sendFeedback(Player player, String message, Set<String> history) {
+		if (message == null || message.length() == 0)
+			return;
+		if (message.startsWith("%")) {
+			// macro expansion
+			String macro = message.substring(1);
+			if (history.contains(macro)) {
+				MiscUtil.log(Level.WARNING, "sendFeedback [" + macro + "]: recursion detected");
+				MiscUtil.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
+				return;
+			} else if (SMSMacro.hasMacro(macro)) {
+				history.add(macro);
+				sendFeedback(player, SMSMacro.getCommands(macro), history);
+			} else {
+				MiscUtil.errorMessage(player, "No such macro '" + macro + "'.");
+			}
+		} else {
+			MiscUtil.alertMessage(player, message);
+		}	
+	}
+
+	private static void sendFeedback(Player player, List<String> messages, Set<String> history) {
+		for (String m : messages) {
+			sendFeedback(player, m, history);
+		}
 	}
 
 	/* (non-Javadoc)

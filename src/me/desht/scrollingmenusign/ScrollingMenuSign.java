@@ -56,9 +56,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	private static Method economy = null;
 
+	private static ScrollingMenuSign instance;
+
 	@Override
 	public void onEnable() {
 		description = this.getDescription();
+		
+		setInstance(this);
 		
 		PluginManager pm = getServer().getPluginManager();
 		
@@ -70,7 +74,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 		SMSPersistence.init();
 		SMSConfig.init(this);
 		PermissionsUtils.setup();
-		SMSCommandSigns.setup();
 
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Event.Priority.Normal, this);
@@ -241,5 +244,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private void notCompatible(String pVer, int bukkitBuild, String needed) {
 		MiscUtil.log(Level.SEVERE, "ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
 		MiscUtil.log(Level.SEVERE, "You need to use ScrollingMenuSign v" + needed);
+	}
+	
+	private static void setInstance(ScrollingMenuSign plugin) {
+		instance = plugin;
+	}
+	
+	public static ScrollingMenuSign getInstance() {
+		return instance;
 	}
 }
