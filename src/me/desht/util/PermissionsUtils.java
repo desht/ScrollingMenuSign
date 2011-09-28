@@ -313,16 +313,22 @@ public class PermissionsUtils {
 	public static Set<String> grantOpStatus(Player player) {
 		Field opsSetField = null;
 		Set<String> opsSet = null;
-
+	
 		try {
-			// The private .h field in ServerConfigurationManager represents a 
-			// set of player names who have Op status
-			opsSetField = ServerConfigurationManager.class.getDeclaredField("h");
-			opsSetField.setAccessible(true);
+			opsSetField = ServerConfigurationManager.class.getDeclaredField("operators");
 			opsSet = (Set<String>) opsSetField.get(((CraftServer)player.getServer()).getHandle());
-		} catch (Exception e) {
-			MiscUtil.log(Level.WARNING, "Exception thrown when finding opsSet: " + e.getMessage()); 
-			return null;
+		} catch (NoSuchFieldException nfe) {
+			// earlier versions of CraftBukkit don't have the public "operators" field
+			// instead we need to use reflection to expose the private "h" field (yuck)
+			try {
+				opsSetField = ServerConfigurationManager.class.getDeclaredField("h");
+				opsSetField.setAccessible(true);
+				opsSet = (Set<String>) opsSetField.get(((CraftServer)player.getServer()).getHandle());
+			} catch (Exception e) {
+				MiscUtil.log(Level.WARNING, "Exception thrown when finding opsSet: " + e.getClass() + ": " + e.getMessage()); 
+			}
+		} catch (IllegalAccessException e) {
+			MiscUtil.log(Level.WARNING, "Exception thrown when finding opsSet: " + e.getClass() + ": " + e.getMessage());
 		}
 
 		if (opsSet != null) {
@@ -332,9 +338,10 @@ public class PermissionsUtils {
 			} else {
 				opsSet.add(player.getName().toLowerCase());
 			}
+			player.recalculatePermissions();
+			Debugger.getDebugger().debug("granted op to " + player.getName());
 		}
-		player.recalculatePermissions();
-		Debugger.getDebugger().debug("granted op to " + player.getName());
+		
 		return opsSet;
 	}
 
