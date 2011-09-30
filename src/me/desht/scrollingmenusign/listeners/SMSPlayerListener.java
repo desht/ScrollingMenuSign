@@ -5,12 +5,9 @@ import java.util.logging.Level;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.SMSMapView;
-import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.Debugger;
@@ -65,12 +62,12 @@ public class SMSPlayerListener extends PlayerListener {
 				// Holding an active map, use that as the view
 				Debugger.getDebugger().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
-				processAction(action, player, mapView);
+				action.execute(player, mapView);
 			} else if (locView != null) {
 				// There's a view at the targeted block, use that as the view
 				Debugger.getDebugger().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
-				processAction(action, player, locView);
+				action.execute(player, locView);
 			}
 		} catch (SMSException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
@@ -87,7 +84,7 @@ public class SMSPlayerListener extends PlayerListener {
 				return;
 			Debugger.getDebugger().debug("player item held change event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getPreviousSlot() + "->" + event.getNewSlot() + ", menu =" + view.getMenu().getName());
 			SMSUserAction action = SMSUserAction.getAction(event);
-			processAction(action, player, view);
+			action.execute(player, view);
 		} catch (SMSException e) {
 			MiscUtil.log(Level.WARNING, e.getMessage());
 		}
@@ -251,40 +248,4 @@ public class SMSPlayerListener extends PlayerListener {
 		SMSMapView mapView = SMSMapView.addMapToMenu(mapId, currentView.getMenu());
 		MiscUtil.statusMessage(player, "Added new map view to menu &e" + mapView.getMenu().getName() + "&-.");
 	}
-
-	private void processAction(SMSUserAction action, Player player, SMSView view) throws SMSException {
-		if (action == null)
-			return;
-
-		if (!view.allowedToUse(player))
-			throw new SMSException("This menu view belongs to someone else.");
-
-		SMSScrollableView sview;
-		if (view instanceof SMSScrollableView) {
-			sview = (SMSScrollableView) view;
-		} else {
-			return;
-		}
-		SMSMenu menu = sview.getMenu();
-		switch (action) {
-		case EXECUTE:
-			if (sview instanceof SMSMapView)
-				PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
-			SMSMenuItem item = menu.getItem(sview.getScrollPos());
-			if (item != null) {
-				item.execute(player);
-				item.feedbackMessage(player);
-			}
-			break;
-		case SCROLLDOWN:
-			sview.scrollDown();
-			sview.update(menu, SMSMenuAction.REPAINT);
-			break;
-		case SCROLLUP:
-			sview.scrollUp();
-			sview.update(menu, SMSMenuAction.REPAINT);
-			break;
-		}
-	}
-
 }
