@@ -12,12 +12,6 @@
 	<classpathentry kind="var" path="LOCAL_JARS/craftbukkit-0.0.1-SNAPSHOT.jar" sourcepath="/SOURCES/CraftBukkit"/>
 	<classpathentry kind="var" path="LOCAL_JARS/PermissionsEx.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/bPermissions.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/BOSEconomy7.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/Essentials.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/iCo4.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/iCo5.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/iCo6.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/MultiCurrency.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/SpoutAPI.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -4,8 +4,6 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.desht.register.payment.Method;
-import me.desht.register.payment.Methods;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
 import me.desht.scrollingmenusign.commands.AddViewCommand;
@@ -46,6 +44,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+
+import com.nijikokun.register.payment.Method;
+import com.nijikokun.register.payment.Methods;
 
 
 public class ScrollingMenuSign extends JavaPlugin {
@@ -124,7 +125,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 
 	private void setupEconomy() {
-		Methods.setMethod(getServer().getPluginManager());
+			Methods.setMethod(getServer().getPluginManager());
 
 		if (Methods.getMethod() != null) {
 			setEconomy(Methods.getMethod());
