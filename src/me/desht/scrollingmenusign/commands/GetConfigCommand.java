@@ -25,11 +25,14 @@ public class GetConfigCommand extends AbstractCommand {
 			}
 			MessagePager.showPage(player);
 		} else {
-			String res = SMSConfig.getConfiguration().getString(args[0]);
+			String key = args[0];
+			if (!key.startsWith("sms."))
+				key = "sms." + key;
+			String res = SMSConfig.getConfiguration().getString(key);
 			if (res != null) {
-				MiscUtil.statusMessage(player, args[0] + " = '" + res + "'");
+				MiscUtil.statusMessage(player, key + " = '&e" + res + "&-'");
 			} else {
-				MiscUtil.errorMessage(player, "No such config item " + args[0]);
+				MiscUtil.errorMessage(player, "No such config item: " + key);
 			}
 		}
 		

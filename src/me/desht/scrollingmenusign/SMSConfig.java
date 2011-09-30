@@ -28,7 +28,6 @@ public class SMSConfig {
 
 	@SuppressWarnings("serial")
 	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {{
-		put("sms.always_use_commandsigns", true);
 		put("sms.autosave", true);
 		put("sms.no_physics", false);
 		put("sms.no_explosions", false);
@@ -45,7 +44,6 @@ public class SMSConfig {
 		put("sms.actions.wheelup.sneak", "scrollup");
 		put("sms.actions.wheeldown.normal", "none");
 		put("sms.actions.wheeldown.sneak", "scrolldown");
-		put("sms.elevation_user", "&SMS");
 		List<String>samplePerm = new ArrayList<String>();
 		samplePerm.add("a.sample.permission.node");
 		put("sms.elevation.nodes", samplePerm);
@@ -196,7 +194,7 @@ public class SMSConfig {
 	public static List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
 		for (String k : configDefaults.keySet()) {
-			res.add(k + " = '" + getConfiguration().getString(k) + "'");
+			res.add(k + " = '&e" + getConfiguration().getString(k) + "&-'");
 		}
 		Collections.sort(res);
 		return res;
