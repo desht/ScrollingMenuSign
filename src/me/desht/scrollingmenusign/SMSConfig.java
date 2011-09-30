@@ -47,6 +47,9 @@ public class SMSConfig {
 		put("sms.actions.wheelup.sneak", "scrollup");
 		put("sms.actions.wheeldown.normal", "none");
 		put("sms.actions.wheeldown.sneak", "scrolldown");
+		put("sms.actions.spout.up", "key_up");
+		put("sms.actions.spout.down", "key_down");
+		put("sms.actions.spout.execute", "key_return");
 		List<String>samplePerm = new ArrayList<String>();
 		samplePerm.add("a.sample.permission.node");
 		put("sms.elevation.nodes", samplePerm);
