@@ -116,7 +116,7 @@ public class SMSMapView extends SMSScrollableView {
 	@Override
 	public void deletePermanent() {
 		if (mapView != null) {
-			setSpoutMapName("Map");
+			setSpoutMapName("map_" + mapView.getId());
 			allMapViews.remove(mapView.getId());
 			mapView.removeRenderer(getMapRenderer());
 			for (MapRenderer r : previousRenderers) {
@@ -315,7 +315,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	private void setSpoutMapName(String name) {
 		if (ScrollingMenuSign.getInstance().isSpoutEnabled()) {
-			SpoutManager.getItemManager().setItemName(Material.MAP, name);
+			SpoutManager.getItemManager().setItemName(Material.MAP, mapView.getId(), name);
             for (Player p : Bukkit.getServer().getOnlinePlayers()) {
                     SpoutPlayer sp = (SpoutPlayer)p;
                     if (sp.isSpoutCraftEnabled()) {
