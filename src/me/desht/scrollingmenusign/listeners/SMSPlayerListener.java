@@ -67,7 +67,9 @@ public class SMSPlayerListener extends PlayerListener {
 				// There's a view at the targeted block, use that as the view
 				Debugger.getDebugger().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
-				action.execute(player, locView);
+				if (action != null) {
+					action.execute(player, locView);
+				}
 			}
 		} catch (SMSException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
@@ -84,7 +86,9 @@ public class SMSPlayerListener extends PlayerListener {
 				return;
 			Debugger.getDebugger().debug("player item held change event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getPreviousSlot() + "->" + event.getNewSlot() + ", menu =" + view.getMenu().getName());
 			SMSUserAction action = SMSUserAction.getAction(event);
-			action.execute(player, view);
+			if (action != null) {
+				action.execute(player, view);
+			}
 		} catch (SMSException e) {
 			MiscUtil.log(Level.WARNING, e.getMessage());
 		}

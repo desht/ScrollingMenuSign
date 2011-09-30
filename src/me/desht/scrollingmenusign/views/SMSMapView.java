@@ -324,4 +324,9 @@ public class SMSMapView extends SMSScrollableView {
             }
 		}
 	}
+
+	@Override
+	public String getType() {
+		return "map";
+	}
 }

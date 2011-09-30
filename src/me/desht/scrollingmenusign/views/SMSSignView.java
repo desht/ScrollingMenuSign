@@ -225,4 +225,9 @@ public class SMSSignView extends SMSScrollableView {
 		Location[] locs = getLocationsArray();
 		return "sign @ " + (locs.length == 0 ? "NONE" : MiscUtil.formatLocation(getLocationsArray()[0]));
 	}
+
+	@Override
+	public String getType() {
+		return "sign";
+	}
 }

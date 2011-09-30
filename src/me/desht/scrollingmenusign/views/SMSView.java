@@ -19,6 +19,7 @@ import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
@@ -170,6 +171,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 	public void setOwner(String owner) {
 		this.owner = owner;
+		update(getMenu(), SMSMenuAction.REPAINT);
 	}
 
 	/**
@@ -404,4 +406,11 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 		return null;
 	}
+	
+	/**
+	 * Get a user-friendly string representing the type of this view.
+	 * 
+	 * @return	The type of view this is.
+	 */
+	public abstract String getType();
 }

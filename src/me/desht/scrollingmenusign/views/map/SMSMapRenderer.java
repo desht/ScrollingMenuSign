@@ -11,12 +11,14 @@ import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.map.MapFont.CharacterSprite;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 /**
  * @author des
  * 
  */
 public class SMSMapRenderer extends MapRenderer {
+	private static final String[] DENIED_TEXT = { "This map belongs", "to someone else." };
 
 	SMSMapView smsMapView;
 
@@ -27,42 +29,66 @@ public class SMSMapRenderer extends MapRenderer {
 	@Override
 	public void render(MapView map, MapCanvas canvas, Player player) {
 		if (smsMapView.isDirty()) {
-//			System.out.println("rendering " + smsMapView.getMenu().getName() + " on map_" + map.getId());
-			int y = smsMapView.getY();
+			if (!smsMapView.allowedToUse(player)) {
+				drawDeniedMessage(canvas);
+			} else {
+				drawMenu(canvas, player);
+			}
+			smsMapView.setDirty(false);
+			player.sendMap(map);
+		}
+	}
 
-			SMSMenu menu = smsMapView.getMenu();
+	private void drawMenu(MapCanvas canvas, Player player) {
+		// System.out.println("rendering " + smsMapView.getMenu().getName() + " on map_" + map.getId());
+		int y = smsMapView.getY();
 
+		SMSMenu menu = smsMapView.getMenu();
+
+		// If the player is using Spoutcraft, then the menu title is already there,
+		// as the name of the map item (renamed in the SMSMapView setup phase), so we
+		// don't need to draw it again.
+		SpoutPlayer sPlayer = (SpoutPlayer) player;
+		if (!sPlayer.isSpoutCraftEnabled()) { 
 			String title = menu.getTitle();
 			int titleWidth = getWidth(smsMapView.getMapFont(), title);
 			drawText(canvas, smsMapView.getX() + (smsMapView.getWidth() - titleWidth) / 2, y, smsMapView.getMapFont(), title);
 			y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
+		}
 
-			String prefix1 = SMSConfig.getConfiguration().getString("sms.item_prefix.not_selected", "  ");
-			String prefix2 = SMSConfig.getConfiguration().getString("sms.item_prefix.selected", "> ");
+		String prefix1 = SMSConfig.getConfiguration().getString("sms.item_prefix.not_selected", "  ");
+		String prefix2 = SMSConfig.getConfiguration().getString("sms.item_prefix.selected", "> ");
 
-			int nDisplayable = (smsMapView.getHeight() - y) / (smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing());
+		int nDisplayable = (smsMapView.getHeight() - y) / (smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing());
 
-			if (menu.getItemCount() > 0) {
-				int current = smsMapView.getScrollPos();
-				for (int n = 0; n < nDisplayable; n++) {
-					String lineText = menu.getItem(current).getLabel();
-					if (n == 0) {
-						lineText = prefix2 + lineText;
-					} else {
-						lineText = prefix1 + lineText;
-					}
-					drawText(canvas, smsMapView.getX(), y, smsMapView.getMapFont(), lineText);
-					y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
-					current++;
-					if (current > menu.getItemCount())
-						current = 1;
-					if (n + 1 >= menu.getItemCount())
-						break;
+		if (menu.getItemCount() > 0) {
+			int current = smsMapView.getScrollPos();
+			for (int n = 0; n < nDisplayable; n++) {
+				String lineText = menu.getItem(current).getLabel();
+				if (n == 0) {
+					lineText = prefix2 + lineText;
+				} else {
+					lineText = prefix1 + lineText;
 				}
+				drawText(canvas, smsMapView.getX(), y, smsMapView.getMapFont(), lineText);
+				y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
+				current++;
+				if (current > menu.getItemCount())
+					current = 1;
+				if (n + 1 >= menu.getItemCount())
+					break;
 			}
+		}
+	}
 
-			smsMapView.setDirty(false);
-			player.sendMap(map);
+	private void drawDeniedMessage(MapCanvas canvas) {
+		MapFont font = smsMapView.getMapFont();
+		int h = font.getHeight() + smsMapView.getLineSpacing();
+		int y = smsMapView.getY() + (smsMapView.getHeight() - h * DENIED_TEXT.length) / 2;
+		for (String s : DENIED_TEXT)	 {
+			int x = smsMapView.getX() + (smsMapView.getWidth()  - getWidth(font, s)) / 2;
+			drawText(canvas, x, y, font, s);
+			y += h;
 		}
 	}
 

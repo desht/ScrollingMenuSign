@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.views.SMSMapView;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.entity.Player;
@@ -155,6 +158,15 @@ public class SMSConfig {
 			getConfiguration().setProperty(key, val);
 		}
 
+		// special hooks
+		 
+		if (key.equalsIgnoreCase("sms.use_any_view")) {
+			// redraw map views
+			for (SMSView v : SMSView.listViews()) {
+				if (v instanceof SMSMapView)
+					v.update(v.getMenu(), SMSMenuAction.REPAINT);
+			}
+		}
 		getConfiguration().save();
 	}
 

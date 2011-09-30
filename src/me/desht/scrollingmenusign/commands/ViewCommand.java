@@ -13,6 +13,7 @@ public class ViewCommand extends AbstractCommand {
 		super("sms v", 2, 3);
 		setPermissionNode("scrollingmenusign.commands.view");
 		setUsage("sms view <view-name> <attribute> [<new-value>]");
+		setQuotedArgs(true);
 	}
 
 	@Override

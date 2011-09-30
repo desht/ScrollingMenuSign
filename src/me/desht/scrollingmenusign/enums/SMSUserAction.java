@@ -71,8 +71,10 @@ public enum SMSUserAction {
 	public void execute(Player player, SMSView view) throws SMSException {
 
 		if (!view.allowedToUse(player))
-			throw new SMSException("This menu view belongs to someone else.");
+			throw new SMSException("This " + view.getType() + " belongs to someone else.");
 
+		// this method only makes sense for scrollable views
+		
 		SMSScrollableView sview;
 		if (view instanceof SMSScrollableView) {
 			sview = (SMSScrollableView) view;
