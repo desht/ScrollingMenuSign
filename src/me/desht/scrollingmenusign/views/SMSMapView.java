@@ -8,14 +8,20 @@ import java.util.Observable;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.map.MinecraftFont;
 import org.bukkit.util.config.ConfigurationNode;
+import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.packet.PacketItemName;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
 import me.desht.util.MiscUtil;
@@ -99,6 +105,8 @@ public class SMSMapView extends SMSScrollableView {
 		
 		allMapViews.put(mapView.getId(), this);
 		
+		setSpoutMapName(getMenu().getTitle());
+		
 		autosave();
 	}
 
@@ -108,6 +116,7 @@ public class SMSMapView extends SMSScrollableView {
 	@Override
 	public void deletePermanent() {
 		if (mapView != null) {
+			setSpoutMapName("Map");
 			allMapViews.remove(mapView.getId());
 			mapView.removeRenderer(getMapRenderer());
 			for (MapRenderer r : previousRenderers) {
@@ -302,5 +311,17 @@ public class SMSMapView extends SMSScrollableView {
 		mapView.update(menu, SMSMenuAction.REPAINT);
 		
 		return mapView;
+	}
+
+	private void setSpoutMapName(String name) {
+		if (ScrollingMenuSign.getInstance().isSpoutEnabled()) {
+			SpoutManager.getItemManager().setItemName(Material.MAP, name);
+            for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+                    SpoutPlayer sp = (SpoutPlayer)p;
+                    if (sp.isSpoutCraftEnabled()) {
+                            sp.sendPacket(new PacketItemName(Material.MAP.getId(), mapView.getId(), name));
+                    }
+            }
+		}
 	}
 }

@@ -350,7 +350,6 @@ public abstract class SMSView implements Observer, Freezable {
 		return false;
 	}
 
-
 	/**
 	 * Instantiate a new view from a saved config file
 	 * 
