@@ -100,7 +100,7 @@ public enum SMSUserAction {
 				MiscUtil.log(Level.WARNING, "Unknown Spout key definition " + w + " in sms.actions.spout.up");
 			}
 		}
-		return matched == wanted.length;
+		return matched == wanted.length && pressed.size() == wanted.length;
 	}
 
 	private static Keyboard getSpoutKey(String input, String def) {

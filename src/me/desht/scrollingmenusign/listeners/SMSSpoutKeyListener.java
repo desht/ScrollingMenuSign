@@ -7,6 +7,7 @@ import java.util.Set;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
+import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 
@@ -33,13 +34,18 @@ public class SMSSpoutKeyListener extends InputListener {
 		
 		Set<Keyboard> pressed = getPressedKeys(player);
 		pressed.add(event.getKey());
-		
 		try {
 			Block block = player.getTargetBlock(null, 3);
 
 			SMSView view = SMSView.getViewForLocation(block.getLocation());
-			if (view == null)
-				return;
+			if (view == null) {
+				if (player.getItemInHand().getTypeId() == 358) {
+					view = SMSMapView.getViewForId(player.getItemInHand().getDurability());
+					if (view == null) {
+						return;
+					}
+				}
+			}
 
 			SMSUserAction action = SMSUserAction.getAction(pressed);
 			if (action != null) {
