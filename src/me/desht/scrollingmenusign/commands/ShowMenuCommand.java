@@ -27,29 +27,39 @@ public class ShowMenuCommand extends AbstractCommand {
 		SMSHandler handler = plugin.getHandler();
 		
 		SMSMenu menu = null;
+		SMSView view = null;
 		if (args.length > 0) {
 			menu = handler.getMenu(args[0]);
 		} else {
 			notFromConsole(player);
-			SMSView v = SMSView.getViewForLocation(player.getTargetBlock(null, 3).getLocation());
-			if (v == null) {
+			view = SMSView.getViewForLocation(player.getTargetBlock(null, 3).getLocation());
+			if (view == null) {
 				if (player.getItemInHand().getTypeId() == 358) {		// map
 					PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 					short mapId = player.getItemInHand().getDurability();
-					v = SMSMapView.getViewForId(mapId);
+					view = SMSMapView.getViewForId(mapId);
 				}
 			}
-			if (v == null) {
+			if (view == null) {
 				throw new SMSException("You are not looking at a menu view.");
 			}
-			menu = v.getMenu();
+			menu = view.getMenu();
 		}
 		
 		MessagePager.clear(player);
-		MessagePager.add(player, String.format("Menu &e%s&-: title &f%s&- &c%s",
-				menu.getName(),  menu.getTitle(),  menu.formatUses(player)));
+		String mo = menu.getOwner().isEmpty() ? "(no one)" : menu.getOwner();
+		MessagePager.add(player, String.format("Menu &e%s&-, Title \"&f%s&-\", Owner &e%s&-",
+		                                       menu.getName(),  menu.getTitle(), mo));
+		if (!menu.formatUses(player).isEmpty()) {
+			MessagePager.add(player, "&c" + menu.formatUses(player));
+		}
 		if (!menu.getDefaultCommand().isEmpty()) {
 			MessagePager.add(player, " Default command: &f" + menu.getDefaultCommand());
+		}
+		if (view != null) {
+			String vo = view.getOwner().isEmpty() ? "(no one)" : view.getOwner();
+			MessagePager.add(player, String.format("View &e%s&-, Owner &e%s&-",
+			                                       view.getName(), vo));
 		}
 		
 		List<SMSMenuItem> items = menu.getItems();

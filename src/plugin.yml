@@ -1,7 +1,7 @@
 name: ScrollingMenuSign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
 version: 0.7.999
-softdepend: [ PermissionsEx, bPermissions, PermissionsBukkit, iConomy, Essentials, BOSEconomy, currency ]
+softdepend: [ Spout, PermissionsEx, bPermissions, PermissionsBukkit, iConomy, Essentials, BOSEconomy, currency ]
 commands:
   sms:
     description: Scrolling menu sign control
@@ -46,10 +46,14 @@ permissions:
       scrollingmenusign.commands.defcmd: true
       scrollingmenusign.commands.givemap: true
       scrollingmenusign.commands.uses: true
+      scrollingmenusign.commands.view: true
       scrollingmenusign.destroy: true
       scrollingmenusign.maps: true
+      scrollingmenusign.maps.toSign: true
+      scrollingmenusign.maps.fromSign: true
       scrollingmenusign.create.elevated: true
       scrollingmenusign.create.cost: true
+      scrollingmenusign.useAnyView: true
       scrollingmenusign.user: true
   scrollingmenusign.user:
     description: Gives access to basic SMS functionality
@@ -135,6 +139,12 @@ permissions:
   scrollingmenusign.maps:
     description: Allows manipulation of map views
     default: op
+  scrollingmenusign.maps.fromSign:
+    description: Allows map views to be copied from sign views
+    default: op
+  scrollingmenusign.maps.toSign:
+    description: Allows map views to be copied to sign views
+    default: op
   scrollingmenusign.create.cost:
     description: Allows creation of menu items which have a cost
     default: op
@@ -144,3 +154,10 @@ permissions:
   scrollingmenusign.execute.elevated:
     description: Allow execution of menu items which bypass permissions checks
     default: true
+  scrollingmenusign.useAnyView:
+    description: Allows views owned by others to be used (overrides sms.use_any_view config setting)
+    default: op
+  scrollingmenusign.commands.view:
+    description: Allows menu views to be inspected and modified
+    default: op
+    

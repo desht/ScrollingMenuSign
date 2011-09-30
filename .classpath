@@ -18,5 +18,6 @@
 	<classpathentry kind="var" path="LOCAL_JARS/iCo5.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/iCo6.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/MultiCurrency.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/SpoutAPI.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

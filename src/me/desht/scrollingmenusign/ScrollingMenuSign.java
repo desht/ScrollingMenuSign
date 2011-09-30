@@ -29,13 +29,16 @@ import me.desht.scrollingmenusign.commands.SaveCommand;
 import me.desht.scrollingmenusign.commands.SetConfigCommand;
 import me.desht.scrollingmenusign.commands.ShowMenuCommand;
 import me.desht.scrollingmenusign.commands.SortMenuCommand;
+import me.desht.scrollingmenusign.commands.ViewCommand;
 import me.desht.scrollingmenusign.listeners.SMSBlockListener;
 import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
+//import me.desht.scrollingmenusign.listeners.SMSSpoutInvListener;
 import me.desht.util.MessagePager;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -52,7 +55,10 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
+//	private SMSSpoutInvListener spoutInvListener;
 	private final CommandManager cmds = new CommandManager(this);
+
+	private boolean spoutEnabled;
 
 	private static Method economy = null;
 
@@ -71,6 +77,12 @@ public class ScrollingMenuSign extends JavaPlugin {
 			return;
 		}	
 		
+		Plugin spout = pm.getPlugin("Spout");
+		if (spout != null && spout.isEnabled()) {
+			spoutEnabled = true;
+			MiscUtil.log(Level.INFO, "Detected Spout v" + spout.getDescription().getVersion());
+		}
+		
 		SMSPersistence.init();
 		SMSConfig.init(this);
 		PermissionsUtils.setup();
@@ -82,7 +94,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
-
+		pm.registerEvent(Event.Type.PLAYER_DROP_ITEM, playerListener, Event.Priority.Normal, this);
+		
+		if (spoutEnabled) {
+//			spoutInvListener = new SMSSpoutInvListener(this); 
+//			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutInvListener, Event.Priority.Normal, this);
+		}
+		
 		setupEconomy();
 
 		registerCommands();
@@ -137,6 +155,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		cmds.registerCommand(new SetConfigCommand());
 		cmds.registerCommand(new ShowMenuCommand());
 		cmds.registerCommand(new SortMenuCommand());
+		cmds.registerCommand(new ViewCommand());
 	}
 
 	@Override
@@ -252,5 +271,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 	
 	public static ScrollingMenuSign getInstance() {
 		return instance;
+	}
+
+	public boolean isSpoutEnabled() {
+		return spoutEnabled;
 	}
 }

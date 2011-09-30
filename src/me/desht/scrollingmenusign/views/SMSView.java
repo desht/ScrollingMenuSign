@@ -23,6 +23,7 @@ import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
 
 /**
@@ -40,6 +41,7 @@ public abstract class SMSView implements Observer, Freezable {
 	private final Set<Location> locations = new HashSet<Location>();
 	private String name;
 	private boolean autosave;
+	private String owner;
 
 	private boolean dirty;
 
@@ -60,6 +62,7 @@ public abstract class SMSView implements Observer, Freezable {
 		this.menu = menu;
 		this.dirty = true;
 		this.autosave = SMSConfig.getConfiguration().getBoolean("sms.autosave", true);
+		this.owner = "";	// unowned by default
 
 		menu.addObserver(this);
 
@@ -124,6 +127,7 @@ public abstract class SMSView implements Observer, Freezable {
 		map.put("name", name);
 		map.put("menu", menu.getName());
 		map.put("class", getClass().getName());
+		map.put("owner", owner);
 		List<List<Object>> locs = new ArrayList<List<Object>>();
 		for (Location l: getLocations()) {
 			locs.add(freezeLocation(l));
@@ -158,6 +162,14 @@ public abstract class SMSView implements Observer, Freezable {
 	 */
 	public void setDirty(boolean dirty) {
 		this.dirty = dirty;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 
 	/**
@@ -197,7 +209,7 @@ public abstract class SMSView implements Observer, Freezable {
 	/**
 	 * Unregister a location from the given view.
 	 * 
-	 * @param loc	The lcoation to unregister.
+	 * @param loc	The location to unregister.
 	 */
 	public void removeLocation(Location loc) {
 		locations.remove(loc);
@@ -307,7 +319,7 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 
 	/**
-	 * Find all the views for the given menu
+	 * Find all the views for the given menu.
 	 * 
 	 * @param menu	The menu object to check
 	 * @return	A list of SMSView objects which are views for that menu
@@ -321,6 +333,23 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 		return l;
 	}
+
+	/**
+	 * Check if the given player is allowed to use this view.
+	 * 
+	 * @param player	The player to check
+	 * @return	True if the player may use this view, false if not
+	 */
+	public boolean allowedToUse(Player player) {
+		if (SMSConfig.getConfiguration().getBoolean("sms.use_any_view", true))
+			return true;
+		if (player.hasPermission("scrollingmenusign.useAnyView"))
+			return true;
+		if (getOwner().isEmpty() || getOwner().equalsIgnoreCase(player.getName()))
+			return true;
+		return false;
+	}
+
 
 	/**
 	 * Instantiate a new view from a saved config file
@@ -345,33 +374,34 @@ public abstract class SMSView implements Observer, Freezable {
 				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
 				v.addLocation(loc);
 			}
+			v.setOwner(node.getString("owner", ""));
 			v.thaw(node);
 			v.setAutosave(true);
 			return v;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "can't load view " + viewName + ": " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "can't find class for view " + viewName + ": " + e.getMessage());
 		} catch (SMSException e) {
 			e.printStackTrace();
 			MiscUtil.log(Level.WARNING, "can't load view " + viewName + ": " + e.getMessage());
 		} catch (InstantiationException e) {
 			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "can't load view " + viewName + ": " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "can't instantiate view " + viewName + ": " + e.getMessage());
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "can't load view " + viewName + ": " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "illegal access while loading view " + viewName + ": " + e.getMessage());
 		} catch (SecurityException e) {
 			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "can't load view " + viewName + ": " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "security exception while loading view " + viewName + ": " + e.getMessage());
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "can't load view " + viewName + ": " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "no such method while loading view " + viewName + ": " + e.getMessage());
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "can't load view " + viewName + ": " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "illegal argument while loading view " + viewName + ": " + e.getMessage());
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "can't load view " + viewName + ": " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "invocation target exception while loading view " + viewName + ": " + e.getMessage());
 		}
 		return null;
 	}

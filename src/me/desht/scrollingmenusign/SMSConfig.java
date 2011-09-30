@@ -50,6 +50,7 @@ public class SMSConfig {
 		samplePerm.add("a.sample.permission.node");
 		put("sms.elevation.nodes", samplePerm);
 		put("sms.elevation.grant_op", false);
+		put("sms.use_any_view", true);
 	}};
 
 	static void init(ScrollingMenuSign plugin) {
