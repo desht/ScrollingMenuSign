@@ -69,41 +69,41 @@ public class ScrollingMenuSign extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		description = this.getDescription();
-		
+
 		setInstance(this);
-		
+
 		PluginManager pm = getServer().getPluginManager();
-		
+
 		if (!validateVersions(description.getVersion(), getServer().getVersion())) {		
 			pm.disablePlugin(this);
 			return;
 		}	
-		
+
 		Plugin spout = pm.getPlugin("Spout");
 		if (spout != null && spout.isEnabled()) {
 			spoutEnabled = true;
 			MiscUtil.log(Level.INFO, "Detected Spout v" + spout.getDescription().getVersion());
 		}
-		
+
 		SMSPersistence.init();
 		SMSConfig.init(this);
 		PermissionsUtils.setup();
 
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.PLAYER_ANIMATION, playerListener, Event.Priority.Normal, this);
+		//		pm.registerEvent(Event.Type.PLAYER_ANIMATION, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_DROP_ITEM, playerListener, Event.Priority.Normal, this);
-		
+
 		if (spoutEnabled) {
 			spoutKeyListener = new SMSSpoutKeyListener();
 			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutKeyListener, Event.Priority.Normal, this);
 		}
-		
-		setupEconomy();
+
+		setupEconomy(pm);
 
 		registerCommands();
 
@@ -125,12 +125,18 @@ public class ScrollingMenuSign extends JavaPlugin {
 		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
 
-	private void setupEconomy() {
-			Methods.setMethod(getServer().getPluginManager());
-
-		if (Methods.getMethod() != null) {
-			setEconomy(Methods.getMethod());
-			MiscUtil.log(Level.INFO, String.format("Economy method found: %s v%s", getEconomy().getName(), getEconomy().getVersion()));
+	private void setupEconomy(PluginManager pm) {
+		Plugin p = pm.getPlugin("Register");
+		if (p != null && p.isEnabled()) {
+			Methods.setMethod(pm);
+			if (Methods.getMethod() != null) {
+				setEconomy(Methods.getMethod());
+				MiscUtil.log(Level.INFO, String.format("Economy method found: %s v%s", getEconomy().getName(), getEconomy().getVersion()));
+			} else {
+				MiscUtil.log(Level.INFO, "Register detected but no economy plugin found: no economy support available");
+			}
+		} else {
+			MiscUtil.log(Level.INFO, "Register not detected: no economy support available");
 		}
 	}
 
@@ -208,7 +214,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public static Method getEconomy() {
 		return economy;
 	}
-	
+
 	boolean validateVersions(String pVer, String cbVer) {
 		Pattern pat = Pattern.compile("b([0-9]+)jnks");
 		Matcher m = pat.matcher(cbVer);
@@ -230,7 +236,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 			return true;
 		}
 	}
-	
+
 	/**
 	 * Get the internal version number for the given string version, which is
 	 * <major> * 1,000,000 + <minor> * 1,000 + <release>.  This assumes minor and
@@ -266,11 +272,11 @@ public class ScrollingMenuSign extends JavaPlugin {
 		MiscUtil.log(Level.SEVERE, "ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
 		MiscUtil.log(Level.SEVERE, "You need to use ScrollingMenuSign v" + needed);
 	}
-	
+
 	private static void setInstance(ScrollingMenuSign plugin) {
 		instance = plugin;
 	}
-	
+
 	public static ScrollingMenuSign getInstance() {
 		return instance;
 	}

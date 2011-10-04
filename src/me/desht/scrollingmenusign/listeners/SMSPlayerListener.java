@@ -246,10 +246,8 @@ public class SMSPlayerListener extends PlayerListener {
 			return;
 
 		short mapId = player.getItemInHand().getDurability();
-		if (SMSMapView.checkForMapId(mapId))
-			throw new SMSException("This map is already a menu view.");
-
 		SMSMapView mapView = SMSMapView.addMapToMenu(mapId, currentView.getMenu());
+
 		MiscUtil.statusMessage(player, "Added new map view to menu &e" + mapView.getMenu().getName() + "&-.");
 	}
 }
