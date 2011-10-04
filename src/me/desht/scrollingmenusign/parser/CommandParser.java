@@ -26,11 +26,11 @@ import org.bukkit.permissions.PermissionAttachment;
 
 public class CommandParser {
 	private Set<String> macroHistory;
-	
+
 	public CommandParser() {
 		this.macroHistory = new HashSet<String>();
 	}
-	
+
 	private enum RunMode { CHECK_PERMS, EXECUTE };
 
 	boolean runSimpleCommandString(Player player, String command) {
@@ -48,6 +48,10 @@ public class CommandParser {
 	 */
 	public ReturnStatus runCommandString(Player player, String command) throws SMSException {
 		ParsedCommand cmd = handleCommandString(player, command, RunMode.EXECUTE);
+
+		if (!cmd.isAffordable())
+			cmd.setStatus(ReturnStatus.CANT_AFFORD);
+		
 		return cmd.getStatus();
 	}
 
@@ -55,7 +59,7 @@ public class CommandParser {
 		ParsedCommand cmd = handleCommandString(player, command, RunMode.CHECK_PERMS);
 		return cmd.getStatus() == ReturnStatus.CMD_OK;
 	}
-	
+
 	ParsedCommand handleCommandString(Player player, String command, RunMode mode) throws SMSException {
 
 		// do some preprocessing ...
@@ -245,7 +249,13 @@ public class CommandParser {
 				player.updateInventory();
 				break;
 			case EXPERIENCE:
-				player.setTotalExperience(getNewQuantity(player.getTotalExperience(), c.getQuantity(), 0, Integer.MAX_VALUE));
+				// tricky, but seemingly the only way to set total experience correctly.
+				int currentXP = player.getTotalExperience();
+				int newXP = getNewQuantity(currentXP, c.getQuantity(), 0, Integer.MAX_VALUE);
+				player.setExperience(0);
+				player.setTotalExperience(0);
+				player.setLevel(0);
+				player.setExperience(newXP);
 				break;
 			case FOOD:
 				player.setFoodLevel(getNewQuantity(player.getFoodLevel(), c.getQuantity(), 1, 20));
@@ -319,7 +329,4 @@ public class CommandParser {
 			}
 		}
 	}
-
-	
-
 }
