@@ -85,9 +85,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 			MiscUtil.log(Level.INFO, "Detected Spout v" + spout.getDescription().getVersion());
 		}
 
+		PermissionsUtils.setup();
 		SMSPersistence.init();
 		SMSConfig.init(this);
-		PermissionsUtils.setup();
 
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Event.Priority.Normal, this);

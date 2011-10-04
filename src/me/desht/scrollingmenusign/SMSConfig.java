@@ -13,6 +13,7 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
+import me.desht.util.PermissionsUtils;
 
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
@@ -29,6 +30,8 @@ public class SMSConfig {
 	private static final String viewsDirName = "views";
 	private static final String commandFileName = "commands.yml";
 
+	private static final String SAMPLE_NODE = "a.sample.permission.node";
+	
 	@SuppressWarnings("serial")
 	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {{
 		put("sms.autosave", true);
@@ -51,7 +54,7 @@ public class SMSConfig {
 		put("sms.actions.spout.down", "key_down");
 		put("sms.actions.spout.execute", "key_return");
 		List<String>samplePerm = new ArrayList<String>();
-		samplePerm.add("a.sample.permission.node");
+		samplePerm.add(SAMPLE_NODE);
 		put("sms.elevation.nodes", samplePerm);
 		put("sms.elevation.grant_op", false);
 		put("sms.use_any_view", true);
@@ -105,7 +108,18 @@ public class SMSConfig {
 			saveNeeded = true;
 		}
 
-		if (saveNeeded) config.save();
+		if (config.getStringList("sms.elevation.nodes", null).get(0).equals(SAMPLE_NODE)) {
+			// initialise default nodes from the &SMS user
+			String user = getConfiguration().getString("sms.elevation_user", "&SMS");
+			List<String> nodes = PermissionsUtils.getPermissionNodes(user, null);
+			getConfiguration().setProperty("sms.elevation.nodes", nodes);
+			MiscUtil.log(Level.INFO, "Migrated " + nodes.size() + " permissions nodes from " + user + " to  elevation.nodes config item");
+			saveNeeded = true;
+		}
+		
+		if (saveNeeded) {
+			config.save();
+		}
 	}
 
 	public static File getCommandFile() {

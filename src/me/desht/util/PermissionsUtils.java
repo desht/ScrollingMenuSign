@@ -1,18 +1,27 @@
 package me.desht.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSException;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 import ru.tehkode.permissions.PermissionManager;
+import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 import com.platymuus.bukkit.permissions.Group;
+import com.platymuus.bukkit.permissions.PermissionInfo;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 
 import de.bananaco.permissions.worlds.WorldPermissionsManager;
@@ -210,65 +219,54 @@ public class PermissionsUtils {
 //		}
 //	}
 //
-//	/**
-//	 * Get a full list of the player's permission nodes.
-//	 * 
-//	 * @param playerName	Name of the player to check for
-//	 * @param w				Player's world (use first known world if null is passed)
-//	 * @return				A list of permission node strings
-//	 */
-//	public static List<String> getPermissionNodes(String playerName, World w) {
-//		if (w == null)
-//			w = Bukkit.getServer().getWorlds().get(0);
-//
-//		List<String> res = null;
-//		if (permissionsBukkit != null) {
-//			Map<String, Boolean> perms;
-//			PermissionInfo info = permissionsBukkit.getPlayerInfo(playerName);
-//			if (info == null)
-//				return null;
-//
-//			try {
-//				// this call currently throws an NPE if no explicit permissions defined
-//				perms = info.getPermissions();
-//			} catch (NullPointerException e) {
-//				perms = new HashMap<String, Boolean>();
-//			}
-//			for (Group grp : info.getGroups()) {
-//				PermissionInfo gInfo = grp.getInfo();
-//				try {
-//					// this call currently throws an NPE if no explicit permissions defined
-//					Map<String, Boolean> gPerms = gInfo.getPermissions();
-//					for (Entry<String, Boolean> e : gPerms.entrySet()) {
-//						perms.put(e.getKey(), e.getValue());
-//					}
-//				} catch (NullPointerException e) {
-//				}
-//			}
-//			res = new ArrayList<String>(perms.keySet());
-//		} else if (permissionHandler != null) {
-//			try {
-//				com.nijiko.permissions.User user = permissionHandler.getUserObject(w.getName(), playerName);
-//				if (user != null) {
-//					res = new ArrayList<String>();
-//					for (String s : user.getAllPermissions())
-//						res.add(s);
-//				}
-//			} catch (NoSuchMethodError e) {
-//				MiscUtil.log(Level.WARNING, "This version of Permissions doesn't appear to support permissions elevation (need Permissions 3.x)");
-//				return null;
-//			}
-//		} else if (permissionManager != null) {
-//			PermissionUser user = permissionManager.getUser(playerName);
-//			if (user != null) {
-//				res = Arrays.asList(user.getPermissions(w.getName()));
-//			}
-//		} else if (wpm != null) {
-//			res = wpm.getPermissionSet(w).getPlayerNodes(playerName);
-//		}
-//
-//		return res;
-//	}
+	/**
+	 * Get a full list of the player's permission nodes.
+	 * 
+	 * @param playerName	Name of the player to check for
+	 * @param w				Player's world (use first known world if null is passed)
+	 * @return				A list of permission node strings
+	 */
+	public static List<String> getPermissionNodes(String playerName, World w) {
+		if (w == null)
+			w = Bukkit.getServer().getWorlds().get(0);
+		System.out.println("get nodes " + playerName);
+		List<String> res = null;
+		if (permissionsBukkit != null) {
+			System.out.println("permissions bukkit get nodes");
+			Map<String, Boolean> perms;
+			PermissionInfo info = permissionsBukkit.getPlayerInfo(playerName);
+			if (info == null)
+				return null;
+
+			try {
+				// this call currently throws an NPE if no explicit permissions defined
+				perms = info.getPermissions();
+			} catch (NullPointerException e) {
+				perms = new HashMap<String, Boolean>();
+			}
+			for (Group grp : info.getGroups()) {
+				PermissionInfo gInfo = grp.getInfo();
+				try {
+					// this call currently throws an NPE if no explicit permissions defined
+					Map<String, Boolean> gPerms = gInfo.getPermissions();
+					for (Entry<String, Boolean> e : gPerms.entrySet()) {
+						perms.put(e.getKey(), e.getValue());
+					}
+				} catch (NullPointerException e) {
+				}
+			}
+			res = new ArrayList<String>(perms.keySet());
+		} else if (permissionManager != null) {
+			PermissionUser user = permissionManager.getUser(playerName);
+			if (user != null) {
+				res = Arrays.asList(user.getPermissions(w.getName()));
+			}
+		} else if (wpm != null) {
+			res = wpm.getPermissionSet(w).getPlayerNodes(playerName);
+		}
+
+		return res;
+	}
 
 //	/**
 //	 * Temporarily grant op status to a player.  We don't use player.setOp() because we don't
