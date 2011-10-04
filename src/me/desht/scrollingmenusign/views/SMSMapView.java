@@ -8,20 +8,16 @@ import java.util.Observable;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.map.MinecraftFont;
 import org.bukkit.util.config.ConfigurationNode;
-import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.packet.PacketItemName;
-import org.getspout.spoutapi.player.SpoutPlayer;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.SpoutUtils;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
 import me.desht.util.MiscUtil;
@@ -43,7 +39,7 @@ public class SMSMapView extends SMSScrollableView {
 	private List<MapRenderer> previousRenderers = new ArrayList<MapRenderer>();
 
 	private static Map<Short,SMSMapView> allMapViews = new HashMap<Short, SMSMapView>();
-	
+
 	/**
 	 * Create a new map view on the given menu.  The view name is chosen automatically.
 	 * 
@@ -77,7 +73,7 @@ public class SMSMapView extends SMSScrollableView {
 		map.put("mapId", mapView == null ? -1 : mapView.getId());
 		return map;
 	}
-	
+
 	protected void thaw(ConfigurationNode node) {
 		short mapId = (short) node.getInt("mapId", -1);
 		if (mapId >= 0)
@@ -102,11 +98,12 @@ public class SMSMapView extends SMSScrollableView {
 			mapView.removeRenderer(r);
 		}
 		mapView.addRenderer(getMapRenderer());
-		
+
 		allMapViews.put(mapView.getId(), this);
-		
-		setSpoutMapName(getMenu().getTitle());
-		
+
+		if (ScrollingMenuSign.getInstance().isSpoutEnabled())
+			SpoutUtils.setSpoutMapName(mapView.getId(), getMenu().getTitle());
+
 		autosave();
 	}
 
@@ -116,7 +113,8 @@ public class SMSMapView extends SMSScrollableView {
 	@Override
 	public void deletePermanent() {
 		if (mapView != null) {
-			setSpoutMapName("map_" + mapView.getId());
+			if (ScrollingMenuSign.getInstance().isSpoutEnabled())
+				SpoutUtils.setSpoutMapName(mapView.getId(), "map_" + mapView.getId());
 			allMapViews.remove(mapView.getId());
 			mapView.removeRenderer(getMapRenderer());
 			for (MapRenderer r : previousRenderers) {
@@ -161,7 +159,7 @@ public class SMSMapView extends SMSScrollableView {
 	public void setX(int x) {
 		this.x = x;
 	}
-	
+
 	/**
 	 * Get the Y co-ordinate to start drawing at - the upper bounds of the drawing space
 	 * 
@@ -293,7 +291,7 @@ public class SMSMapView extends SMSScrollableView {
 	public static boolean checkForMapId(short mapId) {
 		return allMapViews.containsKey(mapId);
 	}
-	
+
 	/**
 	 * Convenience routine.  Add the given mapId as a view on the given menu.
 	 * 
@@ -305,24 +303,12 @@ public class SMSMapView extends SMSScrollableView {
 	public static SMSMapView addMapToMenu(short mapId, SMSMenu menu) throws SMSException {
 		if (SMSMapView.checkForMapId(mapId))
 			throw new SMSException("This map already has a menu view associated with it");
-		
+
 		SMSMapView mapView = new SMSMapView(menu);
 		mapView.setMapId(mapId);
 		mapView.update(menu, SMSMenuAction.REPAINT);
-		
-		return mapView;
-	}
 
-	private void setSpoutMapName(String name) {
-		if (ScrollingMenuSign.getInstance().isSpoutEnabled()) {
-			SpoutManager.getItemManager().setItemName(Material.MAP, mapView.getId(), name);
-            for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-                    SpoutPlayer sp = (SpoutPlayer)p;
-                    if (sp.isSpoutCraftEnabled()) {
-                            sp.sendPacket(new PacketItemName(Material.MAP.getId(), mapView.getId(), name));
-                    }
-            }
-		}
+		return mapView;
 	}
 
 	@Override

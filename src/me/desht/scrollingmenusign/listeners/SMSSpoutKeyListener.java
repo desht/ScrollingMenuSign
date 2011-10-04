@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
+import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.SMSMapView;
@@ -40,15 +42,11 @@ public class SMSSpoutKeyListener extends InputListener {
 			SMSView view = SMSView.getViewForLocation(block.getLocation());
 			if (view == null) {
 				if (player.getItemInHand().getTypeId() == 358) {
-					view = SMSMapView.getViewForId(player.getItemInHand().getDurability());
-					if (view == null) {
-						return;
-					}
+					view = SMSMapView.getViewForId(player.getItemInHand().getDurability());	
 				}
 			}
-
-			SMSUserAction action = SMSUserAction.getAction(pressed);
-			if (action != null) {
+			if (view != null) {
+				SMSUserAction action = getAction(pressed);
 				action.execute(player, view);
 			}
 		} catch (SMSException e) {
@@ -71,5 +69,33 @@ public class SMSSpoutKeyListener extends InputListener {
 			pressedKeys.put(player.getName(), new HashSet<Keyboard>());
 		}
 		return pressedKeys.get(player.getName());
+	}
+
+	private static SMSUserAction getAction(Set<Keyboard> pressed) {
+		if (tryKeyboardMatch("sms.actions.spout.up", "key_up", pressed)) {
+			return SMSUserAction.SCROLLUP;
+		} else if (tryKeyboardMatch("sms.actions.spout.down", "key_down", pressed)) {
+			return SMSUserAction.SCROLLDOWN;
+		} else if (tryKeyboardMatch("sms.actions.spout.execute", "key_return", pressed)) {
+			return SMSUserAction.EXECUTE;
+		}
+
+		return SMSUserAction.NONE;
+	}
+
+	private static boolean tryKeyboardMatch(String key, String def, Set<Keyboard> pressed) {
+		String[] wanted = SMSConfig.getConfiguration().getString(key, def).split("\\+");
+		int matched = 0;
+		for (String w : wanted) {
+			try {
+				Keyboard kw = Keyboard.valueOf(w.toUpperCase());
+				if (pressed.contains(kw)) {
+					matched++;
+				}
+			} catch (IllegalArgumentException e) {
+				MiscUtil.log(Level.WARNING, "Unknown Spout key definition " + w + " in sms.actions.spout.up");
+			}
+		}
+		return matched == wanted.length && pressed.size() == wanted.length;
 	}
 }

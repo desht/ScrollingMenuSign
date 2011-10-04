@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.views.map;
 
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSMapView;
 
 import org.bukkit.entity.Player;
@@ -45,17 +46,24 @@ public class SMSMapRenderer extends MapRenderer {
 
 		SMSMenu menu = smsMapView.getMenu();
 
-		// If the player is using Spoutcraft, then the menu title is already there,
-		// as the name of the map item (renamed in the SMSMapView setup phase), so we
-		// don't need to draw it again.
-		SpoutPlayer sPlayer = (SpoutPlayer) player;
-		if (!sPlayer.isSpoutCraftEnabled()) { 
+		boolean drawTitle = true;
+		if (ScrollingMenuSign.getInstance().isSpoutEnabled()) {
+			// If the player is using Spoutcraft, then the menu title is already there,
+			// as the name of the map item (renamed in the SMSMapView setup phase), so we
+			// don't need to draw it again.
+			SpoutPlayer sPlayer = (SpoutPlayer) player;
+			if (sPlayer.isSpoutCraftEnabled()) { 
+				drawTitle = false;
+			}
+		}
+		
+		if (drawTitle) {
 			String title = menu.getTitle();
 			int titleWidth = getWidth(smsMapView.getMapFont(), title);
 			drawText(canvas, smsMapView.getX() + (smsMapView.getWidth() - titleWidth) / 2, y, smsMapView.getMapFont(), title);
 			y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
 		}
-
+		
 		String prefix1 = SMSConfig.getConfiguration().getString("sms.item_prefix.not_selected", "  ");
 		String prefix2 = SMSConfig.getConfiguration().getString("sms.item_prefix.selected", "> ");
 
