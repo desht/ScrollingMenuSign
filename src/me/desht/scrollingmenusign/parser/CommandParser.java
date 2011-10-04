@@ -47,16 +47,18 @@ public class CommandParser {
 	 * @throws SMSException	
 	 */
 	public ReturnStatus runCommandString(Player player, String command) throws SMSException {
-		return handleCommandString(player, command, RunMode.EXECUTE);
+		ParsedCommand cmd = handleCommandString(player, command, RunMode.EXECUTE);
+		return cmd.getStatus();
 	}
 
 	public boolean verifyCreationPerms(Player player, String command) throws SMSException {
-		return handleCommandString(player, command, RunMode.CHECK_PERMS) != ReturnStatus.NO_PERMS;
+		ParsedCommand cmd = handleCommandString(player, command, RunMode.CHECK_PERMS);
+		return cmd.getStatus() == ReturnStatus.CMD_OK;
 	}
+	
+	ParsedCommand handleCommandString(Player player, String command, RunMode mode) throws SMSException {
 
-	ReturnStatus handleCommandString(Player player, String command, RunMode mode) throws SMSException {
-
-		// some preprocessing ...
+		// do some preprocessing ...
 		command = command.replace("<X>", "" + player.getLocation().getBlockX());
 		command = command.replace("<Y>", "" + player.getLocation().getBlockY());
 		command = command.replace("<Z>", "" + player.getLocation().getBlockZ());
@@ -68,20 +70,24 @@ public class CommandParser {
 
 		Scanner scanner = new Scanner(command);
 
-		ReturnStatus rs = ReturnStatus.CMD_OK;
-
+		ParsedCommand cmd = null;
 		while (scanner.hasNext()) {
-			ParsedCommand cmd = new ParsedCommand(player, scanner);
+			cmd = new ParsedCommand(player, scanner);
 
 			if (mode == RunMode.EXECUTE) {
-				rs = execute(player, cmd);
-				if (rs == ReturnStatus.CMD_RESTRICTED || rs == ReturnStatus.CANT_AFFORD)
-					continue;	// bypassing any potential cmd.isCommandStopped() or cmd.isMacroStopped()
+				if (cmd.isRestricted() || !cmd.isAffordable()) {
+					// bypassing any potential cmd.isCommandStopped() or cmd.isMacroStopped()
+					continue;
+				}
+				execute(player, cmd);
 			} else if (mode == RunMode.CHECK_PERMS) {
+				cmd.setStatus(ReturnStatus.CMD_OK);
 				if (cmd.isElevated() && !PermissionsUtils.isAllowedTo(player, "scrollingmenusign.create.elevated")) {
-					return ReturnStatus.NO_PERMS;
+					cmd.setStatus(ReturnStatus.NO_PERMS);
+					return cmd;
 				} else if (!cmd.getCosts().isEmpty() && !PermissionsUtils.isAllowedTo(player, "scrollingmenusign.create.cost")) {
-					return ReturnStatus.NO_PERMS;
+					cmd.setStatus(ReturnStatus.NO_PERMS);
+					return cmd;
 				}
 			} else {
 				// should never get here
@@ -92,7 +98,7 @@ public class CommandParser {
 			}
 		}
 
-		return rs;
+		return cmd;
 	}
 
 	boolean restrictionCheck(Player player, String check) {
@@ -120,17 +126,14 @@ public class CommandParser {
 		return PermissionsUtils.isInGroup(player, groupName);
 	}
 
-	private ReturnStatus execute(Player player, ParsedCommand cmd) {
-		if (cmd.isRestricted())
-			return ReturnStatus.CMD_RESTRICTED;
-
-		if (!playerCanAfford(player, cmd.getCosts()))
-			return ReturnStatus.CANT_AFFORD;
+	private void execute(Player player, ParsedCommand cmd) {
+		if (cmd.isRestricted() || !cmd.isAffordable()) 
+			return;
 
 		chargePlayer(player, cmd.getCosts());
 
 		if (cmd.getCommand() == null || cmd.getCommand().isEmpty())
-			return cmd.getStatus();
+			return;
 
 		StringBuilder sb = new StringBuilder().append(cmd.getCommand()).append(" ");
 		for (String a : cmd.getArgs()) {
@@ -142,36 +145,38 @@ public class CommandParser {
 			// run a macro
 			String macroName = cmd.getCommand();
 			if (macroHistory.contains(macroName)) {
-				return ReturnStatus.WOULD_RECURSE;
+				cmd.setStatus(ReturnStatus.WOULD_RECURSE);
+				return;
 			} else if (SMSMacro.hasMacro(macroName)) {
 				macroHistory.add(macroName);
-				ReturnStatus rs = ReturnStatus.CMD_OK;
 				for (String c : SMSMacro.getCommands(macroName)) {
 					for (int i = 0; i < cmd.getArgs().size(); i++) {
-						c = c.replaceAll("<" + (i + 1) + ">", cmd.getArgs().get(i));
+						c = c.replace("<" + (i + 1) + ">", cmd.arg(i));
 					}
 					try {
-						ParsedCommand cmd2 = new ParsedCommand(player, new Scanner(c));
-						rs = execute(player, cmd2);
+						ParsedCommand cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
 						if (cmd2.isMacroStopped())
 							break;
 					} catch (SMSException e) {
 						MiscUtil.log(Level.WARNING, "Caught exception parsing " + c + ": " + e.getMessage());
 					}
 				}
-				return rs;
+				return;
 			} else {
-				return ReturnStatus.BAD_MACRO;
+				cmd.setStatus(ReturnStatus.BAD_MACRO);
+				return;
 			}
 		} else if (cmd.isWhisper()) {
 			// private message to the player
 			MiscUtil.alertMessage(player, command);
 		} else if (cmd.isFakeuser() || cmd.isElevated()) {
-			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated"))
-				return ReturnStatus.NO_PERMS;
-
 			// this is a /@ command, to be run as the real player, but with temporary permissions
 			// (this now also handles the /* fake-player style, which is no longer directly supported)
+
+			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated")) {
+				cmd.setStatus(ReturnStatus.NO_PERMS);
+				return;
+			}
 
 			Debugger.getDebugger().debug("execute (elevated): " + sb.toString());
 
@@ -190,8 +195,9 @@ public class CommandParser {
 					player.setOp(true);
 				}
 				if (command.startsWith("/")) {
-					if (!Bukkit.getServer().dispatchCommand(player, command.substring(1)))
-						return ReturnStatus.CMD_FAILED;
+					if (!Bukkit.getServer().dispatchCommand(player, command.substring(1))) {
+						cmd.setStatus(ReturnStatus.CMD_FAILED);
+					}
 				} else {
 					player.chat(command);
 				}
@@ -210,10 +216,14 @@ public class CommandParser {
 		} else {
 			// just an ordinary command, no special privilege elevation
 			Debugger.getDebugger().debug("execute (normal): " + sb.toString());
-			player.chat(sb.toString().trim());
+			if (command.startsWith("/")) {
+				if (!Bukkit.getServer().dispatchCommand(player, command.substring(1))) {
+					cmd.setStatus(ReturnStatus.CMD_FAILED);
+				}
+			} else {
+				player.chat(command);
+			}
 		}
-
-		return cmd.getStatus();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -310,52 +320,6 @@ public class CommandParser {
 		}
 	}
 
-	/**
-	 * Check if the player can afford to pay the costs.
-	 * 
-	 * @param player
-	 * @param costs
-	 * @return
-	 */
-	private boolean playerCanAfford(Player player, List<Cost> costs) {
-		for (Cost c : costs) {
-			if (c.getQuantity() <= 0)
-				continue;
-
-			switch (c.getType()) {
-			case MONEY:
-				if (!ScrollingMenuSign.getEconomy().getAccount(player.getName()).hasEnough(c.getQuantity()))
-					return false;
-				break;
-			case ITEM:
-				HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(Material.getMaterial(c.getId()));
-				int remainingCheck = (int) c.getQuantity();
-				for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
-					if(c.getData() == null || (entry.getValue().getData() != null && entry.getValue().getData().getData() == c.getData())) {
-						remainingCheck -= entry.getValue().getAmount();
-						if(remainingCheck <= 0)
-							break;
-					}
-				}
-				if (remainingCheck > 0) {
-					return false;
-				}
-				break;
-			case EXPERIENCE:
-				if (player.getTotalExperience() < c.getQuantity())
-					return false;
-				break;
-			case FOOD:
-				if (player.getFoodLevel() <= c.getQuantity())
-					return false;
-				break;
-			case HEALTH:
-				if (player.getHealth() <= c.getQuantity())
-					return false;
-				break;
-			}
-		}
-		return true;
-	}
+	
 
 }

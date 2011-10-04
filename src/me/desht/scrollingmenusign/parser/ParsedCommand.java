@@ -1,22 +1,28 @@
 package me.desht.scrollingmenusign.parser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class ParsedCommand {
 	private String command;
 	private List<String> args;
 	private boolean elevated;
 	private boolean restricted;
+	private boolean affordable;
 	private List<Cost> costs;
 	private ReturnStatus status;
 	private boolean fakeuser;
@@ -29,6 +35,7 @@ public class ParsedCommand {
 		costs = new ArrayList<Cost>();
 		elevated = restricted = whisper = macro = false;
 		commandStopped = macroStopped = false;
+		affordable = true;
 		command = null;
 		status = ReturnStatus.CMD_OK;
 
@@ -88,6 +95,10 @@ public class ParsedCommand {
 						}
 					}
 				}
+
+				if (!playerCanAfford(player, getCosts())) {
+					affordable = false;
+				}	
 			} else if (token.equals("&&")) {
 				// command separator - start another command
 				return;
@@ -117,6 +128,10 @@ public class ParsedCommand {
 		return restricted;
 	}
 
+	public boolean isAffordable() {
+		return affordable;
+	}
+
 	public List<Cost> getCosts() {
 		return costs;
 	}
@@ -125,6 +140,10 @@ public class ParsedCommand {
 		return status;
 	}
 
+	public void setStatus(ReturnStatus status) {
+		this.status = status;
+	}
+	
 	public boolean isFakeuser() {
 		return fakeuser;
 	}
@@ -145,6 +164,10 @@ public class ParsedCommand {
 		return macroStopped;
 	}
 
+	public String arg(int index) {
+		return args.get(index);
+	}
+	
 	private boolean restrictionCheck(Player player, String check) {
 		if (check.startsWith("g:")) {
 			return checkGroup(player, check.substring(2));
@@ -166,6 +189,58 @@ public class ParsedCommand {
 		}
 	}
 
+	/**
+	 * Check if the player can afford to pay the costs.
+	 * 
+	 * @param player
+	 * @param costs
+	 * @return
+	 */
+	private boolean playerCanAfford(Player player, List<Cost> costs) {
+		for (Cost c : costs) {
+			if (c.getQuantity() <= 0)
+				continue;
+
+			switch (c.getType()) {
+			case MONEY:
+				if (ScrollingMenuSign.getEconomy() == null) {
+					return true;
+				}
+				if (!ScrollingMenuSign.getEconomy().getAccount(player.getName()).hasEnough(c.getQuantity())) {
+					return false;
+				}
+				break;
+			case ITEM:
+				HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(Material.getMaterial(c.getId()));
+				int remainingCheck = (int) c.getQuantity();
+				for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
+					if(c.getData() == null || (entry.getValue().getData() != null && entry.getValue().getData().getData() == c.getData())) {
+						remainingCheck -= entry.getValue().getAmount();
+						if(remainingCheck <= 0)
+							break;
+					}
+				}
+				if (remainingCheck > 0) {
+					return false;
+				}
+				break;
+			case EXPERIENCE:
+				if (player.getTotalExperience() < c.getQuantity())
+					return false;
+				break;
+			case FOOD:
+				if (player.getFoodLevel() <= c.getQuantity())
+					return false;
+				break;
+			case HEALTH:
+				if (player.getHealth() <= c.getQuantity())
+					return false;
+				break;
+			}
+		}
+		return true;
+	}
+	
 	private boolean checkGroup(Player player, String groupName) {
 		return PermissionsUtils.isInGroup(player, groupName);
 	}
