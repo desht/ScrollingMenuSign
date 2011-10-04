@@ -103,8 +103,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutKeyListener, Event.Priority.Normal, this);
 		}
 
-		setupEconomy(pm);
-
 		registerCommands();
 
 		loadMacros();
@@ -116,10 +114,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 			@Override
 			public void run() {
 				loadMenusAndViews();
+				PluginManager pm = getServer().getPluginManager();
+				setupEconomy(pm);
 			}
-		})==-1) {
+		}) == -1) {
 			MiscUtil.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
 			loadMenusAndViews();
+			setupEconomy(pm);
 		}
 
 		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
