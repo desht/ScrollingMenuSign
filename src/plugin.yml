@@ -47,6 +47,7 @@ permissions:
       scrollingmenusign.commands.givemap: true
       scrollingmenusign.commands.uses: true
       scrollingmenusign.commands.view: true
+      scrollingmenusign.colourSigns: true
       scrollingmenusign.destroy: true
       scrollingmenusign.maps: true
       scrollingmenusign.maps.toSign: true
@@ -103,9 +104,6 @@ permissions:
   scrollingmenusign.commands.uses:
     description: Allows the permitted use count of a menu item to be set
     default: op
-  scrollingmenusign.destroy:
-    description: Allows destruction of signs belonging to a menu created by someone else
-    default: op
   scrollingmenusign.commands.getcfg:
     description: Allows configuration items to be viewed
     default: true
@@ -125,14 +123,20 @@ permissions:
     description: Allows menus to be listed
     default: true
   scrollingmenusign.commands.show:
-    description: Allows menus to be shown
+    description: Allows menu contents to be shown
     default: true
+  scrollingmenusign.commands.view:
+    description: Allows menu views to be inspected and modified
+    default: op
   scrollingmenusign.scroll:
     description: Allows menus to be scrolled
     default: true
   scrollingmenusign.execute:
     description: Allows menu items to be executed
     default: true
+  scrollingmenusign.create.elevated:
+    description: Allows creation of menu items which bypass permissions checks
+    default: op
   scrollingmenusign.commands.page:
     description: Allows output data to be paged
     default: true
@@ -148,16 +152,11 @@ permissions:
   scrollingmenusign.create.cost:
     description: Allows creation of menu items which have a cost
     default: op
-  scrollingmenusign.create.elevated:
-    description: Allows creation of menu items which bypass permissions checks
-    default: op
   scrollingmenusign.execute.elevated:
     description: Allow execution of menu items which bypass permissions checks
     default: true
   scrollingmenusign.useAnyView:
     description: Allows views owned by others to be used (overrides sms.use_any_view config setting)
     default: op
-  scrollingmenusign.commands.view:
-    description: Allows menu views to be inspected and modified
-    default: op
+
     
