@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
@@ -44,7 +45,11 @@ public class CommandParser {
 	 */
 	public ReturnStatus runCommandString(Player player, String command) throws SMSException {
 		ParsedCommand cmd = handleCommandString(player, command, RunMode.EXECUTE);
-
+		
+		if (cmd == null) {
+			return ReturnStatus.CMD_OK;
+		}
+		
 		if (!cmd.isAffordable())
 			cmd.setStatus(ReturnStatus.CANT_AFFORD);
 
@@ -123,6 +128,7 @@ public class CommandParser {
 			// run a macro
 			String macroName = cmd.getCommand();
 			if (macroHistory.contains(macroName)) {
+				MiscUtil.log(Level.WARNING, "Recursion detected and stopped in macro " + macroName);
 				cmd.setStatus(ReturnStatus.WOULD_RECURSE);
 				return;
 			} else if (SMSMacro.hasMacro(macroName)) {
