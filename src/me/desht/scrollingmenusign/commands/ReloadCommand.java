@@ -50,7 +50,8 @@ public class ReloadCommand extends AbstractCommand {
 			SMSPersistence.loadMacros();
 		}
 
-		MiscUtil.statusMessage(player, "Reload complete.");
+		if (player != null)
+			MiscUtil.statusMessage(player, "Reload complete.");
 
 		return true;
 	}

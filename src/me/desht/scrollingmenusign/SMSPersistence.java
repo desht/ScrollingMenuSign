@@ -38,17 +38,6 @@ public class SMSPersistence {
 		}
 	}
 
-	static void saveAll() {
-		for (SMSMenu menu : SMSMenu.listMenus()) {
-			save(menu);
-		}
-		for (SMSView view : SMSView.listViews()) {
-			save(view);
-		}
-		MiscUtil.log(Level.INFO, "saved " + SMSMenu.listMenus().size() + " menus " +
-		             " and " + SMSView.listViews().size() + " views to file.");
-	}
-
 	public static void save(Freezable object) {
 		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
 		Configuration conf = new Configuration(saveFile);
@@ -59,6 +48,17 @@ public class SMSPersistence {
 		conf.save();
 	}
 
+	public static void saveMenusAndViews() {
+		for (SMSMenu menu : SMSMenu.listMenus()) {
+			save(menu);
+		}
+		for (SMSView view : SMSView.listViews()) {
+			save(view);
+		}
+		MiscUtil.log(Level.INFO, "saved " + SMSMenu.listMenus().size() + " menus and " +
+		             SMSView.listViews().size() + " views to file.");
+	}
+
 	public static void loadMenusAndViews() {
 		loadMenus();
 		loadViews();
@@ -66,11 +66,11 @@ public class SMSPersistence {
 
 	public static void loadMacros() {
 		final File oldMacrosFile = new File(SMSConfig.getPluginFolder(), "commands.yml");
-		
+
 		for (SMSMacro macro : SMSMacro.listMacros()) {
 			macro.deleteTemporary();
 		}
-		
+
 		if (oldMacrosFile.exists()) {
 			oldStyleMacroLoad(oldMacrosFile);
 			oldMacrosFile.renameTo(new File(oldMacrosFile.getParent(), oldMacrosFile.getName() + ".OLD"));
@@ -95,7 +95,8 @@ public class SMSPersistence {
 	public static void saveMacros() {
 		for (SMSMacro macro : SMSMacro.listMacros()) {
 			save(macro);
-		}	
+		}
+		MiscUtil.log(Level.INFO, "saved " + SMSMacro.listMacros().size() + " macros to file.");
 	}
 
 	private static void loadViews() {
@@ -118,7 +119,7 @@ public class SMSPersistence {
 				backupFile(f);
 			}
 		}
-		
+
 		MiscUtil.log(Level.INFO, "Loaded " + SMSView.listViews().size() + " views from file.");
 	}
 
@@ -133,7 +134,7 @@ public class SMSPersistence {
 			// old-style data file, all menus in one file
 			oldStyleMenuLoad(oldMenusFile);
 			oldMenusFile.renameTo(new File(oldMenusFile.getParent(), oldMenusFile.getName() + ".OLD"));
-			saveAll();
+			saveMenusAndViews();
 			MiscUtil.log(Level.INFO, "Converted old-style menu data file to new v0.5+ format");
 		} else {
 			for (File f : SMSConfig.getMenusFolder().listFiles(ymlFilter)) {
@@ -190,13 +191,13 @@ public class SMSPersistence {
 			backupFile(macrosFile);
 		}		
 	}
-	
+
 	static void backupFile(File original) {
 		try {
 			File backup = getBackupFileName(original.getParentFile(), original.getName());
 			copy(original, backup);
 			MiscUtil.log(Level.INFO, "An error occurred while loading " + original +
-			            ", so a backup has been created at " + backup.getPath());
+			             ", so a backup has been created at " + backup.getPath());
 		} catch (IOException e) {
 			MiscUtil.log(Level.SEVERE, "Error while trying to write backup file: " + e);
 		}

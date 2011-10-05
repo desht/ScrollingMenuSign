@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
+import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.util.MiscUtil;
 
@@ -32,7 +33,7 @@ public class RemoveMacroCommand extends AbstractCommand {
 			}
 		}
 	
-		plugin.saveMacros();
+		SMSPersistence.saveMacros();
 		
 		return true;
 	}

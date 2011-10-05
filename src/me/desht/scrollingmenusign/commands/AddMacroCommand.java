@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
+import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.util.MiscUtil;
 
@@ -21,7 +22,7 @@ public class AddMacroCommand extends AbstractCommand {
 		SMSMacro.getMacro(args[0], true).addLine(s);
 		MiscUtil.statusMessage(player, "Added command to macro &e" + args[0] + "&-.");
 		
-		plugin.saveMacros();
+		SMSPersistence.saveMacros();
 		
 		return true;
 	}

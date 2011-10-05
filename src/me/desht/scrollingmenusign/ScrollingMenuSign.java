@@ -102,8 +102,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 			spoutKeyListener = new SMSSpoutKeyListener();
 			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutKeyListener, Event.Priority.Normal, this);
 		}
-
-		SMSPersistence.loadMacros();
 		
 		registerCommands();
 
@@ -124,6 +122,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 
 		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
+	}
+
+	@Override
+	public void onDisable() {
+		SMSPersistence.saveMenusAndViews();
+		SMSPersistence.saveMacros();
+		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is disabled!" );
 	}
 
 	private void setupEconomy(PluginManager pm) {
@@ -181,23 +186,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 
-	@Override
-	public void onDisable() {
-		saveMenus();
-		saveMacros();
-		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is disabled!" );
-	}
-
 	public void loadPersistedData() {
+		SMSPersistence.loadMacros();
 		SMSPersistence.loadMenusAndViews();
-	}
-
-	public void saveMenus() {
-		SMSPersistence.saveAll();
-	}
-
-	public void saveMacros() {
-		SMSPersistence.saveMacros();
 	}
 
 	public SMSHandler getHandler() {

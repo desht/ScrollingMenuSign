@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
@@ -34,11 +35,12 @@ public class SaveCommand extends AbstractCommand {
 			}
 		}
 		if (saveAll || saveMenus)
-			plugin.saveMenus();
+			SMSPersistence.saveMenusAndViews();
 		if (saveAll || saveMacros)
-			plugin.saveMacros();
+			SMSPersistence.saveMacros();
 		
-		MiscUtil.statusMessage(player, "Save complete.");
+		if (player != null)
+			MiscUtil.statusMessage(player, "Save complete.");
 
 		return true;
 	}
