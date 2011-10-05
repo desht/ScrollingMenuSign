@@ -22,7 +22,6 @@ import org.yaml.snakeyaml.reader.ReaderException;
 public class SMSPersistence {
 
 	private static final FilenameFilter ymlFilter = new FilenameFilter() {
-
 		@Override
 		public boolean accept(File dir, String name) {
 			return name.endsWith(".yml");
@@ -60,9 +59,43 @@ public class SMSPersistence {
 		conf.save();
 	}
 
-	static void loadAll() {
+	public static void loadMenusAndViews() {
 		loadMenus();
 		loadViews();
+	}
+
+	public static void loadMacros() {
+		final File oldMacrosFile = new File(SMSConfig.getPluginFolder(), "commands.yml");
+		
+		for (SMSMacro macro : SMSMacro.listMacros()) {
+			macro.deleteTemporary();
+		}
+		
+		if (oldMacrosFile.exists()) {
+			oldStyleMacroLoad(oldMacrosFile);
+			oldMacrosFile.renameTo(new File(oldMacrosFile.getParent(), oldMacrosFile.getName() + ".OLD"));
+			MiscUtil.log(Level.INFO, "Converted old-style macro data file to new v0.8+ format");
+		} else {
+			for (File f : SMSConfig.getMacrosFolder().listFiles(ymlFilter)) {
+				try {
+					Configuration conf = new Configuration(f);
+					conf.load();
+					SMSMacro m = new SMSMacro(conf);
+					SMSMacro.addMacro(m);
+				} catch (ReaderException e)	{
+					MiscUtil.log(Level.WARNING, "caught exception while loading macro file " +
+					             f + ": " + e.getMessage());
+					backupFile(f);
+				}
+			}
+			MiscUtil.log(Level.INFO, "Loaded " + SMSMacro.listMacros().size() + " macros from file.");
+		}
+	}
+
+	public static void saveMacros() {
+		for (SMSMacro macro : SMSMacro.listMacros()) {
+			save(macro);
+		}	
 	}
 
 	private static void loadViews() {
@@ -82,7 +115,7 @@ public class SMSPersistence {
 			} catch (ReaderException e)	{
 				MiscUtil.log(Level.WARNING, "caught exception while loading view file " +
 				             f + ": " + e.getMessage());
-				backupMenuFile(f);
+				backupFile(f);
 			}
 		}
 		
@@ -98,7 +131,7 @@ public class SMSPersistence {
 
 		if (oldMenusFile.exists()) {
 			// old-style data file, all menus in one file
-			oldStyleLoad(oldMenusFile);
+			oldStyleMenuLoad(oldMenusFile);
 			oldMenusFile.renameTo(new File(oldMenusFile.getParent(), oldMenusFile.getName() + ".OLD"));
 			saveAll();
 			MiscUtil.log(Level.INFO, "Converted old-style menu data file to new v0.5+ format");
@@ -113,7 +146,7 @@ public class SMSPersistence {
 				} catch (ReaderException e)	{
 					MiscUtil.log(Level.WARNING, "caught exception while loading menu file " +
 					             f + ": " + e.getMessage());
-					backupMenuFile(f);
+					backupFile(f);
 				} catch (SMSException e) {
 					MiscUtil.log(Level.WARNING, "caught exception while restoring menu " + f + ": " + e.getMessage());
 				}
@@ -122,7 +155,7 @@ public class SMSPersistence {
 		}
 	}
 
-	private static void oldStyleLoad(File menusFile) {	
+	private static void oldStyleMenuLoad(File menusFile) {	
 		try {
 			Configuration conf = new Configuration(menusFile);
 			conf.load();
@@ -134,20 +167,36 @@ public class SMSPersistence {
 			}
 		} catch (ReaderException e) {
 			MiscUtil.log(Level.WARNING, "caught exception while loading menu data: " + e.getMessage());
-			backupMenuFile(menusFile);
+			backupFile(menusFile);
 		} catch (SMSException e) {
 			MiscUtil.log(Level.WARNING, "caught exception while restoring menus: " + e.getMessage());
 		}
 		MiscUtil.log(Level.INFO, "read " + SMSMenu.listMenus().size() + " menus from file.");
 	}	
 
-	static void backupMenuFile(File original) {
+	private static void oldStyleMacroLoad(File macrosFile) {
+		try {
+			Configuration conf = new Configuration(macrosFile);
+			conf.load();
+			for (String key : conf.getKeys()) {
+				SMSMacro m = new SMSMacro(key);
+				for (String cmd : conf.getStringList(key, null)) {
+					m.addLine(cmd);
+				}
+				SMSMacro.addMacro(m);
+			}
+		} catch (ReaderException e) {
+			MiscUtil.log(Level.SEVERE, "Caught exception loading " + macrosFile + ": " + e.getMessage());
+			backupFile(macrosFile);
+		}		
+	}
+	
+	static void backupFile(File original) {
 		try {
 			File backup = getBackupFileName(original.getParentFile(), original.getName());
-
-			MiscUtil.log(Level.INFO, "An error occurred while loading the menus file, so a backup copy of "
-			             + original + " is being created. The backup can be found at " + backup.getPath());
 			copy(original, backup);
+			MiscUtil.log(Level.INFO, "An error occurred while loading " + original +
+			            ", so a backup has been created at " + backup.getPath());
 		} catch (IOException e) {
 			MiscUtil.log(Level.SEVERE, "Error while trying to write backup file: " + e);
 		}

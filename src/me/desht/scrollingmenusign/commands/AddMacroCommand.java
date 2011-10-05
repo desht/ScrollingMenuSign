@@ -18,7 +18,7 @@ public class AddMacroCommand extends AbstractCommand {
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
 		String s = combine(args, 1);
-		SMSMacro.addCommand(args[0], s);
+		SMSMacro.getMacro(args[0], true).addLine(s);
 		MiscUtil.statusMessage(player, "Added command to macro &e" + args[0] + "&-.");
 		
 		plugin.saveMacros();

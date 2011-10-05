@@ -1,7 +1,5 @@
 package me.desht.scrollingmenusign.commands;
 
-import java.util.List;
-
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -23,16 +21,15 @@ public class ListMacroCommand extends AbstractCommand {
 		MessagePager.clear(player);
 		int i = 1;
 		if (args.length == 0) {
-			List<String> macros = SMSMacro.getMacros();
-			MessagePager.add(player, "&e" + macros.size() + " macros");
-			for (String m : macros) {
-				MessagePager.add(player, " &e" + i++ + ") &f" + m);
+			MessagePager.add(player, "&e" + SMSMacro.getMacros().size() + " macros:");
+			for (SMSMacro m : SMSMacro.listMacros(true)) {
+				MessagePager.add(player, " &e" + i++ + ") &f" + m.getName() + "   &e[" + m.getLines().size() + " lines]");
 			}
 		} else {
-			List<String> cmds = SMSMacro.getCommands(args[0]);
-			MessagePager.add(player, "&e" + cmds.size() + " macro entries");
-			for (String c : cmds) {
-				MessagePager.add(player, " &e" + i++ + ") &f" + c);
+			SMSMacro m = SMSMacro.getMacro(args[0], false);
+			MessagePager.add(player, "&fMacro &e" + m.getName() + "&f [" + m.getLines().size() + " lines]:");
+			for (String l : m.getLines()) {
+				MessagePager.add(player, " &e" + i++ + ") &f" + l);
 			}
 		}
 		MessagePager.showPage(player);

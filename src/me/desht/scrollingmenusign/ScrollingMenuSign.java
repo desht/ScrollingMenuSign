@@ -103,9 +103,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutKeyListener, Event.Priority.Normal, this);
 		}
 
+		SMSPersistence.loadMacros();
+		
 		registerCommands();
-
-		loadMacros();
 
 		MessagePager.setPageCmd("/sms page [#|n|p]");
 
@@ -113,13 +113,13 @@ public class ScrollingMenuSign extends JavaPlugin {
 		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 			@Override
 			public void run() {
-				loadMenusAndViews();
+				loadPersistedData();
 				PluginManager pm = getServer().getPluginManager();
 				setupEconomy(pm);
 			}
 		}) == -1) {
 			MiscUtil.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
-			loadMenusAndViews();
+			loadPersistedData();
 			setupEconomy(pm);
 		}
 
@@ -174,7 +174,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 			player = (Player) sender;
 		}
 		try {
-			return cmds.dispatch(player, label, args);
+			return cmds.dispatch(player, command.getName(), args);
 		} catch (SMSException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
 			return true;
@@ -188,12 +188,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is disabled!" );
 	}
 
-	public void loadMenusAndViews() {
-		SMSPersistence.loadAll();
-	}
-
-	public void loadMacros() {
-		SMSMacro.loadCommands();
+	public void loadPersistedData() {
+		SMSPersistence.loadMenusAndViews();
 	}
 
 	public void saveMenus() {
@@ -201,7 +197,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 
 	public void saveMacros() {
-		SMSMacro.saveCommands();
+		SMSPersistence.saveMacros();
 	}
 
 	public SMSHandler getHandler() {

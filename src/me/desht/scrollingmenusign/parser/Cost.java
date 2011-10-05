@@ -17,22 +17,47 @@ public class Cost {
 	private Byte data;
 	private double quantity;
 
-	Cost(int id) {
+	/**
+	 * Construct a new Cost object, charging 1 of the given item ID
+	 * 
+	 * @param id	ID of the item to charge, 0 for economy credits
+	 */
+	public Cost(int id) {
 		this(id, null, 1);
 	}
 
-	Cost(int id, Byte data, double quantity) {
+	/**
+	 * Construct a new Cost object.
+	 * 
+	 * @param id	ID of the item to charge, 0 for economy credits
+	 * @param data	Data value of the item, may be null
+	 * @param quantity	Quantity to charge, may be negative
+	 */
+	public Cost(int id, Byte data, double quantity) {
 		this(id == 0 ? CostType.MONEY : CostType.ITEM, id, data, quantity);
 	}
 
-	Cost(CostType type, int id, Byte data, double quantity) {
+	/**
+	 * Construct a new Cost object of the given type.
+	 * 
+	 * @param type	Type of cost to apply
+	 * @param id	ID of the item to charge, 0 for economy credits
+	 * @param data	Data value of the item, may be null
+	 * @param quantity	Quantity to charge, may be negative
+	 */
+	public Cost(CostType type, int id, Byte data, double quantity) {
 		this.type = type;
 		this.id = id;
 		this.data = data;
 		this.quantity = quantity;
 	}
 
-	Cost(String costSpec) {
+	/**
+	 * Construct a new Cost object from the given string specification.
+	 * 
+	 * @param costSpec	The specification
+	 */
+	public Cost(String costSpec) {
 		//System.out.println("cost = " + costSpec);
 		String[] s1 = costSpec.split(",");
 		if (s1.length != 2)

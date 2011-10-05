@@ -23,7 +23,7 @@ public class RemoveMacroCommand extends AbstractCommand {
 		} else {
 			try { 
 				int index = Integer.parseInt(args[1]);
-				SMSMacro.removeCommand(args[0], index - 1);
+				SMSMacro.getMacro(args[0]).removeLine(index - 1);
 				MiscUtil.statusMessage(player, "Removed command #" + index + " from macro &e" + args[0] + "&-.");
 			} catch (NumberFormatException e) {
 				MiscUtil.errorMessage(player, "invalid index: " + args[1]);

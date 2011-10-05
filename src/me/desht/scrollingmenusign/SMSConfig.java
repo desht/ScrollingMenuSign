@@ -22,12 +22,13 @@ public class SMSConfig {
 	private static ScrollingMenuSign plugin = null;
 
 	private static File pluginDir;
-	private static File dataDir, menusDir, viewsDir;
+	private static File dataDir, menusDir, viewsDir, macrosDir;
 	private static File commandFile;
-
+	
 	private static final String dataDirName = "data";
 	private static final String menusDirName = "menus";
 	private static final String viewsDirName = "views";
+	private static final String macrosDirName = "macros";
 	private static final String commandFileName = "commands.yml";
 
 	private static final String SAMPLE_NODE = "a.sample.permission.node";
@@ -76,11 +77,13 @@ public class SMSConfig {
 		dataDir = new File(pluginDir, dataDirName);
 		menusDir = new File(dataDir, menusDirName);
 		viewsDir = new File(dataDir, viewsDirName);
+		macrosDir = new File(dataDir, macrosDirName);
 
 		createDirectory(pluginDir);
 		createDirectory(dataDir);
 		createDirectory(menusDir);
 		createDirectory(viewsDir);
+		createDirectory(macrosDir);
 	}
 
 	private static void createDirectory(File dir) {
@@ -136,6 +139,10 @@ public class SMSConfig {
 
 	public static File getMenusFolder() {
 		return menusDir;
+	}
+
+	public static File getMacrosFolder() {
+		return macrosDir;
 	}
 
 	public static File getViewsFolder() {

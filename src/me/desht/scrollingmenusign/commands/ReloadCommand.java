@@ -1,7 +1,9 @@
 package me.desht.scrollingmenusign.commands;
 
+import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
@@ -19,7 +21,7 @@ public class ReloadCommand extends AbstractCommand {
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.reload");
-		
+
 		Boolean loadMenus = false;
 		Boolean loadMacros = false;
 		Boolean loadConfig = false;
@@ -27,7 +29,7 @@ public class ReloadCommand extends AbstractCommand {
 		if (args.length == 0) {
 			loadAll = true;
 		} else {
-			for (int i = 1 ; 0 < args.length; i++) {
+			for (int i = 0 ; i < args.length; i++) {
 				if (args[i].equalsIgnoreCase("menus")) {
 					loadMenus = true;
 				} else if (args[i].equalsIgnoreCase("macros")) {
@@ -38,16 +40,18 @@ public class ReloadCommand extends AbstractCommand {
 			}
 		}
 		if (loadAll || loadConfig) {
-				plugin.getConfiguration().load();
-				SMSMenu.updateAllMenus();
+			SMSConfig.getConfiguration().load();
+			SMSMenu.updateAllMenus();
 		}
-		if (loadAll || loadMenus)
-			plugin.loadMenusAndViews();
-		if (loadAll || loadMacros)
-			plugin.loadMacros();
-		
+		if (loadAll || loadMenus) {
+			SMSPersistence.loadMenusAndViews();
+		}
+		if (loadAll || loadMacros) {
+			SMSPersistence.loadMacros();
+		}
+
 		MiscUtil.statusMessage(player, "Reload complete.");
-		
+
 		return true;
 	}
 }
