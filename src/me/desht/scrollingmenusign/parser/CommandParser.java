@@ -1,13 +1,10 @@
 package me.desht.scrollingmenusign.parser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.Map.Entry;
-import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
@@ -19,7 +16,6 @@ import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
@@ -51,7 +47,7 @@ public class CommandParser {
 
 		if (!cmd.isAffordable())
 			cmd.setStatus(ReturnStatus.CANT_AFFORD);
-		
+
 		return cmd.getStatus();
 	}
 
@@ -63,13 +59,13 @@ public class CommandParser {
 	ParsedCommand handleCommandString(Player player, String command, RunMode mode) throws SMSException {
 
 		// do some preprocessing ...
+		ItemStack stack =  player.getItemInHand();
 		command = command.replace("<X>", "" + player.getLocation().getBlockX());
 		command = command.replace("<Y>", "" + player.getLocation().getBlockY());
 		command = command.replace("<Z>", "" + player.getLocation().getBlockZ());
 		command = command.replace("<NAME>", player.getName());
 		command = command.replace("<N>", player.getName());
 		command = command.replace("<WORLD>", player.getWorld().getName());
-		ItemStack stack =  player.getItemInHand();
 		command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
 
 		Scanner scanner = new Scanner(command);
@@ -78,13 +74,15 @@ public class CommandParser {
 		while (scanner.hasNext()) {
 			cmd = new ParsedCommand(player, scanner);
 
-			if (mode == RunMode.EXECUTE) {
+			switch (mode) {
+			case EXECUTE:
 				if (cmd.isRestricted() || !cmd.isAffordable()) {
 					// bypassing any potential cmd.isCommandStopped() or cmd.isMacroStopped()
 					continue;
 				}
 				execute(player, cmd);
-			} else if (mode == RunMode.CHECK_PERMS) {
+				break;
+			case CHECK_PERMS:
 				cmd.setStatus(ReturnStatus.CMD_OK);
 				if (cmd.isElevated() && !PermissionsUtils.isAllowedTo(player, "scrollingmenusign.create.elevated")) {
 					cmd.setStatus(ReturnStatus.NO_PERMS);
@@ -93,10 +91,11 @@ public class CommandParser {
 					cmd.setStatus(ReturnStatus.NO_PERMS);
 					return cmd;
 				}
-			} else {
-				// should never get here
+				break;
+			default:
 				throw new IllegalArgumentException("unexpected run mode for parseCommandString()");
 			}
+			
 			if (cmd.isCommandStopped() || cmd.isMacroStopped()) {
 				break;
 			}
@@ -105,41 +104,16 @@ public class CommandParser {
 		return cmd;
 	}
 
-	boolean restrictionCheck(Player player, String check) {
-		if (check.startsWith("g:")) {
-			return checkGroup(player, check.substring(2));
-		} else if (check.startsWith("p:")) {
-			return player.getName().equalsIgnoreCase(check.substring(2));
-		} else if (check.startsWith("w:")) {
-			return player.getWorld().getName().equalsIgnoreCase(check.substring(2));
-		} else if (check.startsWith("n:")) {
-			return player.hasPermission(check.substring(2));
-		} else if (check.startsWith("i:")) {
-			try {
-				return player.getItemInHand().getTypeId() == Integer.parseInt(check.substring(2));
-			} catch (NumberFormatException e) {
-				MiscUtil.log(Level.WARNING, "bad number format in restriction check: " + check);
-				return false;
-			}
-		} else {
-			return player.getName().equalsIgnoreCase(check);
-		}
-	}
-
-	private boolean checkGroup(Player player, String groupName) {
-		return PermissionsUtils.isInGroup(player, groupName);
-	}
-
-	private void execute(Player player, ParsedCommand cmd) {
+	private void execute(Player player, ParsedCommand cmd) throws SMSException {
 		if (cmd.isRestricted() || !cmd.isAffordable()) 
 			return;
 
-		chargePlayer(player, cmd.getCosts());
+		Cost.chargePlayer(player, cmd.getCosts());
 
 		if (cmd.getCommand() == null || cmd.getCommand().isEmpty())
 			return;
 
-		StringBuilder sb = new StringBuilder().append(cmd.getCommand()).append(" ");
+		StringBuilder sb = new StringBuilder(cmd.getCommand()).append(" ");
 		for (String a : cmd.getArgs()) {
 			sb.append(a).append(" ");
 		}
@@ -157,13 +131,9 @@ public class CommandParser {
 					for (int i = 0; i < cmd.getArgs().size(); i++) {
 						c = c.replace("<" + (i + 1) + ">", cmd.arg(i));
 					}
-					try {
-						ParsedCommand cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
-						if (cmd2.isMacroStopped())
-							break;
-					} catch (SMSException e) {
-						MiscUtil.log(Level.WARNING, "Caught exception parsing " + c + ": " + e.getMessage());
-					}
+					ParsedCommand cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
+					if (cmd2.isMacroStopped())
+						break;
 				}
 				return;
 			} else {
@@ -173,7 +143,7 @@ public class CommandParser {
 		} else if (cmd.isWhisper()) {
 			// private message to the player
 			MiscUtil.alertMessage(player, command);
-		} else if (cmd.isFakeuser() || cmd.isElevated()) {
+		} else if (cmd.isElevated()) {
 			// this is a /@ command, to be run as the real player, but with temporary permissions
 			// (this now also handles the /* fake-player style, which is no longer directly supported)
 
@@ -190,7 +160,7 @@ public class CommandParser {
 				ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 				for (String node : SMSConfig.getConfiguration().getStringList("sms.elevation.nodes", null)) {
 					if (!node.isEmpty() && !player.hasPermission(node)) {
-						System.out.println("add node: " + node);
+//						System.out.println("add node: " + node);
 						attachments.add(player.addAttachment(plugin, node, true));
 					}
 				}
@@ -208,9 +178,9 @@ public class CommandParser {
 			} finally {
 				// revoke all temporary permissions granted to the user
 				for (PermissionAttachment att : attachments) {
-					for (Entry<String,Boolean> e : att.getPermissions().entrySet()) {
-						System.out.println("remove attachment: " + e.getKey() + " = " + e.getValue());
-					}
+//					for (Entry<String,Boolean> e : att.getPermissions().entrySet()) {
+//						System.out.println("remove attachment: " + e.getKey() + " = " + e.getValue());
+//					}
 					player.removeAttachment(att);
 				}
 				if (tempOp) {
@@ -230,103 +200,4 @@ public class CommandParser {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	private void chargePlayer(Player player, List<Cost> list) {
-		for (Cost c : list) {
-			if (c.getQuantity() == 0.0)
-				continue;
-			switch (c.getType()) {
-			case MONEY:
-				if (ScrollingMenuSign.getEconomy() != null) {
-					ScrollingMenuSign.getEconomy().getAccount(player.getName()).subtract(c.getQuantity());
-				}
-				break;
-			case ITEM:
-				if (c.getQuantity() > 0) 
-					chargeItems(player, c);
-				else
-					grantItems(player, c);
-				player.updateInventory();
-				break;
-			case EXPERIENCE:
-				// tricky, but seemingly the only way to set total experience correctly.
-				int currentXP = player.getTotalExperience();
-				int newXP = getNewQuantity(currentXP, c.getQuantity(), 0, Integer.MAX_VALUE);
-				player.setExperience(0);
-				player.setTotalExperience(0);
-				player.setLevel(0);
-				player.setExperience(newXP);
-				break;
-			case FOOD:
-				player.setFoodLevel(getNewQuantity(player.getFoodLevel(), c.getQuantity(), 1, 20));
-				break;
-			case HEALTH:
-				player.setHealth(getNewQuantity(player.getHealth(), c.getQuantity(), 1, 20));
-				break;
-			}
-		}
-	}
-
-	private int getNewQuantity(int original, double adjust, int min, int max) {
-		int newQuantity = original - (int) adjust;
-		if (newQuantity < min) {
-			newQuantity = min;
-		} else if (newQuantity > max) {
-			newQuantity = max;	
-		}
-		return newQuantity;
-	}
-
-	/**
-	 * Give items to a player.
-	 * 
-	 * @param player
-	 * @param c
-	 */
-	private void grantItems(Player player, Cost c) {
-		int quantity = (int) -c.getQuantity();
-
-		ItemStack stack = null;
-		while (quantity > 64) {
-			if (c.getData() == null)
-				stack = new ItemStack(c.getId(), 64);
-			else
-				stack = new ItemStack(c.getId(), 64, (short)0, c.getData().byteValue());
-			player.getInventory().addItem(stack);
-			quantity -= 64;
-		}
-
-		if (c.getData() == null)
-			stack = new ItemStack(c.getId(), quantity);
-		else
-			stack = new ItemStack(c.getId(), quantity, (short)0, c.getData().byteValue());
-		player.getInventory().addItem(stack);
-	}
-
-	/**
-	 * Take items from a player's inventory.  Doesn't check to see if there is enough -
-	 * use playerCanAfford() for that.
-	 * 
-	 * @param player
-	 * @param c
-	 */
-	private void chargeItems(Player player, Cost c) {
-		HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(Material.getMaterial(c.getId()));
-
-		int remainingCheck = (int) c.getQuantity();
-		for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
-			if (c.getData() == null || (entry.getValue().getData() != null && entry.getValue().getData().getData() == c.getData())) {
-				remainingCheck -= entry.getValue().getAmount();
-				if (remainingCheck < 0) {
-					entry.getValue().setAmount(-remainingCheck);
-					break;
-				} else if (remainingCheck == 0) {	
-					player.getInventory().removeItem(entry.getValue());
-					break;
-				} else {
-					player.getInventory().removeItem(entry.getValue());
-				}
-			}
-		}
-	}
 }

@@ -1,21 +1,16 @@
 package me.desht.scrollingmenusign.parser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public class ParsedCommand {
 	private String command;
@@ -25,7 +20,6 @@ public class ParsedCommand {
 	private boolean affordable;
 	private List<Cost> costs;
 	private ReturnStatus status;
-	private boolean fakeuser;
 	private boolean whisper;
 	private boolean macro;
 	private boolean commandStopped, macroStopped;
@@ -53,7 +47,7 @@ public class ParsedCommand {
 			} else if (token.startsWith("/*") && command == null) {
 				// fakeuser command
 				command = "/" + token.substring(2);
-				fakeuser = true;
+				elevated = true;
 			} else if (token.startsWith("/") && command == null) {
 				// regular command
 				command = token;
@@ -96,7 +90,7 @@ public class ParsedCommand {
 					}
 				}
 
-				if (!playerCanAfford(player, getCosts())) {
+				if (!Cost.playerCanAfford(player, getCosts())) {
 					affordable = false;
 				}	
 			} else if (token.equals("&&")) {
@@ -143,10 +137,6 @@ public class ParsedCommand {
 	public void setStatus(ReturnStatus status) {
 		this.status = status;
 	}
-	
-	public boolean isFakeuser() {
-		return fakeuser;
-	}
 
 	public boolean isWhisper() {
 		return whisper;
@@ -170,7 +160,7 @@ public class ParsedCommand {
 	
 	private boolean restrictionCheck(Player player, String check) {
 		if (check.startsWith("g:")) {
-			return checkGroup(player, check.substring(2));
+			return PermissionsUtils.isInGroup(player, check.substring(2));
 		} else if (check.startsWith("p:")) {
 			return player.getName().equalsIgnoreCase(check.substring(2));
 		} else if (check.startsWith("w:")) {
@@ -188,61 +178,4 @@ public class ParsedCommand {
 			return player.getName().equalsIgnoreCase(check);
 		}
 	}
-
-	/**
-	 * Check if the player can afford to pay the costs.
-	 * 
-	 * @param player
-	 * @param costs
-	 * @return
-	 */
-	private boolean playerCanAfford(Player player, List<Cost> costs) {
-		for (Cost c : costs) {
-			if (c.getQuantity() <= 0)
-				continue;
-
-			switch (c.getType()) {
-			case MONEY:
-				if (ScrollingMenuSign.getEconomy() == null) {
-					return true;
-				}
-				if (!ScrollingMenuSign.getEconomy().getAccount(player.getName()).hasEnough(c.getQuantity())) {
-					return false;
-				}
-				break;
-			case ITEM:
-				HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(Material.getMaterial(c.getId()));
-				int remainingCheck = (int) c.getQuantity();
-				for (Entry<Integer, ? extends ItemStack> entry : matchingInvSlots.entrySet()) {
-					if(c.getData() == null || (entry.getValue().getData() != null && entry.getValue().getData().getData() == c.getData())) {
-						remainingCheck -= entry.getValue().getAmount();
-						if(remainingCheck <= 0)
-							break;
-					}
-				}
-				if (remainingCheck > 0) {
-					return false;
-				}
-				break;
-			case EXPERIENCE:
-				if (player.getTotalExperience() < c.getQuantity())
-					return false;
-				break;
-			case FOOD:
-				if (player.getFoodLevel() <= c.getQuantity())
-					return false;
-				break;
-			case HEALTH:
-				if (player.getHealth() <= c.getQuantity())
-					return false;
-				break;
-			}
-		}
-		return true;
-	}
-	
-	private boolean checkGroup(Player player, String groupName) {
-		return PermissionsUtils.isInGroup(player, groupName);
-	}
-
 }
