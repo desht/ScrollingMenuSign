@@ -4,10 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SpoutUtils;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -20,22 +19,32 @@ import org.getspout.spoutapi.event.input.KeyPressedEvent;
 import org.getspout.spoutapi.event.input.KeyReleasedEvent;
 import org.getspout.spoutapi.gui.ScreenType;
 import org.getspout.spoutapi.keyboard.Keyboard;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SMSSpoutKeyListener extends InputListener {
 	private static final Map<String, Set<Keyboard>> pressedKeys = new HashMap<String, Set<Keyboard>>();
 	
 	public SMSSpoutKeyListener() {
+		SpoutUtils.loadKeyDefinitions();
 	}
-	
+
 	@Override
 	public void onKeyPressedEvent(KeyPressedEvent event) {
+
+		SpoutPlayer player = event.getPlayer();
+
+		Set<Keyboard> pressed = getPressedKeys(player);
+		if (event.getKey() == Keyboard.KEY_ESCAPE) {
+			// special case - Escape always resets the pressed key set
+			pressed.clear();
+		} else {
+			pressed.add(event.getKey());
+		}
+		
+		// don't actually do any action unless we're on the game screen
 		if (event.getScreenType() != ScreenType.GAME_SCREEN)
 			return;
-
-		Player player = event.getPlayer();
 		
-		Set<Keyboard> pressed = getPressedKeys(player);
-		pressed.add(event.getKey());
 		try {
 			Block block = player.getTargetBlock(null, 3);
 
@@ -55,15 +64,12 @@ public class SMSSpoutKeyListener extends InputListener {
 			// can be ignored
 		}
 	}
-	
+
 	@Override
 	public void onKeyReleasedEvent(KeyReleasedEvent event) {
-		if (event.getScreenType() != ScreenType.GAME_SCREEN)
-			return;
-		
 		getPressedKeys(event.getPlayer()).remove(event.getKey());
 	}
-	
+
 	private Set<Keyboard> getPressedKeys(Player player) {
 		if (!pressedKeys.containsKey(player.getName())) {
 			pressedKeys.put(player.getName(), new HashSet<Keyboard>());
@@ -72,30 +78,15 @@ public class SMSSpoutKeyListener extends InputListener {
 	}
 
 	private static SMSUserAction getAction(Set<Keyboard> pressed) {
-		if (tryKeyboardMatch("sms.actions.spout.up", "key_up", pressed)) {
+		if (SpoutUtils.tryKeyboardMatch("sms.actions.spout.up", pressed)) {
 			return SMSUserAction.SCROLLUP;
-		} else if (tryKeyboardMatch("sms.actions.spout.down", "key_down", pressed)) {
+		} else if (SpoutUtils.tryKeyboardMatch("sms.actions.spout.down", pressed)) {
 			return SMSUserAction.SCROLLDOWN;
-		} else if (tryKeyboardMatch("sms.actions.spout.execute", "key_return", pressed)) {
+		} else if (SpoutUtils.tryKeyboardMatch("sms.actions.spout.execute", pressed)) {
 			return SMSUserAction.EXECUTE;
 		}
 
 		return SMSUserAction.NONE;
 	}
 
-	private static boolean tryKeyboardMatch(String key, String def, Set<Keyboard> pressed) {
-		String[] wanted = SMSConfig.getConfiguration().getString(key, def).split("\\+");
-		int matched = 0;
-		for (String w : wanted) {
-			try {
-				Keyboard kw = Keyboard.valueOf(w.toUpperCase());
-				if (pressed.contains(kw)) {
-					matched++;
-				}
-			} catch (IllegalArgumentException e) {
-				MiscUtil.log(Level.WARNING, "Unknown Spout key definition " + w + " in sms.actions.spout.up");
-			}
-		}
-		return matched == wanted.length && pressed.size() == wanted.length;
-	}
 }

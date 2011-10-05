@@ -184,6 +184,12 @@ public class SMSConfig {
 					v.update(v.getMenu(), SMSMenuAction.REPAINT);
 			}
 		}
+		
+		if (key.startsWith("sms.actions.spout")) {
+			// reload & re-cache spout key definitions
+			SpoutUtils.loadKeyDefinitions();
+		}
+		
 		getConfiguration().save();
 	}
 
