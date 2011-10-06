@@ -55,9 +55,7 @@ public class ListMenusCommand extends AbstractCommand {
 		List<String> lines = new ArrayList<String>();
 		lines.add(message);
 		for (SMSView v : views) {
-//			Location[] locs = v.getLocationsArray();
-//			if (locs.length > 0)
-			lines.add(" &5*&- " + v.toString()); //MiscUtil.formatLocation(locs[0]));
+			lines.add(" &5*&- " + v.getName() + ": " + v.toString());
 		}
 		MessagePager.add(player, lines);
 	}
