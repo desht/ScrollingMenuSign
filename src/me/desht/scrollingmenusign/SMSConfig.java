@@ -192,7 +192,7 @@ public class SMSConfig {
 			}
 		}
 		
-		if (key.startsWith("sms.actions.spout")) {
+		if (key.startsWith("sms.actions.spout") && plugin.isSpoutEnabled()) {
 			// reload & re-cache spout key definitions
 			SpoutUtils.loadKeyDefinitions();
 		}
