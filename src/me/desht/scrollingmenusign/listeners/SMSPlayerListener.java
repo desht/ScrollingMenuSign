@@ -176,8 +176,8 @@ public class SMSPlayerListener extends PlayerListener {
 			if (title.isEmpty()) {
 				PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 				SMSMenu menu = handler.getMenu(name);
-				SMSSignView.addSignToMenu(menu, b.getLocation());
-				MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(b.getLocation()) +
+				SMSView view = SMSSignView.addSignToMenu(menu, b.getLocation());
+				MiscUtil.statusMessage(player, "Added new sign view " + view.getName() + " @ &f" + MiscUtil.formatLocation(b.getLocation()) +
 				                       "&- was added to menu &e" + name + "&-");
 			} else {
 				MiscUtil.errorMessage(player, "A menu called '" + name + "' already exists.");
@@ -185,8 +185,8 @@ public class SMSPlayerListener extends PlayerListener {
 		} else if (title.length() > 0) {
 			PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.create");
 			SMSMenu menu = plugin.getHandler().createMenu(name, title, player.getName());
-			SMSSignView.addSignToMenu(menu, b.getLocation());
-			MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(b.getLocation()) +
+			SMSView view = SMSSignView.addSignToMenu(menu, b.getLocation());
+			MiscUtil.statusMessage(player, "Sign view " + view.getName() + " @ &f" + MiscUtil.formatLocation(b.getLocation()) +
 			                       "&- was added to new menu &e" + name + "&-");
 		}
 
@@ -206,9 +206,9 @@ public class SMSPlayerListener extends PlayerListener {
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps.toSign");
 		SMSMenu menu = mapView.getMenu();
-		SMSSignView.addSignToMenu(menu, block.getLocation());
-		MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(block.getLocation()) +
-		                       "&- was added to menu &e" + menu.getName() + "&-");
+		SMSView view = SMSSignView.addSignToMenu(menu, block.getLocation());
+		MiscUtil.statusMessage(player, "Added new sign view " + view.getName() + " @ &f" + MiscUtil.formatLocation(block.getLocation()) +
+		                       "&- to menu &e" + menu.getName() + "&-");
 	}
 
 	/**
@@ -225,7 +225,7 @@ public class SMSPlayerListener extends PlayerListener {
 		SMSMapView mapView = SMSMapView.getViewForId(mapId);
 		if (mapView != null) {
 			mapView.deletePermanent();
-			MiscUtil.statusMessage(player, "Removed map view &emap_" + mapId + "&- from menu &e" + mapView.getMenu().getName() + "&-.");
+			MiscUtil.statusMessage(player, "Removed map view &emap_" + mapView.getName() + "&- from menu &e" + mapView.getMenu().getName() + "&-.");
 		}
 	}
 
@@ -248,6 +248,6 @@ public class SMSPlayerListener extends PlayerListener {
 		short mapId = player.getItemInHand().getDurability();
 		SMSMapView mapView = SMSMapView.addMapToMenu(mapId, currentView.getMenu());
 
-		MiscUtil.statusMessage(player, "Added new map view to menu &e" + mapView.getMenu().getName() + "&-.");
+		MiscUtil.statusMessage(player, "Added new map view &e" + mapView.getName() + "&- to menu &e" + mapView.getMenu().getName() + "&-.");
 	}
 }

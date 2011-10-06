@@ -26,8 +26,8 @@ public class RemoveViewCommand extends AbstractCommand {
 			SMSMapView view = SMSMapView.getViewForId(player.getItemInHand().getDurability());
 			if (view != null) {
 				view.deletePermanent();
-				MiscUtil.statusMessage(player, "Map &fmap_" + view.getMapView().getId() +
-				                       "&- was removed from menu &e" + view.getMenu().getName() + "&-.");
+				MiscUtil.statusMessage(player, "Removed map view &e" + view.getName() +
+				                       "&- from menu &e" + view.getMenu().getName() + "&-.");
 			}
 		} else {
 			Location loc = null;
@@ -47,8 +47,8 @@ public class RemoveViewCommand extends AbstractCommand {
 			if (view == null)
 				throw new SMSException("You are not looking at a menu view.");
 			view.deletePermanent();
-			MiscUtil.statusMessage(player, "Sign @ &f" + MiscUtil.formatLocation(loc) +
-			                       "&- was removed from menu &e" + view.getMenu().getName() + "&-.");	
+			MiscUtil.statusMessage(player, "Removed sign view &e" + view.getName() +
+			                       "&- from menu &e" + view.getMenu().getName() + "&-.");	
 		}
 			
 		return true;
