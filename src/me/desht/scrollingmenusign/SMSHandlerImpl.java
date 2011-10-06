@@ -2,8 +2,6 @@ package me.desht.scrollingmenusign;
 
 import java.util.List;
 
-
-import me.desht.scrollingmenusign.enums.MenuRemovalAction;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
@@ -56,13 +54,6 @@ public class SMSHandlerImpl implements SMSHandler {
 	@Override
 	public void deleteMenu(String name, SMSMenuAction action) throws SMSException {
 		SMSMenu.getMenu(name).deletePermanent(action);
-	}
-
-	@Override
-	@Deprecated
-	public void deleteMenu(String menuName, MenuRemovalAction action) throws SMSException {
-		SMSMenuAction sAction = SMSMenuAction.valueOf(action.toString());
-		deleteMenu(menuName, sAction);
 	}
 
 	@Override
