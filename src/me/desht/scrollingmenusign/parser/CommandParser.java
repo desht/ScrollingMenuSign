@@ -72,6 +72,7 @@ public class CommandParser {
 		command = command.replace("<N>", player.getName());
 		command = command.replace("<WORLD>", player.getWorld().getName());
 		command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
+		command = command.replace("<INAME>", stack != null ? "" + stack.getType().toString() : "???");
 
 		Scanner scanner = new Scanner(command);
 
