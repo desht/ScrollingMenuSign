@@ -112,13 +112,12 @@ public class ScrollingMenuSign extends JavaPlugin {
 			@Override
 			public void run() {
 				loadPersistedData();
-				PluginManager pm = getServer().getPluginManager();
-				setupEconomy(pm);
+				setupEconomy();
 			}
 		}) == -1) {
 			MiscUtil.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
 			loadPersistedData();
-			setupEconomy(pm);
+			setupEconomy();
 		}
 
 		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
@@ -131,7 +130,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is disabled!" );
 	}
 
-	private void setupEconomy(PluginManager pm) {
+	private void setupEconomy() {
+		PluginManager pm = getServer().getPluginManager();
 		Plugin p = pm.getPlugin("Register");
 		if (p != null && p.isEnabled()) {
 			Methods.setMethod(pm);
