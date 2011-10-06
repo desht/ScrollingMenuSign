@@ -217,19 +217,28 @@ public class SMSConfig {
 
 	private static void handleListValue(String key, List<String> list) {
 		HashSet<String> current;
-		if (list.get(0).equals("+")) {
-			list.remove(0);
-			current = new HashSet<String>(getConfiguration().getStringList(key, null));
-			current.addAll(list);
-			getConfiguration().setProperty(key, new ArrayList<String>(current));
-		} else if (list.get(0).equals("-")) {
+		
+		if (list.get(0).equals("-")) {
+			// remove specifed item from list
 			list.remove(0);
 			current = new HashSet<String>(getConfiguration().getStringList(key, null));
 			current.removeAll(list);
-			getConfiguration().setProperty(key, new ArrayList<String>(current));
+		} else if (list.get(0).equals("=")) {
+			// replace list
+			list.remove(0);
+			current = new HashSet<String>(list);
+		} else if (list.get(0).equals("+")) {
+			// append to list
+			list.remove(0);
+			current = new HashSet<String>(getConfiguration().getStringList(key, null));
+			current.addAll(list);
 		} else {
-			getConfiguration().setProperty(key, list);
+			// append to list
+			current = new HashSet<String>(getConfiguration().getStringList(key, null));
+			current.addAll(list);
 		}
+		
+		getConfiguration().setProperty(key, new ArrayList<String>(current));
 	}
 
 	// return a sorted list of all config keys
