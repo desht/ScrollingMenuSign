@@ -10,6 +10,7 @@ import me.desht.scrollingmenusign.SpoutUtils;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.util.Debugger;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.block.Block;
@@ -56,6 +57,9 @@ public class SMSSpoutKeyListener extends InputListener {
 			}
 			if (view != null) {
 				SMSUserAction action = getAction(pressed);
+				Debugger.getDebugger().debug("spout keypress event: keys pressed = " + pressed
+						+ ", view = " + view.getName() + ", menu = " + view.getMenu().getName()
+						+ ", action = " + action);
 				action.execute(player, view);
 			}
 		} catch (SMSException e) {

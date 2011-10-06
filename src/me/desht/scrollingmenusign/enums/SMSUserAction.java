@@ -72,7 +72,9 @@ public enum SMSUserAction {
 	}
 
 	public void execute(Player player, SMSView view) throws SMSException {
-
+		if (this == NONE)
+			return;
+		
 		if (!view.allowedToUse(player))
 			throw new SMSException("This " + view.getType() + " belongs to someone else.");
 
