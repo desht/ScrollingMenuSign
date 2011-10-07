@@ -30,14 +30,16 @@ public class AddViewCommand extends AbstractCommand {
 		if (b.getTypeId() == 63 || b.getTypeId() == 68) {			// sign or signpost
 			SMSView view = new SMSSignView(menu, b.getLocation());
 			view.update(menu, SMSMenuAction.REPAINT);
-			MiscUtil.statusMessage(player, String.format("Sign @ &f%s&- was added to menu &e%s&-.",
-			                                             MiscUtil.formatLocation(b.getLocation()), menu.getName()));
+			MiscUtil.statusMessage(player, String.format("Added sign view &e%s&- to menu &e%s&-.",
+			                                             view.getName(), menu.getName()));
 		} else if (player.getItemInHand().getTypeId() == 358) {		// map
 			PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 			short mapId = player.getItemInHand().getDurability();
 			SMSMapView view = SMSMapView.addMapToMenu(mapId, menu);
-			MiscUtil.statusMessage(player, String.format("Map &fmap_%d&- was added to menu &e%s&-.",
-			                                             view.getMapView().getId(), menu.getName()));
+			MiscUtil.statusMessage(player, String.format("Added map view &e%s&- to menu &e%s&-.",
+			                                             view.getName(), menu.getName()));
+		} else {
+			MiscUtil.errorMessage(player, "Nothing available to add as a menu view");
 		}
 		
 		return true;
