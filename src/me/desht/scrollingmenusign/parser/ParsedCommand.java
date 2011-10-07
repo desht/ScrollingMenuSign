@@ -23,11 +23,12 @@ public class ParsedCommand {
 	private boolean whisper;
 	private boolean macro;
 	private boolean commandStopped, macroStopped;
+	private boolean console;
 
 	ParsedCommand (Player player, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
 		costs = new ArrayList<Cost>();
-		elevated = restricted = whisper = macro = false;
+		elevated = restricted = whisper = macro = console = false;
 		commandStopped = macroStopped = false;
 		affordable = true;
 		command = null;
@@ -40,18 +41,17 @@ public class ParsedCommand {
 				// macro
 				command = token.substring(1);
 				macro = true;
-			} else if (token.startsWith("/@") && command == null) {
+			} else if ((token.startsWith("/@") || token.startsWith("/*")) && command == null) {
 				// elevated command
 				command = "/" + token.substring(2);
 				elevated = true;
-			} else if (token.startsWith("/*") && command == null) {
-				// fakeuser command
-				command = "/" + token.substring(2);
-				elevated = true;
+			} else if (token.startsWith("/#") && command == null) {
+				// console command
+				command = token.substring(2);
+				console = true;
 			} else if (token.startsWith("/") && command == null) {
 				// regular command
 				command = token;
-				elevated = false;
 			} else if (token.startsWith("\\\\") && command == null) {
 				// a whisper string
 				command = token.substring(2);
@@ -59,7 +59,6 @@ public class ParsedCommand {
 			} else if (token.startsWith("\\") && command == null) {
 				// a chat string
 				command = token.substring(1);
-				elevated = false;
 			} else if (token.startsWith("@!") && command == null) {
 				// verify NOT player or group name
 				if (restrictionCheck(player, token.substring(2))) {
@@ -152,6 +151,10 @@ public class ParsedCommand {
 
 	public boolean isMacroStopped() {
 		return macroStopped;
+	}
+
+	public boolean isConsole() {
+		return console;
 	}
 
 	public String arg(int index) {
