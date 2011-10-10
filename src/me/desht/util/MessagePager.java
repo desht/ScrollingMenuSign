@@ -238,7 +238,8 @@ public class MessagePager {
 	 *            The player
 	 */
 	public static void showPage(Player player) {
-		showPage(player, currentPage.get(name(player)));
+		Integer p = currentPage.get(name(player));
+		showPage(player, p == null ? 1 : p);
 	}
 
 	/**
@@ -270,6 +271,8 @@ public class MessagePager {
 		if (!bufferMap.containsKey(name(player))) {
 			return;
 		}
+		if (getSize(player) == 0)
+			return;
 
 		if (player != null) {
 			// pretty paged display
