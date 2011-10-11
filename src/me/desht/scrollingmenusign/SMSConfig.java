@@ -266,10 +266,10 @@ public class SMSConfig {
 		return plugin.getConfig();
 	}
 
-	public static String getConfigItem(String key) {
+	public static Object getConfigItem(String key) {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
-		return getConfiguration().getString(key);
+		return getConfiguration().get(key);
 	}
 }
