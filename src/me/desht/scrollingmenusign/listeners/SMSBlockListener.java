@@ -63,7 +63,7 @@ public class SMSBlockListener extends BlockListener {
 			SMSView view = SMSView.getViewForLocation(loc);
 			if (view != null) {
 				Debugger.getDebugger().debug("block break event @ " + b.getLocation() + ", menu=" + view.getMenu().getName());
-				if (plugin.getConfiguration().getBoolean("sms.no_destroy_signs", false)) {
+				if (plugin.getConfig().getBoolean("sms.no_destroy_signs", false)) {
 					event.setCancelled(true);
 				} else {
 					view.deletePermanent();
@@ -89,7 +89,7 @@ public class SMSBlockListener extends BlockListener {
 			SMSView view = SMSView.getViewForLocation(loc);
 			if (view != null) {
 				Debugger.getDebugger().debug("block physics event @ " + b.getLocation() + ", menu=" + view.getMenu().getName());
-				if (plugin.getConfiguration().getBoolean("sms.no_physics", false)) {
+				if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
 					event.setCancelled(true);
 				} else {
 					Sign s = (Sign) b.getState().getData();

@@ -1,6 +1,5 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
@@ -40,7 +39,7 @@ public class ReloadCommand extends AbstractCommand {
 			}
 		}
 		if (loadAll || loadConfig) {
-			SMSConfig.getConfiguration().load();
+			plugin.reloadConfig();
 			SMSMenu.updateAllMenus();
 		}
 		if (loadAll || loadMenus) {
