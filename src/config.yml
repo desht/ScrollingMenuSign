@@ -1,0 +1,34 @@
+sms:
+    menuitem_separator: '|'
+    actions:
+        leftclick:
+            normal: execute
+            sneak: none
+        wheeldown:
+            normal: scrolldown
+            sneak: scrolldown
+        wheelup:
+            normal: scrollup
+            sneak: scrollup
+        rightclick:
+            normal: scrolldown
+            sneak: scrollup
+        spout:
+            execute: key_return
+            down: key_down
+            up: key_up
+    always_use_commandsigns: false
+    autosave: true
+    no_explosions: true
+    no_physics: true
+    item_prefix:
+        selected: '> '
+        not_selected: '  '
+    item_justify: left
+    elevation_user: '&SMS'
+    no_destroy_signs: false
+    use_any_view: false
+    elevation:
+        nodes:
+        - a.sample.permission.node
+        grant_op: false

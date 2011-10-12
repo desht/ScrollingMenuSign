@@ -24,7 +24,7 @@ public class SMSEntityListener extends EntityListener {
 	@Override
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
-		Boolean noExplode = plugin.getConfiguration().getBoolean("sms.no_explosions", false);
+		Boolean noExplode = plugin.getConfig().getBoolean("sms.no_explosions", false);
 		for (Block b : event.blockList()) {
 			if (b.getType() != Material.WALL_SIGN && b.getType() != Material.SIGN_POST)
 				continue;

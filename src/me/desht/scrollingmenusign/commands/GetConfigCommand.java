@@ -28,12 +28,11 @@ public class GetConfigCommand extends AbstractCommand {
 			String key = args[0];
 			if (!key.startsWith("sms."))
 				key = "sms." + key;
-			String res = SMSConfig.getConfiguration().getString(key);
-			if (res != null) {
-				MiscUtil.statusMessage(player, key + " = '&e" + res + "&-'");
-			} else {
-				MiscUtil.errorMessage(player, "No such config item: " + key);
+			if (!SMSConfig.getConfiguration().contains(key)) {
+				throw new SMSException("No such config item: " + key);
 			}
+			Object res = SMSConfig.getConfiguration().get(key);
+			MiscUtil.statusMessage(player, key + " = '&e" + res + "&-'");
 		}
 		
 		return true;

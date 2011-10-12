@@ -179,7 +179,9 @@ public class CommandParser {
 			boolean tempOp = false;
 			try {
 				ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
-				for (String node : SMSConfig.getConfiguration().getStringList("sms.elevation.nodes", null)) {
+				@SuppressWarnings("unchecked")
+				List<String> nodes = (List<String>) SMSConfig.getConfiguration().getList("sms.elevation.nodes");
+				for (String node : nodes) {
 					if (!node.isEmpty() && !player.hasPermission(node)) {
 //						System.out.println("add node: " + node);
 						attachments.add(player.addAttachment(plugin, node, true));
