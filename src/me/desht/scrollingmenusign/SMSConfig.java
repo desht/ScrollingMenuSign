@@ -15,7 +15,6 @@ import me.desht.util.PermissionsUtils;
 
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
-//import org.bukkit.util.config.Configuration;
 
 public class SMSConfig {
 	private static ScrollingMenuSign plugin = null;
@@ -31,34 +30,6 @@ public class SMSConfig {
 	private static final String commandFileName = "commands.yml";
 
 	private static final String SAMPLE_NODE = "a.sample.permission.node";
-	
-//	@SuppressWarnings("serial")
-//	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {{
-//		put("sms.autosave", true);
-//		put("sms.no_physics", false);
-//		put("sms.no_explosions", false);
-//		put("sms.no_destroy_signs", false);
-//		put("sms.item_prefix.not_selected", "  ");
-//		put("sms.item_prefix.selected", "> ");
-//		put("sms.item_justify", "left");
-//		put("sms.menuitem_separator", "|");
-//		put("sms.actions.leftclick.normal", "execute");
-//		put("sms.actions.leftclick.sneak", "none");
-//		put("sms.actions.rightclick.normal", "scrolldown");
-//		put("sms.actions.rightclick.sneak", "scrollup");
-//		put("sms.actions.wheelup.normal", "none");
-//		put("sms.actions.wheelup.sneak", "scrollup");
-//		put("sms.actions.wheeldown.normal", "none");
-//		put("sms.actions.wheeldown.sneak", "scrolldown");
-//		put("sms.actions.spout.up", "key_up");
-//		put("sms.actions.spout.down", "key_down");
-//		put("sms.actions.spout.execute", "key_return");
-//		List<String>samplePerm = new ArrayList<String>();
-//		samplePerm.add(SAMPLE_NODE);
-//		put("sms.elevation.nodes", samplePerm);
-//		put("sms.elevation.grant_op", false);
-//		put("sms.use_any_view", true);
-//	}};
 
 	static void init(ScrollingMenuSign plugin) {
 		SMSConfig.plugin = plugin;
@@ -99,10 +70,9 @@ public class SMSConfig {
 		plugin.getConfig().options().copyDefaults(true);
 		Configuration config = plugin.getConfig();
 		
-		for (String k : getConfiguration().getDefaults().getKeys(true)) {
+		for (String k : getConfig().getDefaults().getKeys(true)) {
 			if (!config.contains(k)) {
 				saveNeeded = true;
-//				config.set(k, configDefaults.get(k));
 			}
 		}
 
@@ -116,19 +86,15 @@ public class SMSConfig {
 		List<String> nodeList = config.getList("sms.elevation.nodes");
 		if (nodeList.size() == 1 && nodeList.get(0).equals(SAMPLE_NODE)) {
 			// initialise default nodes from the &SMS user
-			String user = getConfiguration().getString("sms.elevation_user", "&SMS");
+			String user = getConfig().getString("sms.elevation_user", "&SMS");
 			List<String> nodes = PermissionsUtils.getPermissionNodes(user, null);
-			getConfiguration().set("sms.elevation.nodes", nodes);
+			getConfig().set("sms.elevation.nodes", nodes);
 			MiscUtil.log(Level.INFO, "Migrated " + nodes.size() + " permissions nodes from " + user + " to  elevation.nodes config item");
 			saveNeeded = true;
 		}
 		
 		if (saveNeeded)
 			plugin.saveConfig();
-		
-//		if (saveNeeded) {	
-//			config.save();
-//		}
 	}
 
 	public static File getCommandFile() {
@@ -159,10 +125,10 @@ public class SMSConfig {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
-		if (getConfiguration().getDefaults().get(key) == null) {
+		if (getConfig().getDefaults().get(key) == null) {
 			throw new SMSException("No such config key '" + key + "'");
 		}
-		if (getConfiguration().getDefaults().get(key) instanceof Boolean) {
+		if (getConfig().getDefaults().get(key) instanceof Boolean) {
 			Boolean bVal = false;
 			if (val.equalsIgnoreCase("false") || val.equalsIgnoreCase("no")) {
 				bVal = false;
@@ -172,20 +138,20 @@ public class SMSConfig {
 				MiscUtil.errorMessage(player, "Invalid boolean value " + val + " - use true/yes or false/no.");
 				return;
 			}
-			getConfiguration().set(key, bVal);
-		} else if (getConfiguration().getDefaults().get(key) instanceof Integer) {
+			getConfig().set(key, bVal);
+		} else if (getConfig().getDefaults().get(key) instanceof Integer) {
 			try {
 				int nVal = Integer.parseInt(val);
-				getConfiguration().set(key, nVal);
+				getConfig().set(key, nVal);
 			} catch (NumberFormatException e) {
 				throw new SMSException("Invalid numeric value: " + val);
 			}
-		} else if (getConfiguration().getDefaults().get(key) instanceof List<?>) {
+		} else if (getConfig().getDefaults().get(key) instanceof List<?>) {
 			List<String>list = new ArrayList<String>(1);
 			list.add(val);
 			handleListValue(key, list);
 		} else {
-			getConfiguration().set(key, val);
+			getConfig().set(key, val);
 		}
 
 		// special hooks
@@ -204,23 +170,21 @@ public class SMSConfig {
 		}
 		
 		plugin.saveConfig();
-//		getConfiguration().save();
 	}
 
 	public static void setConfigItem(Player player, String key, List<String> list) throws SMSException {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
-		if (getConfiguration().getDefaults().get(key) == null) {
+		if (getConfig().getDefaults().get(key) == null) {
 			throw new SMSException("No such config key '" + key + "'");
 		}
-		if (!(getConfiguration().getDefaults().get(key) instanceof List<?>))
+		if (!(getConfig().getDefaults().get(key) instanceof List<?>))
 			throw new SMSException("Config item '" + key + "' does not accept a list of values");
 
 		handleListValue(key, list);
 
 		plugin.saveConfig();
-//		getConfiguration().save();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -230,7 +194,7 @@ public class SMSConfig {
 		if (list.get(0).equals("-")) {
 			// remove specifed item from list
 			list.remove(0);
-			current = new HashSet<String>(getConfiguration().getList(key));
+			current = new HashSet<String>(getConfig().getList(key));
 			current.removeAll(list);
 		} else if (list.get(0).equals("=")) {
 			// replace list
@@ -239,30 +203,30 @@ public class SMSConfig {
 		} else if (list.get(0).equals("+")) {
 			// append to list
 			list.remove(0);
-			current = new HashSet<String>(getConfiguration().getList(key));
+			current = new HashSet<String>(getConfig().getList(key));
 			current.addAll(list);
 		} else {
 			// append to list
-			current = new HashSet<String>(getConfiguration().getList(key));
+			current = new HashSet<String>(getConfig().getList(key));
 			current.addAll(list);
 		}
 		
-		getConfiguration().set(key, new ArrayList<String>(current));
+		getConfig().set(key, new ArrayList<String>(current));
 	}
 
 	// return a sorted list of all config keys
 	public static List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
-		for (String k : getConfiguration().getDefaults().getKeys(true)) {
-			if (getConfiguration().isConfigurationSection(k))
+		for (String k : getConfig().getDefaults().getKeys(true)) {
+			if (getConfig().isConfigurationSection(k))
 				continue;
-			res.add(k + " = '&e" + getConfiguration().get(k) + "&-'");
+			res.add(k + " = '&e" + getConfig().get(k) + "&-'");
 		}
 		Collections.sort(res);
 		return res;
 	}
 
-	public static Configuration getConfiguration() {
+	public static Configuration getConfig() {
 		return plugin.getConfig();
 	}
 
@@ -270,6 +234,6 @@ public class SMSConfig {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
-		return getConfiguration().getString(key);
+		return getConfig().getString(key);
 	}
 }

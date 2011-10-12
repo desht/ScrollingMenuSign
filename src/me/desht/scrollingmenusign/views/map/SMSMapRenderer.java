@@ -64,8 +64,8 @@ public class SMSMapRenderer extends MapRenderer {
 			y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
 		}
 		
-		String prefix1 = SMSConfig.getConfiguration().getString("sms.item_prefix.not_selected", "  ");
-		String prefix2 = SMSConfig.getConfiguration().getString("sms.item_prefix.selected", "> ");
+		String prefix1 = SMSConfig.getConfig().getString("sms.item_prefix.not_selected", "  ");
+		String prefix2 = SMSConfig.getConfig().getString("sms.item_prefix.selected", "> ");
 
 		int nDisplayable = (smsMapView.getHeight() - y) / (smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing());
 

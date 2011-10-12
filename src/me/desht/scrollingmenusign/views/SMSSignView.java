@@ -106,8 +106,8 @@ public class SMSSignView extends SMSScrollableView {
 		
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
-		String prefix1 = SMSConfig.getConfiguration().getString("sms.item_prefix.not_selected", "  ");
-		String prefix2 = SMSConfig.getConfiguration().getString("sms.item_prefix.selected", "> ");
+		String prefix1 = SMSConfig.getConfig().getString("sms.item_prefix.not_selected", "  ");
+		String prefix2 = SMSConfig.getConfig().getString("sms.item_prefix.selected", "> ");
 		
 		res[1] = String.format(makePrefix(prefix1), getLine2Item(scrollPos));
 		res[2] = String.format(makePrefix(prefix2), getLine3Item(scrollPos));
@@ -146,7 +146,7 @@ public class SMSSignView extends SMSScrollableView {
 	}
 	
 	private String makePrefix(String prefix) {
-		String just = SMSConfig.getConfiguration().getString("sms.item_justify", "left");
+		String just = SMSConfig.getConfig().getString("sms.item_justify", "left");
 		int l = 15 - prefix.length();
 		String s = "";
 		if (just.equals("left"))

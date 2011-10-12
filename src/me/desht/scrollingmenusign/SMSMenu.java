@@ -148,7 +148,7 @@ public class SMSMenu extends Observable implements Freezable {
 		name = n;
 		title = t;
 		owner = o;
-		autosave = SMSConfig.getConfiguration().getBoolean("sms.autosave", true);
+		autosave = SMSConfig.getConfig().getBoolean("sms.autosave", true);
 		autosort = false;
 		uses = new SMSRemainingUses(this);
 		defaultCommand = "";

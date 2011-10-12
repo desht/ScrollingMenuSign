@@ -62,7 +62,7 @@ public abstract class SMSView implements Observer, Freezable {
 		this.name = name;
 		this.menu = menu;
 		this.dirty = true;
-		this.autosave = SMSConfig.getConfiguration().getBoolean("sms.autosave", true);
+		this.autosave = SMSConfig.getConfig().getBoolean("sms.autosave", true);
 		this.owner = "";	// unowned by default
 
 		menu.addObserver(this);
@@ -343,7 +343,7 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @return	True if the player may use this view, false if not
 	 */
 	public boolean allowedToUse(Player player) {
-		if (SMSConfig.getConfiguration().getBoolean("sms.use_any_view", true))
+		if (SMSConfig.getConfig().getBoolean("sms.use_any_view", true))
 			return true;
 		if (player.hasPermission("scrollingmenusign.useAnyView"))
 			return true;

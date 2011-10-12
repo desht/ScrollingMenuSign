@@ -29,7 +29,7 @@ public class AddItemCommand extends AbstractCommand {
 
 		String menuName = args[0];
 
-		String sep = SMSConfig.getConfiguration().getString("sms.menuitem_separator", "|");
+		String sep = SMSConfig.getConfig().getString("sms.menuitem_separator", "|");
 		List<String> items;		
 		if (args[1].contains(sep)) {
 			items = Arrays.asList(combine(args, 1).split(Pattern.quote(sep)));
