@@ -24,8 +24,8 @@ import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.ConfigurationNode;
 
 /**
  * @author des
@@ -49,7 +49,7 @@ public abstract class SMSView implements Observer, Freezable {
 	@Override
 	public abstract void update(Observable menu, Object arg1);
 
-	protected abstract void thaw(ConfigurationNode node);
+	protected abstract void thaw(ConfigurationSection node);
 
 	public SMSView(SMSMenu menu) {
 		this(null, menu);
@@ -358,7 +358,8 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @param node	The configuration
 	 * @return	The view object
 	 */
-	public static SMSView load(ConfigurationNode node) {
+	@SuppressWarnings("unchecked")
+	public static SMSView load(ConfigurationSection node) {
 		String className = node.getString("class");
 		String viewName = node.getString("name");
 		try {
@@ -369,7 +370,6 @@ public abstract class SMSView implements Observer, Freezable {
 			v.setAutosave(false);
 			List<Object> locs = node.getList("locations");
 			for (Object o : locs) {
-				@SuppressWarnings("unchecked")
 				List<Object> locList = (List<Object>) o;
 				World w = MiscUtil.findWorld((String) locList.get(0));
 				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));

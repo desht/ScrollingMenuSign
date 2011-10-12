@@ -7,6 +7,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -15,9 +16,8 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
-import org.yaml.snakeyaml.reader.ReaderException;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class SMSPersistence {
 
@@ -40,12 +40,34 @@ public class SMSPersistence {
 
 	public static void save(Freezable object) {
 		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
-		Configuration conf = new Configuration(saveFile);
+		YamlConfiguration conf = new YamlConfiguration();
 		Map<String, Object> map = object.freeze();
-		for (Entry<String, Object> e : map.entrySet()) {
-			conf.setProperty(e.getKey(), e.getValue());
+		expandMapIntoConfig(conf, map);
+		try {
+			conf.save(saveFile);
+		} catch (IOException e) {
+			MiscUtil.log(Level.SEVERE, "Can't save " + saveFile + ": " + e.getMessage());
 		}
-		conf.save();
+	}
+
+	/**
+	 * Given a (possibly) nested map object, expand it into a ConfigurationSection,
+	 * using recursion if necessary.
+	 * 
+	 * @param conf	The ConfigurationSection to put the map into
+	 * @param map	The map object
+	 */
+	@SuppressWarnings("unchecked")
+	public static void expandMapIntoConfig(ConfigurationSection conf, Map<String, Object> map) {
+		for (Entry<String, Object> e : map.entrySet()) {
+			if (e.getValue() instanceof Map<?,?>) {
+				ConfigurationSection section = conf.createSection(e.getKey());
+				Map<String,Object> subMap = (Map<String, Object>) e.getValue();
+				expandMapIntoConfig(section, subMap);
+			} else {
+				conf.set(e.getKey(), e.getValue());
+			}
+		}
 	}
 
 	public static void saveMenusAndViews() {
@@ -77,16 +99,9 @@ public class SMSPersistence {
 			MiscUtil.log(Level.INFO, "Converted old-style macro data file to new v0.8+ format");
 		} else {
 			for (File f : SMSConfig.getMacrosFolder().listFiles(ymlFilter)) {
-				try {
-					Configuration conf = new Configuration(f);
-					conf.load();
-					SMSMacro m = new SMSMacro(conf);
-					SMSMacro.addMacro(m);
-				} catch (ReaderException e)	{
-					MiscUtil.log(Level.WARNING, "caught exception while loading macro file " +
-					             f + ": " + e.getMessage());
-					backupFile(f);
-				}
+				YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
+				SMSMacro m = new SMSMacro(conf);
+				SMSMacro.addMacro(m);
 			}
 			MiscUtil.log(Level.INFO, "Loaded " + SMSMacro.listMacros().size() + " macros from file.");
 		}
@@ -105,18 +120,11 @@ public class SMSPersistence {
 		}
 
 		for (File f : SMSConfig.getViewsFolder().listFiles(ymlFilter)) {
-			try {
-				Configuration conf = new Configuration(f);
-				conf.load();
-				SMSView view = SMSView.load(conf);
-				if (view != null) {
-					view.getMenu().addObserver(view);
-					view.update(view.getMenu(), SMSMenuAction.REPAINT);
-				}
-			} catch (ReaderException e)	{
-				MiscUtil.log(Level.WARNING, "caught exception while loading view file " +
-				             f + ": " + e.getMessage());
-				backupFile(f);
+			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
+			SMSView view = SMSView.load(conf);
+			if (view != null) {
+				view.getMenu().addObserver(view);
+				view.update(view.getMenu(), SMSMenuAction.REPAINT);
 			}
 		}
 
@@ -139,57 +147,43 @@ public class SMSPersistence {
 		} else {
 			for (File f : SMSConfig.getMenusFolder().listFiles(ymlFilter)) {
 				try {
-					Configuration conf = new Configuration(f);
-					conf.load();
+					YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 					SMSMenu menu = new SMSMenu(conf);
 					SMSMenu.addMenu(menu.getName(), menu, true);
-
-				} catch (ReaderException e)	{
-					MiscUtil.log(Level.WARNING, "caught exception while loading menu file " +
-					             f + ": " + e.getMessage());
-					backupFile(f);
 				} catch (SMSException e) {
-					MiscUtil.log(Level.WARNING, "caught exception while restoring menu " + f + ": " + e.getMessage());
+					MiscUtil.log(Level.SEVERE, "Can't restore menu from " + f + ": " + e.getMessage());
 				}
 			}
 			MiscUtil.log(Level.INFO, "Loaded " + SMSMenu.listMenus().size() + " menus from file.");
 		}
 	}
 
-	private static void oldStyleMenuLoad(File menusFile) {	
+	private static void oldStyleMenuLoad(File menusFile) {
 		try {
-			Configuration conf = new Configuration(menusFile);
-			conf.load();
-			for (String menuName : conf.getKeys()) {
-				ConfigurationNode cn = conf.getNode(menuName);
-				cn.setProperty("name", menuName);
+			YamlConfiguration conf = YamlConfiguration.loadConfiguration(menusFile);
+			for (String menuName : conf.getKeys(false)) {
+				ConfigurationSection cn = conf.getConfigurationSection(menuName);
+				cn.set("name", menuName);
 				SMSMenu menu = new SMSMenu(cn);
 				SMSMenu.addMenu(menu.getName(), menu, true);
 			}
-		} catch (ReaderException e) {
-			MiscUtil.log(Level.WARNING, "caught exception while loading menu data: " + e.getMessage());
-			backupFile(menusFile);
 		} catch (SMSException e) {
-			MiscUtil.log(Level.WARNING, "caught exception while restoring menus: " + e.getMessage());
+			MiscUtil.log(Level.SEVERE, "Can't restore menus: " + e.getMessage());
 		}
 		MiscUtil.log(Level.INFO, "read " + SMSMenu.listMenus().size() + " menus from file.");
 	}	
 
+	@SuppressWarnings("unchecked")
 	private static void oldStyleMacroLoad(File macrosFile) {
-		try {
-			Configuration conf = new Configuration(macrosFile);
-			conf.load();
-			for (String key : conf.getKeys()) {
-				SMSMacro m = new SMSMacro(key);
-				for (String cmd : conf.getStringList(key, null)) {
-					m.addLine(cmd);
-				}
-				SMSMacro.addMacro(m);
+		YamlConfiguration conf = YamlConfiguration.loadConfiguration(macrosFile);
+		for (String key : conf.getKeys(false)) {
+			SMSMacro m = new SMSMacro(key);
+			List<String> cmds = conf.getList(key, null);
+			for (String cmd : cmds) {
+				m.addLine(cmd);
 			}
-		} catch (ReaderException e) {
-			MiscUtil.log(Level.SEVERE, "Caught exception loading " + macrosFile + ": " + e.getMessage());
-			backupFile(macrosFile);
-		}		
+			SMSMacro.addMacro(m);
+		}	
 	}
 
 	static void backupFile(File original) {

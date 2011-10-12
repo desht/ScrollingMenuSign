@@ -21,8 +21,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.ConfigurationNode;
 
 /**
  * @author des
@@ -81,18 +82,23 @@ public class SMSMenu extends Observable implements Freezable {
 	 * @param node 		A Bukkit ConfigurationNode containg the menu's properties
 	 * @throws SMSException If there is already a menu at this location
 	 */
-	SMSMenu(ConfigurationNode node) throws SMSException {
+	@SuppressWarnings("unchecked")
+	SMSMenu(ConfigurationSection node) throws SMSException {
 		initCommon(node.getString("name"),
 		           MiscUtil.parseColourSpec(null, node.getString("title")),
 		           node.getString("owner"));
 
 		autosort = node.getBoolean("autosort", false);
-		uses = new SMSRemainingUses(this, node.getNode("usesRemaining"));
+		uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
 		defaultCommand = node.getString("defaultCommand", "");
 
 		loadLegacyLocations(node);	
 
-		for (ConfigurationNode itemNode : node.getNodeList("items", null)) {
+		List<Map<String,Object>> items = node.getList("items");
+		for (Map<String,Object> item : items) {
+			MemoryConfiguration itemNode = new MemoryConfiguration();
+			// need to expand here because the item may contain a usesRemaining object - item could contain a nested map
+			SMSPersistence.expandMapIntoConfig(itemNode, item);
 			SMSMenuItem menuItem = new SMSMenuItem(this, itemNode);
 			addItem(menuItem);
 		}
@@ -106,7 +112,7 @@ public class SMSMenu extends Observable implements Freezable {
 	 * @throws SMSException
 	 */
 	@SuppressWarnings("unchecked")
-	private void loadLegacyLocations(ConfigurationNode node) throws SMSException {
+	private void loadLegacyLocations(ConfigurationSection node) throws SMSException {
 		List<Object> locs = node.getList("locations");
 		if (locs != null) {
 			// v0.3 or newer format - multiple locations per menu
@@ -129,7 +135,7 @@ public class SMSMenu extends Observable implements Freezable {
 			String worldName = node.getString("world");
 			if (worldName != null) {
 				World w = MiscUtil.findWorld(worldName);
-				List<Integer>locList = (List<Integer>) node.getIntList("location", null);
+				List<Integer>locList = (List<Integer>) node.getList("location", null);
 				SMSView v = SMSSignView.addSignToMenu(this, new Location(w, locList.get(0), locList.get(1), locList.get(2)));
 				SMSPersistence.save(v);
 				SMSPersistence.save(this);

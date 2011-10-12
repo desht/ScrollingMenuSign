@@ -8,11 +8,11 @@ import java.util.Observable;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.map.MinecraftFont;
-import org.bukkit.util.config.ConfigurationNode;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -74,7 +74,7 @@ public class SMSMapView extends SMSScrollableView {
 		return map;
 	}
 
-	protected void thaw(ConfigurationNode node) {
+	protected void thaw(ConfigurationSection node) {
 		short mapId = (short) node.getInt("mapId", -1);
 		if (mapId >= 0)
 			setMapId((short) node.getInt("mapId", 0));
