@@ -125,10 +125,11 @@ public class SMSConfig {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
-		if (getConfig().getDefaults().get(key) == null) {
+		Configuration defaults = getConfig().getDefaults();
+		if (!defaults.contains(key)) {
 			throw new SMSException("No such config key '" + key + "'");
 		}
-		if (getConfig().getDefaults().get(key) instanceof Boolean) {
+		if (defaults.get(key) instanceof Boolean) {
 			Boolean bVal = false;
 			if (val.equalsIgnoreCase("false") || val.equalsIgnoreCase("no")) {
 				bVal = false;
@@ -139,14 +140,14 @@ public class SMSConfig {
 				return;
 			}
 			getConfig().set(key, bVal);
-		} else if (getConfig().getDefaults().get(key) instanceof Integer) {
+		} else if (defaults.get(key) instanceof Integer) {
 			try {
 				int nVal = Integer.parseInt(val);
 				getConfig().set(key, nVal);
 			} catch (NumberFormatException e) {
 				throw new SMSException("Invalid numeric value: " + val);
 			}
-		} else if (getConfig().getDefaults().get(key) instanceof List<?>) {
+		} else if (defaults.get(key) instanceof List<?>) {
 			List<String>list = new ArrayList<String>(1);
 			list.add(val);
 			handleListValue(key, list);
