@@ -5,7 +5,7 @@ import java.util.Observable;
 
 import me.desht.scrollingmenusign.SMSMenu;
 
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
 public abstract class SMSScrollableView extends SMSView {
 
@@ -29,7 +29,7 @@ public abstract class SMSScrollableView extends SMSView {
 		return map;
 	}
 	
-	protected void thaw(ConfigurationNode node) {
+	protected void thaw(ConfigurationSection node) {
 		scrollPos = node.getInt("scrollPos", 1);
 		if (scrollPos < 1 || scrollPos > getMenu().getItemCount())
 			scrollPos = 1;

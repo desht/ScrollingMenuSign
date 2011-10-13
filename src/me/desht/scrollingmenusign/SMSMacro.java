@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
 /**
  * @author desht
@@ -31,9 +31,10 @@ public class SMSMacro implements Freezable {
 		this.macroDefinition = new ArrayList<String>();
 	}
 
-	SMSMacro(ConfigurationNode node) {
+	@SuppressWarnings("unchecked")
+	SMSMacro(ConfigurationSection node) {
 		this.macroName = node.getString("name");
-		this.macroDefinition = node.getStringList("definition", null);
+		this.macroDefinition = node.getList("definition", null);
 	}
 
 	/**

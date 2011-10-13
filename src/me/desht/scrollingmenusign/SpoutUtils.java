@@ -40,7 +40,7 @@ public class SpoutUtils {
 	}
 	
 	private static void addKeyDefinition(String key, String def) {
-		String[] wanted = SMSConfig.getConfiguration().getString(key, def).split("\\+");
+		String[] wanted = SMSConfig.getConfig().getString(key, def).split("\\+");
 		Set<Keyboard> result = new HashSet<Keyboard>();
 		for (String w : wanted) {
 			if (!w.startsWith("key_"))

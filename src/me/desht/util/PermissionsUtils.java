@@ -230,13 +230,13 @@ public class PermissionsUtils {
 		if (w == null)
 			w = Bukkit.getServer().getWorlds().get(0);
 		System.out.println("get nodes " + playerName);
-		List<String> res = null;
+		List<String> res = new ArrayList<String>();
 		if (permissionsBukkit != null) {
 			System.out.println("permissions bukkit get nodes");
 			Map<String, Boolean> perms;
 			PermissionInfo info = permissionsBukkit.getPlayerInfo(playerName);
 			if (info == null)
-				return null;
+				return res;
 
 			try {
 				// this call currently throws an NPE if no explicit permissions defined

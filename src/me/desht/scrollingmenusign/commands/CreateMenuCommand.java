@@ -17,7 +17,7 @@ import me.desht.util.PermissionsUtils;
 public class CreateMenuCommand extends AbstractCommand {
 
 	public CreateMenuCommand() {
-		super("sms c", 1);
+		super("sms c", 2);
 		setPermissionNode("scrollingmenusign.commands.create");
 		setUsage(new String[] { 
 				"/sms create <menu> <title>",

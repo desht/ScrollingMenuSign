@@ -11,8 +11,8 @@ import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.util.MiscUtil;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.ConfigurationNode;
 
 public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	private final String label;
@@ -31,12 +31,12 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		this.uses = new SMSRemainingUses(this);
 	}
 	
-	SMSMenuItem(SMSMenu menu, ConfigurationNode node) {
+	SMSMenuItem(SMSMenu menu, ConfigurationSection node) {
 		this.menu = menu;
 		this.label = MiscUtil.parseColourSpec(node.getString("label"));
 		this.command = node.getString("command");
 		this.message = MiscUtil.parseColourSpec(null, node.getString("message"));
-		this.uses = new SMSRemainingUses(this, node.getNode("usesRemaining"));
+		this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
 	}
 	
 	/**

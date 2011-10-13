@@ -2,7 +2,7 @@ package me.desht.scrollingmenusign;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
 public class SMSRemainingUses {
 	
@@ -20,11 +20,11 @@ public class SMSRemainingUses {
 		this.item = item;
 	}
 	
-	SMSRemainingUses(SMSMenuItem item, ConfigurationNode node) {
+	SMSRemainingUses(SMSMenuItem item, ConfigurationSection node) {
 		this.item = item;
 		if (node == null)
 			return;
-		for (String key : node.getKeys()) {
+		for (String key : node.getKeys(false)) {
 			uses.put(key, node.getInt(key, 0));
 		}
 	}
@@ -33,11 +33,11 @@ public class SMSRemainingUses {
 		this.menu = menu;
 	}
 	
-	SMSRemainingUses(SMSMenu menu, ConfigurationNode node) {
+	SMSRemainingUses(SMSMenu menu, ConfigurationSection node) {
 		this.menu = menu;
 		if (node == null)
 			return;
-		for (String key : node.getKeys()) {
+		for (String key : node.getKeys(false)) {
 			uses.put(key, node.getInt(key, 0));
 		}
 	}

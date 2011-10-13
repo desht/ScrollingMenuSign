@@ -67,7 +67,7 @@ public enum SMSUserAction {
 		else 
 			key.append("normal");
 
-		String s = SMSConfig.getConfiguration().getString(key.toString(), "none");
+		String s = SMSConfig.getConfig().getString(key.toString(), "none");
 		return SMSUserAction.valueOf(s.toUpperCase());
 	}
 

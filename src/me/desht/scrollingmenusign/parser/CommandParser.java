@@ -180,14 +180,14 @@ public class CommandParser {
 			try {
 				ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 				@SuppressWarnings("unchecked")
-				List<String> nodes = (List<String>) SMSConfig.getConfiguration().getList("sms.elevation.nodes");
+				List<String> nodes = (List<String>) SMSConfig.getConfig().getList("sms.elevation.nodes");
 				for (String node : nodes) {
 					if (!node.isEmpty() && !player.hasPermission(node)) {
 //						System.out.println("add node: " + node);
 						attachments.add(player.addAttachment(plugin, node, true));
 					}
 				}
-				if (SMSConfig.getConfiguration().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
+				if (SMSConfig.getConfig().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
 					tempOp = true;
 					player.setOp(true);
 				}
