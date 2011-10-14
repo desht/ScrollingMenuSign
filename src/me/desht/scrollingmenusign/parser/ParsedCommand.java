@@ -163,7 +163,8 @@ public class ParsedCommand {
 	
 	private boolean restrictionCheck(Player player, String check) {
 		if (check.startsWith("g:")) {
-			return PermissionsUtils.isInGroup(player, check.substring(2));
+//			return PermissionsUtils.isInGroup(player, check.substring(2));
+			return PermissionsUtils.isAllowedTo(player, "scrollingmenusign.groups." + check.substring(2));
 		} else if (check.startsWith("p:")) {
 			return player.getName().equalsIgnoreCase(check.substring(2));
 		} else if (check.startsWith("w:")) {
