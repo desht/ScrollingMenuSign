@@ -22,18 +22,16 @@ public class ItemListGUI {
 	}
 	
 	public void repaint() {
-		// TODO Auto-generated method stub
+		System.out.println("STUB: repaint spout gui for " + view.getMenu().getName());
 		
 	}
 
 	public void popup() {
-		// TODO Auto-generated method stub
-		
+		System.out.println("STUB: pop up spout gui for"+ view.getMenu().getName());
 	}
 
 	public void popdown() {
-		// TODO Auto-generated method stub
-		
+		System.out.println("STUB: pop down spout gui for "+ view.getMenu().getName());
 	}
 
 }

@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SpoutUtils;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
+import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -25,7 +25,7 @@ import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SMSSpoutKeyListener extends InputListener {
 	private static final Map<String, Set<Keyboard>> pressedKeys = new HashMap<String, Set<Keyboard>>();
-	
+
 	public SMSSpoutKeyListener() {
 		SpoutUtils.loadKeyDefinitions();
 	}
@@ -42,28 +42,19 @@ public class SMSSpoutKeyListener extends InputListener {
 		} else {
 			pressed.add(event.getKey());
 		}
-		
+
 		// don't actually do any action unless we're on the game screen
 		if (event.getScreenType() != ScreenType.GAME_SCREEN)
 			return;
-		
-		try {
-			Block block = player.getTargetBlock(null, 3);
 
-			SMSView view = SMSView.getViewForLocation(block.getLocation());
-			if (view == null) {
-				// check for an open spout gui...
-				if (SMSSpoutView.hasActiveGUI(player)) {
-					view = SMSSpoutView.getGUI(player).getView();
-				}
+		try {
+			// first see if any existing spout view has a mapping for the pressed keys
+			if (SMSSpoutView.handleKeypress(player, pressed)) {
+				return;
 			}
-			if (view == null) {
-				// check for a map view...
-				if (player.getItemInHand().getTypeId() == 358) {
-					view = SMSMapView.getViewForId(player.getItemInHand().getDurability());	
-				}
-			}
-			if (view != null) {
+
+			SMSView view = findViewForPlayer(player);
+			if (view != null) {			
 				SMSUserAction action = getAction(pressed);
 				Debugger.getDebugger().debug("spout keypress event: keys pressed = " + pressed
 						+ ", view = " + view.getName() + ", menu = " + view.getMenu().getName()
@@ -77,6 +68,29 @@ public class SMSSpoutKeyListener extends InputListener {
 		}
 	}
 
+	private SMSView findViewForPlayer(SpoutPlayer player) {
+		SMSView view = null;
+		
+		// is there an open spout view?
+		if (SMSSpoutView.hasActiveGUI(player)) {
+			view = SMSSpoutView.getGUI(player).getView();
+		}
+		// check for a map view...
+		if (view == null) {
+			if (player.getItemInHand().getTypeId() == 358) {
+				view = SMSMapView.getViewForId(player.getItemInHand().getDurability());	
+			}
+		}
+		// check if user is looking at a sign view...
+		if (view == null) {
+			Block block = player.getTargetBlock(null, 3);
+			view = SMSView.getViewForLocation(block.getLocation());
+		}
+		
+		return view;
+	}
+	
+	
 	@Override
 	public void onKeyReleasedEvent(KeyReleasedEvent event) {
 		getPressedKeys(event.getPlayer()).remove(event.getKey());
