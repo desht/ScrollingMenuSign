@@ -9,6 +9,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SpoutUtils;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.SMSMapView;
+import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.Debugger;
 import me.desht.util.MiscUtil;
@@ -51,6 +52,13 @@ public class SMSSpoutKeyListener extends InputListener {
 
 			SMSView view = SMSView.getViewForLocation(block.getLocation());
 			if (view == null) {
+				// check for an open spout gui...
+				if (SMSSpoutView.hasActiveGUI(player)) {
+					view = SMSSpoutView.getGUI(player).getView();
+				}
+			}
+			if (view == null) {
+				// check for a map view...
 				if (player.getItemInHand().getTypeId() == 358) {
 					view = SMSMapView.getViewForId(player.getItemInHand().getDurability());	
 				}
