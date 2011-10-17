@@ -8,6 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class Debugger {
+	private static final String CONSOLE = "&console";
+
 	private static Debugger debuggerInstance = null;
 
 	private Map<String,Integer> debuggers;
@@ -30,6 +32,10 @@ public class Debugger {
 		debuggers.remove(debuggerName(p));
 	}
 	
+	private void removeDebugger(String name) {
+		debuggers.remove(name);
+	}
+
 	public int getDebugLevel(Player p) {
 		String name = debuggerName(p);
 		if (!debuggers.containsKey(name) || debuggers.get(name) == 0) {
@@ -59,28 +65,22 @@ public class Debugger {
 			return;
 		for (String name : debuggers.keySet()) {
 			if (level >= debuggers.get(name)) {
-				if (name.equals("&console")) {
+				if (name.equals(CONSOLE)) {
 					debugMessage(null, message);
 				} else {
 					Player p = Bukkit.getServer().getPlayer(name);
 					if (p != null) {
 						debugMessage(p, message);
 					} else {
-						removeDebugger(p);
+						removeDebugger(name);
 					}
 				}
 			}
 		}
 	}
 	
-	private String debuggerName(Player p) {
-		String name;
-		if (p == null) {
-			name = "&console";
-		} else {
-			name = p.getName();
-		}
-		return name;
+	private static String debuggerName(Player p) {
+		return p == null ? CONSOLE : p.getName();
 	}
 
 	private void debugMessage(Player p, String message) {
