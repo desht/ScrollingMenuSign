@@ -30,7 +30,10 @@ public class AddViewCommand extends AbstractCommand {
 		Block b = player.getTargetBlock(null, 3);
 		
 		if (args.length == 2 && args[1].equalsIgnoreCase("-spout")) {		// spout view
-			view = SMSSpoutView.addSpoutViewToMenu(menu);
+			if (plugin.isSpoutEnabled())
+				view = SMSSpoutView.addSpoutViewToMenu(menu);
+			else
+				throw new SMSException("Server is not Spout-enabled");
 		} else if (b.getTypeId() == 63 || b.getTypeId() == 68) {			// sign view
 			view = SMSSignView.addSignToMenu(menu, b.getLocation());
 		} else if (player.getItemInHand().getTypeId() == 358) {				// map view

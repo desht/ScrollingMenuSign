@@ -99,13 +99,13 @@ public class ItemListGUI extends GenericPopup {
 	}
 
 	public void popup() {
-		System.out.println("STUB: pop up spout gui for " + sp.getName() + " - " + view.getMenu().getName());
+		System.out.println("pop up spout gui for " + sp.getName() + " - " + view.getMenu().getName());
 		
 		sp.getMainScreen().attachPopupScreen(this);
 	}
 
 	public void popdown() {
-		System.out.println("STUB: pop down spout gui for "+ view.getMenu().getName());
+		System.out.println("pop down spout gui for "+ view.getMenu().getName());
 		
 		sp.getMainScreen().closePopup();
 	}

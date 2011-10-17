@@ -73,7 +73,7 @@ public class SMSSpoutKeyListener extends InputListener {
 		
 		// is there an open spout view?
 		if (SMSSpoutView.hasActiveGUI(player)) {
-			view = SMSSpoutView.getGUI(player).getView();
+			view = SMSSpoutView.getActiveGUI(player).getView();
 		}
 		// check for a map view...
 		if (view == null) {

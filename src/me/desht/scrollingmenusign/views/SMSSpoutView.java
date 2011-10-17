@@ -5,10 +5,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
-import java.util.UUID;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.getspout.spoutapi.keyboard.Keyboard;
 import org.getspout.spoutapi.player.SpoutPlayer;
@@ -17,6 +16,7 @@ import com.google.common.base.Joiner;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.ItemListGUI;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
@@ -24,10 +24,10 @@ import me.desht.util.MiscUtil;
 
 public class SMSSpoutView extends SMSScrollableView {
 
-	// list of all popups which are active at this time
+	// list of all popups which are active at this time, keyed by player name
 	private static final Map<String, ItemListGUI> activePopups = new HashMap<String, ItemListGUI>();
 
-	// list of all popups which have been created for this view, keyed by player name
+	// list of all popups which have been created for each view, keyed by player name
 	private final Map<String, ItemListGUI> popups = new HashMap<String,ItemListGUI>();
 
 	private static final Map<String, String> keyMap = new HashMap<String, String>();
@@ -69,6 +69,7 @@ public class SMSSpoutView extends SMSScrollableView {
 
 	public void showGUI(SpoutPlayer sp) {
 		if (!popups.containsKey(sp.getName())) {
+			// create a new gui for this player
 			popups.put(sp.getName(), new ItemListGUI(sp, this));
 		}
 
@@ -77,22 +78,39 @@ public class SMSSpoutView extends SMSScrollableView {
 		gui.popup();
 	}
 
-	//	public void hideGUI(SpoutPlayer sp) {
-	//		if (!activeGUIs.containsKey(sp.getName())) {
-	//			return;
-	//		}
-	//
-	//		activeGUIs.get(sp.getName()).popdown();
-	//		activeGUIs.remove(sp.getName());
-	//	}
+	public void hideGUI(SpoutPlayer sp) {
+		if (!popups.containsKey(sp.getName())) {
+			return;
+		}
 
-	//	public void toggleGUI(SpoutPlayer sp) {
-	//		if (activeGUIs.containsKey(sp.getName())) {
-	//			hideGUI(sp);
-	//		} else {
-	//			showGUI(sp);
-	//		}
-	//	}
+		activePopups.remove(sp.getName());
+		popups.get(sp.getName()).popdown();
+		
+		// decision: destroy the gui object or not?
+//		popups.remove(sp.getName());
+	}
+
+	public void toggleGUI(final SpoutPlayer sp) {
+		if (hasActiveGUI(sp)) {
+			ItemListGUI gui = getActiveGUI(sp);
+			if (gui.getView() != this) {
+				// the active GUI for the player belongs to a different view, so we pop down that one and 
+				// pop up the player's GUI for this view
+				gui.getView().hideGUI(sp);
+				// just popping the GUI up immediately doesn't work - we need to defer it
+				Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
+					@Override
+					public void run() {
+						showGUI(sp);	
+					}
+				});
+			} else {
+				hideGUI(sp);
+			}
+		} else {
+			showGUI(sp);
+		}
+	}
 
 	@Override
 	public void update(Observable menu, Object arg1) {
@@ -100,7 +118,6 @@ public class SMSSpoutView extends SMSScrollableView {
 			gui.repaint();
 		}
 	}
-
 
 	@Override
 	public String getType() {
@@ -129,7 +146,7 @@ public class SMSSpoutView extends SMSScrollableView {
 		return activePopups.containsKey(sp.getName());
 	}
 
-	public static ItemListGUI getGUI(SpoutPlayer sp) {
+	public static ItemListGUI getActiveGUI(SpoutPlayer sp) {
 		return activePopups.get(sp.getName());
 	}
 
@@ -152,7 +169,7 @@ public class SMSSpoutView extends SMSScrollableView {
 				try {
 					SMSView v = SMSView.getView(viewName);
 					if (v instanceof SMSSpoutView) {
-						((SMSSpoutView) v).showGUI(sp);
+						((SMSSpoutView) v).toggleGUI(sp);
 						return true;
 					} else {
 						MiscUtil.log(Level.WARNING, "Key mapping was added for a non-spout view?");
@@ -169,24 +186,16 @@ public class SMSSpoutView extends SMSScrollableView {
 		return false;
 	}
 
-	public static void screenClosedUUID(UUID id) {
-		String playerName  = null;
+	private void screenClosed(String playerName) {
+//		popups.remove(playerName);
+	}
 
-		for (Entry<String,ItemListGUI> e : activePopups.entrySet()) {
-			if (id == e.getValue().getId()) {
-				playerName = e.getKey();
-				break;
-			}
-		}
-
-		System.out.println("remove popup " + id + " for " + playerName);
-		if (playerName != null) {
+	public static void screenClosed(SpoutPlayer player) {
+		String playerName = player.getName();
+		if (playerName != null && activePopups.containsKey(playerName)) {
+			System.out.println("screen closed: remove popup for " + playerName);
 			activePopups.get(playerName).getView().screenClosed(playerName);
 			activePopups.remove(playerName);
 		}		
-	}
-
-	private void screenClosed(String playerName) {
-		popups.remove(playerName);
 	}
 }

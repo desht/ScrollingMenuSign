@@ -11,18 +11,16 @@ import me.desht.util.MiscUtil;
 import org.getspout.spoutapi.event.screen.ButtonClickEvent;
 import org.getspout.spoutapi.event.screen.ScreenCloseEvent;
 import org.getspout.spoutapi.event.screen.ScreenListener;
-import org.getspout.spoutapi.gui.Screen;
 import org.getspout.spoutapi.gui.ScreenType;
 
 public class SMSSpoutScreenListener extends ScreenListener {
 	
 	@Override
 	public void onScreenClose(ScreenCloseEvent event) {
-		Screen screen = event.getScreen();
-		System.out.println("screen closed: " + (screen == null ? "none" : screen.getId()) + " - " + event.getScreenType());
+		System.out.println("screen closed: " + event.getPlayer() + " - " + event.getScreenType());
 		
 		if (event.getScreenType() == ScreenType.CUSTOM_SCREEN) {
-			SMSSpoutView.screenClosedUUID(screen.getId());
+			SMSSpoutView.screenClosed(event.getPlayer());
 		}
 	}
 	
@@ -31,7 +29,7 @@ public class SMSSpoutScreenListener extends ScreenListener {
 		if (event.getScreenType() == ScreenType.CUSTOM_SCREEN) {
 			String label = event.getButton().getText();
 			System.out.println("button clicked: " + label);
-			ItemListGUI gui = SMSSpoutView.getGUI(event.getPlayer());
+			ItemListGUI gui = SMSSpoutView.getActiveGUI(event.getPlayer());
 			if (gui != null) {
 				SMSMenu menu = gui.getView().getMenu();
 				int idx = menu.indexOfItem(label);

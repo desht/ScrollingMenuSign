@@ -21,6 +21,9 @@ public class RemoveViewCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+		
+		// TODO: need to be able to remove Spout views
+		
 		if (player != null && player.getItemInHand().getTypeId() == 358) {
 			PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 			SMSMapView view = SMSMapView.getViewForId(player.getItemInHand().getDurability());
