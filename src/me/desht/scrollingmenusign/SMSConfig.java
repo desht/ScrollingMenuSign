@@ -111,7 +111,8 @@ public class SMSConfig {
 			saveNeeded = true;
 		}
 
-		if (config.getStringList("sms.elevation.nodes", null).get(0).equals(SAMPLE_NODE)) {
+		List<String> eNodes = config.getStringList("sms.elevation.nodes", null);
+		if (eNodes != null && eNodes.size() >= 1 && eNodes.get(0).equals(SAMPLE_NODE)) {
 			// initialise default nodes from the &SMS user
 			String user = getConfiguration().getString("sms.elevation_user", "&SMS");
 			List<String> nodes = PermissionsUtils.getPermissionNodes(user, null);
