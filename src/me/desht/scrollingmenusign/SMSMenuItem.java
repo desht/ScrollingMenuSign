@@ -144,7 +144,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		
 //		SMSMacro.executeCommand(cmd, player);
 		
-		ReturnStatus rs = new CommandParser().runCommandString(player, command);
+		ReturnStatus rs = new CommandParser().runCommandString(player, cmd);
 		switch (rs) {
 		case NO_PERMS:
 			MiscUtil.errorMessage(player, "You lack sufficient permission to run that.");
@@ -156,10 +156,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 			MiscUtil.errorMessage(player, "Execution of [" + command + "] failed.");
 			break;
 		case WOULD_RECURSE:
-			MiscUtil.errorMessage(player, "Recursion detected when running " + command);
+			MiscUtil.errorMessage(player, "Recursion detected when running " + cmd);
 			break;
 		case BAD_MACRO:
-			MiscUtil.errorMessage(player, "Unknown macro found when running " + command);
+			MiscUtil.errorMessage(player, "Unknown macro found when running " + cmd);
 			break;	
 		}
 	}

@@ -301,8 +301,11 @@ public class MessagePager {
 			setPage(player, pageNum);
 		} else {
 			// just dump the whole message buffer to the console
-			for (String s : bufferMap.get(name(player))) {
-				MiscUtil.statusMessage(null, ChatColor.stripColor(MiscUtil.parseColourSpec(s)));
+			List<String> buffer = bufferMap.get(name(player));
+			if (buffer != null) {
+				for (String s : buffer) {
+					MiscUtil.statusMessage(null, ChatColor.stripColor(MiscUtil.parseColourSpec(s)));
+				}
 			}
 		}
 	}

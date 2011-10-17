@@ -28,9 +28,6 @@ public class SMSPersistence {
 		}
 	};
 
-	static void init() {
-	}
-
 	public static void unPersist(Freezable object) {
 		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
 		if (!saveFile.delete()) {

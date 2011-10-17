@@ -18,8 +18,6 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 
 public class SMSConfig {
-	private static ScrollingMenuSign plugin = null;
-
 	private static File pluginDir;
 	private static File dataDir, menusDir, viewsDir, macrosDir;
 	private static File commandFile;
@@ -33,17 +31,13 @@ public class SMSConfig {
 	private static final String SAMPLE_NODE = "a.sample.permission.node";
 
 	static void init(ScrollingMenuSign plugin) {
-		SMSConfig.plugin = plugin;
-		if (plugin != null) {
-			pluginDir = plugin.getDataFolder();
-		}
-
 		setupDirectoryStructure();
-
 		initConfigFile();
 	}
 
 	private static void setupDirectoryStructure() {
+		pluginDir = ScrollingMenuSign.getInstance().getDataFolder();
+
 		commandFile = new File(pluginDir, commandFileName);
 		dataDir = new File(pluginDir, dataDirName);
 		menusDir = new File(dataDir, menusDirName);
@@ -68,8 +62,8 @@ public class SMSConfig {
 
 	private static void initConfigFile() {
 		Boolean saveNeeded = false;
-		plugin.getConfig().options().copyDefaults(true);
-		Configuration config = plugin.getConfig();
+		ScrollingMenuSign.getInstance().getConfig().options().copyDefaults(true);
+		Configuration config = ScrollingMenuSign.getInstance().getConfig();
 		
 		for (String k : getConfig().getDefaults().getKeys(true)) {
 			if (!config.contains(k)) {
@@ -95,7 +89,7 @@ public class SMSConfig {
 		}
 		
 		if (saveNeeded)
-			plugin.saveConfig();
+			ScrollingMenuSign.getInstance().saveConfig();
 	}
 
 	public static File getCommandFile() {
@@ -166,12 +160,12 @@ public class SMSConfig {
 			}
 		}
 		
-		if (key.startsWith("sms.actions.spout") && plugin.isSpoutEnabled()) {
+		if (key.startsWith("sms.actions.spout") && ScrollingMenuSign.getInstance().isSpoutEnabled()) {
 			// reload & re-cache spout key definitions
 			SpoutUtils.loadKeyDefinitions();
 		}
 		
-		plugin.saveConfig();
+		ScrollingMenuSign.getInstance().saveConfig();
 	}
 
 	public static void setConfigItem(Player player, String key, List<String> list) throws SMSException {
@@ -186,7 +180,7 @@ public class SMSConfig {
 
 		handleListValue(key, list);
 
-		plugin.saveConfig();
+		ScrollingMenuSign.getInstance().saveConfig();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -229,7 +223,7 @@ public class SMSConfig {
 	}
 
 	public static Configuration getConfig() {
-		return plugin.getConfig();
+		return ScrollingMenuSign.getInstance().getConfig();
 	}
 
 	public static Object getConfigItem(String key) {

@@ -129,8 +129,7 @@ public class MiscUtil {
 		if (err == null) {
 			log(level, message);
 		} else {
-			logger.log(level, String.format(messageFormat,
-					message == null ? (err == null ? "?" : err.getMessage()) : message), err);
+			logger.log(level, String.format(messageFormat, message == null ? err.getMessage() : message), err);
 		}
 	}
 

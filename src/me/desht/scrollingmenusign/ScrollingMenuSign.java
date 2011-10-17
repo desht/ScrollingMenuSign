@@ -37,7 +37,6 @@ import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.Command;
@@ -50,31 +49,24 @@ import com.nijikokun.register.payment.Methods;
 
 
 public class ScrollingMenuSign extends JavaPlugin {
-	private static PluginDescriptionFile description;
 
 	private final SMSPlayerListener playerListener = new SMSPlayerListener(this);
 	private final SMSBlockListener blockListener = new SMSBlockListener(this);
 	private final SMSEntityListener entityListener = new SMSEntityListener(this);
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
 	private final CommandManager cmds = new CommandManager(this);
-
-	private boolean spoutEnabled;
-
 	private SMSSpoutKeyListener spoutKeyListener;
-
+	private boolean spoutEnabled = false;
 	private static Method economy = null;
-
-	private static ScrollingMenuSign instance;
+	private static ScrollingMenuSign instance = null;
 
 	@Override
 	public void onEnable() {
-		description = this.getDescription();
-
 		setInstance(this);
 
 		PluginManager pm = getServer().getPluginManager();
 
-		if (!validateVersions(description.getVersion(), getServer().getVersion())) {		
+		if (!validateVersions(getDescription().getVersion(), getServer().getVersion())) {		
 			pm.disablePlugin(this);
 			return;
 		}	
@@ -86,7 +78,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 
 		PermissionsUtils.setup();
-		SMSPersistence.init();
 		SMSConfig.init(this);
 
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
@@ -120,14 +111,14 @@ public class ScrollingMenuSign extends JavaPlugin {
 			setupEconomy();
 		}
 
-		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is enabled!" );
+		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
 	}
 
 	@Override
 	public void onDisable() {
 		SMSPersistence.saveMenusAndViews();
 		SMSPersistence.saveMacros();
-		MiscUtil.log(Level.INFO, description.getName() + " version " + description.getVersion() + " is disabled!" );
+		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
 	}
 
 	private void setupEconomy() {
