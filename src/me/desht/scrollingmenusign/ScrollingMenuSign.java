@@ -32,6 +32,7 @@ import me.desht.scrollingmenusign.listeners.SMSBlockListener;
 import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
+import me.desht.scrollingmenusign.listeners.SMSSpoutScreenListener;
 import me.desht.util.MessagePager;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
@@ -56,6 +57,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
 	private final CommandManager cmds = new CommandManager(this);
 	private SMSSpoutKeyListener spoutKeyListener;
+	private SMSSpoutScreenListener spoutScreenListener;
 	private boolean spoutEnabled = false;
 	private static Method economy = null;
 	private static ScrollingMenuSign instance = null;
@@ -91,7 +93,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 		if (spoutEnabled) {
 			spoutKeyListener = new SMSSpoutKeyListener();
+			spoutScreenListener = new SMSSpoutScreenListener();
 			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutKeyListener, Event.Priority.Normal, this);
+			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutScreenListener, Event.Priority.Normal, this);
 		}
 		
 		registerCommands();

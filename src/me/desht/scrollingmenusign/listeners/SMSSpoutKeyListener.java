@@ -44,7 +44,7 @@ public class SMSSpoutKeyListener extends InputListener {
 		}
 
 		// don't actually do any action unless we're on the game screen
-		if (event.getScreenType() != ScreenType.GAME_SCREEN)
+		if (event.getScreenType() != ScreenType.GAME_SCREEN && event.getScreenType() != ScreenType.CUSTOM_SCREEN)
 			return;
 
 		try {

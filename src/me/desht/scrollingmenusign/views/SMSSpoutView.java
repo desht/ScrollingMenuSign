@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
+import java.util.UUID;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,14 +24,19 @@ import me.desht.util.MiscUtil;
 
 public class SMSSpoutView extends SMSScrollableView {
 
-	private static final Map<String, ItemListGUI> activeGUIs = new HashMap<String,ItemListGUI>();
+	// list of all popups which are active at this time
+	private static final Map<String, ItemListGUI> activePopups = new HashMap<String, ItemListGUI>();
+
+	// list of all popups which have been created for this view, keyed by player name
+	private final Map<String, ItemListGUI> popups = new HashMap<String,ItemListGUI>();
+
 	private static final Map<String, String> keyMap = new HashMap<String, String>();
-	
+
 	private Set<Keyboard> activationKeys;
-	
+
 	public SMSSpoutView(String name, SMSMenu menu) {
 		super(name, menu);
-		
+
 		activationKeys = new HashSet<Keyboard>();
 	}
 
@@ -52,56 +59,54 @@ public class SMSSpoutView extends SMSScrollableView {
 		Map<String, Object> map = super.freeze();
 
 		map.put("activationKeys", Joiner.on("+").join(activationKeys));
-		
+
 		return map;
 	}
-	
+
 	protected void thaw(ConfigurationSection node) {
 		setActivationKeys(SpoutUtils.parseKeyDefinition(node.getString("activationKeys")));
 	}
-	
+
 	public void showGUI(SpoutPlayer sp) {
-		if (activeGUIs.containsKey(sp.getName())) {
-			return;
+		if (!popups.containsKey(sp.getName())) {
+			popups.put(sp.getName(), new ItemListGUI(sp, this));
 		}
 
-		ItemListGUI gui = new ItemListGUI(sp, this);
-		activeGUIs.put(sp.getName(), gui);
+		ItemListGUI gui = popups.get(sp.getName());
+		activePopups.put(sp.getName(), gui);
 		gui.popup();
 	}
 
-	public void hideGUI(SpoutPlayer sp) {
-		if (!activeGUIs.containsKey(sp.getName())) {
-			return;
-		}
+	//	public void hideGUI(SpoutPlayer sp) {
+	//		if (!activeGUIs.containsKey(sp.getName())) {
+	//			return;
+	//		}
+	//
+	//		activeGUIs.get(sp.getName()).popdown();
+	//		activeGUIs.remove(sp.getName());
+	//	}
 
-		activeGUIs.get(sp.getName()).popdown();
-		activeGUIs.remove(sp.getName());
-	}
-
-	public void toggleGUI(SpoutPlayer sp) {
-		if (activeGUIs.containsKey(sp.getName())) {
-			hideGUI(sp);
-		} else {
-			showGUI(sp);
-		}
-	}
+	//	public void toggleGUI(SpoutPlayer sp) {
+	//		if (activeGUIs.containsKey(sp.getName())) {
+	//			hideGUI(sp);
+	//		} else {
+	//			showGUI(sp);
+	//		}
+	//	}
 
 	@Override
 	public void update(Observable menu, Object arg1) {
-		if (isDirty()) {
-			for (ItemListGUI gui : activeGUIs.values()) {
-				gui.repaint();
-			}
-			setDirty(false);
+		for (ItemListGUI gui : popups.values()) {
+			gui.repaint();
 		}
 	}
+
 
 	@Override
 	public String getType() {
 		return "spout";
 	}
-	
+
 	@Override
 	public void setScrollPos(int scrollPos) {
 		super.setScrollPos(scrollPos);
@@ -119,13 +124,13 @@ public class SMSSpoutView extends SMSScrollableView {
 		super.scrollUp();
 		update(getMenu(), SMSMenuAction.REPAINT);
 	}
-	
+
 	public static boolean hasActiveGUI(SpoutPlayer sp) {
-		return activeGUIs.containsKey(sp.getName());
+		return activePopups.containsKey(sp.getName());
 	}
 
 	public static ItemListGUI getGUI(SpoutPlayer sp) {
-		return activeGUIs.get(sp.getName());
+		return activePopups.get(sp.getName());
 	}
 
 	public static SMSView addSpoutViewToMenu(SMSMenu menu) {
@@ -133,21 +138,21 @@ public class SMSSpoutView extends SMSScrollableView {
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
-	
+
 	public String toString() {
-		return "spout (" + activeGUIs.size() + " active GUIs)";
+		return "spout (" + popups.size() + " popups created)";
 	}
-	
+
 	public static boolean handleKeypress(SpoutPlayer sp, Set<Keyboard> pressed) {
 		String s = Joiner.on("+").join(pressed);
-		
+
 		String viewName = keyMap.get(s);
 		if (viewName != null) {
 			if (SMSView.checkForView(viewName)) {
 				try {
 					SMSView v = SMSView.getView(viewName);
 					if (v instanceof SMSSpoutView) {
-						((SMSSpoutView) v).toggleGUI(sp);
+						((SMSSpoutView) v).showGUI(sp);
 						return true;
 					} else {
 						MiscUtil.log(Level.WARNING, "Key mapping was added for a non-spout view?");
@@ -160,7 +165,28 @@ public class SMSSpoutView extends SMSScrollableView {
 				keyMap.remove(s);
 			}
 		}
-		
+
 		return false;
+	}
+
+	public static void screenClosedUUID(UUID id) {
+		String playerName  = null;
+
+		for (Entry<String,ItemListGUI> e : activePopups.entrySet()) {
+			if (id == e.getValue().getId()) {
+				playerName = e.getKey();
+				break;
+			}
+		}
+
+		System.out.println("remove popup " + id + " for " + playerName);
+		if (playerName != null) {
+			activePopups.get(playerName).getView().screenClosed(playerName);
+			activePopups.remove(playerName);
+		}		
+	}
+
+	private void screenClosed(String playerName) {
+		popups.remove(playerName);
 	}
 }

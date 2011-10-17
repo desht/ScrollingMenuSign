@@ -225,6 +225,11 @@ public abstract class SMSView implements Observer, Freezable {
 			SMSPersistence.save(this);
 	}
 
+	public void screenClosed() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	void registerView() {
 		if (checkForView(getName())) {
 			throw new IllegalArgumentException("duplicate name: " + getName());
