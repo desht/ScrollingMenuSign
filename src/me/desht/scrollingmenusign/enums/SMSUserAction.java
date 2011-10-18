@@ -59,8 +59,6 @@ public enum SMSUserAction {
 		}
 	}
 
-
-
 	private static SMSUserAction _makeAction(Player player, StringBuilder key) {
 		if (player.isSneaking())
 			key.append("sneak");
@@ -91,18 +89,18 @@ public enum SMSUserAction {
 		case EXECUTE:
 			if (sview instanceof SMSMapView)
 				PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
-			SMSMenuItem item = menu.getItem(sview.getScrollPos());
+			SMSMenuItem item = menu.getItem(sview.getScrollPos(player.getName()));
 			if (item != null) {
 				item.execute(player);
 				item.feedbackMessage(player);
 			}
 			break;
 		case SCROLLDOWN:
-			sview.scrollDown();
+			sview.scrollDown(player.getName());
 			sview.update(menu, SMSMenuAction.REPAINT);
 			break;
 		case SCROLLUP:
-			sview.scrollUp();
+			sview.scrollUp(player.getName());
 			sview.update(menu, SMSMenuAction.REPAINT);
 			break;
 		}

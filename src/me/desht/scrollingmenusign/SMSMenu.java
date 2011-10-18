@@ -12,13 +12,11 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -204,27 +202,6 @@ public class SMSMenu extends Observable implements Freezable {
 	}
 
 	/**
-	 * Get the locations of all the menu's signs as a map.
-	 * 
-	 * @deprecated This is a view method - use query methods in SMSView instead 
-	 * @return	Map of location to integer - the current scroll position of the sign at each location
-	 */
-	@Deprecated
-	public Map<Location,Integer> getLocations() {
-		Map<Location, Integer> result = new HashMap<Location, Integer>();
-		for (SMSView v : SMSView.getViewsAsArray()) {
-			if (!(v instanceof SMSSignView))
-				continue;
-			if (v.getMenu().getName().equals(getName())) {
-				for (Location loc : v.getLocations()) {
-					result.put(loc, ((SMSSignView) v).getScrollPos());
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
 	 * Get the menu's owner string
 	 * 
 	 * @return	Name of the menu's owner
@@ -370,105 +347,7 @@ public class SMSMenu extends Observable implements Freezable {
 		return index;
 	}
 
-	/**
-	 * Get the currently-selected menu item for the given sign location
-	 * 
-	 * @deprecated This is a view method - use query methods in SMSView instead 
-	 * @param l	Location of the item to check
-	 * @return	The menu item that is currently selected
-	 */
-	@Deprecated
-	public SMSMenuItem getCurrentItem(Location l) {
-		if (items.size() == 0) {
-			return null;
-		}
-
-		SMSView v = SMSView.getViewForLocation(l);
-		if (v instanceof SMSSignView) {
-			int scrollPos = ((SMSSignView) v).getScrollPos();
-			return items.get(scrollPos);
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Add a new sign to the menu.  Equivalent to <b>addSign(l, false)</b>
-	 * 
-	 * @param l	Location of the sign to add
-	 * @throws SMSException 
-	 * @deprecated This is a view method - use query methods in SMSView instead 
-	 */
-	@Deprecated
-	public void addSign(Location l) throws SMSException {
-		addSign(l, false);
-	}
-
-	/**
-	 * Add a new sign to the menu, possibly updating its text.
-	 * 
-	 * @param loc Location of the sign to add
-	 * @param updateSignText true to immediately repaint the sign, false to leave it as is
-	 * @throws SMSException 
-	 * @deprecated This is a view method - use query methods in SMSView instead 
-	 */
-	@Deprecated
-	public void addSign(Location loc, boolean updateSignText) throws SMSException {
-		Block b = loc.getBlock();
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " does not contain a sign.");
-		}
-
-		SMSView v = SMSView.getViewForLocation(loc);
-		if (v != null) {
-			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " already has a menu: " + v.getMenu().getName());
-		}
-
-		SMSSignView view = new SMSSignView(this, loc);
-		addObserver(view);
-		if (updateSignText) {
-			view.update(this, SMSMenuAction.REPAINT);
-		}
-
-		autosave();
-	}
-
-	/**
-	 * Remove a sign from the menu.  Don't do anything with the sign's text.
-	 * 
-	 * @param l Location of the sign to remove
-	 * @deprecated View method - use SMSSignView to manage views
-	 */
-	@Deprecated
-	public void removeSign(Location l) {
-		removeSign(l, SMSMenuAction.DO_NOTHING);
-	}
-
-	/**
-	 * Remove a sign from the menu.
-	 * 
-	 * @param loc	Location of the sign to remove
-	 * @param action	Action to take on the sign.
-	 * @deprecated View method - use SMSSignView to manage views
-	 */
-	@Deprecated
-	public void removeSign(Location loc, SMSMenuAction action) {
-		SMSView v = SMSView.getViewForLocation(loc);
-		if (!(v instanceof SMSSignView))
-			return;
-		SMSSignView sv = (SMSSignView) v;
-
-		switch(action) {
-		case BLANK_SIGN:
-			sv.blankSign();
-			break;
-		case DESTROY_SIGN:
-			sv.destroySign();
-			break;
-		}
-
-		autosave();
-	}
+	
 
 	/**
 	 * Add a new item to the menu
@@ -555,56 +434,6 @@ public class SMSMenu extends Observable implements Freezable {
 		setChanged();
 
 		autosave();
-	}
-
-	/**
-	 * Force a repaint of all of the menu's signs
-	 * 
-	 * @deprecated  Use notifyObservers()
-	 */
-	public void updateSigns() {
-		notifyObservers(SMSMenuAction.REPAINT);
-	}
-
-	/**
-	 * Force a repaint of the given sign according to the current menu state
-	 * 
-	 * @param l	Location of the sign to repaint
-	 * @deprecated View method - use SMSSignView to manage views
-	 */
-	@Deprecated
-	public void updateSign(Location l) {
-		SMSView v = SMSView.getViewForLocation(l);
-		if (v != null) 
-			v.update(this, SMSMenuAction.REPAINT);
-	}
-
-	/**
-	 * Set the currently selected item for this sign to the next item.
-	 * 
-	 * @deprecated Use SMSSignView.scrollDown()
-	 * @param l	Location of the sign
-	 */
-	@Deprecated
-	public void nextItem(Location l) {
-		SMSView v = SMSView.getViewForLocation(l);
-		if (v != null && v instanceof SMSScrollableView) {
-			((SMSScrollableView) v).scrollDown();
-		}
-	}
-
-	/**
-	 * Set the currently selected item for this sign to the previous item.
-	 * 
-	 * @deprecated Use SMSSignView.scrollUp()
-	 * @param l	Location of the sign
-	 */
-	@Deprecated
-	public void prevItem(Location l) {
-		SMSView v = SMSView.getViewForLocation(l);
-		if (v != null && v instanceof SMSScrollableView) {
-			((SMSScrollableView) v).scrollUp();
-		}
 	}
 
 	/**

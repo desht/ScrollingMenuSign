@@ -18,12 +18,14 @@ public class ItemListGUI extends GenericPopup {
 	private static final int BUTTON_HEIGHT = 24;
 	private SpoutPlayer sp;
 	private SMSSpoutView view;
+	private boolean poppedUp;
 
 	private Container itemBox;
 	
 	public ItemListGUI(SpoutPlayer sp, SMSSpoutView view) {
 		this.sp = sp;
 		this.view = view;
+		this.poppedUp = false;
 		
 		SMSMenu menu = view.getMenu();
 		int nItems = menu.getItemCount();
@@ -37,7 +39,7 @@ public class ItemListGUI extends GenericPopup {
 		itemBox.setX(20).setY(10).setWidth(200).setHeight(boxHeight);
 		itemBox.setLayout(ContainerType.VERTICAL);
 		
-		int idx = view.getScrollPos();
+		int idx = view.getScrollPos(sp.getName());
 		for (int i = 1; i <= maxButtons && i <= nItems; i++) {
 			Button btn = new GenericButton(menu.getItem(idx).getLabel());
 			btn.setHeight(BUTTON_HEIGHT);
@@ -59,6 +61,10 @@ public class ItemListGUI extends GenericPopup {
 		return sp;
 	}
 	
+	public boolean isPoppedUp() {
+		return poppedUp;
+	}
+
 	public void repaint() {
 		System.out.println("repaint spout gui for " + view.getMenu().getName());
 		
@@ -84,7 +90,7 @@ public class ItemListGUI extends GenericPopup {
 			itemBox.setHeight(Math.min(maxHeight, nItems * (BUTTON_HEIGHT + GUTTER_HEIGHT)));
 		}
 		
-		int idx = view.getScrollPos();
+		int idx = view.getScrollPos(sp.getName());
 		for (Widget w : itemBox.getChildren()) {
 			if (!(w instanceof Button))
 				continue;
@@ -101,12 +107,14 @@ public class ItemListGUI extends GenericPopup {
 	public void popup() {
 		System.out.println("pop up spout gui for " + sp.getName() + " - " + view.getMenu().getName());
 		
+		poppedUp = true;
 		sp.getMainScreen().attachPopupScreen(this);
 	}
 
 	public void popdown() {
 		System.out.println("pop down spout gui for "+ view.getMenu().getName());
 		
+		poppedUp = false;
 		sp.getMainScreen().closePopup();
 	}
 

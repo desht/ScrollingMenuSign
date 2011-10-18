@@ -24,7 +24,9 @@ import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 /**
@@ -43,8 +45,8 @@ public abstract class SMSView implements Observer, Freezable {
 	private String name;
 	private boolean autosave;
 	private String owner;
-
 	private boolean dirty;
+	private Configuration attributes;
 
 	@Override
 	public abstract void update(Observable menu, Object arg1);
@@ -64,9 +66,12 @@ public abstract class SMSView implements Observer, Freezable {
 		this.dirty = true;
 		this.autosave = SMSConfig.getConfig().getBoolean("sms.autosave", true);
 		this.owner = "";	// unowned by default
+		this.attributes = new YamlConfiguration();
 
 		menu.addObserver(this);
 
+		attributes.addDefault("owner", "");
+		
 		registerView();
 	}
 
@@ -133,7 +138,7 @@ public abstract class SMSView implements Observer, Freezable {
 		for (Location l: getLocations()) {
 			locs.add(freezeLocation(l));
 		}
-		map.put("locations", locs);		
+		map.put("locations", locs);
 		return map;
 	}
 

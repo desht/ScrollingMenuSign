@@ -19,7 +19,7 @@ public class SMSSpoutScreenListener extends ScreenListener {
 	public void onScreenClose(ScreenCloseEvent event) {
 		System.out.println("screen closed: " + event.getPlayer() + " - " + event.getScreenType());
 		
-		if (event.getScreenType() == ScreenType.CUSTOM_SCREEN) {
+		if (event.getScreenType() == ScreenType.CUSTOM_SCREEN && SMSSpoutView.hasActiveGUI(event.getPlayer())) {
 			SMSSpoutView.screenClosed(event.getPlayer());
 		}
 	}

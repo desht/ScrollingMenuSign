@@ -29,9 +29,9 @@ public class SetConfigCommand extends AbstractCommand {
 				List<String> list = new ArrayList<String>(args.length - 1);
 				for (int i = 1; i < args.length; i++)
 					list.add(args[i]);
-				SMSConfig.setConfigItem(player, key, list);
+				SMSConfig.setPluginConfiguration(key, list);
 			} else {
-				SMSConfig.setConfigItem(player, key, val);
+				SMSConfig.setPluginConfiguration(key, val);
 			}
 			if (key.matches("item_(justify|prefix.*)")) {
 				SMSMenu.updateAllMenus();

@@ -1,6 +1,8 @@
 package me.desht.scrollingmenusign;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,7 +17,6 @@ import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
 import org.bukkit.configuration.Configuration;
-import org.bukkit.entity.Player;
 
 public class SMSConfig {
 	private static File pluginDir;
@@ -116,40 +117,13 @@ public class SMSConfig {
 		return viewsDir;
 	}
 
-	public static void setConfigItem(Player player, String key, String val) throws SMSException {
+	public static void setPluginConfiguration(String key, String val) throws SMSException {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
-		Configuration defaults = getConfig().getDefaults();
-		if (!defaults.contains(key)) {
-			throw new SMSException("No such config key '" + key + "'");
-		}
-		if (defaults.get(key) instanceof Boolean) {
-			Boolean bVal = false;
-			if (val.equalsIgnoreCase("false") || val.equalsIgnoreCase("no")) {
-				bVal = false;
-			} else if (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("yes")) {
-				bVal = true;
-			} else {
-				MiscUtil.errorMessage(player, "Invalid boolean value " + val + " - use true/yes or false/no.");
-				return;
-			}
-			getConfig().set(key, bVal);
-		} else if (defaults.get(key) instanceof Integer) {
-			try {
-				int nVal = Integer.parseInt(val);
-				getConfig().set(key, nVal);
-			} catch (NumberFormatException e) {
-				throw new SMSException("Invalid numeric value: " + val);
-			}
-		} else if (defaults.get(key) instanceof List<?>) {
-			List<String>list = new ArrayList<String>(1);
-			list.add(val);
-			handleListValue(key, list);
-		} else {
-			getConfig().set(key, val);
-		}
 
+		setConfigItem(getConfig(), key, val);
+		
 		// special hooks
 		 
 		if (key.equalsIgnoreCase("sms.use_any_view")) {
@@ -168,29 +142,24 @@ public class SMSConfig {
 		ScrollingMenuSign.getInstance().saveConfig();
 	}
 
-	public static void setConfigItem(Player player, String key, List<String> list) throws SMSException {
+	public static void setPluginConfiguration(String key, List<String> list) throws SMSException {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
-		if (getConfig().getDefaults().get(key) == null) {
-			throw new SMSException("No such config key '" + key + "'");
-		}
-		if (!(getConfig().getDefaults().get(key) instanceof List<?>))
-			throw new SMSException("Config item '" + key + "' does not accept a list of values");
-
-		handleListValue(key, list);
-
+		
+		setConfigItem(getConfig(), key, list);
+		
 		ScrollingMenuSign.getInstance().saveConfig();
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void handleListValue(String key, List<String> list) {
+	private static void handleListValue(Configuration config, String key, List<String> list) {
 		HashSet<String> current;
 		
 		if (list.get(0).equals("-")) {
 			// remove specifed item from list
 			list.remove(0);
-			current = new HashSet<String>(getConfig().getList(key));
+			current = new HashSet<String>(config.getList(key));
 			current.removeAll(list);
 		} else if (list.get(0).equals("=")) {
 			// replace list
@@ -199,15 +168,15 @@ public class SMSConfig {
 		} else if (list.get(0).equals("+")) {
 			// append to list
 			list.remove(0);
-			current = new HashSet<String>(getConfig().getList(key));
+			current = new HashSet<String>(config.getList(key));
 			current.addAll(list);
 		} else {
 			// append to list
-			current = new HashSet<String>(getConfig().getList(key));
+			current = new HashSet<String>(config.getList(key));
 			current.addAll(list);
 		}
 		
-		getConfig().set(key, new ArrayList<String>(current));
+		config.set(key, new ArrayList<String>(current));
 	}
 
 	// return a sorted list of all config keys
@@ -230,6 +199,54 @@ public class SMSConfig {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
-		return getConfig().getString(key);
+		return getConfig().get(key);
+	}
+	
+	public static void setConfigItem(Configuration config, String key, String val) throws SMSException {
+		Configuration defaults = config.getDefaults();
+		if (!defaults.contains(key)) {
+			throw new SMSException("No such config key '" + key + "'");
+		}
+		if (defaults.get(key) instanceof Boolean) {
+			config.set(key, Boolean.valueOf(val));
+		} else if (defaults.get(key) instanceof Integer) {
+			try {
+				int nVal = Integer.parseInt(val);
+				config.set(key, nVal);
+			} catch (NumberFormatException e) {
+				throw new SMSException("Invalid numeric value: " + val);
+			}
+		} else if (defaults.get(key) instanceof List<?>) {
+			List<String>list = new ArrayList<String>(1);
+			list.add(val);
+			handleListValue(config, key, list);
+		} else {
+			// the class we're converting to needs to have a constructor taking a single String argument
+			try {
+				Class<?> c = defaults.get(key).getClass();
+				Constructor<?> ctor = c.getDeclaredConstructor(String.class);
+				config.set(key, ctor.newInstance(val));
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void setConfigItem(Configuration config, String key, List<String> list) throws SMSException {
+		if (config.getDefaults().get(key) == null) {
+			throw new SMSException("No such config key '" + key + "'");
+		}
+		if (!(config.getDefaults().get(key) instanceof List<?>))
+			throw new SMSException("Config item '" + key + "' does not accept a list of values");
+		
+		handleListValue(config, key, list);
 	}
 }

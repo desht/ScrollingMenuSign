@@ -14,17 +14,24 @@ import org.bukkit.entity.Player;
 public class RemoveViewCommand extends AbstractCommand {
 
 	public RemoveViewCommand() {
-		super("sms b", 0, 1);
+		super("sms b", 0, 2);
 		setPermissionNode("scrollingmenusign.commands.break");
-		setUsage("/sms break [<loc>]");
+		setUsage(new String[] {
+				"/sms break [<loc>]",
+				"/sms break -view <view-name>"
+		});
 	}
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		
-		// TODO: need to be able to remove Spout views
-		
-		if (player != null && player.getItemInHand().getTypeId() == 358) {
+		if (args.length == 2 && args[0].equals("-view")) {
+			// detaching any named view
+			SMSView view = SMSView.getView(args[1]);
+			view.deletePermanent();
+			MiscUtil.statusMessage(player, String.format("Removed %s view &e%s&- from menu &e%s&-.",
+			                                             view.getType(), view.getName(), view.getMenu().getName()));
+		} else if (player != null && player.getItemInHand().getTypeId() == 358) {
+			// detaching a map view 
 			PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
 			SMSMapView view = SMSMapView.getViewForId(player.getItemInHand().getDurability());
 			if (view != null) {
@@ -33,6 +40,7 @@ public class RemoveViewCommand extends AbstractCommand {
 				                       "&- from menu &e" + view.getMenu().getName() + "&-.");
 			}
 		} else {
+			// detaching a sign view
 			Location loc = null;
 			if (args.length == 0) {
 				notFromConsole(player);

@@ -24,6 +24,7 @@ public class SMSMapRenderer extends MapRenderer {
 	SMSMapView smsMapView;
 
 	public SMSMapRenderer(SMSMapView view) {
+//		super(true);
 		smsMapView = view;
 	}
 
@@ -70,7 +71,7 @@ public class SMSMapRenderer extends MapRenderer {
 		int nDisplayable = (smsMapView.getHeight() - y) / (smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing());
 
 		if (menu.getItemCount() > 0) {
-			int current = smsMapView.getScrollPos();
+			int current = smsMapView.getScrollPos(player.getName());
 			for (int n = 0; n < nDisplayable; n++) {
 				String lineText = menu.getItem(current).getLabel();
 				if (n == 0) {

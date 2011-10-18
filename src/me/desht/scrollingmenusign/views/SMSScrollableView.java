@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.views;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 
@@ -9,7 +10,8 @@ import org.bukkit.configuration.ConfigurationSection;
 
 public abstract class SMSScrollableView extends SMSView {
 
-	private int scrollPos;
+	private int lastScrollPos;
+	private final Map<String,Integer> playerScrollPos = new HashMap<String, Integer>();
 
 	public SMSScrollableView(SMSMenu menu) {
 		this(null, menu);
@@ -17,71 +19,127 @@ public abstract class SMSScrollableView extends SMSView {
 	
 	public SMSScrollableView(String name, SMSMenu menu) {
 		super(name, menu);
-		scrollPos = 1;
+		lastScrollPos = 1;
 	}
 
 	@Override
 	public Map<String, Object> freeze() {
 		Map<String, Object> map = super.freeze();
 
-		map.put("scrollPos", scrollPos);
+//		map.put("scrollPos", defaultScrollPos);
 		
 		return map;
 	}
 	
 	protected void thaw(ConfigurationSection node) {
-		scrollPos = node.getInt("scrollPos", 1);
-		if (scrollPos < 1 || scrollPos > getMenu().getItemCount())
-			scrollPos = 1;
+		lastScrollPos = node.getInt("scrollPos", 1);
+		if (lastScrollPos < 1 || lastScrollPos > getMenu().getItemCount())
+			lastScrollPos = 1;
 	}
 
 	/**
-	 * Get the scroll position (currently-selected item) for this view.  If the scroll position
+	 * Get the default scroll position (currently-selected item) for this view.  If the scroll position
 	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
 	 * adjusted to be in range before being returned.
 	 * 
 	 * @return	The scroll position
 	 */
 	public int getScrollPos() {
-		if (scrollPos < 1)
+		if (lastScrollPos < 1)
 			setScrollPos(1);
-		else if (scrollPos > getMenu().getItemCount())
+		else if (lastScrollPos > getMenu().getItemCount())
 			setScrollPos(getMenu().getItemCount());
 		
-		return scrollPos;
+		return lastScrollPos;
+	}
+	
+	/**
+	 * Get the given player's scroll position (currently-selected item) for this view.  If the scroll position
+	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
+	 * adjusted to be in range before being returned.
+	 * 
+	 * @param playerName	The player to check
+	 * @return				The scroll position
+	 */
+	public int getScrollPos(String playerName) {
+		if (!playerScrollPos.containsKey(playerName) || playerScrollPos.get(playerName) < 1) {
+			setScrollPos(playerName, 1);
+		} else if (playerScrollPos.get(playerName) > getMenu().getItemCount())
+			setScrollPos(playerName, getMenu().getItemCount());
+		
+		return playerScrollPos.get(playerName);
 	}
 
 	/**
-	 * Set the scroll position (currently-selected item) for this view
+	 * Set the default scroll position (currently-selected item) for this view.
 	 * 
 	 * @param scrollPos	The scroll position
 	 */
 	public void setScrollPos(int scrollPos) {
-		this.scrollPos = scrollPos;
+		this.lastScrollPos = scrollPos;
 		setDirty(true);
 	}
 
 	/**
-	 * Set the currently selected item for this sign to the next item.
+	 * Sets the scroll position for the given player on this view.
+	 * 
+	 * @param playerName	The player's name
+	 * @param scrollPos		The scroll position
 	 */
-	public void scrollDown() {
-		scrollPos++;
-		if (scrollPos > getMenu().getItemCount())
-			scrollPos = 1;
+	public void setScrollPos(String playerName, int scrollPos) {
+		playerScrollPos.put(playerName, scrollPos);
+		lastScrollPos = scrollPos;
 		setDirty(true);
 	}
 
 	/**
-	 * Set the currently selected item for this sign to the previous item.
+	 * Set the currently selected item for this view to the next item.
 	 */
-	public void scrollUp() {
+//	public void scrollDown() {
+//		scrollPos++;
+//		if (scrollPos > getMenu().getItemCount())
+//			scrollPos = 1;
+//		setDirty(true);
+//	}
+	
+	/**
+	 * Sets the current selected item for the given player to the previous item.
+	 * 
+	 * @param playerName	The player to scroll the view for
+	 */
+	public void scrollDown(String playerName) {
+		int pos = getScrollPos(playerName) + 1;
+		if (pos > getMenu().getItemCount())
+			pos = 1;
+		setScrollPos(playerName, pos);
+	}
+
+	/**
+	 * Set the currently selected item for this view to the previous item.
+	 */
+//	public void scrollUp() {
+//		if (getMenu().getItemCount() == 0)
+//			return;
+//		
+//		scrollPos--;
+//		if (scrollPos <= 0)
+//			scrollPos = getMenu().getItemCount();
+//		setDirty(true);
+//	}
+	
+	/**
+	 * Sets the current selected item for the given player to the previous item.
+	 * 
+	 * @param playerName	The player to scroll the view for
+	 */
+	public void scrollUp(String playerName) {
 		if (getMenu().getItemCount() == 0)
 			return;
 		
-		scrollPos--;
-		if (scrollPos <= 0)
-			scrollPos = getMenu().getItemCount();
-		setDirty(true);
+		int pos = getScrollPos(playerName) - 1;
+		if (pos <= 0)
+			pos = getMenu().getItemCount();
+		setScrollPos(playerName, pos);
 	}
 	
 	@Override
