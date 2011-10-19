@@ -57,9 +57,9 @@ public class ShowMenuCommand extends AbstractCommand {
 			MessagePager.add(player, " Default command: &f" + menu.getDefaultCommand());
 		}
 		if (view != null) {
-			String vo = view.getOwner().isEmpty() ? "(no one)" : view.getOwner();
+			String owner = view.getAttributeAsString("owner");
 			MessagePager.add(player, String.format("View &e%s&-, Owner &e%s&-",
-			                                       view.getName(), vo));
+			                                       view.getName(), owner.isEmpty() ? "(no one)" : owner));
 		}
 		
 		List<SMSMenuItem> items = menu.getItems();

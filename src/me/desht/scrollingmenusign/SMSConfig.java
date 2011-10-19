@@ -220,6 +220,8 @@ public class SMSConfig {
 			List<String>list = new ArrayList<String>(1);
 			list.add(val);
 			handleListValue(config, key, list);
+		} else if (defaults.get(key) instanceof String) {
+			config.set(key, val);
 		} else {
 			// the class we're converting to needs to have a constructor taking a single String argument
 			try {

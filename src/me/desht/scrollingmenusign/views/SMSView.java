@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
@@ -19,7 +21,6 @@ import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
@@ -44,9 +45,9 @@ public abstract class SMSView implements Observer, Freezable {
 	private final Set<Location> locations = new HashSet<Location>();
 	private String name;
 	private boolean autosave;
-	private String owner;
+	//	private String owner;
 	private boolean dirty;
-	private Configuration attributes;
+	private Configuration attributes;	// view attributes to be displayed and/or edited by players
 
 	@Override
 	public abstract void update(Observable menu, Object arg1);
@@ -65,13 +66,12 @@ public abstract class SMSView implements Observer, Freezable {
 		this.menu = menu;
 		this.dirty = true;
 		this.autosave = SMSConfig.getConfig().getBoolean("sms.autosave", true);
-		this.owner = "";	// unowned by default
 		this.attributes = new YamlConfiguration();
 
 		menu.addObserver(this);
 
-		attributes.addDefault("owner", "");
-		
+		registerAttribute("owner", "");
+
 		registerView();
 	}
 
@@ -133,7 +133,11 @@ public abstract class SMSView implements Observer, Freezable {
 		map.put("name", name);
 		map.put("menu", menu.getName());
 		map.put("class", getClass().getName());
-		map.put("owner", owner);
+		for (String key : listAttributeKeys(false)) {
+			System.out.println("freeze attr " + getName() + " - " + key + " = " + attributes.get(key).toString());
+			map.put(key, attributes.get(key).toString());
+		}
+		//		map.put("owner", owner);
 		List<List<Object>> locs = new ArrayList<List<Object>>();
 		for (Location l: getLocations()) {
 			locs.add(freezeLocation(l));
@@ -170,14 +174,14 @@ public abstract class SMSView implements Observer, Freezable {
 		this.dirty = dirty;
 	}
 
-	public String getOwner() {
-		return owner;
-	}
-
-	public void setOwner(String owner) {
-		this.owner = owner;
-		update(getMenu(), SMSMenuAction.REPAINT);
-	}
+	//	public String getOwner() {
+	//		return owner;
+	//	}
+	//
+	//	public void setOwner(String owner) {
+	//		this.owner = owner;
+	//		update(getMenu(), SMSMenuAction.REPAINT);
+	//	}
 
 	/**
 	 * Get a set of all locations for this view.  Views may have zero or more locations (e.g. a sign
@@ -232,7 +236,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 	public void screenClosed() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	void registerView() {
@@ -357,8 +361,14 @@ public abstract class SMSView implements Observer, Freezable {
 			return true;
 		if (player.hasPermission("scrollingmenusign.useAnyView"))
 			return true;
-		if (getOwner().isEmpty() || getOwner().equalsIgnoreCase(player.getName()))
-			return true;
+		try {
+			String owner = getAttributeAsString("owner");
+			if (owner.isEmpty() || owner.equalsIgnoreCase(player.getName()))
+				return true;
+		} catch (SMSException e) {
+			// shouldn't happen, owner should always be present
+			MiscUtil.log(Level.WARNING, "missing owner attribute for view " + getName());
+		}
 		return false;
 	}
 
@@ -385,8 +395,14 @@ public abstract class SMSView implements Observer, Freezable {
 				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
 				v.addLocation(loc);
 			}
-			v.setOwner(node.getString("owner", ""));
+			for (String k : node.getKeys(false)) {
+				if (v.hasAttribute(k)) {
+					SMSConfig.setConfigItem(v.getAttributes(), k, node.getString(k));
+					v.setAttribute(k, node.getString(k));
+				}
+			}
 			v.thaw(node);
+
 			v.setAutosave(true);
 			return v;
 		} catch (ClassNotFoundException e) {
@@ -415,6 +431,45 @@ public abstract class SMSView implements Observer, Freezable {
 			MiscUtil.log(Level.WARNING, "invocation target exception while loading view " + viewName + ": " + e.getMessage());
 		}
 		return null;
+	}
+
+	protected void registerAttribute(String attr, Object def) {
+		attributes.addDefault(attr, def);
+	}
+	
+	public Configuration getAttributes() {
+		return attributes;
+	}
+
+	public Object getAttribute(String k) throws SMSException {
+		if (!attributes.getDefaults().contains(k)) {
+			throw new SMSException("No such attribute " + k);
+		}
+		return attributes.get(k);
+	}
+
+	public String getAttributeAsString(String k) throws SMSException {
+		if (!attributes.getDefaults().contains(k)) {
+			throw new SMSException("No such attribute " + k);
+		}
+		return attributes.get(k).toString();
+	}
+
+	public void setAttribute(String k, String val) throws SMSException {
+		SMSConfig.setConfigItem(attributes, k, val);
+	}
+
+	public boolean hasAttribute(String k) {
+		return attributes.getDefaults().contains(k);
+	}
+
+	public Set<String> listAttributeKeys(boolean isSorted) {
+		if (isSorted) {
+			SortedSet<String> sorted = new TreeSet<String>(attributes.getDefaults().getKeys(false));
+			return sorted;
+		} else {
+			return attributes.getDefaults().getKeys(false);
+		}
 	}
 	
 	/**

@@ -29,46 +29,57 @@ public class SMSSpoutView extends SMSScrollableView {
 	// map a set of keypresses to the view which handles them
 	private static final Map<String, String> keyMap = new HashMap<String, String>();
 
-	private SMSSpoutKeyMap activationKeys;
+//	private SMSSpoutKeyMap activationKeys;
 
 	public SMSSpoutView(String name, SMSMenu menu) {
 		super(name, menu);
-
-		activationKeys = new SMSSpoutKeyMap("");
+		
+//		activationKeys = new SMSSpoutKeyMap();
+		
+		registerAttribute("spoutkeys", new SMSSpoutKeyMap());
+		registerAttribute("autopopdown", false);
 	}
 
 	public SMSSpoutView(SMSMenu menu) {
 		this(null, menu);
 	}
 
-	public SMSSpoutKeyMap getActivationKeys() {
-		return activationKeys;
-	}
-
-	public void setActivationKeys(SMSSpoutKeyMap activationKeys) throws SMSException {
-		this.activationKeys = activationKeys;
-		String s = activationKeys.toString();
-
-		if (keyMap.containsKey(s) && !getName().equals(keyMap.get(s)))
-			throw new SMSException("This key mapping is already used by the view: " + keyMap.get(s));
-
-		keyMap.put(s, this.getName());
-	}
+//	public SMSSpoutKeyMap getActivationKeys() {
+//		return activationKeys;
+//	}
+//
+//	public void setActivationKeys(SMSSpoutKeyMap activationKeys) throws SMSException {
+//		this.activationKeys = activationKeys;
+//		
+//		String s = activationKeys.toString();
+//		
+//		setAttribute("spoutkeys", s);
+//		
+//		if (keyMap.containsKey(s) && !getName().equals(keyMap.get(s)))
+//			throw new SMSException("This key mapping is already used by the view: " + keyMap.get(s));
+//
+//		keyMap.put(s, this.getName());
+//	}
 
 	@Override
 	public Map<String, Object> freeze() {
 		Map<String, Object> map = super.freeze();
 
-		map.put("activationKeys", activationKeys.toString());
+//		map.put("activationKeys", activationKeys.toString());
 
 		return map;
 	}
 
 	protected void thaw(ConfigurationSection node) {
+//		try {
+//			setActivationKeys(new SMSSpoutKeyMap(node.getString("activationKeys")));
+//		} catch (SMSException e) {
+//			MiscUtil.log(Level.WARNING, "Exception caught while thawing spout view '" + getName() + "': " + e.getMessage());
+//		}
 		try {
-			setActivationKeys(new SMSSpoutKeyMap(node.getString("activationKeys")));
+			keyMap.put(getAttributeAsString("spoutkeys"), getName());
 		} catch (SMSException e) {
-			MiscUtil.log(Level.WARNING, "Exception caught while thawing spout view '" + getName() + "': " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "Can't find spoutkeys attribute in spoutview " + getName());
 		}
 	}
 
@@ -197,7 +208,7 @@ public class SMSSpoutView extends SMSScrollableView {
 			if (e.getValue().isPoppedUp()) {
 				hideGUI(e.getValue().getPlayer());
 			}
-		}
+		};
 		super.deletePermanent();
 	}
 
