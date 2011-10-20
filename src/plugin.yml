@@ -1,6 +1,6 @@
 name: ScrollingMenuSign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
-version: 0.8.1
+version: 0.8.999
 softdepend: [ Spout, Register, PermissionsEx, bPermissions, PermissionsBukkit ]
 commands:
   sms:

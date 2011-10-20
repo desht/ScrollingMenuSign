@@ -42,7 +42,7 @@ public class SMSSpoutKeyListener extends InputListener {
 			pressed.add(event.getKey());
 		}
 
-		// don't actually do any action unless we're on the game screen or a custom screen we created
+		// only interested in keypresses on the main screen or one of our custom popups
 		if (event.getScreenType() != ScreenType.GAME_SCREEN && event.getScreenType() != ScreenType.CUSTOM_SCREEN)
 			return;
 
@@ -52,6 +52,7 @@ public class SMSSpoutKeyListener extends InputListener {
 				return;
 			}
 
+			// otherwise, check for use of the scroll/execute keys on a targeted view
 			SMSView view = findViewForPlayer(player);
 			if (view != null) {			
 				SMSUserAction action = getAction(pressed);

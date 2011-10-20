@@ -336,9 +336,10 @@ public class SMSMenu extends Observable implements Freezable {
 			index = Integer.parseInt(wanted);
 		} catch (NumberFormatException e) {
 			// not an integer - try to remove by label
+			String wantedClean = MiscUtil.deColourise(wanted);
 			for (int i = 0; i < items.size(); i++) {
 				String label = MiscUtil.deColourise(items.get(i).getLabel());
-				if (wanted.equalsIgnoreCase(label)) {
+				if (wantedClean.equalsIgnoreCase(label)) {
 					index = i + 1;
 					break;
 				}

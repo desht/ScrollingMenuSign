@@ -35,32 +35,11 @@ public class ViewCommand extends AbstractCommand {
 		
 		if (args.length == 3) {
 			view.setAttribute(attr, args[2]);
+			view.autosave();
 		}
+		
 		MiscUtil.statusMessage(player, String.format("&e%s.%s&- = &e%s&-", view.getName(), attr, view.getAttributeAsString(attr)));
-			
-//		if (attr.equalsIgnoreCase("owner")) {
-//			if (val != null) {
-//				view.setOwner(val);
-//			}
-//			String vo = view.getOwner().isEmpty() ? "(no one)" : view.getOwner();
-//			MiscUtil.statusMessage(player, view.getName() + ".owner = &e" + vo);
-//		} else if (attr.equalsIgnoreCase("spoutkeys")) {
-//			if (view instanceof SMSSpoutView) {
-//				SMSSpoutView spv = (SMSSpoutView) view;
-//				if (val != null) {
-//					try {
-//						spv.setActivationKeys(new SMSSpoutKeyMap(val));
-//					} catch (IllegalArgumentException e) {
-//						throw new SMSException("Bad Spout key definition: " + val);
-//					}
-//				}
-//				MiscUtil.statusMessage(player, view.getName() + ".spoutkeys = &e" + spv.getActivationKeys());
-//			} else {
-//				throw new SMSException("This view type doesn't support the 'spoutkeys' attribute");
-//			}
-//		} else {
-//			throw new SMSException("Unknown attribute '" + attr + "'.");
-//		}
+
 		return true;
 	}
 

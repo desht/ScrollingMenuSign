@@ -93,6 +93,7 @@ public enum SMSUserAction {
 			if (item != null) {
 				item.execute(player);
 				item.feedbackMessage(player);
+				view.onExecuted(player);
 			}
 			break;
 		case SCROLLDOWN:

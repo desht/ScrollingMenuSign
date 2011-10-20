@@ -7,7 +7,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 import me.desht.scrollingmenusign.SMSException;
@@ -20,6 +21,10 @@ import me.desht.util.MiscUtil;
 
 public class SMSSpoutView extends SMSScrollableView {
 
+	// attributes
+	protected static final String AUTOPOPDOWN = "autopopdown";
+	protected static final String SPOUTKEYS = "spoutkeys";
+
 	// list of all popups which are active at this time, keyed by player name
 	private static final Map<String, ItemListGUI> activePopups = new HashMap<String, ItemListGUI>();
 
@@ -29,60 +34,30 @@ public class SMSSpoutView extends SMSScrollableView {
 	// map a set of keypresses to the view which handles them
 	private static final Map<String, String> keyMap = new HashMap<String, String>();
 
-//	private SMSSpoutKeyMap activationKeys;
-
+	/**
+	 * Construct a new SMSSPoutView object
+	 * 
+	 * @param name	The view name
+	 * @param menu	The menu to attach the object to
+	 */
 	public SMSSpoutView(String name, SMSMenu menu) {
 		super(name, menu);
 		
-//		activationKeys = new SMSSpoutKeyMap();
-		
-		registerAttribute("spoutkeys", new SMSSpoutKeyMap());
-		registerAttribute("autopopdown", false);
+		registerAttribute(SPOUTKEYS, new SMSSpoutKeyMap());
+		registerAttribute(AUTOPOPDOWN, true);
 	}
 
 	public SMSSpoutView(SMSMenu menu) {
 		this(null, menu);
 	}
 
-//	public SMSSpoutKeyMap getActivationKeys() {
-//		return activationKeys;
-//	}
-//
-//	public void setActivationKeys(SMSSpoutKeyMap activationKeys) throws SMSException {
-//		this.activationKeys = activationKeys;
-//		
-//		String s = activationKeys.toString();
-//		
-//		setAttribute("spoutkeys", s);
-//		
-//		if (keyMap.containsKey(s) && !getName().equals(keyMap.get(s)))
-//			throw new SMSException("This key mapping is already used by the view: " + keyMap.get(s));
-//
-//		keyMap.put(s, this.getName());
-//	}
-
-	@Override
-	public Map<String, Object> freeze() {
-		Map<String, Object> map = super.freeze();
-
-//		map.put("activationKeys", activationKeys.toString());
-
-		return map;
-	}
-
-	protected void thaw(ConfigurationSection node) {
-//		try {
-//			setActivationKeys(new SMSSpoutKeyMap(node.getString("activationKeys")));
-//		} catch (SMSException e) {
-//			MiscUtil.log(Level.WARNING, "Exception caught while thawing spout view '" + getName() + "': " + e.getMessage());
-//		}
-		try {
-			keyMap.put(getAttributeAsString("spoutkeys"), getName());
-		} catch (SMSException e) {
-			MiscUtil.log(Level.WARNING, "Can't find spoutkeys attribute in spoutview " + getName());
-		}
-	}
-
+	// NOTE: explicit freeze() and thaw() methods not needed.  No new object fields which are not attributes.
+	
+	/**
+	 * Show the given player's GUI for this view.
+	 * 
+	 * @param sp
+	 */
 	public void showGUI(SpoutPlayer sp) {
 		if (!popups.containsKey(sp.getName())) {
 			// create a new gui for this player
@@ -94,6 +69,11 @@ public class SMSSpoutView extends SMSScrollableView {
 		gui.popup();
 	}
 
+	/**
+	 * Hide the given player's GUI for this view.
+	 * 
+	 * @param sp	The Spout player
+	 */
 	public void hideGUI(SpoutPlayer sp) {
 		if (!popups.containsKey(sp.getName())) {
 			return;
@@ -106,6 +86,12 @@ public class SMSSpoutView extends SMSScrollableView {
 		//		popups.remove(sp.getName());
 	}
 
+	/**
+	 * Toggle the given player's visibility of the GUI for this view.  If a GUI for a different view
+	 * is currently showing, pop that one down, and pop this one up.
+	 * 
+	 * @param sp	The Spout player
+	 */
 	public void toggleGUI(final SpoutPlayer sp) {
 		if (hasActiveGUI(sp)) {
 			ItemListGUI gui = getActiveGUI(sp);
@@ -128,6 +114,9 @@ public class SMSSpoutView extends SMSScrollableView {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
+	 */
 	@Override
 	public void update(Observable menu, Object arg1) {
 		for (ItemListGUI gui : popups.values()) {
@@ -135,48 +124,105 @@ public class SMSSpoutView extends SMSScrollableView {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#getType()
+	 */
 	@Override
 	public String getType() {
 		return "spout";
-	}
-
-	@Override
-	public void setScrollPos(int scrollPos) {
-		super.setScrollPos(scrollPos);
-		update(getMenu(), SMSMenuAction.REPAINT);
-	}
-
-	@Override
-	public void scrollDown(String playerName) {
-		super.scrollDown(playerName);
-		update(getMenu(), SMSMenuAction.REPAINT);
-	}
-
-	@Override
-	public void scrollUp(String playerName) {
-		super.scrollUp(playerName);
-		update(getMenu(), SMSMenuAction.REPAINT);
-	}
-
-	public static boolean hasActiveGUI(SpoutPlayer sp) {
-		return activePopups.containsKey(sp.getName());
-	}
-
-	public static ItemListGUI getActiveGUI(SpoutPlayer sp) {
-		return activePopups.get(sp.getName());
-	}
-
-	public static SMSView addSpoutViewToMenu(SMSMenu menu) {
-		SMSView view = new SMSSpoutView(menu);
-		view.update(menu, SMSMenuAction.REPAINT);
-		return view;
 	}
 
 	public String toString() {
 		return "spout (" + popups.size() + " popups created)";
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#deletePermanent()
+	 */
+	@Override
+	public void deletePermanent() {
+		for (Entry<String, ItemListGUI> e : popups.entrySet()) {
+			if (e.getValue().isPoppedUp()) {
+				hideGUI(e.getValue().getPlayer());
+			}
+		};
+		super.deletePermanent();
+	}
+
+	private void screenClosed(String playerName) {
+		// popups.remove(playerName);
+	}
+
+	@Override
+	protected void onAttributeChanged(String attribute, String oldVal, String newVal) {
+		super.onAttributeChanged(attribute, oldVal, newVal);
+		
+		if (attribute.equals(SPOUTKEYS)) {
+			keyMap.remove(oldVal);
+			if (!newVal.isEmpty()) {
+				keyMap.put(newVal, getName());
+			}
+		}
+	}
+
+	@Override
+	public void onExecuted(Player player) {
+		super.onExecuted(player);
+		
+		try {
+			boolean popdown = (Boolean) getAttribute(AUTOPOPDOWN);
+			if (popdown) {
+				hideGUI(SpoutManager.getPlayer(player));
+			}
+		} catch (SMSException e) {
+			// shouldn't get here - we should always have a autopopdown attribute
+			MiscUtil.log(Level.WARNING, "can't find popdown attribute in view " + getName());
+		}
+	}
+
+	/**
+	 * Check if the given player has an active GUI
+	 * 
+	 * @param sp	The Spout player to check for
+	 * @return		True if a GUI is currently popped up, false otherwise
+	 */
+	public static boolean hasActiveGUI(SpoutPlayer sp) {
+		return activePopups.containsKey(sp.getName());
+	}
+
+	/**
+	 * Get the active GUI for the given player, if any.
+	 * 
+	 * @param sp	The Spout player to check for
+	 * @return		The GUI object if one is currently popped up, null otherwise
+	 */
+	public static ItemListGUI getActiveGUI(SpoutPlayer sp) {
+		return activePopups.get(sp.getName());
+	}
+
+	/**
+	 * Convenience method.  Create a new spout view and add it to the given menu.
+	 * 
+	 * @param menu	The menu to add the view to
+	 * @return		The view that was just created
+	 */
+	public static SMSView addSpoutViewToMenu(SMSMenu menu) {
+		SMSView view = new SMSSpoutView(menu);
+		view.update(menu, SMSMenuAction.REPAINT);
+		return view;
+	}
+
+	/**
+	 * A Spout keypress event was received.
+	 * 
+	 * @param sp		The Spout player who pressed the key(s)
+	 * @param pressed	Represents the set of keys currently pressed
+	 * @return			True if a spout view was actually popped up or down, false otherwise
+	 */
 	public static boolean handleKeypress(SpoutPlayer sp, SMSSpoutKeyMap pressed) {
+		if (pressed.keysPressed() == 0)
+			return false;
+		
 		String s = pressed.toString();
 
 		String viewName = keyMap.get(s);
@@ -200,20 +246,6 @@ public class SMSSpoutView extends SMSScrollableView {
 		}
 
 		return false;
-	}
-
-	@Override
-	public void deletePermanent() {
-		for (Entry<String, ItemListGUI> e : popups.entrySet()) {
-			if (e.getValue().isPoppedUp()) {
-				hideGUI(e.getValue().getPlayer());
-			}
-		};
-		super.deletePermanent();
-	}
-
-	private void screenClosed(String playerName) {
-		//		popups.remove(playerName);
 	}
 
 	/**

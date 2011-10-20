@@ -62,8 +62,8 @@ public class SMSConfig {
 	}
 
 	private static void initConfigFile() {
-		Boolean saveNeeded = false;
-		ScrollingMenuSign.getInstance().getConfig().options().copyDefaults(true);
+		boolean saveNeeded = false;
+		getConfig().options().copyDefaults(true);
 		Configuration config = ScrollingMenuSign.getInstance().getConfig();
 		
 		for (String k : getConfig().getDefaults().getKeys(true)) {
@@ -85,7 +85,7 @@ public class SMSConfig {
 			String user = getConfig().getString("sms.elevation_user", "&SMS");
 			List<String> nodes = PermissionsUtils.getPermissionNodes(user, null);
 			getConfig().set("sms.elevation.nodes", nodes);
-			MiscUtil.log(Level.INFO, "Migrated " + nodes.size() + " permissions nodes from " + user + " to  elevation.nodes config item");
+			MiscUtil.log(Level.INFO, "Migrated " + nodes.size() + " permissions nodes from " + user + " to elevation.nodes config item");
 			saveNeeded = true;
 		}
 		
@@ -244,10 +244,10 @@ public class SMSConfig {
 	
 	public static void setConfigItem(Configuration config, String key, List<String> list) throws SMSException {
 		if (config.getDefaults().get(key) == null) {
-			throw new SMSException("No such config key '" + key + "'");
+			throw new SMSException("No such key '" + key + "'");
 		}
 		if (!(config.getDefaults().get(key) instanceof List<?>))
-			throw new SMSException("Config item '" + key + "' does not accept a list of values");
+			throw new SMSException("Key '" + key + "' does not accept a list of values");
 		
 		handleListValue(config, key, list);
 	}

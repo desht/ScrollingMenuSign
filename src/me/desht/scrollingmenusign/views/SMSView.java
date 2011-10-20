@@ -21,6 +21,7 @@ import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
@@ -36,6 +37,9 @@ import org.bukkit.entity.Player;
  */
 public abstract class SMSView implements Observer, Freezable {
 
+	// attributes
+	protected static final String OWNER = "owner";
+	
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
 	private static final Map<Location, SMSView> allViewLocations = new HashMap<Location, SMSView>();
 
@@ -54,6 +58,13 @@ public abstract class SMSView implements Observer, Freezable {
 
 	protected abstract void thaw(ConfigurationSection node);
 
+	/**
+	 * Get a user-friendly string representing the type of this view.
+	 * 
+	 * @return	The type of view this is.
+	 */
+	public abstract String getType();
+
 	public SMSView(SMSMenu menu) {
 		this(null, menu);
 	}
@@ -70,7 +81,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 		menu.addObserver(this);
 
-		registerAttribute("owner", "");
+		registerAttribute(OWNER, "");
 
 		registerView();
 	}
@@ -134,10 +145,9 @@ public abstract class SMSView implements Observer, Freezable {
 		map.put("menu", menu.getName());
 		map.put("class", getClass().getName());
 		for (String key : listAttributeKeys(false)) {
-			System.out.println("freeze attr " + getName() + " - " + key + " = " + attributes.get(key).toString());
+//			System.out.println("freeze attr " + getName() + " - " + key + " = " + attributes.get(key).toString());
 			map.put(key, attributes.get(key).toString());
 		}
-		//		map.put("owner", owner);
 		List<List<Object>> locs = new ArrayList<List<Object>>();
 		for (Location l: getLocations()) {
 			locs.add(freezeLocation(l));
@@ -229,7 +239,7 @@ public abstract class SMSView implements Observer, Freezable {
 		autosave();
 	}
 
-	void autosave() {
+	public void autosave() {
 		if (isAutosave() && SMSView.checkForView(getName()))
 			SMSPersistence.save(this);
 	}
@@ -357,12 +367,12 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @return	True if the player may use this view, false if not
 	 */
 	public boolean allowedToUse(Player player) {
-		if (SMSConfig.getConfig().getBoolean("sms.use_any_view", true))
+		if (SMSConfig.getConfig().getBoolean("sms.use_any_view"))
 			return true;
 		if (player.hasPermission("scrollingmenusign.useAnyView"))
 			return true;
 		try {
-			String owner = getAttributeAsString("owner");
+			String owner = getAttributeAsString(OWNER);
 			if (owner.isEmpty() || owner.equalsIgnoreCase(player.getName()))
 				return true;
 		} catch (SMSException e) {
@@ -456,7 +466,9 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 
 	public void setAttribute(String k, String val) throws SMSException {
+		String oldVal = getAttributeAsString(k);
 		SMSConfig.setConfigItem(attributes, k, val);
+		onAttributeChanged(k, oldVal, attributes.get(k).toString());
 	}
 
 	public boolean hasAttribute(String k) {
@@ -473,9 +485,20 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 	
 	/**
-	 * Get a user-friendly string representing the type of this view.
-	 * 
-	 * @return	The type of view this is.
+	 * Called automatically when an attribute is changed.  Override and extend this
+	 * in subclasses.
 	 */
-	public abstract String getType();
+	protected void onAttributeChanged(String attribute, String oldVal, String newVal) {
+		update(getMenu(), SMSMenuAction.REPAINT);
+	}
+	
+	/**
+	 * Called automatically when the view is used to execute a menu item.  Override and extend this
+	 * subclasses.
+	 * 
+	 * @param player	The player who did the execution
+	 */
+	public void onExecuted(Player player) {
+		System.out.println("executed " + getName());
+	}
 }

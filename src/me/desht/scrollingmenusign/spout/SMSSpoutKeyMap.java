@@ -44,6 +44,10 @@ public class SMSSpoutKeyMap implements ConfigurationSerializable {
 		keys.clear();
 	}
 	
+	public int keysPressed() {
+		return keys.size();
+	}
+	
 	@Override
 	public String toString() {
 		return Joiner.on("+").join(keys);

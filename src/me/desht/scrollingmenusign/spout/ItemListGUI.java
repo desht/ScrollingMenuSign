@@ -9,18 +9,22 @@ import org.getspout.spoutapi.gui.Container;
 import org.getspout.spoutapi.gui.ContainerType;
 import org.getspout.spoutapi.gui.GenericButton;
 import org.getspout.spoutapi.gui.GenericContainer;
+import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.GenericPopup;
+import org.getspout.spoutapi.gui.Label;
 import org.getspout.spoutapi.gui.Widget;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class ItemListGUI extends GenericPopup {
 	private static final int GUTTER_HEIGHT = 2;
 	private static final int BUTTON_HEIGHT = 24;
+	private static final int VIEW_WIDTH = 200;
+	
 	private SpoutPlayer sp;
 	private SMSSpoutView view;
 	private boolean poppedUp;
 
-	private Container itemBox;
+	private Container mainBox, itemBox;
 	
 	public ItemListGUI(SpoutPlayer sp, SMSSpoutView view) {
 		this.sp = sp;
@@ -33,10 +37,15 @@ public class ItemListGUI extends GenericPopup {
 		int maxHeight = (sp.getMainScreen().getHeight() * 90) / 100;
 		int maxButtons = maxHeight / (BUTTON_HEIGHT + GUTTER_HEIGHT);
 		
+		mainBox = new GenericContainer();
+		
+		mainBox.setLayout(ContainerType.VERTICAL);
+		mainBox.setX((sp.getMainScreen().getWidth() - VIEW_WIDTH) / 2).setY(10).setWidth(VIEW_WIDTH).setHeight(maxHeight);
+		
 		itemBox = new GenericContainer();
-		int boxHeight = Math.min(maxHeight, nItems * (BUTTON_HEIGHT + GUTTER_HEIGHT));
-		System.out.println("box height = " + boxHeight + ", max = " + maxHeight);
-		itemBox.setX(20).setY(10).setWidth(200).setHeight(boxHeight);
+//		int boxHeight = Math.min(maxHeight, nItems * (BUTTON_HEIGHT + GUTTER_HEIGHT)) - (BUTTON_HEIGHT + GUTTER_HEIGHT);
+//		System.out.println("box height = " + boxHeight + ", max = " + maxHeight);
+//		itemBox.setX(20).setY(10).setWidth(200); // .setHeight(boxHeight);
 		itemBox.setLayout(ContainerType.VERTICAL);
 		
 		int idx = view.getScrollPos(sp.getName());
@@ -50,7 +59,13 @@ public class ItemListGUI extends GenericPopup {
 				idx = 1;
 		}
 		
-		attachWidget(ScrollingMenuSign.getInstance(), itemBox);
+		Label titleLabel = new GenericLabel(menu.getTitle());
+		titleLabel.setHeight(BUTTON_HEIGHT);
+		titleLabel.setMargin(GUTTER_HEIGHT);
+		mainBox.addChild(titleLabel);
+		mainBox.addChild(itemBox);
+		
+		attachWidget(ScrollingMenuSign.getInstance(), mainBox);
 	}
 
 	public SMSSpoutView getView() {
@@ -78,7 +93,7 @@ public class ItemListGUI extends GenericPopup {
 			for (int i = 0; i < children.length - nItems; i++) {
 				itemBox.removeChild(children[i]);
 			}
-			itemBox.setHeight(Math.min(maxHeight, nItems * (BUTTON_HEIGHT + GUTTER_HEIGHT)));
+//			itemBox.setHeight(Math.min(maxHeight, nItems * (BUTTON_HEIGHT + GUTTER_HEIGHT)));
 		} else if (children.length < nItems && nItems < maxButtons) {
 			// need to increase the number of buttons shown
 			for (int i = 0; i < nItems - children.length; i++) {
@@ -87,7 +102,7 @@ public class ItemListGUI extends GenericPopup {
 				btn.setMargin(GUTTER_HEIGHT);
 				itemBox.addChild(btn);
 			}
-			itemBox.setHeight(Math.min(maxHeight, nItems * (BUTTON_HEIGHT + GUTTER_HEIGHT)));
+//			itemBox.setHeight(Math.min(maxHeight, nItems * (BUTTON_HEIGHT + GUTTER_HEIGHT)));
 		}
 		
 		int idx = view.getScrollPos(sp.getName());

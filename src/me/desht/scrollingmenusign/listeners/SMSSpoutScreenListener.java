@@ -17,7 +17,7 @@ public class SMSSpoutScreenListener extends ScreenListener {
 	
 	@Override
 	public void onScreenClose(ScreenCloseEvent event) {
-		System.out.println("screen closed: " + event.getPlayer() + " - " + event.getScreenType());
+//		System.out.println("screen closed: " + event.getPlayer() + " - " + event.getScreenType());
 		
 		if (event.getScreenType() == ScreenType.CUSTOM_SCREEN && SMSSpoutView.hasActiveGUI(event.getPlayer())) {
 			SMSSpoutView.screenClosed(event.getPlayer());
@@ -28,7 +28,7 @@ public class SMSSpoutScreenListener extends ScreenListener {
 	public void onButtonClick(ButtonClickEvent event) {
 		if (event.getScreenType() == ScreenType.CUSTOM_SCREEN) {
 			String label = event.getButton().getText();
-			System.out.println("button clicked: " + label);
+//			System.out.println("button clicked: " + label);
 			ItemListGUI gui = SMSSpoutView.getActiveGUI(event.getPlayer());
 			if (gui != null) {
 				SMSMenu menu = gui.getView().getMenu();
@@ -36,6 +36,7 @@ public class SMSSpoutScreenListener extends ScreenListener {
 				if (idx > 0 && idx <= menu.getItemCount()) {
 					try {
 						menu.getItem(idx).execute(event.getPlayer());
+						gui.getView().onExecuted(event.getPlayer());
 					} catch (SMSException e) {
 						MiscUtil.statusMessage(event.getPlayer(), e.getMessage());
 					}
