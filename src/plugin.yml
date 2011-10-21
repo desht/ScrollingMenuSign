@@ -68,7 +68,7 @@ permissions:
       scrollingmenusign.execute.elevated: true
       scrollingmenusign.use.sign: true
   scrollingmenusign.maps:
-    description: Allow use of maps (backwards compatible)
+    description: Allow use of maps (backwards compatibility - use scrollingmenusign.use.map now)
     children:
       scrollingmenusign.use.map: true
   scrollingmenusign.commands.create:
@@ -146,9 +146,6 @@ permissions:
   scrollingmenusign.commands.page:
     description: Allows output data to be paged
     default: true
-  scrollingmenusign.maps:
-    description: Allows manipulation of map views
-    default: op
   scrollingmenusign.maps.fromSign:
     description: Allows map views to be copied from sign views
     default: op
