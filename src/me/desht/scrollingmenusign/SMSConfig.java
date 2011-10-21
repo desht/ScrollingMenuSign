@@ -89,8 +89,15 @@ public class SMSConfig {
 			saveNeeded = true;
 		}
 		
-		if (saveNeeded)
+		if (config.contains("sms.use_any_view")) {
+			// migrate the old & confusingly-named "use_any_view" setting
+			config.set("sms.ignore_view_ownership", config.getBoolean("sms.use_any_view"));
+			config.set("sms.use_any_view", null);
+		}
+		
+		if (saveNeeded) {
 			ScrollingMenuSign.getInstance().saveConfig();
+		}
 	}
 
 	public static File getCommandFile() {
@@ -126,7 +133,7 @@ public class SMSConfig {
 		
 		// special hooks
 		 
-		if (key.equalsIgnoreCase("sms.use_any_view")) {
+		if (key.equalsIgnoreCase("sms.ignore_view_ownership")) {
 			// redraw map views
 			for (SMSView v : SMSView.listViews()) {
 				if (v instanceof SMSMapView)
@@ -246,9 +253,9 @@ public class SMSConfig {
 		if (config.getDefaults().get(key) == null) {
 			throw new SMSException("No such key '" + key + "'");
 		}
-		if (!(config.getDefaults().get(key) instanceof List<?>))
+		if (!(config.getDefaults().get(key) instanceof List<?>)) {
 			throw new SMSException("Key '" + key + "' does not accept a list of values");
-		
+		}
 		handleListValue(config, key, list);
 	}
 }

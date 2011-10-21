@@ -27,7 +27,7 @@ sms:
     item_justify: left
     elevation_user: '&SMS'
     no_destroy_signs: false
-    use_any_view: true
+    ignore_view_ownership: true
     elevation:
         nodes:
         - a.sample.permission.node

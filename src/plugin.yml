@@ -71,6 +71,10 @@ permissions:
     description: Allow use of maps (backwards compatibility - use scrollingmenusign.use.map now)
     children:
       scrollingmenusign.use.map: true
+  scrollingmenusign.useAnyView:
+     description: Allows views owned by others to be used (backwards compatibility - use scrollingmenusign.ignoreViewOwnership now)
+     children:
+       scrollingmenusign.ignoreViewOwnership: true
   scrollingmenusign.commands.create:
     description: Allow creation of new menus
     default: op
@@ -158,7 +162,7 @@ permissions:
   scrollingmenusign.execute.elevated:
     description: Allow execution of menu items which bypass permissions checks
     default: true
-  scrollingmenusign.useAnyView:
+  scrollingmenusign.ignoreViewOwnership:
     description: Allows views owned by others to be used (overrides sms.use_any_view config setting)
     default: op
   scrollingmenusign.use.map:

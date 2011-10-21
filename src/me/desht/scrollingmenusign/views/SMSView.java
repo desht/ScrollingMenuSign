@@ -366,9 +366,9 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @return	True if the player may use this view, false if not
 	 */
 	public boolean allowedToUse(Player player) {
-		if (SMSConfig.getConfig().getBoolean("sms.use_any_view"))
+		if (SMSConfig.getConfig().getBoolean("sms.ignore_view_ownership"))
 			return true;
-		if (player.hasPermission("scrollingmenusign.useAnyView"))
+		if (player.hasPermission("scrollingmenusign.ignoreViewOwnership"))
 			return true;
 		try {
 			String owner = getAttributeAsString(OWNER);

@@ -25,8 +25,6 @@ public abstract class SMSScrollableView extends SMSView {
 	@Override
 	public Map<String, Object> freeze() {
 		Map<String, Object> map = super.freeze();
-
-//		map.put("scrollPos", defaultScrollPos);
 		
 		return map;
 	}
@@ -43,7 +41,9 @@ public abstract class SMSScrollableView extends SMSView {
 	 * adjusted to be in range before being returned.
 	 * 
 	 * @return	The scroll position
+	 * @deprecated Use getScrollPos(String playerName)
 	 */
+	@Deprecated
 	public int getScrollPos() {
 		if (lastScrollPos < 1)
 			setScrollPos(1);
@@ -74,7 +74,9 @@ public abstract class SMSScrollableView extends SMSView {
 	 * Set the default scroll position (currently-selected item) for this view.
 	 * 
 	 * @param scrollPos	The scroll position
+	 * @deprecated Use setScrollPos(String playerName, int scrollPos)
 	 */
+	@Deprecated
 	public void setScrollPos(int scrollPos) {
 		this.lastScrollPos = scrollPos;
 		setDirty(true);
@@ -94,13 +96,16 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Set the currently selected item for this view to the next item.
+	 * 
+	 * @deprecated Use scrollDown(String playerName)
 	 */
-//	public void scrollDown() {
-//		scrollPos++;
-//		if (scrollPos > getMenu().getItemCount())
-//			scrollPos = 1;
-//		setDirty(true);
-//	}
+	@Deprecated
+	public void scrollDown() {
+		lastScrollPos++;
+		if (lastScrollPos > getMenu().getItemCount())
+			lastScrollPos = 1;
+		setDirty(true);
+	}
 	
 	/**
 	 * Sets the current selected item for the given player to the previous item.
@@ -116,16 +121,19 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Set the currently selected item for this view to the previous item.
+	 * 
+	 * @deprecated Use scrollUp(String playerName)
 	 */
-//	public void scrollUp() {
-//		if (getMenu().getItemCount() == 0)
-//			return;
-//		
-//		scrollPos--;
-//		if (scrollPos <= 0)
-//			scrollPos = getMenu().getItemCount();
-//		setDirty(true);
-//	}
+	@Deprecated
+	public void scrollUp() {
+		if (getMenu().getItemCount() == 0)
+			return;
+		
+		lastScrollPos--;
+		if (lastScrollPos <= 0)
+			lastScrollPos = getMenu().getItemCount();
+		setDirty(true);
+	}
 	
 	/**
 	 * Sets the current selected item for the given player to the previous item.
