@@ -36,19 +36,30 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	/**
-	 * Get the default scroll position (currently-selected item) for this view.  If the scroll position
+	 * Get the last scroll position (currently-selected item) for this view.  If the scroll position
 	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
 	 * adjusted to be in range before being returned.
 	 * 
 	 * @return	The scroll position
-	 * @deprecated Use getScrollPos(String playerName)
+	 * @deprecated Use getLastScrollPos()
 	 */
 	@Deprecated
 	public int getScrollPos() {
+		return getLastScrollPos();
+	}
+	
+	/**
+	 * Get the last scroll position (currently-selected item) for this view.  If the scroll position
+	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
+	 * adjusted to be in range before being returned.
+	 * 
+	 * @return	The scroll position
+	 */
+	public int getLastScrollPos() {
 		if (lastScrollPos < 1)
-			setScrollPos(1);
+			lastScrollPos = 1;
 		else if (lastScrollPos > getMenu().getItemCount())
-			setScrollPos(getMenu().getItemCount());
+			lastScrollPos = getMenu().getItemCount();
 		
 		return lastScrollPos;
 	}
@@ -71,7 +82,7 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	/**
-	 * Set the default scroll position (currently-selected item) for this view.
+	 * Set the last scroll position (currently-selected item) for this view.
 	 * 
 	 * @param scrollPos	The scroll position
 	 * @deprecated Use setScrollPos(String playerName, int scrollPos)
