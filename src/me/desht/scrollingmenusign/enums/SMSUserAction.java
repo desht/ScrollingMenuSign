@@ -79,11 +79,13 @@ public enum SMSUserAction {
 		if (!(view instanceof SMSScrollableView)) {
 			return;
 		}
+		
+		PermissionsUtils.requirePerms(player, "scrollingmenusign.use." + view.getType());
+		
 		SMSScrollableView sview = (SMSScrollableView) view;
 		SMSMenu menu = sview.getMenu();
 		switch (this) {
 		case EXECUTE:
-			PermissionsUtils.requirePerms(player, "scrollingmenusign.use." + view.getType());
 			SMSMenuItem item = menu.getItem(sview.getScrollPos(player.getName()));
 			if (item != null) {
 				item.execute(player);
