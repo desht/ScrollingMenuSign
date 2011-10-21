@@ -52,13 +52,17 @@ public class SMSSpoutView extends SMSScrollableView {
 	}
 
 	// NOTE: explicit freeze() and thaw() methods not needed.  No new object fields which are not attributes.
-	
+
 	/**
 	 * Show the given player's GUI for this view.
 	 * 
 	 * @param sp
 	 */
-	public void showGUI(SpoutPlayer sp) {
+	public void showGUI(Player p) {
+		SpoutPlayer sp = SpoutManager.getPlayer(p);
+		if (!sp.isSpoutCraftEnabled())
+			return;
+		
 		if (!popups.containsKey(sp.getName())) {
 			// create a new gui for this player
 			popups.put(sp.getName(), new ItemListGUI(sp, this));
@@ -74,7 +78,11 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * 
 	 * @param sp	The Spout player
 	 */
-	public void hideGUI(SpoutPlayer sp) {
+	public void hideGUI(Player p) {
+		SpoutPlayer sp = SpoutManager.getPlayer(p);
+		if (!sp.isSpoutCraftEnabled())
+			return;
+		
 		if (!popups.containsKey(sp.getName())) {
 			return;
 		}
@@ -92,7 +100,11 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * 
 	 * @param sp	The Spout player
 	 */
-	public void toggleGUI(final SpoutPlayer sp) {
+	public void toggleGUI(Player p) {
+		final SpoutPlayer sp = SpoutManager.getPlayer(p);
+		if (!sp.isSpoutCraftEnabled())
+			return;
+		
 		if (hasActiveGUI(sp)) {
 			ItemListGUI gui = getActiveGUI(sp);
 			if (gui.getView() != this) {

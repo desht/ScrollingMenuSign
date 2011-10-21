@@ -39,7 +39,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 	// attributes
 	protected static final String OWNER = "owner";
-	
+
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
 	private static final Map<Location, SMSView> allViewLocations = new HashMap<Location, SMSView>();
 
@@ -83,7 +83,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 		registerAttribute(OWNER, "");
 
-//		registerView();
+		//		registerView();
 	}
 
 	private String makeUniqueName(String base) {
@@ -145,7 +145,7 @@ public abstract class SMSView implements Observer, Freezable {
 		map.put("menu", menu.getName());
 		map.put("class", getClass().getName());
 		for (String key : listAttributeKeys(false)) {
-//			System.out.println("freeze attr " + getName() + " - " + key + " = " + attributes.get(key).toString());
+			//			System.out.println("freeze attr " + getName() + " - " + key + " = " + attributes.get(key).toString());
 			map.put(key, attributes.get(key).toString());
 		}
 		List<List<Object>> locs = new ArrayList<List<Object>>();
@@ -184,14 +184,23 @@ public abstract class SMSView implements Observer, Freezable {
 		this.dirty = dirty;
 	}
 
-	//	public String getOwner() {
-	//		return owner;
-	//	}
-	//
-	//	public void setOwner(String owner) {
-	//		this.owner = owner;
-	//		update(getMenu(), SMSMenuAction.REPAINT);
-	//	}
+	@Deprecated
+	public String getOwner() {
+		try {
+			return getAttributeAsString(OWNER);
+		} catch (SMSException e) {
+			return "";
+		}
+	}
+
+	@Deprecated
+	public void setOwner(String owner) {
+		try {
+			setAttribute(OWNER, owner);
+		} catch (SMSException e) {
+			// shouldn't get here... ignore it
+		}
+	}
 
 	/**
 	 * Get a set of all locations for this view.  Views may have zero or more locations (e.g. a sign
@@ -239,6 +248,10 @@ public abstract class SMSView implements Observer, Freezable {
 		autosave();
 	}
 
+	/**
+	 * Save this view's contents to disk (if autosaving is enabled, and the view
+	 * is registered).
+	 */
 	public void autosave() {
 		if (isAutosave() && SMSView.checkForView(getName()))
 			SMSPersistence.save(this);
@@ -249,6 +262,9 @@ public abstract class SMSView implements Observer, Freezable {
 
 	}
 
+	/**
+	 * Register this view in the global view list.
+	 */
 	public void register() {
 		if (checkForView(getName())) {
 			throw new IllegalArgumentException("duplicate name: " + getName());
@@ -258,7 +274,6 @@ public abstract class SMSView implements Observer, Freezable {
 		for (Location l : getLocations()) {
 			allViewLocations.put(l, this);
 		}
-		//		System.out.println("registered view " + getName());
 	}
 
 	private void deleteCommon() {
@@ -445,7 +460,7 @@ public abstract class SMSView implements Observer, Freezable {
 	protected void registerAttribute(String attr, Object def) {
 		attributes.addDefault(attr, def);
 	}
-	
+
 	public Configuration getAttributes() {
 		return attributes;
 	}
@@ -482,7 +497,7 @@ public abstract class SMSView implements Observer, Freezable {
 			return attributes.getDefaults().getKeys(false);
 		}
 	}
-	
+
 	/**
 	 * Called automatically when an attribute is changed.  Override and extend this
 	 * in subclasses.
@@ -490,7 +505,7 @@ public abstract class SMSView implements Observer, Freezable {
 	protected void onAttributeChanged(String attribute, String oldVal, String newVal) {
 		update(getMenu(), SMSMenuAction.REPAINT);
 	}
-	
+
 	/**
 	 * Called automatically when the view is used to execute a menu item.  Override and extend this
 	 * subclasses.

@@ -63,7 +63,6 @@ public class AddViewCommand extends AbstractCommand {
 		if (view != null) {
 			MiscUtil.statusMessage(player, String.format("Added %s view &e%s&- to menu &e%s&-.",
 			                                             view.getType(), view.getName(), menu.getName()));
-			view.register();
 		} else {
 			throw new SMSException("Found nothing suitable to add as a menu view");
 		}

@@ -93,6 +93,7 @@ public class SMSConfig {
 			// migrate the old & confusingly-named "use_any_view" setting
 			config.set("sms.ignore_view_ownership", config.getBoolean("sms.use_any_view"));
 			config.set("sms.use_any_view", null);
+			saveNeeded = true;
 		}
 		
 		if (saveNeeded) {

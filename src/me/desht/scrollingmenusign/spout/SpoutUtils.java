@@ -15,11 +15,9 @@ import org.getspout.spoutapi.packet.PacketItemName;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SpoutUtils {
-//	private static final Map<String, Set<Keyboard>> wantedKeys = new HashMap<String, Set<Keyboard>>();
 	private static final Map<String, SMSSpoutKeyMap> wantedKeys = new HashMap<String, SMSSpoutKeyMap>();
 	
 	public static void setSpoutMapName(short mapID, String name) {
-		System.out.println("set map name : " + mapID + ", name = " + name);
 		SpoutManager.getItemManager().setItemName(Material.MAP, mapID, name);
 //		SpoutManager.getMaterialManager().setItemName(???);
 		for (Player p : Bukkit.getServer().getOnlinePlayers()) {

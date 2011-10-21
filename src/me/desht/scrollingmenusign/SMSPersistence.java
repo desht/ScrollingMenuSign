@@ -122,6 +122,7 @@ public class SMSPersistence {
 			if (view != null) {
 				view.getMenu().addObserver(view);
 				view.update(view.getMenu(), SMSMenuAction.REPAINT);
+				view.register();
 			}
 		}
 
