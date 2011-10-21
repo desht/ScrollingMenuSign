@@ -158,6 +158,7 @@ public class SMSSpoutView extends SMSScrollableView {
 		super.onAttributeChanged(attribute, oldVal, newVal);
 		
 		if (attribute.equals(SPOUTKEYS)) {
+			// cache a new stringified key mapping definition for this view
 			keyMap.remove(oldVal);
 			if (!newVal.isEmpty()) {
 				keyMap.put(newVal, getName());
@@ -208,6 +209,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	 */
 	public static SMSView addSpoutViewToMenu(SMSMenu menu) {
 		SMSView view = new SMSSpoutView(menu);
+		view.register();
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
@@ -256,7 +258,6 @@ public class SMSSpoutView extends SMSScrollableView {
 	 */
 	public static void screenClosed(SpoutPlayer player) {
 		String playerName = player.getName();
-		System.out.println("screen closed: remove popup for " + playerName);
 		activePopups.get(playerName).getView().screenClosed(playerName);
 		activePopups.remove(playerName);
 	}

@@ -305,6 +305,7 @@ public class SMSMapView extends SMSScrollableView {
 			throw new SMSException("This map already has a menu view associated with it");
 
 		SMSMapView mapView = new SMSMapView(menu);
+		mapView.register();
 		mapView.setMapId(mapId);
 		mapView.update(menu, SMSMenuAction.REPAINT);
 

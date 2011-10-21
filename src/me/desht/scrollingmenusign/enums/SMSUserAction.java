@@ -5,7 +5,6 @@ import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.PermissionsUtils;
@@ -17,7 +16,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 
 public enum SMSUserAction {
 	NONE, SCROLLDOWN, SCROLLUP, EXECUTE;
-
+	
 	public static SMSUserAction getAction(PlayerInteractEvent event) {
 		StringBuilder key;
 		switch (event.getAction()) {
@@ -77,18 +76,14 @@ public enum SMSUserAction {
 			throw new SMSException("This " + view.getType() + " belongs to someone else.");
 
 		// this method only makes sense for scrollable views
-
-		SMSScrollableView sview;
-		if (view instanceof SMSScrollableView) {
-			sview = (SMSScrollableView) view;
-		} else {
+		if (!(view instanceof SMSScrollableView)) {
 			return;
 		}
+		SMSScrollableView sview = (SMSScrollableView) view;
 		SMSMenu menu = sview.getMenu();
 		switch (this) {
 		case EXECUTE:
-			if (sview instanceof SMSMapView)
-				PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
+			PermissionsUtils.requirePerms(player, "scrollingmenusign.use." + view.getType());
 			SMSMenuItem item = menu.getItem(sview.getScrollPos(player.getName()));
 			if (item != null) {
 				item.execute(player);

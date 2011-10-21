@@ -83,7 +83,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 		registerAttribute(OWNER, "");
 
-		registerView();
+//		registerView();
 	}
 
 	private String makeUniqueName(String base) {
@@ -249,7 +249,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 	}
 
-	void registerView() {
+	public void register() {
 		if (checkForView(getName())) {
 			throw new IllegalArgumentException("duplicate name: " + getName());
 		}
@@ -258,7 +258,6 @@ public abstract class SMSView implements Observer, Freezable {
 		for (Location l : getLocations()) {
 			allViewLocations.put(l, this);
 		}
-
 		//		System.out.println("registered view " + getName());
 	}
 
@@ -499,6 +498,6 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @param player	The player who did the execution
 	 */
 	public void onExecuted(Player player) {
-		System.out.println("executed " + getName());
+		// does nothing
 	}
 }

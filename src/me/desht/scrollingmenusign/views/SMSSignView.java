@@ -208,6 +208,7 @@ public class SMSSignView extends SMSScrollableView {
 	 */
 	public static SMSView addSignToMenu(SMSMenu menu, Location loc) throws SMSException {
 		SMSView view = new SMSSignView(menu, loc);
+		view.register();
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
