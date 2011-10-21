@@ -28,6 +28,7 @@ import me.desht.scrollingmenusign.commands.SetConfigCommand;
 import me.desht.scrollingmenusign.commands.ShowMenuCommand;
 import me.desht.scrollingmenusign.commands.SortMenuCommand;
 import me.desht.scrollingmenusign.commands.ViewCommand;
+import me.desht.scrollingmenusign.expector.ExpectResponse;
 import me.desht.scrollingmenusign.listeners.SMSBlockListener;
 import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
@@ -61,6 +62,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private boolean spoutEnabled = false;
 	private static Method economy = null;
 	private static ScrollingMenuSign instance = null;
+	
+	public final ExpectResponse expecter = new ExpectResponse();
 
 	@Override
 	public void onEnable() {

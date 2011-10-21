@@ -6,7 +6,9 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.ExpectAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
+import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -17,6 +19,7 @@ import me.desht.util.PermissionsUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerListener;
@@ -38,6 +41,23 @@ public class SMSPlayerListener extends PlayerListener {
 
 		Player player = event.getPlayer();
 
+		if (plugin.expecter.isExpecting(player, ExpectAction.CREATE_VIEW)) {
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+				try {
+					ExpectViewCreation c = (ExpectViewCreation) plugin.expecter.getAction(player, ExpectAction.CREATE_VIEW);
+					c.setLoc(block.getLocation());
+					plugin.expecter.handleAction(player, ExpectAction.CREATE_VIEW);
+				} catch (SMSException e) {
+					MiscUtil.errorMessage(player, e.getMessage());
+				}
+			} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				plugin.expecter.cancelAction(player, ExpectAction.CREATE_VIEW);
+				MiscUtil.statusMessage(player, "View creation cancelled.");
+			}
+			event.setCancelled(true);
+			return;
+		}
+		
 		SMSView locView = SMSView.getViewForLocation(block.getLocation());
 		SMSMapView mapView = null;
 		if (player.getItemInHand().getTypeId() == 358) {
