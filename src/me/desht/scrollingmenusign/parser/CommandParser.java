@@ -44,7 +44,7 @@ public class CommandParser {
 	 * @return			A return status indicating the outcome of the command
 	 * @throws SMSException	
 	 */
-	public ReturnStatus runCommandString(Player player, String command) throws SMSException {
+	public ReturnStatus runCommandString(Player player, String command) throws SMSException { 
 		ParsedCommand cmd = handleCommandString(player, command, RunMode.EXECUTE);
 		
 		if (cmd == null) {
@@ -63,7 +63,6 @@ public class CommandParser {
 	}
 
 	ParsedCommand handleCommandString(Player player, String command, RunMode mode) throws SMSException {
-
 		// do some preprocessing ...
 		ItemStack stack =  player.getItemInHand();
 		command = command.replace("<X>", "" + player.getLocation().getBlockX());
@@ -135,14 +134,19 @@ public class CommandParser {
 				return;
 			} else if (SMSMacro.hasMacro(macroName)) {
 				macroHistory.add(macroName);
+				ParsedCommand cmd2 = null;
 				for (String c : SMSMacro.getCommands(macroName)) {
 					for (int i = 0; i < cmd.getArgs().size(); i++) {
 						c = c.replace("<" + (i + 1) + ">", cmd.arg(i));
 					}
-					ParsedCommand cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
+					cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
 					if (cmd2.isMacroStopped())
 						break;
 				}
+				// return status of a macro is the return status of the last command run
+				cmd.setStatus(cmd2 == null ? ReturnStatus.BAD_MACRO : cmd2.getStatus());
+				if (!cmd2.isAffordable())
+					cmd.setStatus(ReturnStatus.CANT_AFFORD);
 				return;
 			} else {
 				cmd.setStatus(ReturnStatus.BAD_MACRO);
