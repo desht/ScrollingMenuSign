@@ -69,11 +69,11 @@ public class ParsedCommand {
 				if (!restrictionCheck(player, token.substring(1))) {
 					restricted = true;
 				}
-			} else if (token.equals("$$$")) {
+			} else if (token.equals("$$$") && !restricted && affordable) {
 				// command terminator, and stop any macro too
 				macroStopped = true;
 				return;
-			} else if (token.equals("$$")) {
+			} else if (token.equals("$$") && !restricted && affordable) {
 				// command terminator - run command and finish
 				commandStopped = true;
 				return;

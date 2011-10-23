@@ -135,14 +135,18 @@ public class CommandParser {
 				return;
 			} else if (SMSMacro.hasMacro(macroName)) {
 				macroHistory.add(macroName);
+				ParsedCommand cmd2 = null;
 				for (String c : SMSMacro.getCommands(macroName)) {
 					for (int i = 0; i < cmd.getArgs().size(); i++) {
 						c = c.replace("<" + (i + 1) + ">", cmd.arg(i));
 					}
-					ParsedCommand cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
+					cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
 					if (cmd2.isMacroStopped())
 						break;
 				}
+				cmd.setStatus(cmd2 == null ? ReturnStatus.BAD_MACRO : cmd.getStatus());
+				if (!cmd2.isAffordable())
+					cmd.setStatus(ReturnStatus.CANT_AFFORD);
 				return;
 			} else {
 				cmd.setStatus(ReturnStatus.BAD_MACRO);
