@@ -24,7 +24,7 @@ public class SMSMapRenderer extends MapRenderer {
 	SMSMapView smsMapView;
 
 	public SMSMapRenderer(SMSMapView view) {
-//		super(true);
+		super(true);
 		smsMapView = view;
 	}
 
