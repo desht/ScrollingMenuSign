@@ -38,7 +38,6 @@ public class SMSMenu extends Observable implements Freezable {
 	private String defaultCommand;
 
 	private static final Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
-//	private static final SMSMenuItem blankItem = new SMSMenuItem(null, "", "", "");
 
 	/**
 	 * Construct a new menu

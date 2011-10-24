@@ -82,8 +82,6 @@ public abstract class SMSView implements Observer, Freezable {
 		menu.addObserver(this);
 
 		registerAttribute(OWNER, "");
-
-		//		registerView();
 	}
 
 	private String makeUniqueName(String base) {

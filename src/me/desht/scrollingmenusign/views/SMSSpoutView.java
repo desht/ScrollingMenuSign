@@ -39,15 +39,19 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * 
 	 * @param name	The view name
 	 * @param menu	The menu to attach the object to
+	 * @throws SMSException 
 	 */
-	public SMSSpoutView(String name, SMSMenu menu) {
+	public SMSSpoutView(String name, SMSMenu menu) throws SMSException {
 		super(name, menu);
 		
+		if (!ScrollingMenuSign.getInstance().isSpoutEnabled()) {
+			throw new SMSException("Spout view cannot be created - server does not have Spout enabled");
+		}		
 		registerAttribute(SPOUTKEYS, new SMSSpoutKeyMap());
 		registerAttribute(AUTOPOPDOWN, true);
 	}
 
-	public SMSSpoutView(SMSMenu menu) {
+	public SMSSpoutView(SMSMenu menu) throws SMSException {
 		this(null, menu);
 	}
 
@@ -218,8 +222,9 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * 
 	 * @param menu	The menu to add the view to
 	 * @return		The view that was just created
+	 * @throws SMSException 
 	 */
-	public static SMSView addSpoutViewToMenu(SMSMenu menu) {
+	public static SMSView addSpoutViewToMenu(SMSMenu menu) throws SMSException {
 		SMSView view = new SMSSpoutView(menu);
 		view.register();
 		view.update(menu, SMSMenuAction.REPAINT);
