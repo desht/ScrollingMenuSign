@@ -30,8 +30,8 @@ public class ItemListGUI extends GenericPopup {
 	private static final int GUTTER_HEIGHT = 1;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int BUTTON_WIDTH = 200;
-	private static final int TITLE_HEIGHT = 20;
-	private static final int TITLE_WIDTH = 120;
+	private static final int TITLE_HEIGHT = 15;
+	private static final int TITLE_WIDTH = 100;
 	private static final int SCROLL_WIDTH = 15;
 
 	private SpoutPlayer sp;
@@ -55,7 +55,7 @@ public class ItemListGUI extends GenericPopup {
 
 		buttonBox = new GenericContainer();
 		int x = (mainScreen.getWidth() - BUTTON_WIDTH) / 2;
-		buttonBox.setX(x).setY(TITLE_HEIGHT+10).setWidth(BUTTON_WIDTH).setHeight(200);
+		buttonBox.setX(x).setY(TITLE_HEIGHT+10).setWidth(BUTTON_WIDTH).setHeight(mainScreen.getHeight() - (TITLE_HEIGHT + 15));
 		buttonBox.setAlign(WidgetAnchor.TOP_CENTER);
 
 		createItemButtons();
@@ -67,7 +67,7 @@ public class ItemListGUI extends GenericPopup {
 		scrollBox.setX(x - (SCROLL_WIDTH + 2)).setY(TITLE_HEIGHT + 10).setWidth(SCROLL_WIDTH).setHeight(200);
 
 		Label indicator = new GenericLabel(ChatColor.YELLOW + "<");
-		indicator.setX(x + BUTTON_WIDTH + 2).setY(TITLE_HEIGHT + 15).setWidth(BUTTON_HEIGHT - 4).setHeight(BUTTON_HEIGHT - 4);
+		indicator.setX(x + BUTTON_WIDTH + 2).setY(TITLE_HEIGHT + 15).setWidth(BUTTON_HEIGHT - 6).setHeight(BUTTON_HEIGHT - 6);
 		indicator.setAuto(false);
 		
 		mainBox.addChild(title);
@@ -80,7 +80,7 @@ public class ItemListGUI extends GenericPopup {
 
 	private Button createScrollButton(String text, SMSUserAction action) {
 		Button b = new GenericButton(text);
-		b.setAuto(true).setAlign(WidgetAnchor.CENTER_CENTER); // .setMaxHeight(BUTTON_HEIGHT).setFixed(true);
+		b.setAuto(true).setAlign(WidgetAnchor.CENTER_CENTER);
 		b.setMinHeight(15).setMaxHeight(15);
 		actionMap.put(b.getId(), action);
 		return b;
