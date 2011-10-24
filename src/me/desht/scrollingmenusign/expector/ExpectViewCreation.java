@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.expector;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
@@ -33,6 +34,8 @@ public class ExpectViewCreation extends ExpectData {
 		
 		if (arg.equals("-sign")) {
 			view = SMSSignView.addSignToMenu(menu, getLoc());
+		} else if (arg.equals("-redstone")) {
+			view = SMSRedstoneView.addRedstoneViewToMenu(menu, getLoc()); 
 		}
 
 		if (view != null) 

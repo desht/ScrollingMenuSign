@@ -135,8 +135,11 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	 * @throws SMSException	if the usage limit for this player is exhausted
 	 */
 	public void execute(Player player) throws SMSException {
-		checkRemainingUses(this.getUseLimits(), player);
-		checkRemainingUses(menu.getUseLimits(), player);
+		if (player != null) {
+			checkRemainingUses(this.getUseLimits(), player);
+			checkRemainingUses(menu.getUseLimits(), player);
+		}
+		
 		String cmd = getCommand();
 		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty() ) {
 			cmd = menu.getDefaultCommand().replaceAll("<LABEL>", getLabel());

@@ -24,23 +24,17 @@ public class RemoveViewCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+		SMSView view = null;
+		
 		if (args.length == 2 && args[0].equals("-view")) {
 			// detaching any named view
-			SMSView view = SMSView.getView(args[1]);
-			view.deletePermanent();
-			MiscUtil.statusMessage(player, String.format("Removed %s view &e%s&- from menu &e%s&-.",
-			                                             view.getType(), view.getName(), view.getMenu().getName()));
+			view = SMSView.getView(args[1]);
 		} else if (player != null && player.getItemInHand().getTypeId() == 358) {
 			// detaching a map view 
 			PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
-			SMSMapView view = SMSMapView.getViewForId(player.getItemInHand().getDurability());
-			if (view != null) {
-				view.deletePermanent();
-				MiscUtil.statusMessage(player, "Removed map view &e" + view.getName() +
-				                       "&- from menu &e" + view.getMenu().getName() + "&-.");
-			}
+			view = SMSMapView.getViewForId(player.getItemInHand().getDurability());
 		} else {
-			// detaching a sign view
+			// detaching a view that the player is looking at
 			Location loc = null;
 			if (args.length == 0) {
 				notFromConsole(player);
@@ -53,13 +47,15 @@ public class RemoveViewCommand extends AbstractCommand {
 					throw new SMSException(e.getMessage());
 				}
 			}
-			
-			SMSView view = SMSView.getViewForLocation(loc);
-			if (view == null)
-				throw new SMSException("You are not looking at a menu view.");
+			view = SMSView.getViewForLocation(loc);
+		}
+		
+		if (view == null) {
+			throw new SMSException("No suitable view found to remove.");
+		} else {
 			view.deletePermanent();
-			MiscUtil.statusMessage(player, "Removed sign view &e" + view.getName() +
-			                       "&- from menu &e" + view.getMenu().getName() + "&-.");	
+			MiscUtil.statusMessage(player, String.format("Removed %s view &e%s&- from menu &e%s&-.",
+			                                             view.getType(), view.getName(), view.getMenu().getName()));
 		}
 			
 		return true;

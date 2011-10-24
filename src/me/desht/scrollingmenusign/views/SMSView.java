@@ -52,6 +52,7 @@ public abstract class SMSView implements Observer, Freezable {
 	//	private String owner;
 	private boolean dirty;
 	private Configuration attributes;	// view attributes to be displayed and/or edited by players
+	private int maxLocations;
 
 	@Override
 	public abstract void update(Observable menu, Object arg1);
@@ -78,7 +79,8 @@ public abstract class SMSView implements Observer, Freezable {
 		this.dirty = true;
 		this.autosave = SMSConfig.getConfig().getBoolean("sms.autosave", true);
 		this.attributes = new YamlConfiguration();
-
+		this.maxLocations = 1;
+		
 		menu.addObserver(this);
 
 		registerAttribute(OWNER, "");
@@ -221,6 +223,19 @@ public abstract class SMSView implements Observer, Freezable {
 		return locs.toArray(new Location[locs.size()]);
 	}
 
+	protected void setMaxLocations(int maxLocations) {
+		this.maxLocations = maxLocations;
+	}
+	
+	/**
+	 * Get the maximum number of locations that this view may occupy.
+	 * 
+	 * @return
+	 */
+	public int getMaxLocations() {
+		return maxLocations;
+	}
+
 	/**
 	 * Register a new location as being part of this view object
 	 * 
@@ -228,6 +243,14 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @throws SMSException if the location is not suitable for adding to this view
 	 */
 	public void addLocation(Location loc) throws SMSException {
+		if (getLocations().size() >= getMaxLocations())
+			throw new SMSException("View " + getName() + " already occupies the maximum number of locations (" + getMaxLocations() + ")");
+		
+		SMSView v = SMSView.getViewForLocation(loc);
+		if (v != null) {
+			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " already contains view on menu: " + v.getMenu().getName());
+		}
+
 		locations.add(loc);
 		allViewLocations.put(loc, this);
 
@@ -245,7 +268,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 		autosave();
 	}
-
+	
 	/**
 	 * Save this view's contents to disk (if autosaving is enabled, and the view
 	 * is registered).

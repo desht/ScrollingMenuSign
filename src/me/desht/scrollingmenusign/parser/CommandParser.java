@@ -63,17 +63,19 @@ public class CommandParser {
 	}
 
 	ParsedCommand handleCommandString(Player player, String command, RunMode mode) throws SMSException {
-		// do some preprocessing ...
-		ItemStack stack =  player.getItemInHand();
-		command = command.replace("<X>", "" + player.getLocation().getBlockX());
-		command = command.replace("<Y>", "" + player.getLocation().getBlockY());
-		command = command.replace("<Z>", "" + player.getLocation().getBlockZ());
-		command = command.replace("<NAME>", player.getName());
-		command = command.replace("<N>", player.getName());
-		command = command.replace("<WORLD>", player.getWorld().getName());
-		command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
-		command = command.replace("<INAME>", stack != null ? "" + stack.getType().toString() : "???");
-
+		if (player != null) {
+			// do some preprocessing ...
+			ItemStack stack =  player.getItemInHand();
+			command = command.replace("<X>", "" + player.getLocation().getBlockX());
+			command = command.replace("<Y>", "" + player.getLocation().getBlockY());
+			command = command.replace("<Z>", "" + player.getLocation().getBlockZ());
+			command = command.replace("<NAME>", player.getName());
+			command = command.replace("<N>", player.getName());
+			command = command.replace("<WORLD>", player.getWorld().getName());
+			command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
+			command = command.replace("<INAME>", stack != null ? "" + stack.getType().toString() : "???");
+		}
+		
 		Scanner scanner = new Scanner(command);
 
 		ParsedCommand cmd = null;

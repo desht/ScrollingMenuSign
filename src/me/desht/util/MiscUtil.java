@@ -30,9 +30,6 @@ public class MiscUtil {
 	}
 
 	public static void alertMessage(Player player, String string) {
-		if (player == null) {
-			return;
-		}
 		prevColour = ChatColor.YELLOW.toString();
 		message(player, string, ChatColor.YELLOW, Level.INFO);
 	}

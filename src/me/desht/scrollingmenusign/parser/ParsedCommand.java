@@ -72,11 +72,11 @@ public class ParsedCommand {
 			} else if (token.equals("$$$") && !restricted && affordable) {
 				// command terminator, and stop any macro too
 				macroStopped = true;
-				return;
+				break;
 			} else if (token.equals("$$") && !restricted && affordable ) {
 				// command terminator - run command and finish
 				commandStopped = true;
-				return;
+				break;
 			} else if (token.startsWith("$") && command == null) {
 				// apply a cost or costs
 				for (String c : token.substring(1).split(";")) {
@@ -94,7 +94,7 @@ public class ParsedCommand {
 				}	
 			} else if (token.equals("&&")) {
 				// command separator - start another command
-				return;
+				break;
 			} else {
 				// just a plain string
 				if (command == null)
@@ -102,6 +102,11 @@ public class ParsedCommand {
 				else
 					args.add(token);
 			}
+		}
+		
+		if (player == null && command != null && command.startsWith("/")) {
+			console = true;
+			command = command.substring(1);
 		}
 	}
 
@@ -162,6 +167,11 @@ public class ParsedCommand {
 	}
 	
 	private boolean restrictionCheck(Player player, String check) {
+		if (player == null) {
+			// no restrictions apply to being run from the console
+			return true;
+		}
+		
 		if (check.startsWith("g:")) {
 //			return PermissionsUtils.isInGroup(player, check.substring(2));
 			return PermissionsUtils.isAllowedTo(player, "scrollingmenusign.groups." + check.substring(2));

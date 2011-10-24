@@ -158,7 +158,7 @@ public class SMSMenu extends Observable implements Freezable {
 		for (SMSMenuItem item : items) {
 			l.add(item.freeze());
 		}
-		
+
 		map.put("name", getName());
 		map.put("title", MiscUtil.unParseColourSpec(getTitle()));
 		map.put("owner", getOwner());
@@ -320,7 +320,15 @@ public class SMSMenu extends Observable implements Freezable {
 	 * @return			The menu item matching that index
 	 */
 	public SMSMenuItem getItem(String wanted) {
-		return items.get(indexOfItem(wanted) - 1);
+		if (wanted == null || wanted.isEmpty()) {
+			return null;
+		}
+
+		try {
+			return items.get(indexOfItem(wanted) - 1);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -347,7 +355,7 @@ public class SMSMenu extends Observable implements Freezable {
 		return index;
 	}
 
-	
+
 
 	/**
 	 * Add a new item to the menu
@@ -374,7 +382,7 @@ public class SMSMenu extends Observable implements Freezable {
 			Collections.sort(items);
 
 		setChanged();
-		
+
 		autosave();
 	}
 
@@ -467,7 +475,7 @@ public class SMSMenu extends Observable implements Freezable {
 			view.deletePermanent();
 		}
 	}
-	
+
 	void deletePermanent() {
 		deletePermanent(SMSMenuAction.BLANK_SIGN);
 	}

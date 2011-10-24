@@ -104,6 +104,10 @@ public class Cost {
 	 * @param player
 	 */
 	public void grantItems(Player player) {
+		if (player == null) {
+			return;
+		}
+		
 		int quantity = (int) -getQuantity();
 
 		ItemStack stack = null;
@@ -130,6 +134,10 @@ public class Cost {
 	 * @param player
 	 */
 	public void chargeItems(Player player) {
+		if (player == null) {
+			return;
+		}
+		
 		HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(Material.getMaterial(getId()));
 
 		int remainingCheck = (int) getQuantity();
@@ -151,6 +159,10 @@ public class Cost {
 	
 	@SuppressWarnings("deprecation")
 	public static void chargePlayer(Player player, List<Cost> list) {
+		if (player == null) {
+			return;
+		}
+		
 		for (Cost c : list) {
 			if (c.getQuantity() == 0.0)
 				continue;
@@ -194,6 +206,10 @@ public class Cost {
 	 * @return
 	 */
 	public static boolean playerCanAfford(Player player, List<Cost> costs) {
+		if (player == null) {
+			return true;
+		}
+		
 		for (Cost c : costs) {
 			if (c.getQuantity() <= 0)
 				continue;

@@ -60,18 +60,9 @@ public class SMSSignView extends SMSScrollableView {
 	 */
 	@Override
 	public void addLocation(Location loc) throws SMSException {
-		// a sign view has only one location: the sign
-		if (getLocations().size() > 0)
-			throw new SMSException("SignView " + getName() + " already has a registered location.");
-
 		Block b = loc.getBlock();
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
 			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " does not contain a sign.");
-		}
-
-		SMSView v = SMSView.getViewForLocation(loc);
-		if (v != null) {
-			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " is already a view on menu: " + v.getMenu().getName());
 		}
 		
 		super.addLocation(loc);

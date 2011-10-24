@@ -6,6 +6,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ExpectAction;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.scrollingmenusign.views.SMSMapView;
+import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -37,11 +38,16 @@ public class AddViewCommand extends AbstractCommand {
 		} else if (args.length == 3 && args[1].equalsIgnoreCase("-sign")) {	// sign view
 			Location loc = MiscUtil.parseLocation(args[2], player);
 			view = SMSSignView.addSignToMenu(menu, loc);
-		} else if (args.length == 2 && args[1].equalsIgnoreCase("-sign")) {
-			MiscUtil.statusMessage(player, "Left-click a sign to add it as a view on menu &e" + menu.getName() + "&-.");
-			MiscUtil.statusMessage(player, "Right-click anywhere to cancel view creation.");
+		}  else if (args.length == 3 && args[1].equalsIgnoreCase("-redstone")) {	// sign view
+			Location loc = MiscUtil.parseLocation(args[2], player);
+			view = SMSRedstoneView.addRedstoneViewToMenu(menu, loc);
+		} else if (args.length == 2 && (args[1].equalsIgnoreCase("-sign") || args[1].equalsIgnoreCase("-redstone"))) {
+			String type = args[1].substring(1);
+			MiscUtil.statusMessage(player, "Left-click a block to add it as a &9" + type + "&- view on menu &e" + menu.getName() + "&-.");
+			MiscUtil.statusMessage(player, "Right-click anywhere to cancel.");
 			plugin.expecter.expectingResponse(player, ExpectAction.CREATE_VIEW,
 					new ExpectViewCreation(menu, args[1]));
+			return true;
 		} else if (args.length == 3 && args[1].equalsIgnoreCase("-map")) {	// map view
 			try {
 				short mapId = Short.parseShort(args[2]);
