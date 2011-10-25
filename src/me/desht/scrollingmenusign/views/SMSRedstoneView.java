@@ -14,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.material.Attachable;
 
@@ -22,6 +23,8 @@ public class SMSRedstoneView extends SMSView {
 	private static final String POWERTOGGLE = "powertoggle";
 	private static final String POWEROFF = "poweroff";
 	private static final String POWERON = "poweron";
+	private static final String USENEAREST = "usenearestplayer";
+
 	private final Map<Location,Boolean> powered = new HashMap<Location, Boolean>();
 
 	public SMSRedstoneView(String name, SMSMenu menu) {
@@ -30,6 +33,7 @@ public class SMSRedstoneView extends SMSView {
 		registerAttribute(POWERON, "");
 		registerAttribute(POWEROFF, "");
 		registerAttribute(POWERTOGGLE, "");
+		registerAttribute(USENEAREST, false);
 	}
 
 	public SMSRedstoneView(SMSMenu menu) {
@@ -66,14 +70,14 @@ public class SMSRedstoneView extends SMSView {
 	public void handlePowerChange(Location loc, int newCurrent) {
 		boolean curPower = isPowered(loc);
 		boolean newPower = newCurrent > 0;
-		System.out.println("handle power change " + getName() + ": " + curPower + " -> " + newPower);
+//		System.out.println("handle power change " + getName() + ": " + curPower + " -> " + newPower);
 
 		if (newPower && !curPower) {
 			execute(POWERON);
 		} else if (curPower && !newPower) {
 			execute(POWEROFF);
 		}
-		
+
 		if (curPower != newPower) {
 			execute(POWERTOGGLE);
 		}
@@ -87,14 +91,53 @@ public class SMSRedstoneView extends SMSView {
 			if (label == null || label.isEmpty())
 				return;
 			SMSMenuItem item = getMenu().getItem(label);
+			Player player = findNearestPlayer();
 			if (item != null) {
-				item.execute(null);
+				item.execute(player);
 			} else {
 				MiscUtil.log(Level.WARNING, "No such menu item '" + label + "' in menu " + getMenu().getName());
 			}
 		} catch (SMSException e) {
 			MiscUtil.log(Level.WARNING, e.getMessage());
 		}
+	}
+
+	private Player findNearestPlayer() {
+		Boolean f = (Boolean) getAttribute(USENEAREST);
+		if (f == null || !f	) {
+			return null;
+		}
+		if (getLocations().isEmpty()) {
+			return null;
+		}
+		
+		Player closest = null;
+		double minDist = Double.MAX_VALUE;
+		
+		Location viewLoc = getLocationsArray()[0];
+		for (Player p : viewLoc.getWorld().getPlayers()) {
+			if (p.getLocation().distance(viewLoc) < minDist) {
+				closest = p;
+			}
+		}
+		
+//		for (int x = viewLoc.getBlockX() - 16; x <= viewLoc.getBlockX() + 16; x += 16) {
+//			for (int z = viewLoc.getBlockZ() - 16; z <= viewLoc.getBlockZ() + 16; z += 16) {
+//				Chunk chunk = w.getChunkAt(x, z);
+//				System.out.println("chunk " + chunk);
+//				for (Entity ent : chunk.getEntities()) {
+//					System.out.println("got entity " + ent.getClass() + " @ " + ent.getLocation());
+//					if (!(ent instanceof Player))
+//						continue;
+//					if (ent.getLocation().distance(viewLoc) < minDist) {
+//						closest = (Player) ent;
+//					}
+//				}
+//			}
+//		}
+		
+//		System.out.println("found nearest player: " + closest);
+		return closest;
 	}
 
 	@Override
@@ -152,7 +195,10 @@ public class SMSRedstoneView extends SMSView {
 	public static void processRedstoneEvent(BlockRedstoneEvent event) {
 		Block block = event.getBlock();
 
-//		System.out.println("redstone event: " + block.getLocation() + " : "+ event.getOldCurrent() + " -> " + event.getNewCurrent());
+		// the block itself could be a view
+		checkNeighbour(event, BlockFace.SELF);
+		
+		//		System.out.println("redstone event: " + block.getLocation() + " : "+ event.getOldCurrent() + " -> " + event.getNewCurrent());
 		switch (block.getType()) {
 		case REDSTONE_WIRE:
 			// check the block below and the 4 blocks adjacent
@@ -183,11 +229,9 @@ public class SMSRedstoneView extends SMSView {
 	private static void checkNeighbour(BlockRedstoneEvent event, BlockFace face) {
 		Block block = event.getBlock();
 		Block neighbour = block.getRelative(face);
-//		System.out.println("block @ " + block.getLocation() + " powered = " + (block.isBlockPowered() || block.isBlockIndirectlyPowered()));
 		SMSRedstoneView rv = getRedstoneViewForLocation(neighbour.getLocation());
 
 		if (rv != null && rv.hasPowerChanged(neighbour.getLocation(), event.getNewCurrent())) {
-//			System.out.println("neighbour " + rv.getName() + " powered = " + (neighbour.isBlockPowered() || neighbour.isBlockIndirectlyPowered()));
 			rv.handlePowerChange(neighbour.getLocation(), event.getNewCurrent());
 		}
 	}

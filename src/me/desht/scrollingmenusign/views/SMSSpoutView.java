@@ -43,7 +43,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	 */
 	public SMSSpoutView(String name, SMSMenu menu) throws SMSException {
 		super(name, menu);
-		
+
 		if (!ScrollingMenuSign.getInstance().isSpoutEnabled()) {
 			throw new SMSException("Spout view cannot be created - server does not have Spout enabled");
 		}		
@@ -66,7 +66,7 @@ public class SMSSpoutView extends SMSScrollableView {
 		SpoutPlayer sp = SpoutManager.getPlayer(p);
 		if (!sp.isSpoutCraftEnabled())
 			return;
-		
+
 		if (!popups.containsKey(sp.getName())) {
 			// create a new gui for this player
 			popups.put(sp.getName(), new ItemListGUI(sp, this));
@@ -86,7 +86,7 @@ public class SMSSpoutView extends SMSScrollableView {
 		SpoutPlayer sp = SpoutManager.getPlayer(p);
 		if (!sp.isSpoutCraftEnabled())
 			return;
-		
+
 		if (!popups.containsKey(sp.getName())) {
 			return;
 		}
@@ -108,7 +108,7 @@ public class SMSSpoutView extends SMSScrollableView {
 		final SpoutPlayer sp = SpoutManager.getPlayer(p);
 		if (!sp.isSpoutCraftEnabled())
 			return;
-		
+
 		if (hasActiveGUI(sp)) {
 			ItemListGUI gui = getActiveGUI(sp);
 			if (gui.getView() != this) {
@@ -172,7 +172,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	@Override
 	protected void onAttributeChanged(String attribute, String oldVal, String newVal) {
 		super.onAttributeChanged(attribute, oldVal, newVal);
-		
+
 		if (attribute.equals(SPOUTKEYS)) {
 			// cache a new stringified key mapping definition for this view
 			keyMap.remove(oldVal);
@@ -185,15 +185,10 @@ public class SMSSpoutView extends SMSScrollableView {
 	@Override
 	public void onExecuted(Player player) {
 		super.onExecuted(player);
-		
-		try {
-			boolean popdown = (Boolean) getAttribute(AUTOPOPDOWN);
-			if (popdown) {
-				hideGUI(SpoutManager.getPlayer(player));
-			}
-		} catch (SMSException e) {
-			// shouldn't get here - we should always have a autopopdown attribute
-			MiscUtil.log(Level.WARNING, "can't find popdown attribute in view " + getName());
+
+		Boolean popdown = (Boolean) getAttribute(AUTOPOPDOWN);
+		if (popdown != null && popdown) {
+			hideGUI(SpoutManager.getPlayer(player));
 		}
 	}
 
@@ -241,7 +236,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	public static boolean handleKeypress(SpoutPlayer sp, SMSSpoutKeyMap pressed) {
 		if (pressed.keysPressed() == 0)
 			return false;
-		
+
 		String s = pressed.toString();
 
 		String viewName = keyMap.get(s);

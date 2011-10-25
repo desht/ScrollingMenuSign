@@ -80,7 +80,7 @@ public abstract class SMSView implements Observer, Freezable {
 		this.autosave = SMSConfig.getConfig().getBoolean("sms.autosave", true);
 		this.attributes = new YamlConfiguration();
 		this.maxLocations = 1;
-		
+
 		menu.addObserver(this);
 
 		registerAttribute(OWNER, "");
@@ -186,11 +186,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 	@Deprecated
 	public String getOwner() {
-		try {
-			return getAttributeAsString(OWNER);
-		} catch (SMSException e) {
-			return "";
-		}
+		return getAttributeAsString(OWNER);
 	}
 
 	@Deprecated
@@ -226,7 +222,7 @@ public abstract class SMSView implements Observer, Freezable {
 	protected void setMaxLocations(int maxLocations) {
 		this.maxLocations = maxLocations;
 	}
-	
+
 	/**
 	 * Get the maximum number of locations that this view may occupy.
 	 * 
@@ -245,7 +241,7 @@ public abstract class SMSView implements Observer, Freezable {
 	public void addLocation(Location loc) throws SMSException {
 		if (getLocations().size() >= getMaxLocations())
 			throw new SMSException("View " + getName() + " already occupies the maximum number of locations (" + getMaxLocations() + ")");
-		
+
 		SMSView v = SMSView.getViewForLocation(loc);
 		if (v != null) {
 			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " already contains view on menu: " + v.getMenu().getName());
@@ -268,7 +264,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 		autosave();
 	}
-	
+
 	/**
 	 * Save this view's contents to disk (if autosaving is enabled, and the view
 	 * is registered).
@@ -406,14 +402,10 @@ public abstract class SMSView implements Observer, Freezable {
 			return true;
 		if (player.hasPermission("scrollingmenusign.ignoreViewOwnership"))
 			return true;
-		try {
-			String owner = getAttributeAsString(OWNER);
-			if (owner.isEmpty() || owner.equalsIgnoreCase(player.getName()))
-				return true;
-		} catch (SMSException e) {
-			// shouldn't happen, owner should always be present
-			MiscUtil.log(Level.WARNING, "missing owner attribute for view " + getName());
-		}
+
+		String owner = getAttributeAsString(OWNER);
+		if (owner == null || owner.isEmpty() || owner.equalsIgnoreCase(player.getName()))
+			return true;
 		return false;
 	}
 
@@ -486,17 +478,17 @@ public abstract class SMSView implements Observer, Freezable {
 		return attributes;
 	}
 
-	public Object getAttribute(String k) throws SMSException {
-		if (!attributes.getDefaults().contains(k)) {
-			throw new SMSException("No such attribute " + k);
-		}
+	public Object getAttribute(String k)  {
+		//		if (!attributes.getDefaults().contains(k)) {
+		//			throw new SMSException("No such attribute " + k);
+		//		}
 		return attributes.get(k);
 	}
 
-	public String getAttributeAsString(String k) throws SMSException {
-		if (!attributes.getDefaults().contains(k)) {
-			throw new SMSException("No such attribute " + k);
-		}
+	public String getAttributeAsString(String k)  {
+		//		if (!attributes.getDefaults().contains(k)) {
+		//			throw new SMSException("No such attribute " + k);
+		//		}
 		return attributes.get(k).toString();
 	}
 
