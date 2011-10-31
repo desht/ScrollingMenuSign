@@ -17,7 +17,7 @@ import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
@@ -47,18 +47,10 @@ public class CommandParser {
 	 */
 	@Deprecated
 	public ReturnStatus runCommandString(Player player, String command) throws SMSException { 
-		ParsedCommand cmd = handleCommandString(player, command, RunMode.EXECUTE);
-		
-		if (cmd == null) {
-			return ReturnStatus.CMD_OK;
-		}
-		
-		if (!cmd.isAffordable())
-			cmd.setStatus(ReturnStatus.CANT_AFFORD);
-
+		ParsedCommand cmd = runCommand(player, command);
 		return cmd.getStatus();
 	}
-	
+
 	/**
 	 * Parse and run a command string via the SMS command engine
 	 * 
@@ -89,21 +81,23 @@ public class CommandParser {
 			command = command.replace("<N>", player.getName());
 			command = command.replace("<WORLD>", player.getWorld().getName());
 			command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
-			command = command.replace("<INAME>", stack != null ? "" + stack.getType().toString() : "???");
+			command = command.replace("<INAME>", stack != null ? stack.getType().toString() : "???");
 		}
-		
+
 		Scanner scanner = new Scanner(command);
 
 		ParsedCommand cmd = null;
 		while (scanner.hasNext()) {
+			if (cmd != null && cmd.getStatus() != ReturnStatus.CMD_OK) {
+				// not the first command in the sequence - must have been a && separator
+				// if the previous command was not successful, we quit here
+				break;
+			}
+
 			cmd = new ParsedCommand(player, scanner);
 
 			switch (mode) {
 			case EXECUTE:
-				if (cmd.isRestricted() || !cmd.isAffordable()) {
-					// bypassing any potential cmd.isCommandStopped() or cmd.isMacroStopped()
-					continue;
-				}
 				execute(player, cmd);
 				break;
 			case CHECK_PERMS:
@@ -119,8 +113,9 @@ public class CommandParser {
 			default:
 				throw new IllegalArgumentException("unexpected run mode for parseCommandString()");
 			}
-			
-			if (cmd.isCommandStopped() || cmd.isMacroStopped()) {
+
+			if (cmd.getStatus() == ReturnStatus.CMD_OK && cmd.isCommandStopped()) {
+				// if the last command was stopped (by $$ or $$$), we quit here, but only the command was successful
 				break;
 			}
 		}
@@ -129,73 +124,61 @@ public class CommandParser {
 	}
 
 	private void execute(Player player, ParsedCommand cmd) throws SMSException {
-		if (cmd.isRestricted() || !cmd.isAffordable()) 
+		if (cmd.isRestricted()) {
+			// restriction checks can stop a command from running, but it's not
+			// an error condition
+			cmd.setStatus(ReturnStatus.CMD_OK);
 			return;
+		}
+		if (!cmd.isAffordable()) {
+			// failure to meet costs is an error condition that we report to the player
+			cmd.setLastError("You can't afford to run this command.");
+			cmd.setStatus(ReturnStatus.CANT_AFFORD);
+			return;
+		}
 
 		Cost.chargePlayer(player, cmd.getCosts());
 
-		if (cmd.getCommand() == null || cmd.getCommand().isEmpty())
+		if (cmd.getCommand() == null || cmd.getCommand().isEmpty()) {
+			// this allows for "commands" which only apply a cost and don't have an actual command
+			cmd.setStatus(ReturnStatus.CMD_OK);
 			return;
-
+		}
+		
 		StringBuilder sb = new StringBuilder(cmd.getCommand()).append(" ");
-		for (String a : cmd.getArgs()) {
-			sb.append(a).append(" ");
+		for (String arg : cmd.getArgs()) {
+			sb.append(arg).append(" ");
 		}
 		String command = sb.toString().trim();
-
+		
 		if (cmd.isMacro()) {
 			// run a macro
-			String macroName = cmd.getCommand();
-			if (macroHistory.contains(macroName)) {
-				MiscUtil.log(Level.WARNING, "Recursion detected and stopped in macro " + macroName);
-				cmd.setStatus(ReturnStatus.WOULD_RECURSE);
-				return;
-			} else if (SMSMacro.hasMacro(macroName)) {
-				macroHistory.add(macroName);
-				ParsedCommand cmd2 = null;
-				for (String c : SMSMacro.getCommands(macroName)) {
-					for (int i = 0; i < cmd.getArgs().size(); i++) {
-						c = c.replace("<" + (i + 1) + ">", cmd.arg(i));
-					}
-					cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
-					if (cmd2.isMacroStopped())
-						break;
-				}
-				// return status of a macro is the return status of the last command run
-				cmd.setStatus(cmd2 == null ? ReturnStatus.BAD_MACRO : cmd2.getStatus());
-				if (!cmd2.isAffordable())
-					cmd.setStatus(ReturnStatus.CANT_AFFORD);
-				return;
-			} else {
-				cmd.setStatus(ReturnStatus.BAD_MACRO);
-				return;
-			}
+			runMacro(player, cmd);
 		} else if (cmd.isWhisper()) {
 			// private message to the player
 			MiscUtil.alertMessage(player, command);
+			cmd.setStatus(ReturnStatus.CMD_OK);
 		} else if (cmd.isConsole()) {
 			// run this as a console command
 			// only works for commands that may be run via the console, but should always work
 			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated")) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
+				cmd.setLastError("You don't have permission to do this (need scrollingmenusign.execute.elevated)");
 				return;
 			}
-			Debugger.getDebugger().debug("execute (console): " + sb.toString());
-			
-			ConsoleCommandSender cs = Bukkit.getServer().getConsoleSender();
-			if (!Bukkit.getServer().dispatchCommand(cs, sb.toString())) {
-				cmd.setStatus(ReturnStatus.CMD_FAILED);
-			}
+			Debugger.getDebugger().debug("execute (console): " + command);
+			runOneCommand(Bukkit.getServer().getConsoleSender(), cmd, command);
 		} else if (cmd.isElevated()) {
 			// this is a /@ command, to be run as the real player, but with temporary permissions
 			// (this now also handles the /* fake-player style, which is no longer directly supported)
 
 			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated")) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
+				cmd.setLastError("You don't have permission to do this (need scrollingmenusign.execute.elevated)");
 				return;
 			}
 
-			Debugger.getDebugger().debug("execute (elevated): " + sb.toString());
+			Debugger.getDebugger().debug("execute (elevated): " + command);
 
 			List<PermissionAttachment> attachments = new ArrayList<PermissionAttachment>();
 			boolean tempOp = false;
@@ -205,7 +188,7 @@ public class CommandParser {
 				List<String> nodes = (List<String>) SMSConfig.getConfig().getList("sms.elevation.nodes");
 				for (String node : nodes) {
 					if (!node.isEmpty() && !player.hasPermission(node)) {
-//						System.out.println("add node: " + node);
+						//						System.out.println("add node: " + node);
 						attachments.add(player.addAttachment(plugin, node, true));
 					}
 				}
@@ -213,19 +196,13 @@ public class CommandParser {
 					tempOp = true;
 					player.setOp(true);
 				}
-				if (command.startsWith("/")) {
-					if (!Bukkit.getServer().dispatchCommand(player, command.substring(1))) {
-						cmd.setStatus(ReturnStatus.CMD_FAILED);
-					}
-				} else {
-					player.chat(command);
-				}
+				runOneCommand(player, cmd, command);
 			} finally {
 				// revoke all temporary permissions granted to the user
 				for (PermissionAttachment att : attachments) {
-//					for (Entry<String,Boolean> e : att.getPermissions().entrySet()) {
-//						System.out.println("remove attachment: " + e.getKey() + " = " + e.getValue());
-//					}
+					//					for (Entry<String,Boolean> e : att.getPermissions().entrySet()) {
+					//						System.out.println("remove attachment: " + e.getKey() + " = " + e.getValue());
+					//					}
 					player.removeAttachment(att);
 				}
 				if (tempOp) {
@@ -234,15 +211,57 @@ public class CommandParser {
 			}
 		} else {
 			// just an ordinary command, no special privilege elevation
-			Debugger.getDebugger().debug("execute (normal): " + sb.toString());
-			if (command.startsWith("/")) {
-				if (!Bukkit.getServer().dispatchCommand(player, command.substring(1))) {
-					cmd.setStatus(ReturnStatus.CMD_FAILED);
-				}
-			} else {
-				player.chat(command);
-			}
+			Debugger.getDebugger().debug("execute (normal): " + command);
+			runOneCommand(player, cmd, command);
 		}
 	}
 
+	private void runMacro(Player player, ParsedCommand cmd) throws SMSException {
+		String macroName = cmd.getCommand();
+		if (macroHistory.contains(macroName)) {
+			MiscUtil.log(Level.WARNING, "Recursion detected and stopped in macro " + macroName);
+			cmd.setStatus(ReturnStatus.WOULD_RECURSE);
+			cmd.setLastError("Recursion detected and stopped in macro " + macroName);
+			return;
+		} else if (SMSMacro.hasMacro(macroName)) {
+			macroHistory.add(macroName);
+			ParsedCommand cmd2 = null;
+			for (String c : SMSMacro.getCommands(macroName)) {
+				for (int i = 0; i < cmd.getArgs().size(); i++) {
+					c = c.replace("<" + (i + 1) + ">", cmd.arg(i));
+				}
+				cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
+				if (cmd2.isMacroStopped())
+					break;
+			}
+			// return status of a macro is the return status of the last command that was run
+			if (cmd2 == null) {
+				cmd.setStatus(ReturnStatus.BAD_MACRO);
+				cmd.setLastError("Empty macro?");					
+			} else {
+				cmd.setStatus(cmd2.getStatus());
+				cmd.setLastError(cmd2.getLastError());
+				if (!cmd2.isAffordable()) {
+					cmd.setStatus(ReturnStatus.CANT_AFFORD);
+				}
+			}
+			return;
+		} else {
+			cmd.setStatus(ReturnStatus.BAD_MACRO);
+			cmd.setLastError("Unknown macro " + macroName + ".");
+			return;
+		}
+	}
+
+	private void runOneCommand(CommandSender sender, ParsedCommand cmd, String command) {
+		cmd.setStatus(ReturnStatus.CMD_OK);
+		if (command.startsWith("/")) {
+			if (!Bukkit.getServer().dispatchCommand(sender, command.substring(1))) {
+				cmd.setStatus(ReturnStatus.CMD_FAILED);
+				cmd.setLastError("Execution of command '" + cmd.getCommand() + "' failed (unknown command?)");
+			}
+		} else if (sender instanceof Player) {
+			((Player)sender).chat(command);
+		}
+	}
 }

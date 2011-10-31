@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
+import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.parser.ParsedCommand;
 import me.desht.util.MiscUtil;
@@ -146,23 +147,26 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		}
 
 		ParsedCommand pCmd = new CommandParser().runCommand(player, cmd);
-		switch (pCmd.getStatus()) {
-		case NO_PERMS:
-			MiscUtil.errorMessage(player, "You lack sufficient permission to run that.");
-			break;
-		case CANT_AFFORD:
-			MiscUtil.errorMessage(player, "You can't afford to do that.");
-			break;
-		case CMD_FAILED:
-			MiscUtil.errorMessage(player, "Execution of [" + command + "] failed.");
-			break;
-		case WOULD_RECURSE:
-			MiscUtil.errorMessage(player, "Recursion detected when running " + cmd);
-			break;
-		case BAD_MACRO:
-			MiscUtil.errorMessage(player, "Unknown macro found when running " + cmd);
-			break;	
+		if (pCmd.getStatus() != ReturnStatus.CMD_OK) {
+			MiscUtil.errorMessage(player, pCmd.getLastError());
 		}
+//		switch (pCmd.getStatus()) {
+//		case NO_PERMS:
+//			MiscUtil.errorMessage(player, "You lack sufficient permission to run that.");
+//			break;
+//		case CANT_AFFORD:
+//			MiscUtil.errorMessage(player, "You can't afford to do that.");
+//			break;
+//		case CMD_FAILED:
+//			MiscUtil.errorMessage(player, "Execution of [" + command + "] failed.");
+//			break;
+//		case WOULD_RECURSE:
+//			MiscUtil.errorMessage(player, "Recursion detected when running " + cmd);
+//			break;
+//		case BAD_MACRO:
+//			MiscUtil.errorMessage(player, "Unknown macro found when running " + cmd);
+//			break;	
+//		}
 	}
 
 	private void checkRemainingUses(SMSRemainingUses uses, Player player) throws SMSException {

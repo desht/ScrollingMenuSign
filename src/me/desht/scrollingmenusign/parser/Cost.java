@@ -170,7 +170,6 @@ public class Cost {
 			case MONEY:
 				if (ScrollingMenuSign.economy != null) {
 					ScrollingMenuSign.economy.withdrawPlayer(player.getName(), c.getQuantity());
-//					getAccount(player.getName()).subtract(c.getQuantity());
 				}
 				break;
 			case ITEM:

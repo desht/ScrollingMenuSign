@@ -24,6 +24,7 @@ public class ParsedCommand {
 	private boolean macro;
 	private boolean commandStopped, macroStopped;
 	private boolean console;
+	private String lastError;
 
 	ParsedCommand (Player player, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
@@ -33,6 +34,7 @@ public class ParsedCommand {
 		affordable = true;
 		command = null;
 		status = ReturnStatus.UNKNOWN;
+		lastError = "(no error)";
 
 		while (scanner.hasNext()) {
 			String token = scanner.next();
@@ -47,7 +49,7 @@ public class ParsedCommand {
 				elevated = true;
 			} else if (token.startsWith("/#") && command == null) {
 				// console command
-				command = token.substring(2);
+				command = "/" + token.substring(2);
 				console = true;
 			} else if (token.startsWith("/") && command == null) {
 				// regular command
@@ -71,11 +73,11 @@ public class ParsedCommand {
 				}
 			} else if (token.equals("$$$") && !restricted && affordable) {
 				// command terminator, and stop any macro too
-				macroStopped = true;
+				macroStopped = commandStopped = !restricted && affordable;
 				break;
-			} else if (token.equals("$$") && !restricted && affordable ) {
+			} else if (token.equals("$$")) {
 				// command terminator - run command and finish
-				commandStopped = true;
+				commandStopped = !restricted && affordable;
 				break;
 			} else if (token.startsWith("$") && command == null) {
 				// apply a cost or costs
@@ -106,7 +108,6 @@ public class ParsedCommand {
 		
 		if (player == null && command != null && command.startsWith("/")) {
 			console = true;
-			command = command.substring(1);
 		}
 	}
 
@@ -225,6 +226,14 @@ public class ParsedCommand {
 	 */
 	public boolean isConsole() {
 		return console;
+	}
+
+	public String getLastError() {
+		return lastError;
+	}
+
+	void setLastError(String lastError) {
+		this.lastError = lastError;
 	}
 
 	/**
