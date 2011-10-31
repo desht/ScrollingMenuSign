@@ -302,7 +302,8 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 
 	/**
-	 * Temporarily delete a view.  The view is deactivated, but not removed from disk.
+	 * Temporarily delete a view.  The view is deactivated and in-memory objects are dereference,
+	 * but the saved view data is not removed from disk.
 	 */
 	public void deleteTemporary() {
 		deleteCommon();
@@ -479,16 +480,10 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 
 	public Object getAttribute(String k)  {
-		//		if (!attributes.getDefaults().contains(k)) {
-		//			throw new SMSException("No such attribute " + k);
-		//		}
 		return attributes.get(k);
 	}
 
 	public String getAttributeAsString(String k)  {
-		//		if (!attributes.getDefaults().contains(k)) {
-		//			throw new SMSException("No such attribute " + k);
-		//		}
 		return attributes.get(k).toString();
 	}
 
@@ -521,7 +516,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 	/**
 	 * Called automatically when the view is used to execute a menu item.  Override and extend this
-	 * subclasses.
+	 * in subclasses.
 	 * 
 	 * @param player	The player who did the execution
 	 */

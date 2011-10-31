@@ -463,7 +463,7 @@ public class SMSMenu extends Observable implements Freezable {
 		SMSMenu.removeMenu(getName(), action);	
 	}
 
-	private void deleteAllViews() {
+	private void deleteAllViews(boolean permanent) {
 		List<SMSView> toDelete = new ArrayList<SMSView>();
 		for (SMSView view : SMSView.listViews()) {
 			if (view.getMenu() == this)	{
@@ -471,19 +471,30 @@ public class SMSMenu extends Observable implements Freezable {
 			}
 		}
 		for (SMSView view : toDelete) {
-			System.out.println("delete view " + view.getName());
-			view.deletePermanent();
+			if (permanent) {
+				view.deletePermanent();	
+			} else {
+				view.deleteTemporary();
+			}
 		}
 	}
 
+	/**
+	 * Permanently delete a menu, dereferencing the object and removing saved data from disk.
+	 */
 	void deletePermanent() {
 		deletePermanent(SMSMenuAction.BLANK_SIGN);
 	}
 
+	/**
+	 * Permanently delete a menu, dereferencing the object and removing saved data from disk.
+	 * 
+	 * @param action	The action to carry out on the menu's views
+	 */
 	void deletePermanent(SMSMenuAction action) {
 		try {
 			deleteCommon(action);
-			deleteAllViews();
+			deleteAllViews(true);
 			SMSPersistence.unPersist(this);
 		} catch (SMSException e) {
 			// Should not get here
@@ -491,9 +502,14 @@ public class SMSMenu extends Observable implements Freezable {
 		}
 	}
 
+	/**
+	 * Temporarily delete a menu.  The menu object is dereferenced but saved menu data is not 
+	 * deleted from disk.
+	 */
 	void deleteTemporary() {
 		try {
 			deleteCommon(SMSMenuAction.DO_NOTHING);
+			deleteAllViews(false);
 		} catch (SMSException e) {
 			// Should not get here
 			MiscUtil.log(Level.WARNING, "Impossible: deleteTemporary got SMSException?");
