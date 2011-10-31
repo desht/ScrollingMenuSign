@@ -8,14 +8,13 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="var" path="LOCAL_JARS/PermissionsBukkit.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/Register.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/craftbukkit-0.0.1-SNAPSHOT.jar" sourcepath="/SOURCES/CraftBukkit"/>
 	<classpathentry kind="var" path="LOCAL_JARS/PermissionsEx.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/bPermissions.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/SpoutAPI.jar" sourcepath="/LOCAL_SRC/SpoutAPI">
 		<attributes>
-			<attribute name="javadoc_location" value="http://jd.getspout.org/"/>
+			<attribute name="javadoc_location" value="http://jddev.getspout.org/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="var" path="LOCAL_JARS/Vault.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

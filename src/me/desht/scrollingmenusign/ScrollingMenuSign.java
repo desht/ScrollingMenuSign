@@ -37,18 +37,16 @@ import me.desht.scrollingmenusign.listeners.SMSSpoutScreenListener;
 import me.desht.util.MessagePager;
 import me.desht.util.MiscUtil;
 import me.desht.util.PermissionsUtils;
+import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-
-import com.nijikokun.register.payment.Method;
-import com.nijikokun.register.payment.Methods;
-
 
 public class ScrollingMenuSign extends JavaPlugin {
 
@@ -60,9 +58,10 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private SMSSpoutKeyListener spoutKeyListener;
 	private SMSSpoutScreenListener spoutScreenListener;
 	private boolean spoutEnabled = false;
-	private static Method economy = null;
 	private static ScrollingMenuSign instance = null;
-	
+
+	public static Economy economy = null;
+
 	public final ExpectResponse expecter = new ExpectResponse();
 
 	@Override
@@ -81,6 +80,10 @@ public class ScrollingMenuSign extends JavaPlugin {
 			spoutEnabled = true;
 			MiscUtil.log(Level.INFO, "Detected Spout v" + spout.getDescription().getVersion());
 		}
+		
+		if (setupEconomy()) {
+			MiscUtil.log(Level.INFO, "Detected economy plugin: " + economy.getName());
+		}
 
 		PermissionsUtils.setup();
 		SMSConfig.init(this);
@@ -88,12 +91,12 @@ public class ScrollingMenuSign extends JavaPlugin {
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Event.Priority.Normal, this);
 		//		pm.registerEvent(Event.Type.PLAYER_ANIMATION, playerListener, Event.Priority.Normal, this);
-		
+
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Normal, this);
-		
+
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
 
 		if (spoutEnabled) {
@@ -102,7 +105,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutKeyListener, Event.Priority.Normal, this);
 			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutScreenListener, Event.Priority.Normal, this);
 		}
-		
+
 		registerCommands();
 
 		MessagePager.setPageCmd("/sms page [#|n|p]");
@@ -112,12 +115,12 @@ public class ScrollingMenuSign extends JavaPlugin {
 			@Override
 			public void run() {
 				loadPersistedData();
-				setupEconomy();
+//				setupEconomy();
 			}
 		}) == -1) {
 			MiscUtil.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
 			loadPersistedData();
-			setupEconomy();
+//			setupEconomy();
 		}
 
 		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
@@ -127,23 +130,27 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public void onDisable() {
 		SMSPersistence.saveMenusAndViews();
 		SMSPersistence.saveMacros();
+		for (SMSMenu menu : SMSMenu.listMenus()) {
+			// this also deletes all the menu's views...
+			menu.deleteTemporary();
+		}
+		for (SMSMacro macro : SMSMacro.listMacros()) {
+			macro.deleteTemporary();
+		}
 		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
 	}
 
-	private void setupEconomy() {
-		PluginManager pm = getServer().getPluginManager();
-		Plugin p = pm.getPlugin("Register");
-		if (p != null && p.isEnabled()) {
-			Methods.setMethod(pm);
-			if (Methods.getMethod() != null) {
-				setEconomy(Methods.getMethod());
-				MiscUtil.log(Level.INFO, String.format("Economy method found: %s v%s", getEconomy().getName(), getEconomy().getVersion()));
-			} else {
-				MiscUtil.log(Level.INFO, "Register detected but no economy plugin found: no economy support available");
+	private Boolean setupEconomy() {
+		Plugin vault = getServer().getPluginManager().getPlugin("Vault");
+		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
+			RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+			if (economyProvider != null) {
+				economy = economyProvider.getProvider();
 			}
 		} else {
-			MiscUtil.log(Level.INFO, "Register not detected: no economy support available");
+			MiscUtil.log(Level.INFO, "Vault not loaded, no economy support");
 		}
+		return (economy != null);
 	}
 
 	private void registerCommands() {
@@ -193,14 +200,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	public SMSHandler getHandler() {
 		return handler;
-	}
-
-	public static void setEconomy(Method economy) {
-		ScrollingMenuSign.economy = economy;
-	}
-
-	public static Method getEconomy() {
-		return economy;
 	}
 
 	boolean validateVersions(String pVer, String cbVer) {

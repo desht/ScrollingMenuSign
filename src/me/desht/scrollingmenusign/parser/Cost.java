@@ -168,8 +168,9 @@ public class Cost {
 				continue;
 			switch (c.getType()) {
 			case MONEY:
-				if (ScrollingMenuSign.getEconomy() != null) {
-					ScrollingMenuSign.getEconomy().getAccount(player.getName()).subtract(c.getQuantity());
+				if (ScrollingMenuSign.economy != null) {
+					ScrollingMenuSign.economy.withdrawPlayer(player.getName(), c.getQuantity());
+//					getAccount(player.getName()).subtract(c.getQuantity());
 				}
 				break;
 			case ITEM:
@@ -216,10 +217,11 @@ public class Cost {
 
 			switch (c.getType()) {
 			case MONEY:
-				if (ScrollingMenuSign.getEconomy() == null) {
+				if (ScrollingMenuSign.economy == null) {
 					return true;
 				}
-				if (!ScrollingMenuSign.getEconomy().getAccount(player.getName()).hasEnough(c.getQuantity())) {
+//				if (!ScrollingMenuSign.getEconomy().getAccount(player.getName()).hasEnough(c.getQuantity())) {
+				if (ScrollingMenuSign.economy.getBalance(player.getName()) < c.getQuantity()) {
 					return false;
 				}
 				break;
