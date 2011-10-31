@@ -35,13 +35,15 @@ public class AddViewCommand extends AbstractCommand {
 				view = SMSSpoutView.addSpoutViewToMenu(menu);
 			else
 				throw new SMSException("Server is not Spout-enabled");
-		} else if (args.length == 3 && args[1].equalsIgnoreCase("-sign")) {	// sign view
+		} else if (args.length == 3 && args[1].equalsIgnoreCase("-sign")) {			// sign view
 			Location loc = MiscUtil.parseLocation(args[2], player);
 			view = SMSSignView.addSignToMenu(menu, loc);
-		}  else if (args.length == 3 && args[1].equalsIgnoreCase("-redstone")) {	// sign view
+		}  else if (args.length == 3 && args[1].equalsIgnoreCase("-redstone")) {	// redstone view
 			Location loc = MiscUtil.parseLocation(args[2], player);
 			view = SMSRedstoneView.addRedstoneViewToMenu(menu, loc);
 		} else if (args.length == 2 && (args[1].equalsIgnoreCase("-sign") || args[1].equalsIgnoreCase("-redstone"))) {
+			// create a new view interactively
+			notFromConsole(player);
 			String type = args[1].substring(1);
 			MiscUtil.statusMessage(player, "Left-click a block to add it as a &9" + type + "&- view on menu &e" + menu.getName() + "&-.");
 			MiscUtil.statusMessage(player, "Right-click anywhere to cancel.");
@@ -74,7 +76,7 @@ public class AddViewCommand extends AbstractCommand {
 		}
 
 		if (view != null) {
-			MiscUtil.statusMessage(player, String.format("Added %s view &e%s&- to menu &e%s&-.",
+			MiscUtil.statusMessage(player, String.format("Added &9%s&- view &e%s&- to menu &e%s&-.",
 			                                             view.getType(), view.getName(), menu.getName()));
 		} else {
 			throw new SMSException("Found nothing suitable to add as a menu view");
