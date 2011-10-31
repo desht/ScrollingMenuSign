@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.parser.CommandParser;
+import me.desht.scrollingmenusign.parser.ParsedCommand;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -20,7 +20,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	private final String message;
 	private final SMSRemainingUses uses;
 	private final SMSMenu menu;
-	
+
 	SMSMenuItem(SMSMenu menu, String l, String c, String m) {
 		if (l == null || c == null || m == null)
 			throw new NullPointerException();
@@ -30,7 +30,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		this.message = m;
 		this.uses = new SMSRemainingUses(this);
 	}
-	
+
 	SMSMenuItem(SMSMenu menu, ConfigurationSection node) {
 		this.menu = menu;
 		this.label = MiscUtil.parseColourSpec(node.getString("label"));
@@ -38,7 +38,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		this.message = MiscUtil.parseColourSpec(null, node.getString("message"));
 		this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
 	}
-	
+
 	/**
 	 * Get the label for this menu item
 	 * 
@@ -78,7 +78,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		uses.clearUses();
 		uses.setGlobalUses(nUses);
 	}
-	
+
 	/**
 	 * Set the maximum number of uses for this menu, per player.
 	 * This clears any global use count for the item.
@@ -90,7 +90,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	public void setUses(int nUses) {
 		uses.setUses(nUses);
 	}
-	
+
 	/**
 	 * Get the remaining number of uses of this menu item for the given player
 	 * 
@@ -102,7 +102,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	public int getRemainingUses(Player player) {
 		return uses.getRemainingUses(player.getName());
 	}
-	
+
 	/**
 	 * Clear (reset) the number of uses for the given player
 	 * 
@@ -115,7 +115,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		if (menu != null)
 			menu.autosave();
 	}
-	
+
 	/**
 	 * Clears all usage limits for this menu item
 	 * 
@@ -127,7 +127,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		if (menu != null)
 			menu.autosave();
 	}
-	
+
 	/**
 	 * Executes the command for this item
 	 * 
@@ -139,16 +139,14 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 			checkRemainingUses(this.getUseLimits(), player);
 			checkRemainingUses(menu.getUseLimits(), player);
 		}
-		
+
 		String cmd = getCommand();
 		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty() ) {
 			cmd = menu.getDefaultCommand().replaceAll("<LABEL>", getLabel());
 		}
-		
-//		SMSMacro.executeCommand(cmd, player);
-		
-		ReturnStatus rs = new CommandParser().runCommandString(player, cmd);
-		switch (rs) {
+
+		ParsedCommand pCmd = new CommandParser().runCommand(player, cmd);
+		switch (pCmd.getStatus()) {
 		case NO_PERMS:
 			MiscUtil.errorMessage(player, "You lack sufficient permission to run that.");
 			break;
@@ -180,7 +178,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 			MiscUtil.statusMessage(player, "&6[Uses remaining for this " + what + ": &e" + uses.getRemainingUses(name) + "&6]");
 		}
 	}
-	
+
 	/**
 	 * Displays the feedback message for this menu item
 	 * 
@@ -228,7 +226,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	public String toString() {
 		return "SMSMenuItem [label=" + label + ", command=" + command + ", message=" + message + "]";
 	}
-	
+
 	/**
 	 * Get the remaining use details for this menu item
 	 *
@@ -237,7 +235,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	public SMSRemainingUses getUseLimits() {
 		return uses;
 	}
-	
+
 	/**
 	 * Returns a printable representation of the number of uses remaining for this item.
 	 * 
@@ -246,7 +244,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	String formatUses() {
 		return uses.toString();
 	}
-	
+
 	/**
 	 * Returns a printable representation of the number of uses remaining for this item, for the given player.
 	 * 
@@ -260,7 +258,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 			return uses.toString(player.getName());
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -311,15 +309,15 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	public int compareTo(SMSMenuItem other) {
 		return MiscUtil.deColourise(label).compareToIgnoreCase(MiscUtil.deColourise(other.label));
 	}
-	
+
 	Map<String, Object> freeze() {
 		Map<String, Object> map = new HashMap<String, Object>();
-		
+
 		map.put("label", MiscUtil.unParseColourSpec(label));
 		map.put("command", command);
 		map.put("message", MiscUtil.unParseColourSpec(message));
 		map.put("usesRemaining", uses.freeze());
-		
+
 		return map;
 	}
 

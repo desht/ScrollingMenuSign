@@ -4,6 +4,7 @@ import java.util.List;
 
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.parser.ParsedCommand;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -102,6 +103,18 @@ public interface SMSHandler {
 	 * @param command	The command string to be run
 	 * @return	A ReturnStatus value indicating how the command completed
 	 * @throws SMSException if the command string contains syntax errors
+	 * @deprecated Use runCommand()
 	 */
+	@Deprecated
 	public ReturnStatus runCommandString(Player player, String command) throws SMSException;
+	
+	/**
+	 * Run a command using the ScrollingMenuSign command parser/executor.
+	 * 
+	 * @param player	The player who is running the command
+	 * @param command	The command string to be run
+	 * @return	A ParsedCommand object giving access to detailed information about the outcome of the command
+	 * @throws SMSException if the command string contains syntax errors
+	 */
+	public ParsedCommand runCommand(Player player, String command) throws SMSException;
 }

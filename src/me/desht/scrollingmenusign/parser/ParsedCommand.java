@@ -32,7 +32,7 @@ public class ParsedCommand {
 		commandStopped = macroStopped = false;
 		affordable = true;
 		command = null;
-		status = ReturnStatus.CMD_OK;
+		status = ReturnStatus.UNKNOWN;
 
 		while (scanner.hasNext()) {
 			String token = scanner.next();
@@ -110,58 +110,129 @@ public class ParsedCommand {
 		}
 	}
 
+	/**
+	 * Get the name of the command, i.e. the first word of the command string with any special
+	 * leading characters removed.
+	 * 
+	 * @return	The command name
+	 */
 	public String getCommand() {
 		return command;
 	}
 
+	/**
+	 * Get the argument list for the command, split on whitespace.
+	 * 
+	 * @return	The command's arguments
+	 */
 	public List<String> getArgs() {
 		return args;
 	}
 
+	/**
+	 * Get the elevation status, i.e. whether the command should be (has been) run with permissions checks
+	 * bypassed.
+	 * 
+	 * @return	true if elevated, false otherwise
+	 */
 	public boolean isElevated() {
 		return elevated;
 	}
 
+	/**
+	 * Get the restriction status, i.e. whether the command will be (has been) ignored due to a restriction
+	 * check not being met.
+	 * 
+	 * @return true if the command was not run due to a restriction check, false otherwise
+	 */
 	public boolean isRestricted() {
 		return restricted;
 	}
 
+	/**
+	 * Get the affordable status, i.e. whether the command costs can be (have been) met by the player.
+	 * 
+	 * @return	true if the command is affordable, false otherwise
+	 */
 	public boolean isAffordable() {
 		return affordable;
 	}
 
+	/**
+	 * Get the details of the costs for this command.
+	 * 
+	 * @return	a List of Cost objects
+	 */
 	public List<Cost> getCosts() {
 		return costs;
 	}
 
+	/**
+	 * Get the return status from actually running the command.
+	 * 
+	 * @return	the return status
+	 */
 	public ReturnStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(ReturnStatus status) {
+	void setStatus(ReturnStatus status) {
 		this.status = status;
 	}
 
+	/**
+	 * Check if this command was to whisper a message to the player, i.e. it started with '\\'
+	 * 
+	 * @return true if the command was a whisper, false otherwise
+	 */
 	public boolean isWhisper() {
 		return whisper;
 	}
 
+	/**
+	 * Check if this command calls a macro.
+	 * 
+	 * @return	true if a macro is used, false otherwise
+	 */
 	public boolean isMacro() {
 		return macro;
 	}
 	
+	/**
+	 * Check if the command sequence was stopped, i.e. $$ or $$$ was encountered following a command that actually ran (and
+	 * was not ignored due to a restriction or cost check)
+	 *  
+	 * @return	true if the command was stopped, false otherwise
+	 */
 	public boolean isCommandStopped() {
 		return commandStopped;
 	}
 
+	/**
+	 * Check if a macro was stopped, i.e. $$$ was encountered following a command that actually ran (and
+	 * was not ignored due to a restriction or cost check)
+	 * 
+	 * @return	true if a macro was stopped, false otherwise
+	 */
 	public boolean isMacroStopped() {
 		return macroStopped;
 	}
 
+	/**
+	 * Check if the command was run as a console command, i.e. started with '#'
+	 * 
+	 * @return true if a console command, false otherwise
+	 */
 	public boolean isConsole() {
 		return console;
 	}
 
+	/**
+	 * Get the argument at the given index.
+	 * 
+	 * @param index		Index of the argument to get
+	 * @return			The argument
+	 */
 	public String arg(int index) {
 		return args.get(index);
 	}
@@ -173,7 +244,6 @@ public class ParsedCommand {
 		}
 		
 		if (check.startsWith("g:")) {
-//			return PermissionsUtils.isInGroup(player, check.substring(2));
 			return PermissionsUtils.isAllowedTo(player, "scrollingmenusign.groups." + check.substring(2));
 		} else if (check.startsWith("p:")) {
 			return player.getName().equalsIgnoreCase(check.substring(2));

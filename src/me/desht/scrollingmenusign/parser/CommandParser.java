@@ -42,8 +42,10 @@ public class CommandParser {
 	 * @param player	Player who is running the command
 	 * @param command	Command to be run
 	 * @return			A return status indicating the outcome of the command
-	 * @throws SMSException	
+	 * @throws SMSException
+	 * @deprecated use runCommand()	
 	 */
+	@Deprecated
 	public ReturnStatus runCommandString(Player player, String command) throws SMSException { 
 		ParsedCommand cmd = handleCommandString(player, command, RunMode.EXECUTE);
 		
@@ -55,6 +57,20 @@ public class CommandParser {
 			cmd.setStatus(ReturnStatus.CANT_AFFORD);
 
 		return cmd.getStatus();
+	}
+	
+	/**
+	 * Parse and run a command string via the SMS command engine
+	 * 
+	 * @param player		Player who is running the command
+	 * @param command		The command to be run
+	 * @return	The parsed command object, which gives access to details on how the command ran
+	 * @throws SMSException
+	 */
+	public ParsedCommand runCommand(Player player, String command) throws SMSException {
+		ParsedCommand cmd = handleCommandString(player, command, RunMode.EXECUTE);
+
+		return cmd;
 	}
 
 	public boolean verifyCreationPerms(Player player, String command) throws SMSException {
