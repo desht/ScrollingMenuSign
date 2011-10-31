@@ -1,6 +1,8 @@
 package me.desht.scrollingmenusign.views;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.logging.Level;
@@ -23,7 +25,8 @@ public class SMSRedstoneView extends SMSView {
 	private static final String POWERTOGGLE = "powertoggle";
 	private static final String POWEROFF = "poweroff";
 	private static final String POWERON = "poweron";
-	private static final String USENEAREST = "usenearestplayer";
+	private static final String PLAYERRADIUS = "playerradius";
+	private static final String AFFECTONLYNEAREST = "affectonlynearest";
 
 	private final Map<Location,Boolean> powered = new HashMap<Location, Boolean>();
 
@@ -33,7 +36,8 @@ public class SMSRedstoneView extends SMSView {
 		registerAttribute(POWERON, "");
 		registerAttribute(POWEROFF, "");
 		registerAttribute(POWERTOGGLE, "");
-		registerAttribute(USENEAREST, false);
+		registerAttribute(PLAYERRADIUS, 0.0);
+		registerAttribute(AFFECTONLYNEAREST, true);
 	}
 
 	public SMSRedstoneView(SMSMenu menu) {
@@ -48,7 +52,7 @@ public class SMSRedstoneView extends SMSView {
 
 	@Override
 	public void update(Observable menu, Object arg1) {
-		// A redstone view doesn't really have any visual appearance to redraw
+		// A redstone view doesn't have any visual appearance to redraw
 	}
 
 	@Override
@@ -67,33 +71,40 @@ public class SMSRedstoneView extends SMSView {
 		return "redstone @ " + (locs.length == 0 ? "NONE" : MiscUtil.formatLocation(locs[0]));
 	}
 
-	public void handlePowerChange(Location loc, int newCurrent) {
+	private void handlePowerChange(Location loc, int newCurrent) {
 		boolean curPower = isPowered(loc);
 		boolean newPower = newCurrent > 0;
-//		System.out.println("handle power change " + getName() + ": " + curPower + " -> " + newPower);
+		//		System.out.println("handle power change " + getName() + ": " + curPower + " -> " + newPower);
 
 		if (newPower && !curPower) {
-			execute(POWERON);
+			execute(loc, POWERON);
 		} else if (curPower && !newPower) {
-			execute(POWEROFF);
+			execute(loc, POWEROFF);
 		}
-
 		if (curPower != newPower) {
-			execute(POWERTOGGLE);
+			execute(loc, POWERTOGGLE);
 		}
 
 		setPowered(loc, newPower);
 	}
 
-	private void execute(String attr) {
+	private void execute(Location loc, String attr) {
 		try {
 			String label = getAttributeAsString(attr);
 			if (label == null || label.isEmpty())
 				return;
 			SMSMenuItem item = getMenu().getItem(label);
-			Player player = findNearestPlayer();
+			List<Player> players = getAffectedPlayers(loc);
 			if (item != null) {
-				item.execute(player);
+				if (players != null) {
+					// run the command for each affected player
+					for (Player p : players) {
+						item.execute(p);
+					}
+				} else {
+					// no affected players - run this as a console command
+					item.execute(null);
+				}
 			} else {
 				MiscUtil.log(Level.WARNING, "No such menu item '" + label + "' in menu " + getMenu().getName());
 			}
@@ -102,42 +113,49 @@ public class SMSRedstoneView extends SMSView {
 		}
 	}
 
-	private Player findNearestPlayer() {
-		Boolean f = (Boolean) getAttribute(USENEAREST);
-		if (f == null || !f	) {
+	/**
+	 * Get a list of the players affected by this view during an execution event.  Returns null
+	 * if this view doesn't affect players (PLAYERRADIUS <= 0), or a list of players (which may
+	 * be empty) otherwise.  If AFFECTONLYNEAREST is true, then the list will contain one element
+	 * only - the closest player to the view.
+	 * 
+	 * @return	A list of affected players
+	 */
+	private List<Player> getAffectedPlayers(Location loc) {
+		Double radius = (Double) getAttribute(PLAYERRADIUS);
+		if (radius <= 0) {
 			return null;
 		}
+
 		if (getLocations().isEmpty()) {
 			return null;
 		}
-		
-		Player closest = null;
+
 		double minDist = Double.MAX_VALUE;
-		
-		Location viewLoc = getLocationsArray()[0];
-		for (Player p : viewLoc.getWorld().getPlayers()) {
-			if (p.getLocation().distance(viewLoc) < minDist) {
-				closest = p;
+		List<Player> res = new ArrayList<Player>();
+
+		if ((Boolean) getAttribute(AFFECTONLYNEAREST)) {
+			// get a list containing only the closest player (who must also be within PLAYERRADIUS)
+			Player closest = null;
+			for (Player p : loc.getWorld().getPlayers()) {
+				double dist = p.getLocation().distance(loc);
+				if (dist < radius && dist < minDist) {
+					closest = p;
+					minDist = dist;
+				}
+				res.add(closest);
+			}
+		} else {
+			// get a list of all players within PLAYERRADIUS
+			for (Player p : loc.getWorld().getPlayers()) {
+				double dist = p.getLocation().distance(loc);
+				if (dist < radius) {
+					res.add(p);
+				}
 			}
 		}
-		
-//		for (int x = viewLoc.getBlockX() - 16; x <= viewLoc.getBlockX() + 16; x += 16) {
-//			for (int z = viewLoc.getBlockZ() - 16; z <= viewLoc.getBlockZ() + 16; z += 16) {
-//				Chunk chunk = w.getChunkAt(x, z);
-//				System.out.println("chunk " + chunk);
-//				for (Entity ent : chunk.getEntities()) {
-//					System.out.println("got entity " + ent.getClass() + " @ " + ent.getLocation());
-//					if (!(ent instanceof Player))
-//						continue;
-//					if (ent.getLocation().distance(viewLoc) < minDist) {
-//						closest = (Player) ent;
-//					}
-//				}
-//			}
-//		}
-		
-//		System.out.println("found nearest player: " + closest);
-		return closest;
+
+		return res;
 	}
 
 	@Override
@@ -192,12 +210,18 @@ public class SMSRedstoneView extends SMSView {
 		}
 	}
 
+	/**
+	 * Process a BlockRedstoneEvent that just occurred.  The event's block is assumed to have already
+	 * been verified as belonging to a redstone view.
+	 * 
+	 * @param event		The event that just occurred
+	 */
 	public static void processRedstoneEvent(BlockRedstoneEvent event) {
 		Block block = event.getBlock();
 
 		// the block itself could be a view
 		checkNeighbour(event, BlockFace.SELF);
-		
+
 		//		System.out.println("redstone event: " + block.getLocation() + " : "+ event.getOldCurrent() + " -> " + event.getNewCurrent());
 		switch (block.getType()) {
 		case REDSTONE_WIRE:
