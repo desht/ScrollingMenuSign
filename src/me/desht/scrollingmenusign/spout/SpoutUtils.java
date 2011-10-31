@@ -8,9 +8,8 @@ import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.util.MiscUtil;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.material.MaterialData;
 import org.getspout.spoutapi.packet.PacketItemName;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
@@ -18,12 +17,11 @@ public class SpoutUtils {
 	private static final Map<String, SMSSpoutKeyMap> wantedKeys = new HashMap<String, SMSSpoutKeyMap>();
 	
 	public static void setSpoutMapName(short mapID, String name) {
-		SpoutManager.getItemManager().setItemName(Material.MAP, mapID, name);
-//		SpoutManager.getMaterialManager().setItemName(???);
+		MaterialData.getOrCreateMaterial(358, mapID).setName(name);
 		for (Player p : Bukkit.getServer().getOnlinePlayers()) {
 			SpoutPlayer sp = (SpoutPlayer)p;
 			if (sp.isSpoutCraftEnabled()) {
-				sp.sendPacket(new PacketItemName(Material.MAP.getId(), mapID, name));
+				sp.sendPacket(new PacketItemName(358, mapID, name));
 			}
 		}
 	}
