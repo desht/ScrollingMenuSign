@@ -103,10 +103,6 @@ public class ItemListGUI extends GenericPopup {
 		return view;
 	}
 
-	public SpoutPlayer getPlayer() {
-		return sp;
-	}
-
 	public boolean isPoppedUp() {
 		return poppedUp;
 	}
@@ -142,7 +138,7 @@ public class ItemListGUI extends GenericPopup {
 				idx = 1;
 		}
 
-		mainBox.setDirty(true);
+		buttonBox.setDirty(true);
 	}
 
 	public void popup() {	
