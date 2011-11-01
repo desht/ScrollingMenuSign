@@ -13,7 +13,6 @@ import java.util.Observer;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.Freezable;
@@ -383,13 +382,30 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @return	A list of SMSView objects which are views for that menu
 	 */
 	public static List<SMSView> getViewsForMenu(SMSMenu menu) {
-		List<SMSView> l = new ArrayList<SMSView>();
-		for (Entry<String, SMSView> e : allViewNames.entrySet()) {
-			if (e.getValue().getMenu() == menu) {
-				l.add(e.getValue());
+		return getViewsForMenu(menu, false);
+	}
+	
+	/**
+	 *  Find all the views for the given menu, optionally sorting the resulting list.
+	 *  
+	 * @param menu	The menu object to check
+	 * @param isSorted	If true, sort the returned view list by view name
+	 * @return	A list of SMSView objects which are views for that menu
+	 */
+	public static List<SMSView> getViewsForMenu(SMSMenu menu, boolean isSorted) {
+		if (isSorted) {
+			SortedSet<String> sorted = new TreeSet<String>(allViewNames.keySet());
+			List<SMSView> res = new ArrayList<SMSView>();
+			for (String name : sorted) {
+				SMSView v = allViewNames.get(name);
+				if (v.getMenu() == menu) {
+					res.add(v);
+				}
 			}
+			return res;
+		} else {
+			return new ArrayList<SMSView>(allViewNames.values());
 		}
-		return l;
 	}
 
 	/**
