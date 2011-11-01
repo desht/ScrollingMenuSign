@@ -119,15 +119,12 @@ public class SMSRedstoneView extends SMSView {
 	 * be empty) otherwise.  If AFFECTONLYNEAREST is true, then the list will contain one element
 	 * only - the closest player to the view.
 	 * 
+	 * @param loc The view's location - where the event occurred
 	 * @return	A list of affected players
 	 */
 	private List<Player> getAffectedPlayers(Location loc) {
 		Double radius = (Double) getAttribute(PLAYERRADIUS);
 		if (radius <= 0) {
-			return null;
-		}
-
-		if (getLocations().isEmpty()) {
 			return null;
 		}
 
@@ -143,6 +140,8 @@ public class SMSRedstoneView extends SMSView {
 					closest = p;
 					minDist = dist;
 				}
+			}
+			if (closest != null) {
 				res.add(closest);
 			}
 		} else {
@@ -154,7 +153,7 @@ public class SMSRedstoneView extends SMSView {
 				}
 			}
 		}
-
+		
 		return res;
 	}
 
