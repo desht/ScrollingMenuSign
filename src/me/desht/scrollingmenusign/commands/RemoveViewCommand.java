@@ -17,7 +17,7 @@ public class RemoveViewCommand extends AbstractCommand {
 		setPermissionNode("scrollingmenusign.commands.break");
 		setUsage(new String[] {
 				"/sms break",
-				"/sms break -loc <world,x,y,z>",
+				"/sms break -loc <x,y,z,world>",
 				"/sms break -view <view-name>"
 		});
 	}

@@ -29,14 +29,14 @@ public class ListMenusCommand extends AbstractCommand {
 		SMSHandler handler = plugin.getHandler();
 		if (args.length > 0) {
 			SMSMenu menu = handler.getMenu(args[0]);
-			listMenu(player, menu);
+			listMenu(player, menu, true);
 		} else {
 			List<SMSMenu> menus = handler.listMenus(true);
 			if (menus.size() == 0) {
 				MiscUtil.statusMessage(player, "No menu signs exist.");
 			} else {
 				for (SMSMenu menu : menus) {
-					listMenu(player, menu);
+					listMenu(player, menu, false);
 				}
 			}
 		}
@@ -45,8 +45,8 @@ public class ListMenusCommand extends AbstractCommand {
 		return true;
 	}
 
-	private void listMenu(Player player, SMSMenu menu) {
-		List<SMSView> views = SMSView.getViewsForMenu(menu);
+	private void listMenu(Player player, SMSMenu menu, boolean listViews) {
+		List<SMSView> views = SMSView.getViewsForMenu(menu, true);
 		
 		ChatColor viewCol = views.size() > 0 ? ChatColor.YELLOW : ChatColor.RED;
 		String message = String.format("&e%s &2\"%s&2\" &e[%d items] %s[%d views]",
@@ -54,8 +54,10 @@ public class ListMenusCommand extends AbstractCommand {
 		                               viewCol.toString(), views.size());
 		List<String> lines = new ArrayList<String>();
 		lines.add(message);
-		for (SMSView v : views) {
-			lines.add(" &5*&- " + v.getName() + ": " + v.toString());
+		if (listViews) {
+			for (SMSView v : views) {
+				lines.add(" &5*&- " + v.getName() + ": " + v.toString());
+			}
 		}
 		MessagePager.add(player, lines);
 	}
