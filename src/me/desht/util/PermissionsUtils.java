@@ -1,74 +1,53 @@
 package me.desht.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
-
-import ru.tehkode.permissions.PermissionManager;
-import ru.tehkode.permissions.PermissionUser;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
-
-import com.platymuus.bukkit.permissions.Group;
-import com.platymuus.bukkit.permissions.PermissionInfo;
-import com.platymuus.bukkit.permissions.PermissionsPlugin;
-
-import de.bananaco.permissions.worlds.WorldPermissionsManager;
 
 public class PermissionsUtils {
-	private static Plugin activePlugin = null;
-	
-	private static PermissionsPlugin permissionsBukkit = null;	// PermissionsBukkit
-	private static PermissionManager permissionManager = null;	// PermissionsEx
-	private static WorldPermissionsManager wpm = null;			// bPermissions
-
-	private PermissionsUtils() {	
-	}
-
-	/**
-	 * Try to detect a supported permissions plugin.
-	 */
-	public static void setup() {
-		PluginManager pm = Bukkit.getServer().getPluginManager();
-		Plugin plugin = null;
-
-		if ((plugin = pm.getPlugin("PermissionsBukkit")) != null) {
-			permissionsBukkit = (PermissionsPlugin) plugin;
-		} else if ((plugin = pm.getPlugin("PermissionsEx")) != null) {
-			permissionManager = PermissionsEx.getPermissionManager();
-		} else if ((plugin = pm.getPlugin("bPermissions")) != null) {
-			wpm = de.bananaco.permissions.Permissions.getWorldPermissionsManager();
-		}
-
-		activePlugin = plugin;
-		
-		if (plugin != null) {
-			MiscUtil.log(Level.INFO, "Permissions plugin detected: " + plugin.getDescription().getName() + " v" + plugin.getDescription().getVersion());
-		} else {
-			MiscUtil.log(Level.INFO, "No Permissions plugin detected - using built-in Bukkit superperms for permissions.");
-		}
-	}
-
-	/**
-	 * Is there a supported permissions plugin active?
-	 * 
-	 * @return true if a supported permissions plugin is active, false otherwise
-	 */
-	public static boolean isPluginActive() {
-		return activePlugin != null;
-	}
-	
+//	private static Plugin activePlugin = null;
+//	
+//	private static PermissionsPlugin permissionsBukkit = null;	// PermissionsBukkit
+//	private static PermissionManager permissionManager = null;	// PermissionsEx
+//	private static WorldPermissionsManager wpm = null;			// bPermissions
+//
+//	private PermissionsUtils() {	
+//	}
+//
+//	/**
+//	 * Try to detect a supported permissions plugin.
+//	 */
+//	public static void setup() {
+//		PluginManager pm = Bukkit.getServer().getPluginManager();
+//		Plugin plugin = null;
+//
+//		if ((plugin = pm.getPlugin("PermissionsBukkit")) != null) {
+//			permissionsBukkit = (PermissionsPlugin) plugin;
+//		} else if ((plugin = pm.getPlugin("PermissionsEx")) != null) {
+//			permissionManager = PermissionsEx.getPermissionManager();
+//		} else if ((plugin = pm.getPlugin("bPermissions")) != null) {
+//			wpm = de.bananaco.permissions.Permissions.getWorldPermissionsManager();
+//		}
+//
+//		activePlugin = plugin;
+//		
+//		if (plugin != null) {
+//			MiscUtil.log(Level.INFO, "Permissions plugin detected: " + plugin.getDescription().getName() + " v" + plugin.getDescription().getVersion());
+//		} else {
+//			MiscUtil.log(Level.INFO, "No Permissions plugin detected - using built-in Bukkit superperms for permissions.");
+//		}
+//	}
+//
+//	/**
+//	 * Is there a supported permissions plugin active?
+//	 * 
+//	 * @return true if a supported permissions plugin is active, false otherwise
+//	 */
+//	public static boolean isPluginActive() {
+//		return activePlugin != null;
+//	}
+//	
 	/**
 	 * Check if the player has the specified permission node.
 	 * 
@@ -76,11 +55,16 @@ public class PermissionsUtils {
 	 * @param node		Node to check for
 	 * @return	true if the player has the permission node, false otherwise
 	 */
-	public static Boolean isAllowedTo(Player player, String node) {
-		if (player == null || node == null)
+	public static boolean isAllowedTo(Player player, String node) {
+		if (player == null || node == null) {
 			return true;
-		else 
-			return player.hasPermission(node);
+		} else {
+			if (ScrollingMenuSign.permission != null) { 
+				return ScrollingMenuSign.permission.has(player, node);
+			} else { 
+				return player.hasPermission(node);
+			}
+		}
 	}
 
 	/**
@@ -96,30 +80,30 @@ public class PermissionsUtils {
 		}
 	}
 
-	/**
-	 * Check if the player is in the specified group.
-	 * 
-	 * @param player
-	 * @param group
-	 * @return
-	 */
-	public static boolean isInGroup(Player player, String group) {
-		if (permissionsBukkit != null) {
-			for (Group grp :  permissionsBukkit.getGroups(player.getName())) {
-				if (grp.getName().equalsIgnoreCase(group))
-					return true;
-			}
-		} else if (permissionManager != null) {
-			return permissionManager.getUser(player).inGroup(group);
-		} else if (wpm != null) {
-			for (String grp : wpm.getPermissionSet(player.getWorld().getName()).getGroups(player)) {
-				if (grp.equalsIgnoreCase(group))
-					return true;
-			}
-		} 
-
-		return false;
-	}
+//	/**
+//	 * Check if the player is in the specified group.
+//	 * 
+//	 * @param player
+//	 * @param group
+//	 * @return
+//	 */
+//	public static boolean isInGroup(Player player, String group) {
+//		if (permissionsBukkit != null) {
+//			for (Group grp :  permissionsBukkit.getGroups(player.getName())) {
+//				if (grp.getName().equalsIgnoreCase(group))
+//					return true;
+//			}
+//		} else if (permissionManager != null) {
+//			return permissionManager.getUser(player).inGroup(group);
+//		} else if (wpm != null) {
+//			for (String grp : wpm.getPermissionSet(player.getWorld().getName()).getGroups(player)) {
+//				if (grp.equalsIgnoreCase(group))
+//					return true;
+//			}
+//		} 
+//
+//		return false;
+//	}
 
 //	/**
 //	 * Elevate the permissions of player to match those of target
@@ -219,54 +203,54 @@ public class PermissionsUtils {
 //		}
 //	}
 //
-	/**
-	 * Get a full list of the player's permission nodes.
-	 * 
-	 * @param playerName	Name of the player to check for
-	 * @param w				Player's world (use first known world if null is passed)
-	 * @return				A list of permission node strings
-	 */
-	public static List<String> getPermissionNodes(String playerName, World w) {
-		if (w == null)
-			w = Bukkit.getServer().getWorlds().get(0);
-		System.out.println("get nodes " + playerName);
-		List<String> res = new ArrayList<String>();
-		if (permissionsBukkit != null) {
-			System.out.println("permissions bukkit get nodes");
-			Map<String, Boolean> perms;
-			PermissionInfo info = permissionsBukkit.getPlayerInfo(playerName);
-			if (info == null)
-				return res;
-
-			try {
-				// this call currently throws an NPE if no explicit permissions defined
-				perms = info.getPermissions();
-			} catch (NullPointerException e) {
-				perms = new HashMap<String, Boolean>();
-			}
-			for (Group grp : info.getGroups()) {
-				PermissionInfo gInfo = grp.getInfo();
-				try {
-					// this call currently throws an NPE if no explicit permissions defined
-					Map<String, Boolean> gPerms = gInfo.getPermissions();
-					for (Entry<String, Boolean> e : gPerms.entrySet()) {
-						perms.put(e.getKey(), e.getValue());
-					}
-				} catch (NullPointerException e) {
-				}
-			}
-			res = new ArrayList<String>(perms.keySet());
-		} else if (permissionManager != null) {
-			PermissionUser user = permissionManager.getUser(playerName);
-			if (user != null) {
-				res = Arrays.asList(user.getPermissions(w.getName()));
-			}
-		} else if (wpm != null) {
-			res = wpm.getPermissionSet(w).getPlayerNodes(playerName);
-		}
-
-		return res;
-	}
+//	/**
+//	 * Get a full list of the player's permission nodes.
+//	 * 
+//	 * @param playerName	Name of the player to check for
+//	 * @param w				Player's world (use first known world if null is passed)
+//	 * @return				A list of permission node strings
+//	 */
+//	public static List<String> getPermissionNodes(String playerName, World w) {
+//		if (w == null)
+//			w = Bukkit.getServer().getWorlds().get(0);
+//		System.out.println("get nodes " + playerName);
+//		List<String> res = new ArrayList<String>();
+//		if (permissionsBukkit != null) {
+//			System.out.println("permissions bukkit get nodes");
+//			Map<String, Boolean> perms;
+//			PermissionInfo info = permissionsBukkit.getPlayerInfo(playerName);
+//			if (info == null)
+//				return res;
+//
+//			try {
+//				// this call currently throws an NPE if no explicit permissions defined
+//				perms = info.getPermissions();
+//			} catch (NullPointerException e) {
+//				perms = new HashMap<String, Boolean>();
+//			}
+//			for (Group grp : info.getGroups()) {
+//				PermissionInfo gInfo = grp.getInfo();
+//				try {
+//					// this call currently throws an NPE if no explicit permissions defined
+//					Map<String, Boolean> gPerms = gInfo.getPermissions();
+//					for (Entry<String, Boolean> e : gPerms.entrySet()) {
+//						perms.put(e.getKey(), e.getValue());
+//					}
+//				} catch (NullPointerException e) {
+//				}
+//			}
+//			res = new ArrayList<String>(perms.keySet());
+//		} else if (permissionManager != null) {
+//			PermissionUser user = permissionManager.getUser(playerName);
+//			if (user != null) {
+//				res = Arrays.asList(user.getPermissions(w.getName()));
+//			}
+//		} else if (wpm != null) {
+//			res = wpm.getPermissionSet(w).getPlayerNodes(playerName);
+//		}
+//
+//		return res;
+//	}
 
 //	/**
 //	 * Temporarily grant op status to a player.  We don't use player.setOp() because we don't

@@ -36,8 +36,8 @@ import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutScreenListener;
 import me.desht.util.MessagePager;
 import me.desht.util.MiscUtil;
-import me.desht.util.PermissionsUtils;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -61,6 +61,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private static ScrollingMenuSign instance = null;
 
 	public static Economy economy = null;
+	public static Permission permission = null;
 
 	public final ExpectResponse expecter = new ExpectResponse();
 
@@ -80,12 +81,20 @@ public class ScrollingMenuSign extends JavaPlugin {
 			spoutEnabled = true;
 			MiscUtil.log(Level.INFO, "Detected Spout v" + spout.getDescription().getVersion());
 		}
-		
-		if (setupEconomy()) {
-			MiscUtil.log(Level.INFO, "Detected economy plugin: " + economy.getName());
+
+		Plugin vault =  pm.getPlugin("Vault");
+		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
+			if (setupEconomy()) {
+				MiscUtil.log(Level.INFO, "Detected economy plugin: " + economy.getName());
+			}
+			if (setupPermission()) {
+				MiscUtil.log(Level.INFO, "Detected permissions plugin: " + permission.getName());
+			}
+		} else {
+			MiscUtil.log(Level.WARNING, "Vault not loaded: no economy support & no permission elevation support");
 		}
 
-		PermissionsUtils.setup();
+//		PermissionsUtils.setup();
 		SMSConfig.init(this);
 
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
@@ -115,12 +124,12 @@ public class ScrollingMenuSign extends JavaPlugin {
 			@Override
 			public void run() {
 				loadPersistedData();
-//				setupEconomy();
+				//				setupEconomy();
 			}
 		}) == -1) {
 			MiscUtil.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
 			loadPersistedData();
-//			setupEconomy();
+			//			setupEconomy();
 		}
 
 		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
@@ -141,17 +150,23 @@ public class ScrollingMenuSign extends JavaPlugin {
 	}
 
 	private Boolean setupEconomy() {
-		Plugin vault = getServer().getPluginManager().getPlugin("Vault");
-		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-			if (economyProvider != null) {
-				economy = economyProvider.getProvider();
-			}
-		} else {
-			MiscUtil.log(Level.INFO, "Vault not loaded, no economy support");
+		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+		if (economyProvider != null) {
+			economy = economyProvider.getProvider();
 		}
+
 		return (economy != null);
 	}
+
+	private Boolean setupPermission() {
+		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
+		if (permissionProvider != null) {
+			permission = permissionProvider.getProvider();
+		}
+
+		return (permission != null);
+	}
+
 
 	private void registerCommands() {
 		cmds.registerCommand(new AddItemCommand());

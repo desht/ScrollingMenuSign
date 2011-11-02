@@ -14,7 +14,6 @@ import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.util.MiscUtil;
-import me.desht.util.PermissionsUtils;
 
 import org.bukkit.configuration.Configuration;
 
@@ -28,8 +27,6 @@ public class SMSConfig {
 	private static final String viewsDirName = "views";
 	private static final String macrosDirName = "macros";
 	private static final String commandFileName = "commands.yml";
-
-	private static final String SAMPLE_NODE = "a.sample.permission.node";
 
 	static void init(ScrollingMenuSign plugin) {
 		setupDirectoryStructure();
@@ -64,9 +61,10 @@ public class SMSConfig {
 	private static void initConfigFile() {
 		boolean saveNeeded = false;
 		getConfig().options().copyDefaults(true);
-		Configuration config = ScrollingMenuSign.getInstance().getConfig();
+		Configuration config = getConfig();
 		
-		for (String k : getConfig().getDefaults().getKeys(true)) {
+		// check if there is anything in the defaults which isn't in our live config file
+		for (String k : config.getDefaults().getKeys(true)) {
 			if (!config.contains(k)) {
 				saveNeeded = true;
 			}
@@ -75,17 +73,6 @@ public class SMSConfig {
 		if (config.getString("sms.menuitem_separator").equals("\\|")) {
 			// special case - convert from v0.3 or older where it was a regexp
 			config.set("sms.menuitem_separator", "|");
-			saveNeeded = true;
-		}
-
-		@SuppressWarnings("unchecked")
-		List<String> nodeList = config.getList("sms.elevation.nodes");
-		if (nodeList.size() == 1 && nodeList.get(0).equals(SAMPLE_NODE)) {
-			// initialise default nodes from the &SMS user
-			String user = getConfig().getString("sms.elevation_user", "&SMS");
-			List<String> nodes = PermissionsUtils.getPermissionNodes(user, null);
-			getConfig().set("sms.elevation.nodes", nodes);
-			MiscUtil.log(Level.INFO, "Migrated " + nodes.size() + " permissions nodes from " + user + " to elevation.nodes config item");
 			saveNeeded = true;
 		}
 		
@@ -190,10 +177,11 @@ public class SMSConfig {
 	// return a sorted list of all config keys
 	public static List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
-		for (String k : getConfig().getDefaults().getKeys(true)) {
-			if (getConfig().isConfigurationSection(k))
+		Configuration config = getConfig();
+		for (String k : config.getDefaults().getKeys(true)) {
+			if (config.isConfigurationSection(k))
 				continue;
-			res.add(k + " = '&e" + getConfig().get(k) + "&-'");
+			res.add(k + " = '&e" + config.get(k) + "&-'");
 		}
 		Collections.sort(res);
 		return res;
@@ -215,20 +203,12 @@ public class SMSConfig {
 		if (!defaults.contains(key)) {
 			throw new SMSException("No such config key '" + key + "'");
 		}
-		if (defaults.get(key) instanceof Boolean) {
-			config.set(key, Boolean.valueOf(val));
-		} else if (defaults.get(key) instanceof Integer) {
-			try {
-				int nVal = Integer.parseInt(val);
-				config.set(key, nVal);
-			} catch (NumberFormatException e) {
-				throw new SMSException("Invalid numeric value: " + val);
-			}
-		} else if (defaults.get(key) instanceof List<?>) {
+		if (defaults.get(key) instanceof List<?>) {
 			List<String>list = new ArrayList<String>(1);
 			list.add(val);
 			handleListValue(config, key, list);
 		} else if (defaults.get(key) instanceof String) {
+			// should be marginally quicker than going through the following method...
 			config.set(key, val);
 		} else {
 			// the class we're converting to needs to have a constructor taking a single String argument
@@ -245,7 +225,11 @@ public class SMSConfig {
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
-				e.printStackTrace();
+				if (e.getCause() instanceof NumberFormatException) {
+					throw new SMSException("Invalid numeric value: " + val);
+				} else {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

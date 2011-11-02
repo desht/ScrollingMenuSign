@@ -168,7 +168,7 @@ public class ItemListGUI extends GenericPopup {
 					menu.getItem(idx).execute(event.getPlayer());
 					getView().onExecuted(event.getPlayer());
 				} catch (SMSException e) {
-					MiscUtil.statusMessage(event.getPlayer(), e.getMessage());
+					MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
 				}
 			} else {
 				MiscUtil.log(Level.WARNING, "Unexpected index " + idx + " for [" + label + "], menu " + menu.getName());

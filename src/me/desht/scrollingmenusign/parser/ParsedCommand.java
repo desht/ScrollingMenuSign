@@ -6,9 +6,9 @@ import java.util.Scanner;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.util.MiscUtil;
-import me.desht.util.PermissionsUtils;
 
 import org.bukkit.entity.Player;
 
@@ -253,13 +253,13 @@ public class ParsedCommand {
 		}
 		
 		if (check.startsWith("g:")) {
-			return PermissionsUtils.isAllowedTo(player, "scrollingmenusign.groups." + check.substring(2));
+			return ScrollingMenuSign.permission.playerInGroup(player, check.substring(2));
 		} else if (check.startsWith("p:")) {
 			return player.getName().equalsIgnoreCase(check.substring(2));
 		} else if (check.startsWith("w:")) {
 			return player.getWorld().getName().equalsIgnoreCase(check.substring(2));
 		} else if (check.startsWith("n:")) {
-			return player.hasPermission(check.substring(2));
+			return ScrollingMenuSign.permission.has(player, check.substring(2));
 		} else if (check.startsWith("i:")) {
 			try {
 				return player.getItemInHand().getTypeId() == Integer.parseInt(check.substring(2));

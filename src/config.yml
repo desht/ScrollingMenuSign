@@ -25,10 +25,8 @@ sms:
         selected: '> '
         not_selected: '  '
     item_justify: left
-    elevation_user: '&SMS'
     no_destroy_signs: false
     ignore_view_ownership: true
     elevation:
-        nodes:
-        - a.sample.permission.node
+        nodes: []
         grant_op: false

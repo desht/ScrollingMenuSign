@@ -1,6 +1,5 @@
 package me.desht.scrollingmenusign.parser;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
@@ -20,7 +19,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.permissions.PermissionAttachment;
 
 public class CommandParser {
 	private Set<String> macroHistory;
@@ -167,7 +165,7 @@ public class CommandParser {
 				return;
 			}
 			Debugger.getDebugger().debug("execute (console): " + command);
-			runOneCommand(Bukkit.getServer().getConsoleSender(), cmd, command);
+			executeLowLevelCommand(Bukkit.getServer().getConsoleSender(), cmd, command);
 		} else if (cmd.isElevated()) {
 			// this is a /@ command, to be run as the real player, but with temporary permissions
 			// (this now also handles the /* fake-player style, which is no longer directly supported)
@@ -180,30 +178,26 @@ public class CommandParser {
 
 			Debugger.getDebugger().debug("execute (elevated): " + command);
 
-			List<PermissionAttachment> attachments = new ArrayList<PermissionAttachment>();
 			boolean tempOp = false;
+			@SuppressWarnings("unchecked")
+			List<String> nodes = (List<String>) SMSConfig.getConfig().getList("sms.elevation.nodes");
 			try {
-				ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
-				@SuppressWarnings("unchecked")
-				List<String> nodes = (List<String>) SMSConfig.getConfig().getList("sms.elevation.nodes");
 				for (String node : nodes) {
-					if (!node.isEmpty() && !player.hasPermission(node)) {
-						//						System.out.println("add node: " + node);
-						attachments.add(player.addAttachment(plugin, node, true));
+					if (!node.isEmpty()) {
+						ScrollingMenuSign.permission.playerAddTransient(player, node);
 					}
 				}
 				if (SMSConfig.getConfig().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
 					tempOp = true;
 					player.setOp(true);
 				}
-				runOneCommand(player, cmd, command);
+				executeLowLevelCommand(player, cmd, command);
 			} finally {
 				// revoke all temporary permissions granted to the user
-				for (PermissionAttachment att : attachments) {
-					//					for (Entry<String,Boolean> e : att.getPermissions().entrySet()) {
-					//						System.out.println("remove attachment: " + e.getKey() + " = " + e.getValue());
-					//					}
-					player.removeAttachment(att);
+				for (String node : nodes) {
+					if (!node.isEmpty()) {
+						ScrollingMenuSign.permission.playerRemoveTransient(player, node);
+					}
 				}
 				if (tempOp) {
 					player.setOp(false);
@@ -212,7 +206,7 @@ public class CommandParser {
 		} else {
 			// just an ordinary command, no special privilege elevation
 			Debugger.getDebugger().debug("execute (normal): " + command);
-			runOneCommand(player, cmd, command);
+			executeLowLevelCommand(player, cmd, command);
 		}
 	}
 
@@ -253,7 +247,7 @@ public class CommandParser {
 		}
 	}
 
-	private void runOneCommand(CommandSender sender, ParsedCommand cmd, String command) {
+	private void executeLowLevelCommand(CommandSender sender, ParsedCommand cmd, String command) {
 		cmd.setStatus(ReturnStatus.CMD_OK);
 		if (command.startsWith("/")) {
 			if (!Bukkit.getServer().dispatchCommand(sender, command.substring(1))) {
@@ -262,6 +256,8 @@ public class CommandParser {
 			}
 		} else if (sender instanceof Player) {
 			((Player)sender).chat(command);
+		} else {
+			MiscUtil.log(Level.INFO, "Chat: " + command);
 		}
 	}
 }
