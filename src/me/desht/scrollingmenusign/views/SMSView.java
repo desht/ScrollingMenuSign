@@ -21,7 +21,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.util.MiscUtil;
+import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.World;

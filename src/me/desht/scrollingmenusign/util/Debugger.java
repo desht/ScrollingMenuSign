@@ -1,4 +1,4 @@
-package me.desht.util;
+package me.desht.scrollingmenusign.util;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSConfig;
-import me.desht.util.MiscUtil;
+import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

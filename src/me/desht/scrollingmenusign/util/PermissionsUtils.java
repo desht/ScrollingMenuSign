@@ -1,4 +1,4 @@
-package me.desht.util;
+package me.desht.scrollingmenusign.util;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;

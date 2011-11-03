@@ -1,4 +1,4 @@
-package me.desht.util;
+package me.desht.scrollingmenusign.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +42,16 @@ public class MiscUtil {
 	public static void broadcastMessage(String string) {
 		prevColour = ChatColor.YELLOW.toString();
 		Bukkit.getServer().broadcastMessage(parseColourSpec("&4::&-" + string)); //$NON-NLS-1$
+	}
+	
+	public static void rawMessage(Player player, String string) {
+		for (String line : string.split("\\n")) { //$NON-NLS-1$
+			if (player != null) {
+				player.sendMessage(line);
+			} else {
+				log(Level.INFO, ChatColor.stripColor(line));
+			}
+		}
 	}
 
 	private static void message(Player player, String string, Level level) {

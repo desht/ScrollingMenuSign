@@ -11,7 +11,7 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
-import me.desht.util.MiscUtil;
+import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.entity.Player;
 

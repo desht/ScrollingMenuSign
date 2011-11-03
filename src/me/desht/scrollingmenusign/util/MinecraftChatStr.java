@@ -4,7 +4,7 @@
  * https://github.com/tkelly910/Help
  * 
  */
-package me.jascotty2.bukkit;
+package me.desht.scrollingmenusign.util;
 
 import me.jascotty2.util.Str;
 import java.util.LinkedList;
@@ -270,6 +270,7 @@ public class MinecraftChatStr {
 				lastPos = line1.length() - (ret.length() > 0 ? tab + 1 : 1);
 			}
 			//ret += strPadRightChat((ret.length() > 0 ? unformattedStrRepeat(tabChar, tab) : "") + str.substring(0, lastPos));
+
 			ret += (ret.length() > 0 ? "\n" + Str.repeat(tabChar, tab) + lastStrColor(ret) : "") + str.substring(0, lastPos);
 			str = str.substring(lastPos + 1);
 		}

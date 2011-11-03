@@ -1,4 +1,4 @@
-package me.desht.util;
+package me.desht.scrollingmenusign.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.jascotty2.bukkit.MinecraftChatStr;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -60,7 +59,10 @@ public class MessagePager {
 	 */
 	public static void add(Player p, String message) {
 		init(p);
-		bufferMap.get(name(p)).add(message);
+		String wrapped = MinecraftChatStr.strWordWrap(MiscUtil.parseColourSpec(message), 2);
+		for (String s : wrapped.split("\\n")) {
+			bufferMap.get(name(p)).add(s);
+		}
 	}
 
 	/**
@@ -74,18 +76,19 @@ public class MessagePager {
 	 *            List of message lines to add
 	 */
 	public static void add(Player p, String[] lines) {
-		init(p);
+//		init(p);
 		add(p, Arrays.asList(lines));
 	}
 
 	public static void add(Player p, List<String> lines) {
-		init(p);
+//		init(p);
 		//TODO: apply MinecraftChatStr.alignTags(lines, true)
 		//		in pagesize segments before adding to buffer
 		
 		// if block is bigger than a page, just add it
-		if (lines.size() <= pageSize
-				&& (getSize(p) % pageSize) + lines.size() > pageSize
+		int nLines = getLineCount(lines);
+		if (nLines <= pageSize
+				&& (getSize(p) % pageSize) + nLines > pageSize
 				&& p != null) {
 			// else, add padding above to keep the block on one page
 			for (int i = getSize(p) % pageSize; i < pageSize; ++i) {
@@ -93,10 +96,19 @@ public class MessagePager {
 			}
 		}
 		for (String line : lines) {
-			bufferMap.get(name(p)).add(line);
+			add(p, line);
+//			bufferMap.get(name(p)).add(line);
 		}
 	}
 
+	private static int getLineCount(List<String> lines) {
+		int ret = 0;
+		for (String line : lines) {
+			ret += (MinecraftChatStr.getStringWidth(line) / MinecraftChatStr.chatwidth) + 1;
+		}
+		return ret;
+	}
+	
 	/**
 	 * Clear the player's message buffer
 	 * 
@@ -286,17 +298,17 @@ public class MessagePager {
 			String header = String.format("| %d-%d of %d lines (page %d/%d) |",
 			                              i + 1, Math.min(pageNum * pageSize, nMessages),
 			                              nMessages, pageNum, getPageCount(player));
-			MiscUtil.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(header, 310, '-'));
+			MiscUtil.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(header, MinecraftChatStr.chatwidth, '-'));
 
 			for (; i < nMessages && i < pageNum * pageSize; ++i) {
-				MiscUtil.statusMessage(player, getLine(player, i));
+				MiscUtil.rawMessage(player, getLine(player, i));
 			}
 
 			String footer = "";
 			if (nMessages > pageSize * pageNum && pageCmd != null) {
 				footer = "| Use " + pageCmd + " to see other pages |";
 			}
-			MiscUtil.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(footer, 310, '-'));
+			MiscUtil.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(footer, MinecraftChatStr.chatwidth, '-'));
 
 			setPage(player, pageNum);
 		} else {

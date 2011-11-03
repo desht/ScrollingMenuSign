@@ -11,9 +11,9 @@ import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.util.MiscUtil;
 
 import org.bukkit.configuration.Configuration;
 
@@ -162,7 +162,7 @@ public class SMSConfig {
 		for (String k : config.getDefaults().getKeys(true)) {
 			if (config.isConfigurationSection(k))
 				continue;
-			res.add(k.replaceAll("^sms\\.", "") + " = '&e" + config.get(k) + "&-'");
+			res.add("&e" + k.replaceAll("^sms\\.", "") + "&- = '&e" + config.get(k) + "&-'");
 		}
 		Collections.sort(res);
 		return res;

@@ -1,8 +1,8 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.util.Debugger;
-import me.desht.util.MiscUtil;
+import me.desht.scrollingmenusign.util.Debugger;
+import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.entity.Player;
 

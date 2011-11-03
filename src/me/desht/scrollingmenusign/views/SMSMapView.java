@@ -19,8 +19,8 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
-import me.desht.util.MiscUtil;
 
 /**
  * @author des

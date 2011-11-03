@@ -34,8 +34,8 @@ import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutScreenListener;
-import me.desht.util.MessagePager;
-import me.desht.util.MiscUtil;
+import me.desht.scrollingmenusign.util.MessagePager;
+import me.desht.scrollingmenusign.util.MiscUtil;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 

@@ -3,8 +3,8 @@ package me.desht.scrollingmenusign.commands;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.util.MiscUtil;
-import me.desht.util.PermissionsUtils;
+import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.PermissionsUtils;
 
 import org.bukkit.entity.Player;
 

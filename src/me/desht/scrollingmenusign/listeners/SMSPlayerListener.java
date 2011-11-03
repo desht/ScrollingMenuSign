@@ -9,12 +9,12 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ExpectAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
+import me.desht.scrollingmenusign.util.Debugger;
+import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.util.Debugger;
-import me.desht.util.MiscUtil;
-import me.desht.util.PermissionsUtils;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;

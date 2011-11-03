@@ -3,7 +3,7 @@ package me.desht.scrollingmenusign.commands;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.util.MessagePager;
+import me.desht.scrollingmenusign.util.MessagePager;
 
 import org.bukkit.entity.Player;
 

@@ -9,8 +9,8 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
+import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
-import me.desht.util.MiscUtil;
 
 import org.bukkit.ChatColor;
 import org.getspout.spoutapi.event.screen.ButtonClickEvent;

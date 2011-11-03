@@ -17,7 +17,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.ItemListGUI;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
-import me.desht.util.MiscUtil;
+import me.desht.scrollingmenusign.util.MiscUtil;
 
 public class SMSSpoutView extends SMSScrollableView {
 

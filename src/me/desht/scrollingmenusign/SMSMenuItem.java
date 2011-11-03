@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.parser.ParsedCommand;
-import me.desht.util.MiscUtil;
+import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;

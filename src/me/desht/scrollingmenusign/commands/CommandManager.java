@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.util.PermissionsUtils;
+import me.desht.scrollingmenusign.util.PermissionsUtils;
 
 public class CommandManager {
 	private ScrollingMenuSign plugin;

@@ -4,9 +4,9 @@ import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.util.Debugger;
+import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.util.Debugger;
-import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

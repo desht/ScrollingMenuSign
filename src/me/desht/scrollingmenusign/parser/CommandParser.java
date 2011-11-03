@@ -11,9 +11,9 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
-import me.desht.util.Debugger;
-import me.desht.util.MiscUtil;
-import me.desht.util.PermissionsUtils;
+import me.desht.scrollingmenusign.util.Debugger;
+import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.PermissionsUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;

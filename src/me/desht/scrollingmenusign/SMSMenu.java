@@ -12,9 +12,9 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.util.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.World;
