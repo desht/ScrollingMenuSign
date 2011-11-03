@@ -20,18 +20,13 @@ public class GetConfigCommand extends AbstractCommand {
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {	
 		MessagePager.clear(player);
 		if (args.length == 0) {
-			for (String line : SMSConfig.getConfigList()) {
+			for (String line : SMSConfig.getPluginConfiguration()) {
 				MessagePager.add(player, line);
 			}
 			MessagePager.showPage(player);
 		} else {
 			String key = args[0];
-			if (!key.startsWith("sms."))
-				key = "sms." + key;
-			if (!SMSConfig.getConfig().contains(key)) {
-				throw new SMSException("No such config item: " + key);
-			}
-			Object res = SMSConfig.getConfig().get(key);
+			Object res = SMSConfig.getPluginConfiguration(key);
 			MiscUtil.statusMessage(player, key + " = '&e" + res + "&-'");
 		}
 		

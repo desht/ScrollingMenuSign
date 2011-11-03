@@ -112,6 +112,10 @@ public class SMSConfig {
 		return viewsDir;
 	}
 
+	public static Configuration getConfig() {
+		return ScrollingMenuSign.getInstance().getConfig();
+	}
+
 	public static void setPluginConfiguration(String key, String val) throws SMSException {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
@@ -137,7 +141,7 @@ public class SMSConfig {
 		ScrollingMenuSign.getInstance().saveConfig();
 	}
 
-	public static void setPluginConfiguration(String key, List<String> list) throws SMSException {
+	public static <T> void setPluginConfiguration(String key, List<T> list) throws SMSException {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
@@ -147,57 +151,45 @@ public class SMSConfig {
 		ScrollingMenuSign.getInstance().saveConfig();
 	}
 
-	@SuppressWarnings("unchecked")
-	private static void handleListValue(Configuration config, String key, List<String> list) {
-		HashSet<String> current;
-		
-		if (list.get(0).equals("-")) {
-			// remove specifed item from list
-			list.remove(0);
-			current = new HashSet<String>(config.getList(key));
-			current.removeAll(list);
-		} else if (list.get(0).equals("=")) {
-			// replace list
-			list.remove(0);
-			current = new HashSet<String>(list);
-		} else if (list.get(0).equals("+")) {
-			// append to list
-			list.remove(0);
-			current = new HashSet<String>(config.getList(key));
-			current.addAll(list);
-		} else {
-			// append to list
-			current = new HashSet<String>(config.getList(key));
-			current.addAll(list);
-		}
-		
-		config.set(key, new ArrayList<String>(current));
-	}
-
-	// return a sorted list of all config keys
-	public static List<String> getConfigList() {
+	/**
+	 * Get a formatted list of all plugin configuration items.
+	 * 
+	 * @return	A list of strings, each representing a key/value pair.
+	 */
+	public static List<String> getPluginConfiguration() {
 		ArrayList<String> res = new ArrayList<String>();
 		Configuration config = getConfig();
 		for (String k : config.getDefaults().getKeys(true)) {
 			if (config.isConfigurationSection(k))
 				continue;
-			res.add(k + " = '&e" + config.get(k) + "&-'");
+			res.add(k.replaceAll("^sms\\.", "") + " = '&e" + config.get(k) + "&-'");
 		}
 		Collections.sort(res);
 		return res;
 	}
 
-	public static Configuration getConfig() {
-		return ScrollingMenuSign.getInstance().getConfig();
-	}
-
-	public static Object getConfigItem(String key) {
+	public static Object getPluginConfiguration(String key) throws SMSException {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
+		if (!SMSConfig.getConfig().contains(key)) {
+			throw new SMSException("No such config item: " + key);
+		}
+		
 		return getConfig().get(key);
 	}
-	
+
+	/**
+	 * Sets a configuration item in the given config object.  The key and value are both strings; the value
+	 * will be converted into an object of the correct type, if possible (where the type is discovered from
+	 * the config's default object).  The type's class must provide a constructor which takes a single string
+	 * or an exception will be thrown.
+	 * 
+	 * @param config	The configuration object
+	 * @param key		The configuration key
+	 * @param val		The value
+	 * @throws SMSException	if the key is unknown or a bad numeric value is passed
+	 */
 	public static void setConfigItem(Configuration config, String key, String val) throws SMSException {
 		Configuration defaults = config.getDefaults();
 		if (!defaults.contains(key)) {
@@ -212,12 +204,13 @@ public class SMSConfig {
 			config.set(key, val);
 		} else {
 			// the class we're converting to needs to have a constructor taking a single String argument
+			Class<?> c = null;
 			try {
-				Class<?> c = defaults.get(key).getClass();
+				c = defaults.get(key).getClass();
 				Constructor<?> ctor = c.getDeclaredConstructor(String.class);
 				config.set(key, ctor.newInstance(val));
 			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
+				throw new SMSException("Don't know how to convert '" + val + "' into a " + c.getName());
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			} catch (InstantiationException e) {
@@ -234,7 +227,7 @@ public class SMSConfig {
 		}
 	}
 	
-	public static void setConfigItem(Configuration config, String key, List<String> list) throws SMSException {
+	public static <T> void setConfigItem(Configuration config, String key, List<T> list) throws SMSException {
 		if (config.getDefaults().get(key) == null) {
 			throw new SMSException("No such key '" + key + "'");
 		}
@@ -242,5 +235,32 @@ public class SMSConfig {
 			throw new SMSException("Key '" + key + "' does not accept a list of values");
 		}
 		handleListValue(config, key, list);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> void handleListValue(Configuration config, String key, List<T> list) {
+		HashSet<T> current;
+		
+		if (list.get(0).equals("-")) {
+			// remove specifed item from list
+			list.remove(0);
+			current = new HashSet<T>(config.getList(key));
+			current.removeAll(list);
+		} else if (list.get(0).equals("=")) {
+			// replace list
+			list.remove(0);
+			current = new HashSet<T>(list);
+		} else if (list.get(0).equals("+")) {
+			// append to list
+			list.remove(0);
+			current = new HashSet<T>(config.getList(key));
+			current.addAll(list);
+		} else {
+			// append to list
+			current = new HashSet<T>(config.getList(key));
+			current.addAll(list);
+		}
+		
+		config.set(key, new ArrayList<T>(current));
 	}
 }
