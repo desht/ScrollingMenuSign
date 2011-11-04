@@ -162,7 +162,7 @@ public class SMSConfig {
 		for (String k : config.getDefaults().getKeys(true)) {
 			if (config.isConfigurationSection(k))
 				continue;
-			res.add("&e" + k.replaceAll("^sms\\.", "") + "&- = '&e" + config.get(k) + "&-'");
+			res.add("&f" + k.replaceAll("^sms\\.", "") + "&- = '&e" + config.get(k) + "&-'");
 		}
 		Collections.sort(res);
 		return res;

@@ -10,12 +10,12 @@ import java.util.logging.Level;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.material.Attachable;
@@ -55,10 +55,10 @@ public class SMSRedstoneView extends SMSView {
 		// A redstone view doesn't have any visual appearance to redraw
 	}
 
-	@Override
-	protected void thaw(ConfigurationSection node) {
-		// No extra work to do here
-	}
+//	@Override
+//	protected void thaw(ConfigurationSection node) {
+//		// No extra work to do here
+//	}
 
 	@Override
 	public String getType() {
@@ -74,7 +74,6 @@ public class SMSRedstoneView extends SMSView {
 	private void handlePowerChange(Location loc, int newCurrent) {
 		boolean curPower = isPowered(loc);
 		boolean newPower = newCurrent > 0;
-		//		System.out.println("handle power change " + getName() + ": " + curPower + " -> " + newPower);
 
 		if (newPower && !curPower) {
 			execute(loc, POWERON);
@@ -157,6 +156,9 @@ public class SMSRedstoneView extends SMSView {
 		return res;
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#addLocation(org.bukkit.Location)
+	 */
 	@Override
 	public void addLocation(Location loc) throws SMSException {
 		powered.put(loc, loc.getBlock().isBlockPowered() || loc.getBlock().isBlockIndirectlyPowered());
@@ -164,6 +166,9 @@ public class SMSRedstoneView extends SMSView {
 		super.addLocation(loc);
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#removeLocation(org.bukkit.Location)
+	 */
 	@Override
 	public void removeLocation(Location loc) {
 		powered.remove(loc);
@@ -171,14 +176,33 @@ public class SMSRedstoneView extends SMSView {
 		super.removeLocation(loc);
 	}
 
+	/**
+	 * Check if the view believe the given location is currently powered
+	 * 
+	 * @param loc	The location to check
+	 * @return		true if the location is considered powered, false otherwise
+	 */
 	public boolean isPowered(Location loc) {
 		return powered.get(loc);
 	}
 
+	/**
+	 * Record the current location as being powered or not
+	 * 
+	 * @param loc		The location to record
+	 * @param power		The power level
+	 */
 	public void setPowered(Location loc, Boolean power) {
 		powered.put(loc, power);
 	}
 
+	/**
+	 * Check if the power level for the given location has changed
+	 * 
+	 * @param loc	The location to check
+	 * @param newCurrent	The new current at the given location
+	 * @return	true if the new current represents a power level different from the block's current powered status
+	 */
 	public boolean hasPowerChanged(Location loc, int newCurrent) {
 		boolean curPower = loc.getBlock().isBlockPowered() || loc.getBlock().isBlockIndirectlyPowered();
 
@@ -200,6 +224,12 @@ public class SMSRedstoneView extends SMSView {
 		return view;
 	}
 
+	/**
+	 * Get the redstone view at the given location, if any.
+	 * 
+	 * @param loc	The location to check
+	 * @return	The view if any exists, null otherwise
+	 */
 	public static SMSRedstoneView getRedstoneViewForLocation(Location loc) {
 		SMSView v = SMSView.getViewForLocation(loc);
 		if (v != null && v instanceof SMSRedstoneView) {
@@ -255,6 +285,8 @@ public class SMSRedstoneView extends SMSView {
 		SMSRedstoneView rv = getRedstoneViewForLocation(neighbour.getLocation());
 
 		if (rv != null && rv.hasPowerChanged(neighbour.getLocation(), event.getNewCurrent())) {
+			Debugger.getDebugger().debug("block redstone event @ " + neighbour.getLocation() + ", view = " +
+					rv.getName() + ", menu = " + rv.getMenu().getName() + ", new current = " + event.getNewCurrent());
 			rv.handlePowerChange(neighbour.getLocation(), event.getNewCurrent());
 		}
 	}

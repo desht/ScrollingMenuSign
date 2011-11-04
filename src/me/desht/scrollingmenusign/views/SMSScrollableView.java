@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -29,7 +30,8 @@ public abstract class SMSScrollableView extends SMSView {
 		return map;
 	}
 	
-	protected void thaw(ConfigurationSection node) {
+	protected void thaw(ConfigurationSection node) throws SMSException {
+		super.thaw(node);
 		lastScrollPos = node.getInt("scrollPos", 1);
 		if (lastScrollPos < 1 || lastScrollPos > getMenu().getItemCount())
 			lastScrollPos = 1;

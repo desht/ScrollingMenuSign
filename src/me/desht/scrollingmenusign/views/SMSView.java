@@ -56,8 +56,6 @@ public abstract class SMSView implements Observer, Freezable {
 	@Override
 	public abstract void update(Observable menu, Object arg1);
 
-	protected abstract void thaw(ConfigurationSection node);
-
 	/**
 	 * Get a user-friendly string representing the type of this view.
 	 * 
@@ -153,6 +151,23 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 		map.put("locations", locs);
 		return map;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void thaw(ConfigurationSection node) throws SMSException {
+		List<Object> locs = node.getList("locations");
+		for (Object o : locs) {
+			List<Object> locList = (List<Object>) o;
+			World w = MiscUtil.findWorld((String) locList.get(0));
+			Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
+			addLocation(loc);
+		}
+		for (String k : node.getKeys(false)) {
+			if (hasAttribute(k)) {
+				SMSConfig.setConfigItem(getAttributes(), k, node.getString(k));
+				setAttribute(k, node.getString(k));
+			}
+		}
 	}
 
 	private List<Object> freezeLocation(Location l) {
@@ -432,7 +447,6 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @param node	The configuration
 	 * @return	The view object
 	 */
-	@SuppressWarnings("unchecked")
 	public static SMSView load(ConfigurationSection node) {
 		String className = node.getString("class");
 		String viewName = node.getString("name");
@@ -442,21 +456,7 @@ public abstract class SMSView implements Observer, Freezable {
 			Constructor<? extends SMSView> ctor = c.getDeclaredConstructor(String.class, SMSMenu.class);
 			SMSView v = ctor.newInstance(viewName, SMSMenu.getMenu(node.getString("menu")));
 			v.setAutosave(false);
-			List<Object> locs = node.getList("locations");
-			for (Object o : locs) {
-				List<Object> locList = (List<Object>) o;
-				World w = MiscUtil.findWorld((String) locList.get(0));
-				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
-				v.addLocation(loc);
-			}
-			for (String k : node.getKeys(false)) {
-				if (v.hasAttribute(k)) {
-					SMSConfig.setConfigItem(v.getAttributes(), k, node.getString(k));
-					v.setAttribute(k, node.getString(k));
-				}
-			}
 			v.thaw(node);
-
 			v.setAutosave(true);
 			return v;
 		} catch (ClassNotFoundException e) {

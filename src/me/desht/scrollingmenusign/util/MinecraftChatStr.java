@@ -6,7 +6,6 @@
  */
 package me.desht.scrollingmenusign.util;
 
-import me.jascotty2.util.Str;
 import java.util.LinkedList;
 import org.bukkit.ChatColor;
 

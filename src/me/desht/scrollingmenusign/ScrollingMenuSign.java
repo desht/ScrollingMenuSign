@@ -94,7 +94,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 			MiscUtil.log(Level.WARNING, "Vault not loaded: no economy support & no permission elevation support");
 		}
 
-//		PermissionsUtils.setup();
 		SMSConfig.init(this);
 
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
@@ -124,12 +123,10 @@ public class ScrollingMenuSign extends JavaPlugin {
 			@Override
 			public void run() {
 				loadPersistedData();
-				//				setupEconomy();
 			}
 		}) == -1) {
 			MiscUtil.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
 			loadPersistedData();
-			//			setupEconomy();
 		}
 
 		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );

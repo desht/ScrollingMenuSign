@@ -4,7 +4,7 @@
  * Description:
  * Date: Mar 31, 2011
  */
-package me.jascotty2.util;
+package me.desht.scrollingmenusign.util;
 
 import java.io.IOException;
 import java.io.OutputStream;

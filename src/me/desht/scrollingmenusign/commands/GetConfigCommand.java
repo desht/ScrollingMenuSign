@@ -27,7 +27,7 @@ public class GetConfigCommand extends AbstractCommand {
 		} else {
 			String key = args[0];
 			Object res = SMSConfig.getPluginConfiguration(key);
-			MiscUtil.statusMessage(player, key + " = '&e" + res + "&-'");
+			MiscUtil.statusMessage(player, "&f" + key + " = '&e" + res + "&-'");
 		}
 		
 		return true;

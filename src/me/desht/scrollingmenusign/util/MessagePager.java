@@ -16,7 +16,7 @@ public class MessagePager {
 	private static final Map<String, Integer> currentPage = new HashMap<String, Integer>();
 	private static final int pageSize = 18;	// 20 lines total, minus 2 for header and footer
 
-	private static String pageCmd = null; // "/sms page [#|n|p]";
+	private static String pageCmd = null;
 	
 	/**
 	 * initialize the buffer for the player if necessary
@@ -50,7 +50,8 @@ public class MessagePager {
 	}
 
 	/**
-	 * Add a message to the buffer.
+	 * Add a message to the buffer.  The message will be word-wrapped and split on newlines,
+	 * so lead to the addition of multiple distinct lines in the buffer.
 	 * 
 	 * @param p
 	 *            The player
@@ -73,31 +74,38 @@ public class MessagePager {
 	 * @param p
 	 *            The player
 	 * @param messages
-	 *            List of message lines to add
+	 *            Array of message lines to add
 	 */
 	public static void add(Player p, String[] lines) {
-//		init(p);
 		add(p, Arrays.asList(lines));
 	}
 
+	/**
+	 * Add a block of messages. All message should stay on the same page if
+	 * possible - add padding to ensure this where necessary. If block is larger
+	 * than the page size, then just add it.
+	 * 
+	 * @param p
+	 *            The player
+	 * @param messages
+	 *            List of message lines to add
+	 */
 	public static void add(Player p, List<String> lines) {
-//		init(p);
 		//TODO: apply MinecraftChatStr.alignTags(lines, true)
 		//		in pagesize segments before adding to buffer
 		
-		// if block is bigger than a page, just add it
+		// if block is bigger than a page, just add it - not possible to keep it on one page
 		int nLines = getLineCount(lines);
 		if (nLines <= pageSize
 				&& (getSize(p) % pageSize) + nLines > pageSize
 				&& p != null) {
-			// else, add padding above to keep the block on one page
+			// else, add padding if necessary to start a new page, thus keeping the block on one page
 			for (int i = getSize(p) % pageSize; i < pageSize; ++i) {
 				bufferMap.get(name(p)).add("");
 			}
 		}
 		for (String line : lines) {
 			add(p, line);
-//			bufferMap.get(name(p)).add(line);
 		}
 	}
 

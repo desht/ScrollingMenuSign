@@ -74,7 +74,8 @@ public class SMSMapView extends SMSScrollableView {
 		return map;
 	}
 
-	protected void thaw(ConfigurationSection node) {
+	protected void thaw(ConfigurationSection node) throws SMSException {
+		super.thaw(node);
 		short mapId = (short) node.getInt("mapId", -1);
 		if (mapId >= 0)
 			setMapId((short) node.getInt("mapId", 0));
