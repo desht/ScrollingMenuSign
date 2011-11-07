@@ -169,6 +169,21 @@ public class SMSSpoutView extends SMSScrollableView {
 		// popups.remove(playerName);
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#onAttributeValidate(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	protected void onAttributeValidate(String attribute, String curVal, String newVal) throws SMSException {
+		if (attribute.equals(SPOUTKEYS)) {
+			if (!newVal.isEmpty()) {
+				SMSSpoutKeyMap sp = new SMSSpoutKeyMap(newVal);
+				if (keyMap.containsKey(sp.toString())) {
+					throw new SMSException(sp.toString() + " is already used as the hotkey for another view (" + keyMap.get(sp.toString()) + ")");
+				}
+			}
+		}
+	}
+	
 	@Override
 	protected void onAttributeChanged(String attribute, String oldVal, String newVal) {
 		super.onAttributeChanged(attribute, oldVal, newVal);

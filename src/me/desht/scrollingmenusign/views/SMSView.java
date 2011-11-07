@@ -511,8 +511,21 @@ public abstract class SMSView implements Observer, Freezable {
 
 	public void setAttribute(String k, String val) throws SMSException {
 		String oldVal = getAttributeAsString(k);
+		onAttributeValidate(k, oldVal, val);
 		SMSConfig.setConfigItem(attributes, k, val);
 		onAttributeChanged(k, oldVal, attributes.get(k).toString());
+	}
+
+	/**
+	 * Called automatically when an attribute is about to be changed.  Override and extend this
+	 * in subclasses.
+	 * @param attribute		The attribute name	
+	 * @param curVal		The current value
+	 * @param newVal		The proposed new value
+	 * @throws SMSException to prevent the attribute being changed (the exception's message will be
+	 * passed to the player)
+	 */
+	protected void onAttributeValidate(String attribute, String curVal, String newVal) throws SMSException {
 	}
 
 	public boolean hasAttribute(String k) {

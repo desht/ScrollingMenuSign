@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 
@@ -288,6 +289,20 @@ public class SMSRedstoneView extends SMSView {
 			Debugger.getDebugger().debug("block redstone event @ " + neighbour.getLocation() + ", view = " +
 					rv.getName() + ", menu = " + rv.getMenu().getName() + ", new current = " + event.getNewCurrent());
 			rv.handlePowerChange(neighbour.getLocation(), event.getNewCurrent());
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#onAttributeValidate(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	protected void onAttributeValidate(String attribute, String curVal, String newVal) throws SMSException {
+		if (attribute.equals(POWERON) || attribute.equals(POWEROFF) || attribute.equals(POWERTOGGLE)) {
+			if (!newVal.isEmpty()) {
+				if (getMenu().indexOfItem(newVal) == -1) {
+					throw new SMSException("Menu " + getMenu().getName() + " does not contain the item '" + newVal + "'");
+				}
+			}
 		}
 	}
 }
