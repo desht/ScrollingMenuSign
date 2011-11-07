@@ -221,4 +221,16 @@ public class SMSPersistence {
 		return backup;
 	}
 
+
+	/**
+	 * Require the presence of the given field in the given configuration.
+	 * 
+	 * @param node		The node to check 
+	 * @param field	The field to check for
+	 * @throws SMSException	if the field is not present in the configuration
+	 */
+	public static void mustHaveField(ConfigurationSection node, String field) throws SMSException {
+		if (!node.contains(field))
+			throw new SMSException("Field '" + field + "' missing - corrupted save file?");
+	}
 }	

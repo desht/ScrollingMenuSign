@@ -448,9 +448,15 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @return	The view object
 	 */
 	public static SMSView load(ConfigurationSection node) {
-		String className = node.getString("class");
-		String viewName = node.getString("name");
+		String viewName = null;
 		try {
+			SMSPersistence.mustHaveField(node, "class");
+			SMSPersistence.mustHaveField(node, "name");
+			SMSPersistence.mustHaveField(node, "menu");
+			
+			String className = node.getString("class");
+			viewName = node.getString("name");
+			
 			Class<? extends SMSView> c = Class.forName(className).asSubclass(SMSView.class);
 			//			System.out.println("got class " + c.getName());
 			Constructor<? extends SMSView> ctor = c.getDeclaredConstructor(String.class, SMSMenu.class);

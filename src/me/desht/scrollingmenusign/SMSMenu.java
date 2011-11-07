@@ -81,9 +81,9 @@ public class SMSMenu extends Observable implements Freezable {
 	 */
 	@SuppressWarnings("unchecked")
 	SMSMenu(ConfigurationSection node) throws SMSException {
-		mustHaveField(node, "name");
-		mustHaveField(node, "title");
-		mustHaveField(node, "owner");
+		SMSPersistence.mustHaveField(node, "name");
+		SMSPersistence.mustHaveField(node, "title");
+		SMSPersistence.mustHaveField(node, "owner");
 		
 		initCommon(node.getString("name"),
 		           MiscUtil.parseColourSpec(null, node.getString("title")),
@@ -105,10 +105,6 @@ public class SMSMenu extends Observable implements Freezable {
 		}
 	}
 
-	private void mustHaveField(ConfigurationSection node, String string) throws SMSException {
-		if (!node.contains(string))
-			throw new SMSException("Field '" + string + "' missing - corrupted menu file?");
-	}
 
 	/**
 	 * In v0.5 and older, locations were in the menu object.  Now they are in the view
