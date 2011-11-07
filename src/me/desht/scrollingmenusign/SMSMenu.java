@@ -81,6 +81,10 @@ public class SMSMenu extends Observable implements Freezable {
 	 */
 	@SuppressWarnings("unchecked")
 	SMSMenu(ConfigurationSection node) throws SMSException {
+		mustHaveField(node, "name");
+		mustHaveField(node, "title");
+		mustHaveField(node, "owner");
+		
 		initCommon(node.getString("name"),
 		           MiscUtil.parseColourSpec(null, node.getString("title")),
 		           node.getString("owner"));
@@ -99,6 +103,11 @@ public class SMSMenu extends Observable implements Freezable {
 			SMSMenuItem menuItem = new SMSMenuItem(this, itemNode);
 			addItem(menuItem);
 		}
+	}
+
+	private void mustHaveField(ConfigurationSection node, String string) throws SMSException {
+		if (!node.contains(string))
+			throw new SMSException("Field '" + string + "' missing - corrupted menu file?");
 	}
 
 	/**

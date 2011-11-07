@@ -149,7 +149,7 @@ public class SMSPersistence {
 					SMSMenu menu = new SMSMenu(conf);
 					SMSMenu.addMenu(menu.getName(), menu, true);
 				} catch (SMSException e) {
-					MiscUtil.log(Level.SEVERE, "Can't restore menu from " + f + ": " + e.getMessage());
+					MiscUtil.log(Level.SEVERE, "Can't load menu data from " + f + ": " + e.getMessage());
 				}
 			}
 			MiscUtil.log(Level.INFO, "Loaded " + SMSMenu.listMenus().size() + " menus from file.");
