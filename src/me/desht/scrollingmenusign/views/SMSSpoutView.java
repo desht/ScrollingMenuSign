@@ -18,6 +18,7 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.ItemListGUI;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.PermissionsUtils;
 
 public class SMSSpoutView extends SMSScrollableView {
 
@@ -249,6 +250,8 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * @return			True if a spout view was actually popped up or down, false otherwise
 	 */
 	public static boolean handleKeypress(SpoutPlayer sp, SMSSpoutKeyMap pressed) {
+		if (!PermissionsUtils.isAllowedTo(sp, "scrollingmenusign.use.spout"))
+			return false;
 		if (pressed.keysPressed() == 0)
 			return false;
 

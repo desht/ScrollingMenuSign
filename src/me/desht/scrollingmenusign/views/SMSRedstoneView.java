@@ -10,9 +10,9 @@ import java.util.logging.Level;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.PermissionsUtils;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -56,11 +56,6 @@ public class SMSRedstoneView extends SMSView {
 		// A redstone view doesn't have any visual appearance to redraw
 	}
 
-//	@Override
-//	protected void thaw(ConfigurationSection node) {
-//		// No extra work to do here
-//	}
-
 	@Override
 	public String getType() {
 		return "redstone";
@@ -99,7 +94,9 @@ public class SMSRedstoneView extends SMSView {
 				if (players != null) {
 					// run the command for each affected player
 					for (Player p : players) {
-						item.execute(p);
+						if (PermissionsUtils.isAllowedTo(p, "scrollingmenusign.use.redstone")) {
+							item.execute(p);
+						}
 					}
 				} else {
 					// no affected players - run this as a console command

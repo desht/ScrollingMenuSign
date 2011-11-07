@@ -4,6 +4,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.util.MessagePager;
 import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -34,6 +35,7 @@ public class ViewCommand extends AbstractCommand {
 
 		if (args[1].equals("-popup")) {
 			notFromConsole(player);
+			PermissionsUtils.requirePerms(player, "scrollingmenusign.use.spout");
 			if (view instanceof SMSSpoutView) {
 				SMSSpoutView spv = (SMSSpoutView) view;
 				spv.toggleGUI(player);

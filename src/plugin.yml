@@ -49,14 +49,12 @@ permissions:
       scrollingmenusign.commands.view: true
       scrollingmenusign.colourSigns: true
       scrollingmenusign.destroy: true
-      scrollingmenusign.use.map: true
-      scrollingmenusign.use.spout: true
       scrollingmenusign.maps.toSign: true
       scrollingmenusign.maps.fromSign: true
       scrollingmenusign.create.elevated: true
       scrollingmenusign.create.cost: true
-      scrollingmenusign.useAnyView: true
-      scrollingmenusign.user: true
+      scrollingmenusign.ignoreViewOwnership: true
+      scrollingmenusign.poweruser: true
   scrollingmenusign.user:
     description: Gives access to basic SMS functionality
     children:
@@ -67,6 +65,13 @@ permissions:
       scrollingmenusign.execute: true
       scrollingmenusign.execute.elevated: true
       scrollingmenusign.use.sign: true
+      scrollingmenusign.use.redstone: true
+  scrollingmenusign.poweruser:
+    description: Gives access to basic SMS functionality plus map and spout views
+    children:
+      scrollingmenusign.user: true
+      scrollingmenusign.use.map: true
+      scrollingmenusign.use.spout: true
   scrollingmenusign.maps:
     description: Allow use of maps (backwards compatibility - use scrollingmenusign.use.map now)
     children:
@@ -129,6 +134,10 @@ permissions:
   scrollingmenusign.coloursigns:
     description: Allows creation of signs with coloured titles and menu items
     default: op
+  scrollingmenusign.colorsigns:
+    description: Synonym for scrollingmenusign.coloursigns
+    children:
+      scrollingmenusign.coloursigns: true
   scrollingmenusign.commands.list:
     description: Allows menus to be listed
     default: true
@@ -173,4 +182,7 @@ permissions:
     default: op
   scrollingmenusign.use.sign:
     description: Allows usage of sign views
+    default: true
+  scrollingmenusign.use.redstone:
+    description: Allows usage of redstone views
     default: true
