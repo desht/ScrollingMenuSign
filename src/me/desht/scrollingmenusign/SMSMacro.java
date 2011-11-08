@@ -24,7 +24,7 @@ public class SMSMacro implements Freezable {
 	/**
 	 * Create a new macro object.
 	 * 
-	 * @param macroName
+	 * @param macroName		Name of the new macro	
 	 */
 	SMSMacro(String macroName) {
 		this.macroName = macroName;
@@ -40,7 +40,7 @@ public class SMSMacro implements Freezable {
 	/**
 	 * Add a line to the macro.
 	 * 
-	 * @param line	Line to add
+	 * @param line		Line to add
 	 */
 	public void addLine(String line) {
 		macroDefinition.add(line);
@@ -49,8 +49,8 @@ public class SMSMacro implements Freezable {
 	/**
 	 * Insert a line in the macro at the given position
 	 * 
-	 * @param line	Line to add
-	 * @param index	Position at which to insert
+	 * @param line		Line to add
+	 * @param index		Position at which to insert
 	 */
 	public void addLine(String line, int index) {
 		macroDefinition.add(index, line);
@@ -59,7 +59,7 @@ public class SMSMacro implements Freezable {
 	/**
 	 * Remove the line at the given index
 	 * 
-	 * @param index	Position at which to remove
+	 * @param index		Position at which to remove
 	 */
 	public void removeLine(int index) {
 		macroDefinition.remove(index);
@@ -137,17 +137,17 @@ public class SMSMacro implements Freezable {
 	/**
 	 * Retrieve the macro with the given name.  Equivalent to calling getMacro(macroName, false)
 	 * 
-	 * @param macroName	Name of macro to get
+	 * @param macroName		Name of macro to get
 	 * @return	The macro object
-	 * @throws SMSException	if there is no macro of that name
+	 * @throws SMSException		if there is no macro of that name
 	 */
 	public static SMSMacro getMacro(String macroName) throws SMSException {
 		return getMacro(macroName, false);	
 	}
 	
 	/**
-	 * @param macroName Name of macro to get
-	 * @param autoCreate If true and there is no macro of that name, create a new macro
+	 * @param macroName 	Name of macro to get
+	 * @param autoCreate	If true and there is no macro of that name, create a new macro
 	 * @return	The macro object
 	 * @throws SMSException if autoCreate is false and there is no macro of that name
 	 */
@@ -167,8 +167,8 @@ public class SMSMacro implements Freezable {
 	 * Add a command to a macro.  If the macro does not exist,
 	 * a new empty macro will be automatically created.
 	 * 
-	 * @param macro	The macro to add the command to
-	 * @param cmd	The command to add
+	 * @param macro		The macro to add the command to
+	 * @param cmd		The command to add
 	 */
 	public static void addCommand(String macro, String cmd) {
 		try {
@@ -185,9 +185,9 @@ public class SMSMacro implements Freezable {
 	 * Add a command to a macro, at a given position.  If the macro does not exist,
 	 * a new empty macro will be automatically created.
 	 * 
-	 * @param macro The macro to add the command to
-	 * @param cmd	The command to add
-	 * @param index	The index at which to add the command (0 is start of the macro)
+	 * @param macro		The macro to add the command to
+	 * @param cmd		The command to add
+	 * @param index		The index at which to add the command (0 is start of the macro)
 	 */
 	public static void insertCommand(String macro, String cmd, int index) {
 		try {
@@ -221,7 +221,7 @@ public class SMSMacro implements Freezable {
 	/**
 	 * Return a list of all the known macros
 	 * 
-	 * @param isSorted Whether or not to sort the macros by name
+	 * @param isSorted		Whether or not to sort the macros by name
 	 * @return	A list of SMSMacro objects
 	 */
 	public static List<SMSMacro> listMacros(boolean isSorted) {
@@ -240,7 +240,7 @@ public class SMSMacro implements Freezable {
 	/**
 	 * Check to see if the given macro exists.
 	 * 
-	 * @param macro	The macro to check for
+	 * @param macro		The macro to check for
 	 * @return	True if the macro exists, false otherwise
 	 */
 	public static Boolean hasMacro(String macro) {
@@ -251,7 +251,7 @@ public class SMSMacro implements Freezable {
 	 * Get a list of the commands in the given macro.  If the macro does not exist,
 	 * a new empty macro will be automatically created.
 	 * 
-	 * @param macro	The macro to check
+	 * @param macro		The macro to check
 	 * @return	A list of strings, each of which is a command in the macro
 	 */
 	public static List<String> getCommands(String macro) {
@@ -267,7 +267,7 @@ public class SMSMacro implements Freezable {
 	/**
 	 * Remove a macro.
 	 * 
-	 * @param macro	The macro to remove
+	 * @param macro		The macro to remove
 	 */
 	public static void removeMacro(String macro) {
 		try {
@@ -282,8 +282,8 @@ public class SMSMacro implements Freezable {
 	/**
 	 * Remove a command from a macro.
 	 * 
-	 * @param macro	The macro to modify
-	 * @param index	The index of the command to remove (0 is the first command)
+	 * @param macro		The macro to modify
+	 * @param index		The index of the command to remove (0 is the first command)
 	 */
 	public static void removeCommand(String macro, int index) {
 		try {

@@ -378,7 +378,7 @@ public class SMSMenu extends Observable implements Freezable {
 	 * 
 	 * @param item	The item to be added
 	 */
-	public void addItem(SMSMenuItem item) {
+	void addItem(SMSMenuItem item) {
 		if (item == null)
 			throw new NullPointerException();
 
@@ -392,7 +392,7 @@ public class SMSMenu extends Observable implements Freezable {
 	}
 
 	/**
-	 * Sort the menu's items by label text (see SMSMenuItem.compareTo())
+	 * Sort the menu's items by label text - see {@link SMSMenuItem#compareTo(SMSMenuItem)}
 	 */
 	public void sortItems() {
 		Collections.sort(items);
@@ -688,6 +688,9 @@ public class SMSMenu extends Observable implements Freezable {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.Freezable#getSaveFolder()
+	 */
 	@Override
 	public File getSaveFolder() {
 		return SMSConfig.getMenusFolder();

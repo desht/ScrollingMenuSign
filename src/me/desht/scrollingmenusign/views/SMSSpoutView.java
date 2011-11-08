@@ -61,7 +61,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	/**
 	 * Show the given player's GUI for this view.
 	 * 
-	 * @param sp
+	 * @param p		The player object
 	 */
 	public void showGUI(Player p) {
 		SpoutPlayer sp = SpoutManager.getPlayer(p);
@@ -81,7 +81,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	/**
 	 * Hide the given player's GUI for this view.
 	 * 
-	 * @param sp	The Spout player
+	 * @param p		The player object
 	 */
 	public void hideGUI(Player p) {
 		SpoutPlayer sp = SpoutManager.getPlayer(p);
@@ -103,7 +103,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * Toggle the given player's visibility of the GUI for this view.  If a GUI for a different view
 	 * is currently showing, pop that one down, and pop this one up.
 	 * 
-	 * @param sp	The Spout player
+	 * @param p		The player object
 	 */
 	public void toggleGUI(Player p) {
 		final SpoutPlayer sp = SpoutManager.getPlayer(p);

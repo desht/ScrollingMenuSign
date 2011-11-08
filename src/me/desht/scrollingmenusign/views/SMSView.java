@@ -240,7 +240,7 @@ public abstract class SMSView implements Observer, Freezable {
 	/**
 	 * Get the maximum number of locations that this view may occupy.
 	 * 
-	 * @return
+	 * @return	The maximum number of locations
 	 */
 	public int getMaxLocations() {
 		return maxLocations;

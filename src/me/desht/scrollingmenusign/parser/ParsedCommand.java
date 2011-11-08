@@ -228,6 +228,11 @@ public class ParsedCommand {
 		return console;
 	}
 
+	/**
+	 * Get the last error message that was generated from running the command.
+	 * 
+	 * @return	The error text
+	 */
 	public String getLastError() {
 		return lastError;
 	}

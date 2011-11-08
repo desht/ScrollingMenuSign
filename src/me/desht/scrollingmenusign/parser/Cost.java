@@ -55,7 +55,8 @@ public class Cost {
 	/**
 	 * Construct a new Cost object from the given string specification.
 	 * 
-	 * @param costSpec	The specification
+	 * @param costSpec	The specification, in the format <id>[:<data>],<quantity>
+	 * @throws IllegalArgumentException if the specification contains an error
 	 */
 	public Cost(String costSpec) {
 		//System.out.println("cost = " + costSpec);
@@ -157,13 +158,19 @@ public class Cost {
 		}
 	}
 	
+	/**
+	 * Charge a list of costs to the given player.
+	 * 
+	 * @param player	The player to charge
+	 * @param costs		A List of Cost objects
+	 */
 	@SuppressWarnings("deprecation")
-	public static void chargePlayer(Player player, List<Cost> list) {
+	public static void chargePlayer(Player player, List<Cost> costs) {
 		if (player == null) {
 			return;
 		}
 		
-		for (Cost c : list) {
+		for (Cost c : costs) {
 			if (c.getQuantity() == 0.0)
 				continue;
 			switch (c.getType()) {
@@ -203,7 +210,7 @@ public class Cost {
 	 * 
 	 * @param player
 	 * @param costs
-	 * @return
+	 * @return	True if the costs are affordable, false otherwise
 	 */
 	public static boolean playerCanAfford(Player player, List<Cost> costs) {
 		if (player == null) {
@@ -219,7 +226,6 @@ public class Cost {
 				if (ScrollingMenuSign.economy == null) {
 					return true;
 				}
-//				if (!ScrollingMenuSign.getEconomy().getAccount(player.getName()).hasEnough(c.getQuantity())) {
 				if (ScrollingMenuSign.economy.getBalance(player.getName()) < c.getQuantity()) {
 					return false;
 				}

@@ -47,8 +47,7 @@ public class AddViewCommand extends AbstractCommand {
 			String type = args[1].substring(1);
 			MiscUtil.statusMessage(player, "Left-click a block to add it as a &9" + type + "&- view on menu &e" + menu.getName() + "&-.");
 			MiscUtil.statusMessage(player, "Right-click anywhere to cancel.");
-			plugin.expecter.expectingResponse(player, ExpectAction.CREATE_VIEW,
-					new ExpectViewCreation(menu, args[1]));
+			plugin.expecter.expectingResponse(player, ExpectAction.CREATE_VIEW, new ExpectViewCreation(menu, args[1]));
 			return true;
 		} else if (args.length == 3 && args[1].equalsIgnoreCase("-map")) {	// map view
 			try {
