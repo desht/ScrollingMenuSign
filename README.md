@@ -9,6 +9,20 @@ and execute the currently-selected entry by left-clicking it, but this is fully 
 
 Very simple: copy ScrollingMenuSign.jar into your plugins/ folder.  Restart/reload your server.  Done.
 
+## Building
+
+If you want to build ScrollingMenuSign yourself, you will need Maven.
+
+1) Download a copy of Vault.jar (1.1.1 minimum required) from http://dev.bukkit.org/server-mods/vault/
+
+2) Run 'mvn install:install-file -DgroupId=net.milkbowl.vault -DartifactId=vault -Dversion=1.1.1 -Dpackaging=jar -Dfile=Vault.jar'
+
+3) Run 'mvn clean install'
+
+This should give you a copy of ScrollingMenuSign.jar under the target/ directory.
+
+Use 'mvn eclipse:eclipse' to create the .project and .classpath files if you want to open the project in Eclipse.
+
 ## Usage
 
 Detailed documentation is available at bukkitdev: http://dev.bukkit.org/server-mods/scrollingmenusign/
