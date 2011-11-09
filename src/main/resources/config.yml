@@ -17,15 +17,14 @@ sms:
             execute: key_return
             down: key_down
             up: key_up
-    always_use_commandsigns: false
     autosave: true
     no_explosions: true
     no_physics: true
+    no_destroy_signs: false
     item_prefix:
         selected: '> '
         not_selected: '  '
     item_justify: left
-    no_destroy_signs: false
     ignore_view_ownership: true
     elevation:
         nodes: []
