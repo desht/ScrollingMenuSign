@@ -15,6 +15,7 @@ public class PermissionsUtils {
 	 * @return	true if the player has the permission node, false otherwise
 	 */
 	public static boolean isAllowedTo(Player player, String node) {
+		Debugger.getDebugger().debug("Permission check: player=" + player + ", node=" + node);
 		if (player == null || node == null) {
 			return true;
 		} else {
@@ -35,7 +36,7 @@ public class PermissionsUtils {
 	 */
 	public static void requirePerms(Player player, String node) throws SMSException {
 		if (!isAllowedTo(player, node)) {
-			throw new SMSException("You are not allowed to do that (need node " + node + ").");
+			throw new SMSException("You are not allowed to do that.");
 		}
 	}
 }

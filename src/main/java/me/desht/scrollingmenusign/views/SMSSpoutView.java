@@ -250,11 +250,10 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * @return			True if a spout view was actually popped up or down, false otherwise
 	 */
 	public static boolean handleKeypress(SpoutPlayer sp, SMSSpoutKeyMap pressed) {
-		if (!PermissionsUtils.isAllowedTo(sp, "scrollingmenusign.use.spout"))
-			return false;
 		if (pressed.keysPressed() == 0)
 			return false;
 
+		
 		String s = pressed.toString();
 
 		String viewName = keyMap.get(s);
@@ -263,6 +262,8 @@ public class SMSSpoutView extends SMSScrollableView {
 				try {
 					SMSView v = SMSView.getView(viewName);
 					if (v instanceof SMSSpoutView) {
+						if (!PermissionsUtils.isAllowedTo(sp, "scrollingmenusign.use.spout"))
+							return false;
 						((SMSSpoutView) v).toggleGUI(sp);
 						return true;
 					} else {
