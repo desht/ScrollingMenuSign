@@ -15,7 +15,7 @@ If you want to build ScrollingMenuSign yourself, you will need Maven.
 
 1) Download a copy of Vault.jar (1.1.1 minimum required) from http://dev.bukkit.org/server-mods/vault/
 
-2) Run 'mvn install:install-file -DgroupId=net.milkbowl -DartifactId=vault -Dversion=1.1.1 -Dpackaging=jar -Dfile=Vault.jar'
+2) Run 'mvn install:install-file -DgroupId=net.milkbowl -DartifactId=vault -Dversion=1.1.1 -Dpackaging=jar -Dfile=Vault.jar' (adjust the version number to match what you downloaded)
 
 3) Run 'mvn clean install'
 
