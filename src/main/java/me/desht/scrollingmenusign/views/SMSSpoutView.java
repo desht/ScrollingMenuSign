@@ -179,7 +179,10 @@ public class SMSSpoutView extends SMSScrollableView {
 			if (!newVal.isEmpty()) {
 				SMSSpoutKeyMap sp = new SMSSpoutKeyMap(newVal);
 				if (keyMap.containsKey(sp.toString())) {
-					throw new SMSException(sp.toString() + " is already used as the hotkey for another view (" + keyMap.get(sp.toString()) + ")");
+					String otherView = keyMap.get(sp.toString());
+					if (SMSView.checkForView(otherView)) {
+						throw new SMSException(sp.toString() + " is already used as the hotkey for another view (" + keyMap.get(sp.toString()) + ")");
+					}
 				}
 			}
 		}
