@@ -147,7 +147,8 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		}
 
 		ParsedCommand pCmd = new CommandParser().runCommand(player, cmd);
-		if (pCmd.getStatus() != ReturnStatus.CMD_OK) {
+		// pCmd could be null if this was an empty command
+		if (pCmd != null && pCmd.getStatus() != ReturnStatus.CMD_OK) {
 			MiscUtil.errorMessage(player, pCmd.getLastError());
 		}
 	}
