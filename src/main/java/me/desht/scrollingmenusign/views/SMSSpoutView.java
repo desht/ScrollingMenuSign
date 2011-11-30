@@ -15,7 +15,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.scrollingmenusign.spout.ItemListGUI;
+import me.desht.scrollingmenusign.spout.SpoutViewPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
@@ -27,10 +27,10 @@ public class SMSSpoutView extends SMSScrollableView {
 	protected static final String SPOUTKEYS = "spoutkeys";
 
 	// list of all popups which are active at this time, keyed by player name
-	private static final Map<String, ItemListGUI> activePopups = new HashMap<String, ItemListGUI>();
+	private static final Map<String, SpoutViewPopup> activePopups = new HashMap<String, SpoutViewPopup>();
 
 	// list of all popups which have been created for each view, keyed by player name
-	private final Map<String, ItemListGUI> popups = new HashMap<String,ItemListGUI>();
+	private final Map<String, SpoutViewPopup> popups = new HashMap<String,SpoutViewPopup>();
 
 	// map a set of keypresses to the view which handles them
 	private static final Map<String, String> keyMap = new HashMap<String, String>();
@@ -70,10 +70,10 @@ public class SMSSpoutView extends SMSScrollableView {
 
 		if (!popups.containsKey(sp.getName())) {
 			// create a new gui for this player
-			popups.put(sp.getName(), new ItemListGUI(sp, this));
+			popups.put(sp.getName(), new SpoutViewPopup(sp, this));
 		}
 
-		ItemListGUI gui = popups.get(sp.getName());
+		SpoutViewPopup gui = popups.get(sp.getName());
 		activePopups.put(sp.getName(), gui);
 		gui.popup();
 	}
@@ -111,7 +111,7 @@ public class SMSSpoutView extends SMSScrollableView {
 			return;
 
 		if (hasActiveGUI(sp)) {
-			ItemListGUI gui = getActiveGUI(sp);
+			SpoutViewPopup gui = getActiveGUI(sp);
 			if (gui.getView() != this) {
 				// the active GUI for the player belongs to a different view, so we pop down that one and 
 				// pop up the player's GUI for this view
@@ -136,7 +136,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	 */
 	@Override
 	public void update(Observable menu, Object arg1) {
-		for (ItemListGUI gui : popups.values()) {
+		for (SpoutViewPopup gui : popups.values()) {
 			gui.repaint();
 		}
 	}
@@ -158,7 +158,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	 */
 	@Override
 	public void deletePermanent() {
-		for (Entry<String, ItemListGUI> e : popups.entrySet()) {
+		for (Entry<String, SpoutViewPopup> e : popups.entrySet()) {
 			if (e.getValue().isPoppedUp()) {
 				hideGUI(e.getValue().getPlayer());
 			}
@@ -211,6 +211,14 @@ public class SMSSpoutView extends SMSScrollableView {
 		}
 	}
 
+	@Override
+	public void setScrollPos(String playerName, int scrollPos) {
+		super.setScrollPos(playerName, scrollPos);
+		if (popups.containsKey(playerName)) {
+			popups.get(playerName).scrollTo(scrollPos);
+		}
+	}
+	
 	/**
 	 * Check if the given player has an active GUI
 	 * 
@@ -227,7 +235,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * @param sp	The Spout player to check for
 	 * @return		The GUI object if one is currently popped up, null otherwise
 	 */
-	public static ItemListGUI getActiveGUI(SpoutPlayer sp) {
+	public static SpoutViewPopup getActiveGUI(SpoutPlayer sp) {
 		return activePopups.get(sp.getName());
 	}
 
