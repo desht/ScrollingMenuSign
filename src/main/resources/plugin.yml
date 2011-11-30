@@ -30,9 +30,35 @@ commands:
       /sms defcmd <menu> <command>
       /sms givemap <map-id> <quantity>
 permissions:
+  scrollingmenusign.guest:
+    description: Gives access to very basic SMS functionality (no permission elevation)
+    children:
+      scrollingmenusign.scroll: true
+      scrollingmenusign.execute: true
+      scrollingmenusign.execute.elevated: false
+      scrollingmenusign.use.sign: true
+      scrollingmenusign.use.redstone: true
+      scrollingmenusign.commands.getcfg: false
+      scrollingmenusign.commands.list: false
+      scrollingmenusign.commands.show: false
+  scrollingmenusign.user:
+    description: Gives access to basic SMS functionality
+    children:
+      scrollingmenusign.guest: true
+      scrollingmenusign.execute.elevated: true
+  scrollingmenusign.poweruser:
+    description: Gives access to basic SMS functionality plus map and spout views
+    children:
+      scrollingmenusign.user: true
+      scrollingmenusign.commands.getcfg: true
+      scrollingmenusign.commands.list: true
+      scrollingmenusign.commands.show: true
+      scrollingmenusign.use.map: true
+      scrollingmenusign.use.spout: true
   scrollingmenusign.admin:
     description: Gives complete access to all SMS features
     children:
+      scrollingmenusign.poweruser: true
       scrollingmenusign.commands.create: true
       scrollingmenusign.commands.title: true
       scrollingmenusign.commands.delete: true
@@ -50,31 +76,14 @@ permissions:
       scrollingmenusign.commands.givemap: true
       scrollingmenusign.commands.uses: true
       scrollingmenusign.commands.view: true
-      scrollingmenusign.colourSigns: true
+      scrollingmenusign.commands.var: true
+      scrollingmenusign.coloursigns: true
       scrollingmenusign.destroy: true
       scrollingmenusign.maps.toSign: true
       scrollingmenusign.maps.fromSign: true
       scrollingmenusign.create.elevated: true
       scrollingmenusign.create.cost: true
       scrollingmenusign.ignoreViewOwnership: true
-      scrollingmenusign.poweruser: true
-  scrollingmenusign.user:
-    description: Gives access to basic SMS functionality
-    children:
-      scrollingmenusign.commands.getcfg: true
-      scrollingmenusign.commands.list: true
-      scrollingmenusign.commands.show: true
-      scrollingmenusign.scroll: true
-      scrollingmenusign.execute: true
-      scrollingmenusign.execute.elevated: true
-      scrollingmenusign.use.sign: true
-      scrollingmenusign.use.redstone: true
-  scrollingmenusign.poweruser:
-    description: Gives access to basic SMS functionality plus map and spout views
-    children:
-      scrollingmenusign.user: true
-      scrollingmenusign.use.map: true
-      scrollingmenusign.use.spout: true
   scrollingmenusign.maps:
     description: Allow use of maps (backwards compatibility - use scrollingmenusign.use.map now)
     children:
@@ -149,6 +158,9 @@ permissions:
     default: true
   scrollingmenusign.commands.view:
     description: Allows menu views to be inspected and modified
+    default: op
+  scrollingmenusign.commands.var:
+    description: Allows command substitution variables to be defined
     default: op
   scrollingmenusign.scroll:
     description: Allows menus to be scrolled

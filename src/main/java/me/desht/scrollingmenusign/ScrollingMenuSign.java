@@ -27,6 +27,7 @@ import me.desht.scrollingmenusign.commands.SaveCommand;
 import me.desht.scrollingmenusign.commands.SetConfigCommand;
 import me.desht.scrollingmenusign.commands.ShowMenuCommand;
 import me.desht.scrollingmenusign.commands.SortMenuCommand;
+import me.desht.scrollingmenusign.commands.VarCommand;
 import me.desht.scrollingmenusign.commands.ViewCommand;
 import me.desht.scrollingmenusign.expector.ExpectResponse;
 import me.desht.scrollingmenusign.listeners.SMSBlockListener;
@@ -82,17 +83,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 			MiscUtil.log(Level.INFO, "Detected Spout v" + spout.getDescription().getVersion());
 		}
 
-		Plugin vault =  pm.getPlugin("Vault");
-		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			if (setupEconomy()) {
-				MiscUtil.log(Level.INFO, "Detected economy plugin: " + economy.getName());
-			}
-			if (setupPermission()) {
-				MiscUtil.log(Level.INFO, "Detected permissions plugin: " + permission.getName());
-			}
-		} else {
-			MiscUtil.log(Level.WARNING, "Vault not loaded: no economy support & no permission elevation support");
-		}
+		setupVault(pm);
 
 		SMSConfig.init(this);
 
@@ -143,7 +134,60 @@ public class ScrollingMenuSign extends JavaPlugin {
 		for (SMSMacro macro : SMSMacro.listMacros()) {
 			macro.deleteTemporary();
 		}
+		
+		economy = null;
+		permission = null;
+		setInstance(null);
+		
 		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		Player player = null;
+		if (sender instanceof Player) {
+			player = (Player) sender;
+		}
+		try {
+			return cmds.dispatch(player, command.getName(), args);
+		} catch (SMSException e) {
+			MiscUtil.errorMessage(player, e.getMessage());
+			return true;
+		}
+	}
+
+	public SMSHandler getHandler() {
+		return handler;
+	}
+
+	public boolean isSpoutEnabled() {
+		return spoutEnabled;
+	}
+
+	public static ScrollingMenuSign getInstance() {
+		return instance;
+	}
+
+	private static void setInstance(ScrollingMenuSign plugin) {
+		instance = plugin;
+	}
+
+	private void setupVault(PluginManager pm) {
+		Plugin vault =  pm.getPlugin("Vault");
+		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
+			if (setupEconomy()) {
+				MiscUtil.log(Level.INFO, "Detected economy plugin via Vault: " + economy.getName());
+			} else {
+				MiscUtil.log(Level.WARNING, "No economy plugin detected");
+			}
+			if (setupPermission()) {
+				MiscUtil.log(Level.INFO, "Detected permissions plugin via Vault: " + permission.getName());
+			} else {
+				MiscUtil.log(Level.WARNING, "No permissions plugin detected - no permission elevation support");
+			}
+		} else {
+			MiscUtil.log(Level.WARNING, "Vault not loaded: no economy support & no permission elevation support");
+		}
 	}
 
 	private Boolean setupEconomy() {
@@ -188,33 +232,16 @@ public class ScrollingMenuSign extends JavaPlugin {
 		cmds.registerCommand(new SetConfigCommand());
 		cmds.registerCommand(new ShowMenuCommand());
 		cmds.registerCommand(new SortMenuCommand());
+		cmds.registerCommand(new VarCommand());
 		cmds.registerCommand(new ViewCommand());
 	}
 
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		Player player = null;
-		if (sender instanceof Player) {
-			player = (Player) sender;
-		}
-		try {
-			return cmds.dispatch(player, command.getName(), args);
-		} catch (SMSException e) {
-			MiscUtil.errorMessage(player, e.getMessage());
-			return true;
-		}
-	}
-
-	public void loadPersistedData() {
+	private void loadPersistedData() {
 		SMSPersistence.loadMacros();
 		SMSPersistence.loadMenusAndViews();
 	}
 
-	public SMSHandler getHandler() {
-		return handler;
-	}
-
-	boolean validateVersions(String pVer, String cbVer) {
+	private static boolean validateVersions(String pVer, String cbVer) {
 		Pattern pat = Pattern.compile("b([0-9]+)jnks");
 		Matcher m = pat.matcher(cbVer);
 		int pluginBuild = getRelease(pVer);
@@ -267,20 +294,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 
-	private void notCompatible(String pVer, int bukkitBuild, String needed) {
+	private static void notCompatible(String pVer, int bukkitBuild, String needed) {
 		MiscUtil.log(Level.SEVERE, "ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
 		MiscUtil.log(Level.SEVERE, "You need to use ScrollingMenuSign v" + needed);
-	}
-
-	private static void setInstance(ScrollingMenuSign plugin) {
-		instance = plugin;
-	}
-
-	public static ScrollingMenuSign getInstance() {
-		return instance;
-	}
-
-	public boolean isSpoutEnabled() {
-		return spoutEnabled;
 	}
 }
