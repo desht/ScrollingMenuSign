@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.views.map;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 
 import org.bukkit.entity.Player;
@@ -19,7 +20,8 @@ import org.getspout.spoutapi.player.SpoutPlayer;
  * 
  */
 public class SMSMapRenderer extends MapRenderer {
-	private static final String[] DENIED_TEXT = { "This map belongs", "to someone else." };
+	private static final String[] NOT_OWNER = { "This map belongs", "to someone else." };
+	private static final String[] NO_PERM = { "You do not have", "permission to use", "map views." };
 
 	SMSMapView smsMapView;
 
@@ -32,7 +34,9 @@ public class SMSMapRenderer extends MapRenderer {
 	public void render(MapView map, MapCanvas canvas, Player player) {
 		if (smsMapView.isDirty()) {
 			if (!smsMapView.allowedToUse(player)) {
-				drawDeniedMessage(canvas);
+				drawMessage(canvas, NOT_OWNER);
+			} else if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
+				drawMessage(canvas, NO_PERM);
 			} else {
 				drawMenu(canvas, player);
 			}
@@ -90,11 +94,11 @@ public class SMSMapRenderer extends MapRenderer {
 		}
 	}
 
-	private void drawDeniedMessage(MapCanvas canvas) {
+	private void drawMessage(MapCanvas canvas, String[] text) {
 		MapFont font = smsMapView.getMapFont();
 		int h = font.getHeight() + smsMapView.getLineSpacing();
-		int y = smsMapView.getY() + (smsMapView.getHeight() - h * DENIED_TEXT.length) / 2;
-		for (String s : DENIED_TEXT)	 {
+		int y = smsMapView.getY() + (smsMapView.getHeight() - h * text.length) / 2;
+		for (String s : text)	 {
 			int x = smsMapView.getX() + (smsMapView.getWidth()  - getWidth(font, s)) / 2;
 			drawText(canvas, x, y, font, s);
 			y += h;
