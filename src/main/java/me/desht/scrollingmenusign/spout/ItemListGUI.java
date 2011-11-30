@@ -7,6 +7,7 @@ import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.util.MiscUtil;
@@ -165,7 +166,9 @@ public class ItemListGUI extends GenericPopup {
 			int idx = menu.indexOfItem(label);
 			if (idx > 0 && idx <= menu.getItemCount()) {
 				try {
-					menu.getItem(idx).execute(event.getPlayer());
+					SMSMenuItem item = menu.getItem(idx);
+					item.execute(event.getPlayer());
+					item.feedbackMessage(event.getPlayer());
 					getView().onExecuted(event.getPlayer());
 				} catch (SMSException e) {
 					MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
