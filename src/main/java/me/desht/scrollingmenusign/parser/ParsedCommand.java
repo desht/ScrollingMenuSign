@@ -111,6 +111,11 @@ public class ParsedCommand {
 		}
 	}
 
+	public ParsedCommand(ReturnStatus rs, String message) {
+		status = rs;
+		lastError = message;
+	}
+	
 	/**
 	 * Get the name of the command, i.e. the first word of the command string with any special
 	 * leading characters removed.

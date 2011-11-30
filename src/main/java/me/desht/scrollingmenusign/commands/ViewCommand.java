@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 public class ViewCommand extends AbstractCommand {
 
 	public ViewCommand() {
-		super("sms v", 1, 3);
+		super("sms vi", 1, 3);
 		setPermissionNode("scrollingmenusign.commands.view");
 		setUsage("sms view <view-name> <attribute> [<new-value>]");
 		setQuotedArgs(true);

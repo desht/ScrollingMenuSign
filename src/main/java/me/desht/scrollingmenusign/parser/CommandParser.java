@@ -1,10 +1,13 @@
 package me.desht.scrollingmenusign.parser;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
@@ -17,6 +20,7 @@ import me.desht.scrollingmenusign.util.PermissionsUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -80,6 +84,22 @@ public class CommandParser {
 			command = command.replace("<WORLD>", player.getWorld().getName());
 			command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
 			command = command.replace("<INAME>", stack != null ? stack.getType().toString() : "???");
+
+			ConfigurationSection cs = SMSConfig.getConfig().getConfigurationSection("uservar." + player.getName());
+			if (cs != null) {
+				for (String key : cs.getKeys(false)) {
+					command = command.replace("<$" + key + ">", cs.getString(key));	
+				}
+			}
+			Pattern p = Pattern.compile("<\\$.+?>");
+			Matcher m = p.matcher(command);
+			List<String> missing = new ArrayList<String>();
+			while (m.find()) {
+				missing.add(m.group());
+			}
+			if (!missing.isEmpty() && mode == RunMode.EXECUTE) {
+				return new ParsedCommand(ReturnStatus.BAD_VARIABLE, "Command has uninitialised variables: " + missing.toString());
+			}
 		}
 
 		Scanner scanner = new Scanner(command);
@@ -161,7 +181,7 @@ public class CommandParser {
 			// only works for commands that may be run via the console, but should always work
 			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated")) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
-				cmd.setLastError("You don't have permission to do this (need scrollingmenusign.execute.elevated)");
+				cmd.setLastError("You don't have permission to run this command.");
 				return;
 			}
 			Debugger.getDebugger().debug("execute (console): " + command);
@@ -172,7 +192,7 @@ public class CommandParser {
 
 			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated")) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
-				cmd.setLastError("You don't have permission to do this (need scrollingmenusign.execute.elevated)");
+				cmd.setLastError("You don't have permission to run this command.");
 				return;
 			}
 
@@ -255,7 +275,7 @@ public class CommandParser {
 				cmd.setLastError("Execution of command '" + cmd.getCommand() + "' failed (unknown command?)");
 			}
 		} else if (sender instanceof Player) {
-			((Player)sender).chat(command);
+			((Player)sender).chat(MiscUtil.parseColourSpec(command));
 		} else {
 			MiscUtil.log(Level.INFO, "Chat: " + command);
 		}
