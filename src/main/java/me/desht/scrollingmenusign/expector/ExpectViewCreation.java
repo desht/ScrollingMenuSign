@@ -10,7 +10,7 @@ import me.desht.scrollingmenusign.views.SMSView;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class ExpectViewCreation extends ExpectData {
+public class ExpectViewCreation extends ExpectBase {
 	private SMSMenu menu;
 	private Location loc;
 	private String arg;

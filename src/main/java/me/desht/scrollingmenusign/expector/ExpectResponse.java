@@ -4,52 +4,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.enums.ExpectAction;
 
 import org.bukkit.entity.Player;
 
 public class ExpectResponse {
 
-	private final Map<String, ExpectData> exp = new HashMap<String, ExpectData>();
+	private final Map<String, ExpectBase> exp = new HashMap<String, ExpectBase>();
 
-	public ExpectResponse() {
+	public void expectingResponse(Player p, ExpectBase data) {
+		expectingResponse(p, data, null);
 	}
 
-	public void expectingResponse(Player p, ExpectAction action, ExpectData data) {
-		expectingResponse(p, action, data, null);
-	}
-
-	public void expectingResponse(Player p, ExpectAction action, ExpectData data, String expectee) {
+	private void expectingResponse(Player p, ExpectBase data, String expectee) {
 		if (expectee != null) {
-			exp.put(genKey(expectee, action), data);
+			exp.put(genKey(expectee, data.getClass()), data);
 		} else {
-			exp.put(genKey(p, action), data);
+			exp.put(genKey(p, data.getClass()), data);
 		}
-		data.setAction(action);
 	}
 
-	public boolean isExpecting(Player p, ExpectAction action) {
+	private String genKey(String name, Class<? extends ExpectBase> c) {
+		return name + ":" + c.getName();
+	}
+
+	private String genKey(Player p, Class<? extends ExpectBase> c) {
+		return p.getName() + ":" + c.getName();
+	}
+
+	public boolean isExpecting(Player p, Class<? extends ExpectBase> action) {
 		return exp.containsKey(genKey(p, action));
 	}
 
-	public void handleAction(Player p, ExpectAction action) throws SMSException {
+	public void handleAction(Player p, Class<? extends ExpectBase> action) throws SMSException {
 		exp.get(genKey(p, action)).doResponse(p);
 		cancelAction(p, action);
 	}
 
-	public void cancelAction(Player p, ExpectAction action) {
+	public void cancelAction(Player p, Class<? extends ExpectBase> action) {
 		exp.remove(genKey(p, action));
 	}
 
-	public ExpectData getAction(Player p, ExpectAction action) {
+	public ExpectBase getAction(Player p, Class<? extends ExpectBase> action) {
 		return exp.get(genKey(p, action));
 	}
 
-	private String genKey(Player p, ExpectAction action) {
-		return p.getName() + ":" + action.toString();
-	}
-
-	private String genKey(String name, ExpectAction action) {
-		return name + ":" + action.toString();
-	}
 }

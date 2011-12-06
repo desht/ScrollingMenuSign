@@ -6,8 +6,8 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.ExpectAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
+import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
@@ -20,6 +20,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerListener;
@@ -41,17 +42,17 @@ public class SMSPlayerListener extends PlayerListener {
 
 		Player player = event.getPlayer();
 
-		if (plugin.expecter.isExpecting(player, ExpectAction.CREATE_VIEW)) {
+		if (plugin.expecter.isExpecting(player, ExpectViewCreation.class)) {
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				try {
-					ExpectViewCreation c = (ExpectViewCreation) plugin.expecter.getAction(player, ExpectAction.CREATE_VIEW);
+					ExpectViewCreation c = (ExpectViewCreation) plugin.expecter.getAction(player, ExpectViewCreation.class);
 					c.setLoc(block.getLocation());
-					plugin.expecter.handleAction(player, ExpectAction.CREATE_VIEW);
+					plugin.expecter.handleAction(player, c.getClass());
 				} catch (SMSException e) {
 					MiscUtil.errorMessage(player, e.getMessage());
 				}
 			} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				plugin.expecter.cancelAction(player, ExpectAction.CREATE_VIEW);
+				plugin.expecter.cancelAction(player, ExpectViewCreation.class);
 				MiscUtil.statusMessage(player, "View creation cancelled.");
 			}
 			event.setCancelled(true);
@@ -111,6 +112,21 @@ public class SMSPlayerListener extends PlayerListener {
 			}
 		} catch (SMSException e) {
 			MiscUtil.log(Level.WARNING, e.getMessage());
+		}
+	}
+	
+	@Override
+	public void onPlayerChat(PlayerChatEvent event) {
+		Player player = event.getPlayer();
+		if (plugin.expecter.isExpecting(player, ExpectCommandSubstitution.class)) {
+			try {
+				ExpectCommandSubstitution cs = (ExpectCommandSubstitution) plugin.expecter.getAction(player, ExpectCommandSubstitution.class);
+				cs.setSub(event.getMessage());
+				plugin.expecter.handleAction(player, cs.getClass());
+				event.setCancelled(true);
+			} catch (SMSException e) {
+				MiscUtil.errorMessage(player, e.getMessage());
+			}
 		}
 	}
 

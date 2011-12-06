@@ -148,8 +148,17 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 
 		ParsedCommand pCmd = new CommandParser().runCommand(player, cmd);
 		// pCmd could be null if this was an empty command
-		if (pCmd != null && pCmd.getStatus() != ReturnStatus.CMD_OK) {
-			MiscUtil.errorMessage(player, pCmd.getLastError());
+		if (pCmd != null) {
+			switch(pCmd.getStatus()) {
+			case CMD_OK:
+				break;
+			case SUBSTITUTION_NEEDED:
+				MiscUtil.alertMessage(player, pCmd.getLastError());
+				break;
+			default:
+				MiscUtil.errorMessage(player, pCmd.getLastError());
+				break;
+			}
 		}
 	}
 

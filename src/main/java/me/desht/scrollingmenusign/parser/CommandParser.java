@@ -14,6 +14,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
+import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
@@ -74,7 +75,15 @@ public class CommandParser {
 
 	ParsedCommand handleCommandString(Player player, String command, RunMode mode) throws SMSException {
 		if (player != null) {
-			// do some preprocessing ...
+			// see if an interactive subsitution is needed
+			Pattern p = Pattern.compile("<\\$:(.+?)>");
+			Matcher m = p.matcher(command);
+			if (m.find() && m.groupCount() > 0) {
+				ScrollingMenuSign.getInstance().expecter.expectingResponse(player, new ExpectCommandSubstitution(command));
+				return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
+			}
+			
+			// pre-defined substitutions ...
 			ItemStack stack =  player.getItemInHand();
 			command = command.replace("<X>", "" + player.getLocation().getBlockX());
 			command = command.replace("<Y>", "" + player.getLocation().getBlockY());
@@ -85,14 +94,15 @@ public class CommandParser {
 			command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
 			command = command.replace("<INAME>", stack != null ? stack.getType().toString() : "???");
 
+			// user-defined substitutions...
 			ConfigurationSection cs = SMSConfig.getConfig().getConfigurationSection("uservar." + player.getName());
 			if (cs != null) {
 				for (String key : cs.getKeys(false)) {
 					command = command.replace("<$" + key + ">", cs.getString(key));	
 				}
 			}
-			Pattern p = Pattern.compile("<\\$.+?>");
-			Matcher m = p.matcher(command);
+			p = Pattern.compile("<\\$.+?>");
+			m = p.matcher(command);
 			List<String> missing = new ArrayList<String>();
 			while (m.find()) {
 				missing.add(m.group());
