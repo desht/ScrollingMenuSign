@@ -34,11 +34,6 @@ public class CommandParser {
 
 	private enum RunMode { CHECK_PERMS, EXECUTE };
 
-	boolean runSimpleCommandString(Player player, String command) {
-		player.chat(command);
-		return true;
-	}
-
 	/**
 	 * Parse and run a command string via the SMS command engine
 	 * 
@@ -52,6 +47,30 @@ public class CommandParser {
 	public ReturnStatus runCommandString(Player player, String command) throws SMSException { 
 		ParsedCommand cmd = runCommand(player, command);
 		return cmd.getStatus();
+	}
+	
+	/**
+	 * High-level wrapper to run a command.  Return status is reported to the calling player.
+	 * 
+	 * @param player	Player who is running the command
+	 * @param command	The command to be run
+	 * @throws SMSException
+	 */
+	public static void runCommandWrapper(Player player, String command) throws SMSException {
+		ParsedCommand pCmd = new CommandParser().runCommand(player, command);
+		// pCmd could be null if this was an empty command
+		if (pCmd != null) {
+			switch(pCmd.getStatus()) {
+			case CMD_OK:
+				break;
+			case SUBSTITUTION_NEEDED:
+				MiscUtil.alertMessage(player, pCmd.getLastError());
+				break;
+			default:
+				MiscUtil.errorMessage(player, pCmd.getLastError());
+				break;
+			}
+		}
 	}
 
 	/**

@@ -143,23 +143,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 
 		String cmd = getCommand();
 		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty() ) {
-			cmd = menu.getDefaultCommand().replaceAll("<LABEL>", getLabel());
+			cmd = menu.getDefaultCommand().replace("<LABEL>", getLabel());
 		}
-
-		ParsedCommand pCmd = new CommandParser().runCommand(player, cmd);
-		// pCmd could be null if this was an empty command
-		if (pCmd != null) {
-			switch(pCmd.getStatus()) {
-			case CMD_OK:
-				break;
-			case SUBSTITUTION_NEEDED:
-				MiscUtil.alertMessage(player, pCmd.getLastError());
-				break;
-			default:
-				MiscUtil.errorMessage(player, pCmd.getLastError());
-				break;
-			}
-		}
+		
+		CommandParser.runCommandWrapper(player, cmd);
 	}
 
 	private void checkRemainingUses(SMSRemainingUses uses, Player player) throws SMSException {
