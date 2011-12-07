@@ -123,7 +123,7 @@ public abstract class AbstractCommand {
 		return partialMatch(args[index], match);
 	}
 
-	static Boolean partialMatch(String str, String match) {
+	static boolean partialMatch(String str, String match) {
 		int l = match.length();
 		if (str.length() < l) return false;
 		return str.substring(0, l).equalsIgnoreCase(match);

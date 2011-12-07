@@ -191,7 +191,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 
-	private Boolean setupEconomy() {
+	private boolean setupEconomy() {
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 		if (economyProvider != null) {
 			economy = economyProvider.getProvider();
@@ -200,7 +200,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		return (economy != null);
 	}
 
-	private Boolean setupPermission() {
+	private boolean setupPermission() {
 		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
 		if (permissionProvider != null) {
 			permission = permissionProvider.getProvider();

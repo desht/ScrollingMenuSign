@@ -191,7 +191,7 @@ public class SMSRedstoneView extends SMSView {
 	 * @param loc		The location to record
 	 * @param power		The power level
 	 */
-	public void setPowered(Location loc, Boolean power) {
+	public void setPowered(Location loc, boolean power) {
 		powered.put(loc, power);
 	}
 

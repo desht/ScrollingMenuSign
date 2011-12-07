@@ -13,6 +13,7 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSMapView;
+import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.configuration.Configuration;
@@ -131,11 +132,15 @@ public class SMSConfig {
 				if (v instanceof SMSMapView)
 					v.update(v.getMenu(), SMSMenuAction.REPAINT);
 			}
-		}
-		
-		if (key.startsWith("sms.actions.spout") && ScrollingMenuSign.getInstance().isSpoutEnabled()) {
+		} else if (key.startsWith("sms.actions.spout") && ScrollingMenuSign.getInstance().isSpoutEnabled()) {
 			// reload & re-cache spout key definitions
 			SpoutUtils.loadKeyDefinitions();
+		} else if (key.equalsIgnoreCase("sms.spout.show_command_text") && ScrollingMenuSign.getInstance().isSpoutEnabled()) {
+			for (SMSView v : SMSView.listViews()) {
+				if (v instanceof SMSSpoutView) {
+					v.update(v.getMenu(), SMSMenuAction.REPAINT);
+				}
+			}
 		}
 		
 		ScrollingMenuSign.getInstance().saveConfig();

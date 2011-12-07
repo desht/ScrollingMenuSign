@@ -29,3 +29,6 @@ sms:
     elevation:
         nodes: []
         grant_op: false
+    spout:
+        double_click: false
+        show_command_text: true

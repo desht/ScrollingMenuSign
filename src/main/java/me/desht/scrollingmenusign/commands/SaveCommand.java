@@ -20,9 +20,9 @@ public class SaveCommand extends AbstractCommand {
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.save");
 		
-		Boolean saveMenus = false;
-		Boolean saveMacros = false;
-		Boolean saveAll = false;
+		boolean saveMenus = false;
+		boolean saveMacros = false;
+		boolean saveAll = false;
 		if (args.length == 0) {
 			saveAll = true;
 		} else {

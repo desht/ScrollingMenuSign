@@ -243,7 +243,7 @@ public class SMSMacro implements Freezable {
 	 * @param macro		The macro to check for
 	 * @return	True if the macro exists, false otherwise
 	 */
-	public static Boolean hasMacro(String macro) {
+	public static boolean hasMacro(String macro) {
 		return allMacros.containsKey(macro);
 	}
 

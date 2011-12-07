@@ -24,7 +24,7 @@ public class SMSEntityListener extends EntityListener {
 	@Override
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
-		Boolean noExplode = plugin.getConfig().getBoolean("sms.no_explosions", false);
+		boolean noExplode = plugin.getConfig().getBoolean("sms.no_explosions", false);
 		for (Block b : event.blockList()) {
 			if (b.getType() != Material.WALL_SIGN && b.getType() != Material.SIGN_POST)
 				continue;
@@ -41,6 +41,7 @@ public class SMSEntityListener extends EntityListener {
 				event.setCancelled(true);
 				break;
 			} else {
+				MiscUtil.log(Level.INFO, "view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
 				view.deletePermanent();
 			}
 		}

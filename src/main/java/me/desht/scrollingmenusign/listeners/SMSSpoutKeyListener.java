@@ -13,6 +13,7 @@ import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.event.input.InputListener;
@@ -77,7 +78,7 @@ public class SMSSpoutKeyListener extends InputListener {
 		}
 		// check for a map view...
 		if (view == null) {
-			if (player.getItemInHand().getTypeId() == 358) {
+			if (player.getItemInHand().getType() == Material.MAP) {
 				view = SMSMapView.getViewForId(player.getItemInHand().getDurability());	
 			}
 		}

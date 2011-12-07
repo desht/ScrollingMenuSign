@@ -73,7 +73,7 @@ public class SMSHandlerImpl implements SMSHandler {
 	}
 
 	@Override
-	public String getTargetedMenuSign(Player player, Boolean complain) throws SMSException {
+	public String getTargetedMenuSign(Player player, boolean complain) throws SMSException {
 		return SMSMenu.getTargetedMenuSign(player, complain);
 	}
 

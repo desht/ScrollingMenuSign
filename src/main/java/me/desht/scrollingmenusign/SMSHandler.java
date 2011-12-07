@@ -80,7 +80,7 @@ public interface SMSHandler {
 	 * @return				The menu, or null if <b>complain</b> is false.
 	 * @throws SMSException	if there is no menu and <b>complain</b> is true.
 	 */
-	public String getTargetedMenuSign(Player player, Boolean complain) throws SMSException;
+	public String getTargetedMenuSign(Player player, boolean complain) throws SMSException;
 	
 	/**
 	 * Get a list of all known menu objects.

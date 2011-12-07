@@ -21,10 +21,10 @@ public class ReloadCommand extends AbstractCommand {
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.reload");
 
-		Boolean loadMenus = false;
-		Boolean loadMacros = false;
-		Boolean loadConfig = false;
-		Boolean loadAll = false;
+		boolean loadMenus = false;
+		boolean loadMacros = false;
+		boolean loadConfig = false;
+		boolean loadAll = false;
 		if (args.length == 0) {
 			loadAll = true;
 		} else {

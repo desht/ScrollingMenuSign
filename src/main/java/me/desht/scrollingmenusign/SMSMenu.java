@@ -536,7 +536,7 @@ public class SMSMenu extends Observable implements Freezable {
 	 * @param menu		The menu object
 	 * @param updateSign	Whether or not to update the menu's signs now
 	 */
-	static void addMenu(String menuName, SMSMenu menu, Boolean updateSign) {
+	static void addMenu(String menuName, SMSMenu menu, boolean updateSign) {
 		menus.put(menuName, menu);
 
 		if (updateSign) {
@@ -608,7 +608,7 @@ public class SMSMenu extends Observable implements Freezable {
 	 * @param menuName The menu name
 	 * @return true if the menu exists, false if it does not
 	 */
-	static Boolean checkForMenu(String menuName) {
+	static boolean checkForMenu(String menuName) {
 		return menus.containsKey(menuName);
 	}
 
@@ -620,7 +620,7 @@ public class SMSMenu extends Observable implements Freezable {
 	 * @return	The menu name, or null if there is no menu and <b>complain</b> is false
 	 * @throws SMSException	if there is not menu and <b>complain</b> is true
 	 */
-	public static String getTargetedMenuSign(Player player, Boolean complain) throws SMSException {
+	public static String getTargetedMenuSign(Player player, boolean complain) throws SMSException {
 		Block b = player.getTargetBlock(null, 3);
 		String name = SMSMenu.getMenuNameAt(b.getLocation());
 		if (name == null && complain)

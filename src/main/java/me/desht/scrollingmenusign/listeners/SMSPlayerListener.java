@@ -16,6 +16,7 @@ import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -61,7 +62,7 @@ public class SMSPlayerListener extends PlayerListener {
 		
 		SMSView locView = SMSView.getViewForLocation(block.getLocation());
 		SMSMapView mapView = null;
-		if (player.getItemInHand().getTypeId() == 358) {
+		if (player.getItemInHand().getType() == Material.MAP) {
 			mapView = SMSMapView.getViewForId(player.getItemInHand().getDurability());
 		}
 
@@ -70,10 +71,10 @@ public class SMSPlayerListener extends PlayerListener {
 				// No view present at this location, but a left-click could create a new sign view if the sign's
 				// text is in the right format...
 				tryToActivateSign(block, player); 
-			} else if (locView != null && player.getItemInHand().getTypeId() == 358) {
+			} else if (locView != null && player.getItemInHand().getType() == Material.MAP) {
 				// Hit an existing view with a map - the map now becomes a view on the same menu
 				tryToActivateMap(block, player);
-			} else if (player.getItemInHand().getTypeId() == 358 && block.getTypeId() == 20) {
+			} else if (player.getItemInHand().getTypeId() == 358 && block.getType() == Material.GLASS) {
 				// Hit glass with map - deactivate the map if it has a sign view on it
 				tryToDeactivateMap(block, player);
 			} else if (mapView != null && locView == null && block.getState() instanceof Sign) {
@@ -83,7 +84,9 @@ public class SMSPlayerListener extends PlayerListener {
 				// Holding an active map, use that as the view
 				Debugger.getDebugger().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
-				action.execute(player, mapView);
+				if (action != null) {
+					action.execute(player, mapView);
+				}
 			} else if (locView != null) {
 				// There's a view at the targeted block, use that as the view
 				Debugger.getDebugger().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
@@ -202,34 +205,34 @@ public class SMSPlayerListener extends PlayerListener {
 		if (!sign.getLine(0).equals("[sms]"))
 			return;
 
-		String name = sign.getLine(1);
+		String menuName = sign.getLine(1);
 		String title = MiscUtil.parseColourSpec(player, sign.getLine(2));
-		if (name.isEmpty())
+		if (menuName.isEmpty())
 			return;
 
 		SMSHandler handler = plugin.getHandler();
-		if (handler.checkMenu(name)) {
+		if (handler.checkMenu(menuName)) {
 			if (title.isEmpty()) {
 				PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
-				SMSMenu menu = handler.getMenu(name);
+				SMSMenu menu = handler.getMenu(menuName);
 				SMSView view = SMSSignView.addSignToMenu(menu, b.getLocation());
 				MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
-				                                             view.getName(), MiscUtil.formatLocation(b.getLocation()), name));
+				                                             view.getName(), MiscUtil.formatLocation(b.getLocation()), menuName));
 			} else {
-				MiscUtil.errorMessage(player, "A menu called '" + name + "' already exists.");
+				MiscUtil.errorMessage(player, "A menu called '" + menuName + "' already exists.");
 			}
 		} else if (title.length() > 0) {
 			PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.create");
-			SMSMenu menu = plugin.getHandler().createMenu(name, title, player.getName());
+			SMSMenu menu = plugin.getHandler().createMenu(menuName, title, player.getName());
 			SMSView view = SMSSignView.addSignToMenu(menu, b.getLocation());
 			MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to new menu &e%s&-.",
-			                                             view.getName(), MiscUtil.formatLocation(b.getLocation()), name));
+			                                             view.getName(), MiscUtil.formatLocation(b.getLocation()), menuName));
 		}
 
 	}
 
 	/**
-	 * Try to activate a sign by waving an active map at it.  The map's menu will be "transferred"
+	 * Try to activate a sign by hitting it with an active map.  The map's menu will be "transferred"
 	 * to the sign.
 	 * 
 	 * @param block
@@ -239,7 +242,7 @@ public class SMSPlayerListener extends PlayerListener {
 	 */
 	private void tryToActivateSign(Block block, Player player, SMSMapView mapView) throws SMSException {
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
+		PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps.toSign");
 		SMSMenu menu = mapView.getMenu();
 		SMSView view = SMSSignView.addSignToMenu(menu, block.getLocation());
@@ -256,7 +259,7 @@ public class SMSPlayerListener extends PlayerListener {
 	 */
 	private void tryToDeactivateMap(Block block, Player player) throws SMSException {
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.break");
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
+		PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");
 		short mapId = player.getItemInHand().getDurability();
 		SMSMapView mapView = SMSMapView.getViewForId(mapId);
 		if (mapView != null) {
@@ -275,7 +278,7 @@ public class SMSPlayerListener extends PlayerListener {
 	 */
 	private void tryToActivateMap(Block block, Player player) throws SMSException {
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
+		PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");
 		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps.fromSign");
 
 		SMSView currentView = SMSSignView.getViewForLocation(block.getLocation());
