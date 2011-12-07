@@ -39,7 +39,7 @@ public class SpoutViewPopup extends GenericPopup {
 		title.setMaxHeight(TITLE_HEIGHT).setMaxWidth(TITLE_WIDTH).setAnchor(WidgetAnchor.CENTER_CENTER);
 		title.setMargin(2);
 
-		listWidget = new SMSListWidget(view);
+		listWidget = new SMSListWidget(sp, view);
 		listWidget.setMargin(2);
 
 		mainBox.addChild(title);

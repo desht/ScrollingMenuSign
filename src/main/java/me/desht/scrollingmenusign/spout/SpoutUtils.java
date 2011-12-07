@@ -17,12 +17,17 @@ public class SpoutUtils {
 	private static final Map<String, SMSSpoutKeyMap> wantedKeys = new HashMap<String, SMSSpoutKeyMap>();
 	
 	public static void setSpoutMapName(short mapID, String name) {
-		MaterialData.getOrCreateMaterial(358, mapID).setName(name);
-		for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-			SpoutPlayer sp = (SpoutPlayer)p;
-			if (sp.isSpoutCraftEnabled()) {
-				sp.sendPacket(new PacketItemName(358, mapID, name));
+		try {
+			System.out.println("set map name " + mapID + " " + name);
+			MaterialData.getOrCreateMaterial(358, mapID).setName(name);
+			for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+				SpoutPlayer sp = (SpoutPlayer)p;
+				if (sp.isSpoutCraftEnabled()) {
+					sp.sendPacket(new PacketItemName(358, mapID, name));
+				}
 			}
+		} catch (Exception e) {
+			System.out.println("set map name " + mapID + " " + name + " threw " + e.getClass());
 		}
 	}
 
