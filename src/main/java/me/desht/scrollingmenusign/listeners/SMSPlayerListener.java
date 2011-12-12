@@ -16,7 +16,6 @@ import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSignView;
-import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Material;
@@ -45,7 +44,11 @@ public class SMSPlayerListener extends PlayerListener {
 		Block block = event.getClickedBlock();
 		if (block == null)
 			return;
-
+		if (event.getAction() == Action.PHYSICAL) {
+			// only interested in the player clicking a block
+			return;
+		}
+		
 		Player player = event.getPlayer();
 
 		if (plugin.expecter.isExpecting(player, ExpectViewCreation.class)) {
