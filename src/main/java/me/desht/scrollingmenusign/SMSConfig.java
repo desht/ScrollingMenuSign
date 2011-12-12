@@ -22,7 +22,7 @@ public class SMSConfig {
 	private static File pluginDir;
 	private static File dataDir, menusDir, viewsDir, macrosDir;
 	private static File commandFile;
-	
+
 	private static final String dataDirName = "data";
 	private static final String menusDirName = "menus";
 	private static final String viewsDirName = "views";
@@ -61,12 +61,11 @@ public class SMSConfig {
 
 	private static void initConfigFile() {
 		boolean saveNeeded = false;
-		getConfig().options().copyDefaults(true);
 		Configuration config = getConfig();
-		
+
 		// check if there is anything in the defaults which isn't in our live config file
 		for (String k : config.getDefaults().getKeys(true)) {
-			if (!config.contains(k)) {
+			if (!config.isSet(k)) {
 				saveNeeded = true;
 			}
 		}
@@ -76,15 +75,16 @@ public class SMSConfig {
 			config.set("sms.menuitem_separator", "|");
 			saveNeeded = true;
 		}
-		
+
 		if (config.contains("sms.use_any_view")) {
 			// migrate the old & confusingly-named "use_any_view" setting
 			config.set("sms.ignore_view_ownership", config.getBoolean("sms.use_any_view"));
 			config.set("sms.use_any_view", null);
 			saveNeeded = true;
 		}
-		
+
 		if (saveNeeded) {
+			getConfig().options().copyDefaults(true);
 			ScrollingMenuSign.getInstance().saveConfig();
 		}
 	}
@@ -123,9 +123,9 @@ public class SMSConfig {
 		}
 
 		setConfigItem(getConfig(), key, val);
-		
+
 		// special hooks
-		 
+
 		if (key.equalsIgnoreCase("sms.ignore_view_ownership")) {
 			// redraw map views
 			for (SMSView v : SMSView.listViews()) {
@@ -142,7 +142,7 @@ public class SMSConfig {
 				}
 			}
 		}
-		
+
 		ScrollingMenuSign.getInstance().saveConfig();
 	}
 
@@ -150,9 +150,9 @@ public class SMSConfig {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;
 		}
-		
+
 		setConfigItem(getConfig(), key, list);
-		
+
 		ScrollingMenuSign.getInstance().saveConfig();
 	}
 
@@ -180,7 +180,7 @@ public class SMSConfig {
 		if (!SMSConfig.getConfig().contains(key)) {
 			throw new SMSException("No such config item: " + key);
 		}
-		
+
 		return getConfig().get(key);
 	}
 
@@ -231,7 +231,7 @@ public class SMSConfig {
 			}
 		}
 	}
-	
+
 	public static <T> void setConfigItem(Configuration config, String key, List<T> list) throws SMSException {
 		if (config.getDefaults().get(key) == null) {
 			throw new SMSException("No such key '" + key + "'");
@@ -245,7 +245,7 @@ public class SMSConfig {
 	@SuppressWarnings("unchecked")
 	private static <T> void handleListValue(Configuration config, String key, List<T> list) {
 		HashSet<T> current;
-		
+
 		if (list.get(0).equals("-")) {
 			// remove specifed item from list
 			list.remove(0);
@@ -265,7 +265,7 @@ public class SMSConfig {
 			current = new HashSet<T>(config.getList(key));
 			current.addAll(list);
 		}
-		
+
 		config.set(key, new ArrayList<T>(current));
 	}
 }
