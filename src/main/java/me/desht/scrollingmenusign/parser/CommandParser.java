@@ -219,7 +219,7 @@ public class CommandParser {
 			// this is a /@ command, to be run as the real player, but with temporary permissions
 			// (this now also handles the /* fake-player style, which is no longer directly supported)
 
-			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated")) {
+			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated") || ScrollingMenuSign.permission == null) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
 				cmd.setLastError("You don't have permission to run this command.");
 				return;
