@@ -4,7 +4,7 @@ author: desht
 website: http://dev.bukkit.org/server-mods/scrollingmenusign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
 version: 0.9
-softdepend: [ Spout, Vault, PermissionsEx, bPermissions, PermissionsBukkit ]
+softdepend: [ Spout, Vault ]
 commands:
   sms:
     description: Scrolling menu sign control

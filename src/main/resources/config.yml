@@ -32,3 +32,6 @@ sms:
     spout:
         double_click: false
         show_command_text: true
+    persistent_user_vars: false
+    resource_base_url: ''
+    

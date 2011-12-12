@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.listeners;
 
 import java.util.logging.Level;
 
+import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -10,21 +11,25 @@ import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.scrollingmenusign.util.Debugger;
+import me.desht.scrollingmenusign.util.MessagePager;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSignView;
+import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class SMSPlayerListener extends PlayerListener {
 	private ScrollingMenuSign plugin;
@@ -131,6 +136,24 @@ public class SMSPlayerListener extends PlayerListener {
 				MiscUtil.errorMessage(player, e.getMessage());
 			}
 		}
+	}
+	
+	@Override
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		Player player = event.getPlayer();
+		
+		// clear out user variables if not persistent
+		Configuration cfg = SMSConfig.getConfig();
+		if (!cfg.getBoolean("sms.persistent_user_vars") && cfg.contains("uservar." + player.getName())) {
+			cfg.set("uservar." + player.getName(), null);
+			ScrollingMenuSign.getInstance().saveConfig();
+		}
+		
+		Debugger.getDebugger().removeDebugger(player);
+		
+		MessagePager.deletePager(player);
+		
+		SMSView.clearPlayer(player);
 	}
 
 	//	@Override

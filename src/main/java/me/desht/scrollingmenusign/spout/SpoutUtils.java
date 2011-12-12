@@ -27,7 +27,8 @@ public class SpoutUtils {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("set map name " + mapID + " " + name + " threw " + e.getClass());
+			System.out.println("set map name " + mapID + " " + name + " threw exception: " + e.getClass());
+			e.printStackTrace();
 		}
 	}
 

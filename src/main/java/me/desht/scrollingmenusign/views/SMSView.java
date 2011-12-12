@@ -558,4 +558,26 @@ public abstract class SMSView implements Observer, Freezable {
 	public void onExecuted(Player player) {
 		// does nothing
 	}
+	
+	
+	/**
+	 * Called automatically when a player logs out.  Call the clearPlayerForView() method on all
+	 * known views.
+	 * 
+	 * @param player
+	 */
+	public static void clearPlayer(Player player) {
+		for (SMSView v : listViews()) {
+			v.clearPlayerForView(player);
+		}
+	}
+	
+	/**
+	 * Called automatically when a player logs out.  Perform any cleardown work to remove player
+	 * records from the view.  Override and extend this in subclasses.
+	 * 
+	 * @param player	The player who logged out
+	 */
+	public void clearPlayerForView(Player player) {
+	}
 }

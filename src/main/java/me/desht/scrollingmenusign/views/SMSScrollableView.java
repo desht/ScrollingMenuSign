@@ -8,6 +8,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 
 public abstract class SMSScrollableView extends SMSView {
 
@@ -166,4 +167,12 @@ public abstract class SMSScrollableView extends SMSView {
 	@Override
 	public abstract void update(Observable menu, Object arg1);
 	
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#clearPlayerForView(org.bukkit.entity.Player)
+	 */
+	@Override
+	public void clearPlayerForView(Player player) {
+		super.clearPlayerForView(player);
+		playerScrollPos.remove(player.getName());
+	}
 }

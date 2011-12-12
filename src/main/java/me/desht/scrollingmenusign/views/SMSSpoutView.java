@@ -303,4 +303,16 @@ public class SMSSpoutView extends SMSScrollableView {
 		activePopups.get(playerName).getView().screenClosed(playerName);
 		activePopups.remove(playerName);
 	}
+	
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#clearPlayerForView(org.bukkit.entity.Player)
+	 */
+	@Override
+	public void clearPlayerForView(Player player) {
+		super.clearPlayerForView(player);
+		popups.remove(player.getName());
+		
+		// a little ugly, since this gets called once for every spout view when it only needs to be called once...
+		activePopups.remove(player.getName());
+	}
 }

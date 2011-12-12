@@ -7,9 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.parser.CommandParser;
-import me.desht.scrollingmenusign.parser.ParsedCommand;
 import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.configuration.ConfigurationSection;
