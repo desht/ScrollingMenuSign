@@ -16,17 +16,18 @@ public class PageCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+		MessagePager pager = MessagePager.getPager(player);
 		if (args.length == 0 || partialMatch(args, 0, "n")) {
 			// default is to advance one page and display
-			MessagePager.nextPage(player);
-			MessagePager.showPage(player);
+			pager.nextPage();
+			pager.showPage();
 		} else if (partialMatch(args, 0, "p")) { //$NON-NLS-1$
-			MessagePager.prevPage(player);
-			MessagePager.showPage(player);
+			pager.prevPage();
+			pager.showPage();
 		} else {
 			try {
 				int pageNum = Integer.parseInt(args[0]);
-				MessagePager.showPage(player, pageNum);
+				pager.showPage(pageNum);
 			} catch (NumberFormatException e) {
 				MiscUtil.errorMessage(player, "Invalid page number " + args[1]);
 			}

@@ -18,12 +18,13 @@ public class GetConfigCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {	
-		MessagePager.clear(player);
+		MessagePager pager = MessagePager.getPager(player).clear();
+		
 		if (args.length == 0) {
 			for (String line : SMSConfig.getPluginConfiguration()) {
-				MessagePager.add(player, line);
+				pager.add(line);
 			}
-			MessagePager.showPage(player);
+			pager.showPage();
 		} else {
 			String key = args[0];
 			Object res = SMSConfig.getPluginConfiguration(key);

@@ -17,22 +17,21 @@ public class ListMacroCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		
-		MessagePager.clear(player);
+		MessagePager pager = MessagePager.getPager(player).clear();
 		int i = 1;
 		if (args.length == 0) {
-			MessagePager.add(player, "&e" + SMSMacro.getMacros().size() + " macros:");
+			pager.add("&e" + SMSMacro.getMacros().size() + " macros:");
 			for (SMSMacro m : SMSMacro.listMacros(true)) {
-				MessagePager.add(player, " &e" + i++ + ") &f" + m.getName() + "   &e[" + m.getLines().size() + " lines]");
+				pager.add(" &e" + i++ + ") &f" + m.getName() + "   &e[" + m.getLines().size() + " lines]");
 			}
 		} else {
 			SMSMacro m = SMSMacro.getMacro(args[0], false);
-			MessagePager.add(player, "&fMacro &e" + m.getName() + "&f [" + m.getLines().size() + " lines]:");
+			pager.add("&fMacro &e" + m.getName() + "&f [" + m.getLines().size() + " lines]:");
 			for (String l : m.getLines()) {
-				MessagePager.add(player, " &e" + i++ + ") &f" + l);
+				pager.add(" &e" + i++ + ") &f" + l);
 			}
 		}
-		MessagePager.showPage(player);
+		pager.showPage();
 		
 		return true;
 	}

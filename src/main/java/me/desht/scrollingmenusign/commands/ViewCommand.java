@@ -24,12 +24,12 @@ public class ViewCommand extends AbstractCommand {
 		SMSView view = SMSView.getView(args[0]);
 
 		if (args.length == 1) {
-			MessagePager.clear(player);
-			MessagePager.add(player, String.format("View &e%s&- (%s) :", view.getName(), view.toString()));
+			MessagePager pager = MessagePager.getPager(player).clear();
+			pager.add(String.format("View &e%s&- (%s) :", view.getName(), view.toString()));
 			for (String k : view.listAttributeKeys(true)) {
-				MessagePager.add(player, String.format("&5*&- &e%s&- = &e%s&-", k, view.getAttributeAsString(k)));
+				pager.add(String.format("&5*&- &e%s&- = &e%s&-", k, view.getAttributeAsString(k)));
 			}
-			MessagePager.showPage(player);
+			pager.showPage();
 			return true;
 		}
 

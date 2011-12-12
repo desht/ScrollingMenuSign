@@ -46,19 +46,19 @@ public class ShowMenuCommand extends AbstractCommand {
 			menu = view.getMenu();
 		}
 		
-		MessagePager.clear(player);
+		MessagePager pager = MessagePager.getPager(player).clear();
 		String mo = menu.getOwner().isEmpty() ? "(no one)" : menu.getOwner();
-		MessagePager.add(player, String.format("Menu &e%s&-, Title \"&f%s&-\", Owner &e%s&-",
+		pager.add(String.format("Menu &e%s&-, Title \"&f%s&-\", Owner &e%s&-",
 		                                       menu.getName(),  menu.getTitle(), mo));
 		if (!menu.formatUses(player).isEmpty()) {
-			MessagePager.add(player, "&c" + menu.formatUses(player));
+			pager.add("&c" + menu.formatUses(player));
 		}
 		if (!menu.getDefaultCommand().isEmpty()) {
-			MessagePager.add(player, " Default command: &f" + menu.getDefaultCommand());
+			pager.add(" Default command: &f" + menu.getDefaultCommand());
 		}
 		if (view != null) {
 			String owner = view.getAttributeAsString("owner");
-			MessagePager.add(player, String.format("View &e%s&-, Owner &e%s&-",
+			pager.add(String.format("View &e%s&-, Owner &e%s&-",
 			                                       view.getName(), owner.isEmpty() ? "(no one)" : owner));
 		}
 		
@@ -68,10 +68,10 @@ public class ShowMenuCommand extends AbstractCommand {
 			String s = String.format("&e%2d) &f%s " + "&f[%s] \"%s\"&f &c%s",
 					n, item.getLabel(), item.getCommand(), item.getMessage(), item.formatUses(player));
 			n++;
-			MessagePager.add(player, s);
+			pager.add(s);
 		}
 		
-		MessagePager.showPage(player);
+		pager.showPage();
 		
 		return true;
 	}

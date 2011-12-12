@@ -25,28 +25,29 @@ public class ListMenusCommand extends AbstractCommand {
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {		
 		
-		MessagePager.clear(player);
+		MessagePager pager = MessagePager.getPager(player).clear();
+		
 		SMSHandler handler = plugin.getHandler();
 		if (args.length > 0) {
 			SMSMenu menu = handler.getMenu(args[0]);
-			listMenu(player, menu, true);
+			listMenu(pager, menu, true);
 		} else {
 			List<SMSMenu> menus = handler.listMenus(true);
 			if (menus.size() == 0) {
 				MiscUtil.statusMessage(player, "No menu signs exist.");
 			} else {
-				MessagePager.add(player, "Use &f/sms list <menu-name>&- to see all the views for a menu");
+				pager.add("Use &f/sms list <menu-name>&- to see all the views for a menu");
 				for (SMSMenu menu : menus) {
-					listMenu(player, menu, false);
+					listMenu(pager, menu, false);
 				}
 			}
 		}
-		MessagePager.showPage(player);
+		pager.showPage();
 		
 		return true;
 	}
 
-	private void listMenu(Player player, SMSMenu menu, boolean listViews) {
+	private void listMenu(MessagePager pager, SMSMenu menu, boolean listViews) {
 		List<SMSView> views = SMSView.getViewsForMenu(menu, true);
 
 		ChatColor itemCol = menu.getItemCount() > 0 ? ChatColor.YELLOW : ChatColor.RED;
@@ -64,6 +65,6 @@ public class ListMenusCommand extends AbstractCommand {
 				lines.add(String.format("  &5*&- &f%s&-: &e%s", v.getName(), v.toString()));
 			}
 		}
-		MessagePager.add(player, lines);
+		pager.add(lines);
 	}
 }
