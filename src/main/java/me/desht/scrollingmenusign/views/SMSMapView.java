@@ -1,5 +1,11 @@
 package me.desht.scrollingmenusign.views;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,13 +13,18 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.logging.Level;
 
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.map.MapFont;
+import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.map.MinecraftFont;
 
+import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -30,6 +41,9 @@ import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
  */
 public class SMSMapView extends SMSScrollableView {
 
+	private static final String IMAGE_FILE = "imagefile";
+	private static final String CACHED_FILE_FORMAT = "png";
+
 	private MapView mapView = null;
 	private SMSMapRenderer mapRenderer = null;
 	private MapFont mapFont = MinecraftFont.Font;
@@ -37,6 +51,7 @@ public class SMSMapView extends SMSScrollableView {
 	private int width, height;
 	private int lineSpacing;
 	private List<MapRenderer> previousRenderers = new ArrayList<MapRenderer>();
+	private BufferedImage image = null;
 
 	private static Map<Short,SMSMapView> allMapViews = new HashMap<Short, SMSMapView>();
 
@@ -58,6 +73,8 @@ public class SMSMapView extends SMSScrollableView {
 	public SMSMapView(String name, SMSMenu menu) {
 		super(name, menu);
 
+		registerAttribute(IMAGE_FILE, "");
+
 		x = 4;
 		y = 10;
 		width = 120;
@@ -65,6 +82,48 @@ public class SMSMapView extends SMSScrollableView {
 		lineSpacing = 1;
 
 		mapRenderer = new SMSMapRenderer(this);
+	}
+
+	private void loadBackgroundImage() {
+		image = null;
+		
+		String base = SMSConfig.getConfig().getString("sms.resource_base_url");
+		if (base == null || base.isEmpty()) {
+			return;
+		}
+		String file = getAttributeAsString(IMAGE_FILE);
+		if (file == null || file.isEmpty()) {
+			return;
+		}
+		
+		// Load the file from the given URL, and write a cached copy (PNG, 128x128) to our local
+		// directory structure.  The cached file can be used for subsequent loads to improve performance.
+		try {
+			File cached = getCachedFile(file);
+			System.out.println(file + " -> " + cached);
+			BufferedImage resizedImage;
+			if (cached.canRead()) {
+				resizedImage = ImageIO.read(cached);
+			} else {
+				URL url = new URL(new URL(base), file);
+				BufferedImage orig = ImageIO.read(url);
+//				resizedImage = new BufferedImage(128, 128, orig.getType());
+//				Graphics2D g = resizedImage.createGraphics();
+//				g.drawImage(orig, 0, 0, 128, 128, null);
+//				g.dispose();
+				resizedImage = MapPalette.resizeImage(orig);
+				ImageIO.write(resizedImage, CACHED_FILE_FORMAT, cached);
+			}
+			image = resizedImage;
+		} catch (MalformedURLException e) {
+			MiscUtil.log(Level.WARNING, "malformed image URL for map view " + getName() + ": " + e.getMessage());
+		} catch (IOException e) {
+			MiscUtil.log(Level.WARNING, "cannot load image URL for map view " + getName() + ": " + e.getMessage());
+		}
+	}
+
+	private static File getCachedFile(String file) {
+		return new File(SMSConfig.getImgCacheFolder(), FilenameUtils.getBaseName(file) + "." + CACHED_FILE_FORMAT);
 	}
 
 	@Override
@@ -102,8 +161,11 @@ public class SMSMapView extends SMSScrollableView {
 
 		allMapViews.put(mapView.getId(), this);
 
-		if (ScrollingMenuSign.getInstance().isSpoutEnabled())
+		if (ScrollingMenuSign.getInstance().isSpoutEnabled()) {
 			SpoutUtils.setSpoutMapName(mapView.getId(), getMenu().getTitle());
+		}
+
+		loadBackgroundImage();
 
 		autosave();
 	}
@@ -251,6 +313,10 @@ public class SMSMapView extends SMSScrollableView {
 		this.mapFont = mapFont;
 	}
 
+	public BufferedImage getImage() {
+		return image;
+	}
+
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
 	 */
@@ -302,9 +368,10 @@ public class SMSMapView extends SMSScrollableView {
 	 * @throws SMSException if the given mapId is already a view
 	 */
 	public static SMSMapView addMapToMenu(short mapId, SMSMenu menu) throws SMSException {
-		if (SMSMapView.checkForMapId(mapId))
+		if (SMSMapView.checkForMapId(mapId)) {
+			new SMSException("??").printStackTrace();
 			throw new SMSException("This map already has a menu view associated with it");
-
+		}
 		SMSMapView mapView = new SMSMapView(menu);
 		mapView.register();
 		mapView.setMapId(mapId);
@@ -316,5 +383,15 @@ public class SMSMapView extends SMSScrollableView {
 	@Override
 	public String getType() {
 		return "map";
+	}
+
+	@Override
+	protected void onAttributeChanged(String attribute, String oldVal, String newVal) {
+		super.onAttributeChanged(attribute, oldVal, newVal);
+
+		if (attribute.equals(IMAGE_FILE)) {
+			loadBackgroundImage();
+			setDirty(true);
+		}
 	}
 }

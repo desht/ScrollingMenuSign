@@ -20,13 +20,14 @@ import org.bukkit.configuration.Configuration;
 
 public class SMSConfig {
 	private static File pluginDir;
-	private static File dataDir, menusDir, viewsDir, macrosDir;
+	private static File dataDir, menusDir, viewsDir, macrosDir, imgCacheDir;
 	private static File commandFile;
 
 	private static final String dataDirName = "data";
 	private static final String menusDirName = "menus";
 	private static final String viewsDirName = "views";
 	private static final String macrosDirName = "macros";
+	private static final String imgCacheDirName = "imagecache";
 	private static final String commandFileName = "commands.yml";
 
 	static void init(ScrollingMenuSign plugin) {
@@ -42,12 +43,14 @@ public class SMSConfig {
 		menusDir = new File(dataDir, menusDirName);
 		viewsDir = new File(dataDir, viewsDirName);
 		macrosDir = new File(dataDir, macrosDirName);
+		imgCacheDir = new File(pluginDir, imgCacheDirName);
 
 		createDirectory(pluginDir);
 		createDirectory(dataDir);
 		createDirectory(menusDir);
 		createDirectory(viewsDir);
 		createDirectory(macrosDir);
+		createDirectory(imgCacheDir);
 	}
 
 	private static void createDirectory(File dir) {
@@ -113,6 +116,10 @@ public class SMSConfig {
 		return viewsDir;
 	}
 
+	public static File getImgCacheFolder() {
+		return imgCacheDir;
+	}
+	
 	public static Configuration getConfig() {
 		return ScrollingMenuSign.getInstance().getConfig();
 	}

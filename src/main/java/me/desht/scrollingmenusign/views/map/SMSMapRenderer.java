@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.views.map;
 
+import java.awt.image.BufferedImage;
+
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -33,6 +35,7 @@ public class SMSMapRenderer extends MapRenderer {
 	@Override
 	public void render(MapView map, MapCanvas canvas, Player player) {
 		if (smsMapView.isDirty()) {
+			drawImage(canvas, smsMapView.getImage());
 			if (!smsMapView.allowedToUse(player)) {
 				drawMessage(canvas, NOT_OWNER);
 			} else if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
@@ -42,6 +45,13 @@ public class SMSMapRenderer extends MapRenderer {
 			}
 			smsMapView.setDirty(false);
 			player.sendMap(map);
+		}
+	}
+
+	private void drawImage(MapCanvas canvas, BufferedImage image) {
+		//		System.out.println("draw background image: " + image);
+		if (image != null) {
+			canvas.drawImage(0, 0, image);
 		}
 	}
 
@@ -61,14 +71,14 @@ public class SMSMapRenderer extends MapRenderer {
 				drawTitle = false;
 			}
 		}
-		
+
 		if (drawTitle) {
 			String title = menu.getTitle();
 			int titleWidth = getWidth(smsMapView.getMapFont(), title);
 			drawText(canvas, smsMapView.getX() + (smsMapView.getWidth() - titleWidth) / 2, y, smsMapView.getMapFont(), title);
 			y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
 		}
-		
+
 		String prefix1 = SMSConfig.getConfig().getString("sms.item_prefix.not_selected", "  ");
 		String prefix2 = SMSConfig.getConfig().getString("sms.item_prefix.selected", "> ");
 
@@ -107,7 +117,7 @@ public class SMSMapRenderer extends MapRenderer {
 
 	static void drawText(MapCanvas canvas, int x, int y, MapFont font, String text) {
 		int xStart = x;
-		byte color = MapPalette.DARK_GRAY;
+		byte color = convertMcToPalette((byte)0);
 		if (!font.isValid(text)) {
 			throw new IllegalArgumentException("text contains invalid characters");
 		}
