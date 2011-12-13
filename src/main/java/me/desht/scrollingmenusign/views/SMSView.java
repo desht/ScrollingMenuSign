@@ -164,7 +164,7 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 		for (String k : node.getKeys(false)) {
 			if (hasAttribute(k)) {
-				SMSConfig.setConfigItem(getAttributes(), k, node.getString(k));
+//				SMSConfig.setConfigItem(getAttributes(), k, node.getString(k));
 				setAttribute(k, node.getString(k));
 			}
 		}
@@ -506,14 +506,19 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 
 	public String getAttributeAsString(String k)  {
-		return attributes.get(k).toString();
+		Object o = getAttribute(k);
+		return o == null ? "(none)" : o.toString();
 	}
 
 	public void setAttribute(String k, String val) throws SMSException {
+		if (!attributes.contains(k)) {
+			throw new SMSException("No such view attribute: " + k);
+		}
 		String oldVal = getAttributeAsString(k);
 		onAttributeValidate(k, oldVal, val);
 		SMSConfig.setConfigItem(attributes, k, val);
-		onAttributeChanged(k, oldVal, attributes.get(k).toString());
+		String newVal = attributes.get(k).toString();
+		onAttributeChanged(k, oldVal, newVal);
 	}
 
 	/**

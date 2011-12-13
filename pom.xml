@@ -18,8 +18,7 @@
 		<repository>
 			<id>spout-repo</id>
 			<name>Spout API</name>
-			<url>http://repo.getspout.org/</url>
-			<layout>default</layout>
+			<url>http://repo.getspout.org</url>
 		</repository>
 	</repositories>
 	<build>
@@ -61,12 +60,14 @@
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.getspout</groupId>
 			<artifactId>spoutapi</artifactId>
-			<version>dev-20111129.050927-2</version>
+			<version>dev-SNAPSHOT</version>
+			<type>jar</type>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.milkbowl</groupId>

@@ -264,7 +264,6 @@ public class SMSSpoutView extends SMSScrollableView {
 		if (pressed.keysPressed() == 0)
 			return false;
 
-		
 		String s = pressed.toString();
 
 		String viewName = keyMap.get(s);
