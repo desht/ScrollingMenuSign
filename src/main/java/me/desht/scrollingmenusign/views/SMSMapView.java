@@ -1,6 +1,5 @@
 package me.desht.scrollingmenusign.views;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -100,19 +99,15 @@ public class SMSMapView extends SMSScrollableView {
 		// directory structure.  The cached file can be used for subsequent loads to improve performance.
 		try {
 			File cached = getCachedFile(file);
-			System.out.println(file + " -> " + cached);
 			BufferedImage resizedImage;
 			if (cached.canRead()) {
 				resizedImage = ImageIO.read(cached);
 			} else {
 				URL url = new URL(new URL(base), file);
 				BufferedImage orig = ImageIO.read(url);
-//				resizedImage = new BufferedImage(128, 128, orig.getType());
-//				Graphics2D g = resizedImage.createGraphics();
-//				g.drawImage(orig, 0, 0, 128, 128, null);
-//				g.dispose();
 				resizedImage = MapPalette.resizeImage(orig);
 				ImageIO.write(resizedImage, CACHED_FILE_FORMAT, cached);
+				MiscUtil.log(Level.INFO, "Cached image " + url + " as " + cached);
 			}
 			image = resizedImage;
 		} catch (MalformedURLException e) {
