@@ -38,8 +38,9 @@ public abstract class SMSView implements Observer, Freezable {
 
 	// attributes
 	protected static final String OWNER = "owner";
-
+	// map view name to view object for registered views
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
+	// map location to view object for registered views
 	private static final Map<Location, SMSView> allViewLocations = new HashMap<Location, SMSView>();
 
 	private static final Map<String,Integer> viewIdx = new HashMap<String, Integer>();
@@ -48,7 +49,6 @@ public abstract class SMSView implements Observer, Freezable {
 	private final Set<Location> locations = new HashSet<Location>();
 	private String name;
 	private boolean autosave;
-	//	private String owner;
 	private boolean dirty;
 	private Configuration attributes;	// view attributes to be displayed and/or edited by players
 	private int maxLocations;
@@ -142,7 +142,6 @@ public abstract class SMSView implements Observer, Freezable {
 		map.put("menu", menu.getName());
 		map.put("class", getClass().getName());
 		for (String key : listAttributeKeys(false)) {
-			//			System.out.println("freeze attr " + getName() + " - " + key + " = " + attributes.get(key).toString());
 			map.put(key, attributes.get(key).toString());
 		}
 		List<List<Object>> locs = new ArrayList<List<Object>>();
@@ -261,8 +260,9 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 
 		locations.add(loc);
-//		allViewLocations.put(loc, this);
-
+		if (checkForView(getName())) {
+			allViewLocations.put(loc, this);
+		}
 		autosave();
 	}
 
@@ -303,7 +303,6 @@ public abstract class SMSView implements Observer, Freezable {
 		allViewNames.put(getName(), this);
 		for (Location l : getLocations()) {
 			allViewLocations.put(l, this);
-			System.out.println("register " + getName() + ": loc = " + l);
 		}
 	}
 
@@ -461,9 +460,7 @@ public abstract class SMSView implements Observer, Freezable {
 			//			System.out.println("got class " + c.getName());
 			Constructor<? extends SMSView> ctor = c.getDeclaredConstructor(String.class, SMSMenu.class);
 			SMSView v = ctor.newInstance(viewName, SMSMenu.getMenu(node.getString("menu")));
-//			v.setAutosave(false);
 			v.thaw(node);
-//			v.setAutosave(true);
 			v.register();
 			return v;
 		} catch (ClassNotFoundException e) {
