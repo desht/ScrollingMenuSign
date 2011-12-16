@@ -125,7 +125,8 @@ public class SMSRedstoneView extends SMSView {
 		if (radius <= 0) {
 			return null;
 		}
-
+		radius *= radius;
+		
 		double minDist = Double.MAX_VALUE;
 		List<Player> res = new ArrayList<Player>();
 
@@ -133,7 +134,7 @@ public class SMSRedstoneView extends SMSView {
 			// get a list containing only the closest player (who must also be within PLAYERRADIUS)
 			Player closest = null;
 			for (Player p : loc.getWorld().getPlayers()) {
-				double dist = p.getLocation().distance(loc);
+				double dist = p.getLocation().distanceSquared(loc);
 				if (dist < radius && dist < minDist) {
 					closest = p;
 					minDist = dist;
@@ -145,7 +146,7 @@ public class SMSRedstoneView extends SMSView {
 		} else {
 			// get a list of all players within PLAYERRADIUS
 			for (Player p : loc.getWorld().getPlayers()) {
-				double dist = p.getLocation().distance(loc);
+				double dist = p.getLocation().distanceSquared(loc);
 				if (dist < radius) {
 					res.add(p);
 				}
