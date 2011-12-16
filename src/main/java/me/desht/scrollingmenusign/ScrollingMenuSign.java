@@ -80,7 +80,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		Plugin spout = pm.getPlugin("Spout");
 		if (spout != null && spout.isEnabled()) {
 			spoutEnabled = true;
-			MiscUtil.log(Level.INFO, "Detected Spout v" + spout.getDescription().getVersion());
+			MiscUtil.log(Level.INFO, "Loaded Spout v" + spout.getDescription().getVersion());
 		}
 
 		setupVault(pm);
@@ -177,14 +177,11 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			if (setupEconomy()) {
-				MiscUtil.log(Level.INFO, "Detected economy plugin via Vault: " + economy.getName());
-			} else {
-				MiscUtil.log(Level.WARNING, "No economy plugin detected");
+			MiscUtil.log(Level.INFO, "Loaded Vault v" + vault.getDescription().getVersion());
+			if (!setupEconomy()) {
+				MiscUtil.log(Level.WARNING, "No economy plugin detected - economy command costs not available");
 			}
-			if (setupPermission()) {
-				MiscUtil.log(Level.INFO, "Detected permissions plugin via Vault: " + permission.getName());
-			} else {
+			if (!setupPermission()) {
 				MiscUtil.log(Level.WARNING, "No permissions plugin detected - no permission elevation support");
 			}
 		} else {
