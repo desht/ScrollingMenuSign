@@ -34,9 +34,6 @@ public class SMSBlockListener extends BlockListener {
 			return;
 
 		Block b = event.getBlock();
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			return;
-		}	
 		Location loc = b.getLocation();
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view == null)
@@ -89,20 +86,18 @@ public class SMSBlockListener extends BlockListener {
 			return;
 
 		Block b = event.getBlock();
-		if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-			Location loc = b.getLocation();
-			SMSView view = SMSView.getViewForLocation(loc);
-			if (view != null) {
-				Debugger.getDebugger().debug("block physics event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
-				if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
-					event.setCancelled(true);
-				} else {
-					Sign s = (Sign) b.getState().getData();
-					Block attachedBlock = b.getRelative(s.getAttachedFace());
-					if (attachedBlock.getTypeId() == 0) {
-						// attached to air? looks like the sign has become detached
-						view.deletePermanent();
-					}
+		Location loc = b.getLocation();
+		SMSView view = SMSView.getViewForLocation(loc);
+		if (view != null) {
+			Debugger.getDebugger().debug("block physics event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
+			if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
+				event.setCancelled(true);
+			} else {
+				Sign s = (Sign) b.getState().getData();
+				Block attachedBlock = b.getRelative(s.getAttachedFace());
+				if (attachedBlock.getTypeId() == 0) {
+					// attached to air? looks like the sign has become detached
+					view.deletePermanent();
 				}
 			}
 		}
