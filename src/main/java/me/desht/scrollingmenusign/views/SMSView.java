@@ -164,7 +164,6 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 		for (String k : node.getKeys(false)) {
 			if (hasAttribute(k)) {
-//				SMSConfig.setConfigItem(getAttributes(), k, node.getString(k));
 				setAttribute(k, node.getString(k));
 			}
 		}
@@ -262,7 +261,7 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 
 		locations.add(loc);
-		allViewLocations.put(loc, this);
+//		allViewLocations.put(loc, this);
 
 		autosave();
 	}
@@ -304,6 +303,7 @@ public abstract class SMSView implements Observer, Freezable {
 		allViewNames.put(getName(), this);
 		for (Location l : getLocations()) {
 			allViewLocations.put(l, this);
+			System.out.println("register " + getName() + ": loc = " + l);
 		}
 	}
 
@@ -461,9 +461,10 @@ public abstract class SMSView implements Observer, Freezable {
 			//			System.out.println("got class " + c.getName());
 			Constructor<? extends SMSView> ctor = c.getDeclaredConstructor(String.class, SMSMenu.class);
 			SMSView v = ctor.newInstance(viewName, SMSMenu.getMenu(node.getString("menu")));
-			v.setAutosave(false);
+//			v.setAutosave(false);
 			v.thaw(node);
-			v.setAutosave(true);
+//			v.setAutosave(true);
+			v.register();
 			return v;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
