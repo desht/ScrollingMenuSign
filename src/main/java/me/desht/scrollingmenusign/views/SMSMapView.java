@@ -364,7 +364,6 @@ public class SMSMapView extends SMSScrollableView {
 	 */
 	public static SMSMapView addMapToMenu(short mapId, SMSMenu menu) throws SMSException {
 		if (SMSMapView.checkForMapId(mapId)) {
-			new SMSException("??").printStackTrace();
 			throw new SMSException("This map already has a menu view associated with it");
 		}
 		SMSMapView mapView = new SMSMapView(menu);
