@@ -13,6 +13,7 @@ import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -51,7 +52,7 @@ public class AddViewCommand extends AbstractCommand {
 		} else if (args.length == 3 && args[1].equalsIgnoreCase("-map")) {	// map view
 			try {
 				short mapId = Short.parseShort(args[2]);
-				view = SMSMapView.addMapToMenu(mapId, menu);
+				view = SMSMapView.addMapToMenu(menu, mapId);
 			} catch (NumberFormatException e) {
 				throw new SMSException(e.getMessage());
 			}
@@ -63,13 +64,15 @@ public class AddViewCommand extends AbstractCommand {
 		if (view == null) {
 			// see if we can get a view from what the player is looking at or holding
 			notFromConsole(player);
-			Block b = player.getTargetBlock(null, 3);
-			if (b.getTypeId() == 63 || b.getTypeId() == 68) {					// sign view
-				view = SMSSignView.addSignToMenu(menu, b.getLocation());
-			} else if (player.getItemInHand().getTypeId() == 358) {				// map view
-				PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
+			if (player.getItemInHand().getType() == Material.MAP) {				// map view
+				PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");
 				short mapId = player.getItemInHand().getDurability();
-				view = SMSMapView.addMapToMenu(mapId, menu);
+				view = SMSMapView.addMapToMenu(menu, mapId);
+			} else {
+				Block b = player.getTargetBlock(null, 3);						// sign view ?
+				if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
+					view = SMSSignView.addSignToMenu(menu, b.getLocation());
+				}
 			}
 		}
 

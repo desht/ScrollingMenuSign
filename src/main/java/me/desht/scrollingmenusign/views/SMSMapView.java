@@ -361,8 +361,22 @@ public class SMSMapView extends SMSScrollableView {
 	 * @param menu
 	 * @return	The SMSMapView object that was just created
 	 * @throws SMSException if the given mapId is already a view
+	 * @deprecated Use addMapToMenu(menu, mapId)
 	 */
+	@Deprecated
 	public static SMSMapView addMapToMenu(short mapId, SMSMenu menu) throws SMSException {
+		return addMapToMenu(menu, mapId);
+	}
+
+	/**
+	 * Convenience routine.  Add the given mapId as a view on the given menu.
+	 * 
+	 * @param menu	The menu to add the view to
+	 * @param mapId		ID of the map that will be used as a view
+	 * @return	The SMSMapView object that was just created
+	 * @throws SMSException if the given mapId is already a view
+	 */	
+	public static SMSMapView addMapToMenu(SMSMenu menu, short mapId) throws SMSException {
 		if (SMSMapView.checkForMapId(mapId)) {
 			throw new SMSException("This map already has a menu view associated with it");
 		}
@@ -371,7 +385,7 @@ public class SMSMapView extends SMSScrollableView {
 		mapView.setMapId(mapId);
 		mapView.update(menu, SMSMenuAction.REPAINT);
 
-		return mapView;
+		return mapView;		
 	}
 
 	@Override

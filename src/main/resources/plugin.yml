@@ -10,18 +10,17 @@ commands:
     description: Scrolling menu sign control
     usage: |
       /sms create <name> <title>
-      /sms create <name> from <other-name>
-      /sms sync <name>
       /sms delete [<name>]
+      /sms sync <name>
       /sms break
-      /sms list
+      /sms list [<name>]
       /sms show [<name>]
       /sms title <name> <new-title>
       /sms add <name> <label|command|message>
       /sms remove <name> <index|label>
       /sms sort <name> [auto]
       /sms uses <name> <item> <count>|clear [global]
-      /sms page <page-number>
+      /sms page [<page-number|n|p>]
       /sms getcfg [<key>]
       /sms setcfg <key> <value>
       /sms macro <list|add|remove> <macro-name> ...
@@ -29,6 +28,7 @@ commands:
       /sms reload [<all|menus|macros|config>]
       /sms defcmd <menu> <command>
       /sms givemap <map-id> <quantity>
+      /sms var [<name>] [<value>]
 permissions:
   scrollingmenusign.guest:
     description: Gives access to very basic SMS functionality (no permission elevation)

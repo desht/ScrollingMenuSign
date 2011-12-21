@@ -12,6 +12,7 @@ import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class ShowMenuCommand extends AbstractCommand {
@@ -34,8 +35,8 @@ public class ShowMenuCommand extends AbstractCommand {
 			notFromConsole(player);
 			view = SMSView.getViewForLocation(player.getTargetBlock(null, 3).getLocation());
 			if (view == null) {
-				if (player.getItemInHand().getTypeId() == 358) {		// map
-					PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
+				if (player.getItemInHand().getType() == Material.MAP) {		// map
+					PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");
 					short mapId = player.getItemInHand().getDurability();
 					view = SMSMapView.getViewForId(mapId);
 				}

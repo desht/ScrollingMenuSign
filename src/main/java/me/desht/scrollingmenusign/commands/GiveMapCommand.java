@@ -5,6 +5,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
@@ -45,7 +46,7 @@ public class GiveMapCommand extends AbstractCommand {
 			mapId = mv.getId();
 		}
 		
-		ItemStack stack = new ItemStack(358, amount);
+		ItemStack stack = new ItemStack(Material.MAP, amount);
 		stack.setDurability(mapId);
 		player.getInventory().addItem(stack);
 		player.updateInventory();

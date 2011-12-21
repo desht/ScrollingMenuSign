@@ -82,7 +82,7 @@ public class SMSPlayerListener extends PlayerListener {
 			} else if (locView != null && player.getItemInHand().getType() == Material.MAP) {
 				// Hit an existing view with a map - the map now becomes a view on the same menu
 				tryToActivateMap(block, player);
-			} else if (player.getItemInHand().getTypeId() == 358 && block.getType() == Material.GLASS) {
+			} else if (player.getItemInHand().getType() == Material.MAP && block.getType() == Material.GLASS) {
 				// Hit glass with map - deactivate the map if it has a sign view on it
 				tryToDeactivateMap(block, player);
 			} else if (mapView != null && locView == null && block.getState() instanceof Sign) {
@@ -167,7 +167,7 @@ public class SMSPlayerListener extends PlayerListener {
 	//		Item item = event.getItemDrop();
 	//		ItemStack is = item.getItemStack();
 	//
-	//		if (is.getTypeId() == 358 && SMSMapView.checkForMapId(is.getDurability()) && !SMSConfig.getConfiguration().getBoolean("sms.maps.tradable", true)) {
+	//		if (is.getType() == Material.MAP && SMSMapView.checkForMapId(is.getDurability()) && !SMSConfig.getConfiguration().getBoolean("sms.maps.tradable", true)) {
 	//			short d = 0;
 	//			SMSMenu menu = SMSMapView.getViewForId(is.getDurability()).getMenu();
 	//			while (Bukkit.getServer().getMap(d) != null) {
@@ -195,7 +195,7 @@ public class SMSPlayerListener extends PlayerListener {
 	//		Player player = event.getPlayer();
 	//		
 	//		SMSMapView mapView = null;
-	//		if (player.getItemInHand().getTypeId() == 358) {
+	//		if (player.getItemInHand().getType() == Material.MAP) {
 	//			mapView = SMSMapView.getViewForId(player.getItemInHand().getDurability());
 	//		}
 	//		
@@ -312,7 +312,7 @@ public class SMSPlayerListener extends PlayerListener {
 			return;
 
 		short mapId = player.getItemInHand().getDurability();
-		SMSMapView mapView = SMSMapView.addMapToMenu(mapId, currentView.getMenu());
+		SMSMapView mapView = SMSMapView.addMapToMenu(currentView.getMenu(), mapId);
 
 		MiscUtil.statusMessage(player, String.format("Added new map view &e%s&- to menu &e%s&-.",
 		                                             mapView.getName(), mapView.getMenu().getName()));

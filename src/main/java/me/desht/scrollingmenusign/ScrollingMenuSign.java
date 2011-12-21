@@ -77,12 +77,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 			return;
 		}	
 
-		Plugin spout = pm.getPlugin("Spout");
-		if (spout != null && spout.isEnabled()) {
-			spoutEnabled = true;
-			MiscUtil.log(Level.INFO, "Loaded Spout v" + spout.getDescription().getVersion());
-		}
-
+		setupSpout(pm);
 		setupVault(pm);
 
 		SMSConfig.init(this);
@@ -172,6 +167,14 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	private static void setInstance(ScrollingMenuSign plugin) {
 		instance = plugin;
+	}
+
+	private void setupSpout(PluginManager pm) {
+		Plugin spout = pm.getPlugin("Spout");
+		if (spout != null && spout.isEnabled()) {
+			spoutEnabled = true;
+			MiscUtil.log(Level.INFO, "Loaded Spout v" + spout.getDescription().getVersion());
+		}
 	}
 
 	private void setupVault(PluginManager pm) {

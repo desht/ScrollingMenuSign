@@ -7,6 +7,7 @@ import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -37,9 +38,9 @@ public class RemoveViewCommand extends AbstractCommand {
 				throw new SMSException(e.getMessage());
 			}
 			view = SMSView.getViewForLocation(MiscUtil.parseLocation(args[0], player));
-		} else if (player != null && player.getItemInHand().getTypeId() == 358) {
+		} else if (player != null && player.getItemInHand().getType() == Material.MAP) {
 			// detaching a map view 
-			PermissionsUtils.requirePerms(player, "scrollingmenusign.maps");
+			PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");
 			view = SMSMapView.getViewForId(player.getItemInHand().getDurability());
 		} else if (args.length == 0) {
 			// detaching a view that the player is looking at

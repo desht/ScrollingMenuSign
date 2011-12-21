@@ -63,7 +63,7 @@ public class SMSBlockListener extends BlockListener {
 			Debugger.getDebugger().debug("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
 			if (plugin.getConfig().getBoolean("sms.no_destroy_signs", false)) {
 				event.setCancelled(true);
-			} else if (p.getItemInHand().getTypeId() == 358) {
+			} else if (p.getItemInHand().getType() == Material.MAP) {
 				if (SMSMapView.getViewForId(p.getItemInHand().getDurability()) != null) {
 					// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
 					event.setCancelled(true);
