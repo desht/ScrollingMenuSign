@@ -63,7 +63,7 @@ public class SpoutViewPopup extends GenericPopup {
 
 	public void scrollTo(int scrollPos) {
 		listWidget.setSelection(scrollPos - 1);
-		System.out.println("scroll to " + scrollPos + " = " + listWidget.getSelectedItem().getTitle());
+//		System.out.println("scroll to " + scrollPos + " = " + listWidget.getSelectedItem().getTitle());
 	}
 
 	public void popup() {	

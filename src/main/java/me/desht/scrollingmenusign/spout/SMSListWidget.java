@@ -22,7 +22,7 @@ public class SMSListWidget extends GenericListWidget {
 		this.sp = sp;
 		
 		setColor(new Color(0, 0, 0));
-		setBackgroundColor(new Color(0.99f, 0.89f, 0.57f, 0.8f));
+		setBackgroundColor(new Color(0.8f, 0.75f, 0.45f));
 		
 		populateMenu();
 	}

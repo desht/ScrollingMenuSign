@@ -485,8 +485,7 @@ public abstract class SMSView implements Observer, Freezable {
 			e.printStackTrace();
 			MiscUtil.log(Level.WARNING, "illegal argument while loading view " + viewName + ": " + e.getMessage());
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "invocation target exception while loading view " + viewName + ": " + e.getMessage());
+			MiscUtil.log(Level.WARNING, "invocation target exception while loading view " + viewName + ": " + e.getCause().getMessage());
 		}
 		return null;
 	}
