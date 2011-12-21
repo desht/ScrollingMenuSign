@@ -25,6 +25,7 @@ public class ParsedCommand {
 	private boolean commandStopped, macroStopped;
 	private boolean console;
 	private String lastError;
+	private StringBuilder rawCommand;
 
 	ParsedCommand (Player player, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
@@ -34,10 +35,12 @@ public class ParsedCommand {
 		affordable = true;
 		command = null;
 		status = ReturnStatus.UNKNOWN;
-		lastError = "(no error)";
+		lastError = "no error";
+		rawCommand = new StringBuilder();
 
 		while (scanner.hasNext()) {
 			String token = scanner.next();
+			rawCommand.append(token).append(" ");
 
 			if (token.startsWith("%")) {
 				// macro
@@ -244,6 +247,10 @@ public class ParsedCommand {
 
 	void setLastError(String lastError) {
 		this.lastError = lastError;
+	}
+
+	public String getRawCommand() {
+		return rawCommand.toString().trim();
 	}
 
 	/**

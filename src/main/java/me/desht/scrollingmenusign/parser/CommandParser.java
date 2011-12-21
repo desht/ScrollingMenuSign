@@ -1,11 +1,16 @@
 package me.desht.scrollingmenusign.parser;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,10 +31,42 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class CommandParser {
+	private static Logger cmdLogger = null;
+	
 	private Set<String> macroHistory;
 
 	public CommandParser() {
+		if (cmdLogger == null) {
+			cmdLogger = Logger.getLogger(CommandParser.class.getName());
+			setLogFile(SMSConfig.getConfig().getString("sms.command_log_file"));
+		}
 		this.macroHistory = new HashSet<String>();
+	}
+
+	public static void setLogFile(String logFileName) {
+		for (Handler h : cmdLogger.getHandlers()) {
+			h.close();
+			cmdLogger.removeHandler(h);
+		}
+		if (logFileName != null && !logFileName.isEmpty()) {
+			try {
+				File logFile = new File(ScrollingMenuSign.getInstance().getDataFolder(), logFileName);
+				FileHandler fh = new FileHandler(logFile.getPath());
+				CommandLogFormatter formatter = new CommandLogFormatter();
+				fh.setFormatter(formatter);
+				cmdLogger.addHandler(fh);
+				cmdLogger.setUseParentHandlers(false);
+			} catch (SecurityException e) {
+				MiscUtil.log(Level.WARNING, "Can't log to " + logFileName + ": " + e.getMessage());
+				e.printStackTrace();
+			} catch (IOException e) {
+				MiscUtil.log(Level.WARNING, "Can't log to " + logFileName + ": " + e.getMessage());
+				e.printStackTrace();
+			}
+		} else {
+			// no explicit log file - just use the parent handler, which should log to the Bukkit console
+			cmdLogger.setUseParentHandlers(true);
+		}
 	}
 
 	private enum RunMode { CHECK_PERMS, EXECUTE };
@@ -122,7 +159,7 @@ public class CommandParser {
 			}
 			p = Pattern.compile("<\\$.+?>");
 			m = p.matcher(command);
-			List<String> missing = new ArrayList<String>();
+			Set<String> missing = new HashSet<String>();
 			while (m.find()) {
 				missing.add(m.group());
 			}
@@ -146,6 +183,7 @@ public class CommandParser {
 			switch (mode) {
 			case EXECUTE:
 				execute(player, cmd);
+				logCommandUsage(player, cmd);
 				break;
 			case CHECK_PERMS:
 				cmd.setStatus(ReturnStatus.CMD_OK);
@@ -174,6 +212,7 @@ public class CommandParser {
 		if (cmd.isRestricted()) {
 			// restriction checks can stop a command from running, but it's not
 			// an error condition
+			cmd.setLastError("Restriction checks prevented command from running");
 			cmd.setStatus(ReturnStatus.CMD_OK);
 			return;
 		}
@@ -259,6 +298,18 @@ public class CommandParser {
 		}
 	}
 
+	private void logCommandUsage(Player player, ParsedCommand cmd)	 {
+		logCommandUsage(player, cmd, null);
+	}
+	
+	private void logCommandUsage(Player player, ParsedCommand cmd, String message) {
+		if (SMSConfig.getConfig().getBoolean("sms.log_commands")) {
+			String playerName = player == null ? "CONSOLE" : player.getName();
+			String outcome = message == null ? cmd.getLastError() : message;
+			cmdLogger.log(Level.INFO, playerName + " ran [" + cmd.getRawCommand() + "], outcome = " + cmd.getStatus() + " (" + outcome + ")");
+		}
+	}
+
 	private void runMacro(Player player, ParsedCommand cmd) throws SMSException {
 		String macroName = cmd.getCommand();
 		if (macroHistory.contains(macroName)) {
@@ -284,9 +335,6 @@ public class CommandParser {
 			} else {
 				cmd.setStatus(cmd2.getStatus());
 				cmd.setLastError(cmd2.getLastError());
-				if (!cmd2.isAffordable()) {
-					cmd.setStatus(ReturnStatus.CANT_AFFORD);
-				}
 			}
 			return;
 		} else {

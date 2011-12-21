@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSMapView;
@@ -148,6 +149,8 @@ public class SMSConfig {
 					v.update(v.getMenu(), SMSMenuAction.REPAINT);
 				}
 			}
+		} else if (key.equalsIgnoreCase("sms.command_log_file")) {
+			CommandParser.setLogFile(val);
 		}
 
 		ScrollingMenuSign.getInstance().saveConfig();
