@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 
 public class PermissionsUtils {
 
+	private static boolean useVaultPerms = true;
+
 	/**
 	 * Check if the player has the specified permission node.
 	 * 
@@ -15,16 +17,20 @@ public class PermissionsUtils {
 	 * @return	true if the player has the permission node, false otherwise
 	 */
 	public static boolean isAllowedTo(Player player, String node) {
-		Debugger.getDebugger().debug("Permission check: player=" + player + ", node=" + node);
+		boolean allowed;
 		if (player == null || node == null) {
-			return true;
+			allowed = true;
 		} else {
-			if (ScrollingMenuSign.permission != null) { 
-				return ScrollingMenuSign.permission.has(player, node);
+			if (ScrollingMenuSign.permission != null && useVaultPerms) { 
+				allowed = ScrollingMenuSign.permission.has(player, node);
 			} else { 
-				return player.hasPermission(node);
+				allowed = player.hasPermission(node);
 			}
 		}
+
+		Debugger.getDebugger().debug("Permission check: player=" + player + ", node=" + node + ", allowed=" + allowed);
+
+		return allowed;
 	}
 
 	/**

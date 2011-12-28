@@ -10,7 +10,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -131,10 +130,10 @@ public class CommandParser {
 
 	ParsedCommand handleCommandString(Player player, String command, RunMode mode) throws SMSException {
 		if (player != null) {
-			// see if an interactive subsitution is needed
+			// see if an interactive substitution is needed
 			Pattern p = Pattern.compile("<\\$:(.+?)>");
 			Matcher m = p.matcher(command);
-			if (m.find() && m.groupCount() > 0) {
+			if (m.find() && m.groupCount() > 0 && mode == RunMode.EXECUTE) {
 				ScrollingMenuSign.getInstance().expecter.expectingResponse(player, new ExpectCommandSubstitution(command));
 				return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
 			}

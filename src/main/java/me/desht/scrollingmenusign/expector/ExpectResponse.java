@@ -36,8 +36,10 @@ public class ExpectResponse {
 	}
 
 	public void handleAction(Player p, Class<? extends ExpectBase> action) throws SMSException {
-		exp.get(genKey(p, action)).doResponse(p);
+		ExpectBase e = exp.get(genKey(p, action));
+//		exp.get(genKey(p, action)).doResponse(p);
 		cancelAction(p, action);
+		e.doResponse(p);
 	}
 
 	public void cancelAction(Player p, Class<? extends ExpectBase> action) {
