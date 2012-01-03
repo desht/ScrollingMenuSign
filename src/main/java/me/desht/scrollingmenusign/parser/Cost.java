@@ -98,7 +98,7 @@ public class Cost {
 	public CostType getType() {
 		return type;
 	}
-	
+
 	/**
 	 * Give items to a player.
 	 * 
@@ -108,7 +108,7 @@ public class Cost {
 		if (player == null) {
 			return;
 		}
-		
+
 		int quantity = (int) -getQuantity();
 
 		ItemStack stack = null;
@@ -138,7 +138,7 @@ public class Cost {
 		if (player == null) {
 			return;
 		}
-		
+
 		HashMap<Integer, ? extends ItemStack> matchingInvSlots = player.getInventory().all(Material.getMaterial(getId()));
 
 		int remainingCheck = (int) getQuantity();
@@ -157,7 +157,7 @@ public class Cost {
 			}
 		}
 	}
-	
+
 	/**
 	 * Charge a list of costs to the given player.
 	 * 
@@ -169,7 +169,7 @@ public class Cost {
 		if (player == null) {
 			return;
 		}
-		
+
 		for (Cost c : costs) {
 			if (c.getQuantity() == 0.0)
 				continue;
@@ -187,13 +187,7 @@ public class Cost {
 				player.updateInventory();
 				break;
 			case EXPERIENCE:
-				// tricky, but seemingly the only way to set total experience correctly.
-				int currentXP = player.getTotalExperience();
-				int newXP = getNewQuantity(currentXP, c.getQuantity(), 0, Integer.MAX_VALUE);
-				player.setExperience(0);
-				player.setTotalExperience(0);
-				player.setLevel(0);
-				player.setExperience(newXP);
+				awardExperience(player, (int) -c.getQuantity());
 				break;
 			case FOOD:
 				player.setFoodLevel(getNewQuantity(player.getFoodLevel(), c.getQuantity(), 1, 20));
@@ -204,7 +198,42 @@ public class Cost {
 			}
 		}
 	}
-	
+
+	/**
+	 * Give the player some experience (possibly negative) and ensure player's level and client XP
+	 * bar is correctly updated too.  See http://www.minecraftwiki.net/wiki/Experience for the various
+	 * tables and formulae used.
+	 * 
+	 * @param player	The player to grant XP to
+	 * @param xp		The amount of XP to grant
+	 */
+	private static void awardExperience(Player player, int xp) {
+		player.giveExp(xp);
+
+		int newXp = player.getTotalExperience();
+		int newLevel = (int) (Math.sqrt(newXp / 3.5 + 0.25) - 0.5);	
+		
+		player.setLevel(newLevel);
+		int xpForThisLevel = xpNeeded(newLevel);
+		float neededForThisLevel = xpNeeded(newLevel + 1) - xpForThisLevel;
+		float distanceThruLevel = player.getTotalExperience() -  xpForThisLevel;
+		player.setExp(distanceThruLevel / neededForThisLevel);
+	}
+
+	/**
+	 * Return the total amount of XP needed for the given level. 
+	 * 
+	 * @param level
+	 * @return
+	 */
+	private static int xpNeeded(int level) {
+		if (level <= 0) {
+			return 0;
+		} else {
+			return (int) (3.5 * level * (level + 1));
+		}
+	}
+
 	/**
 	 * Check if the player can afford to pay the costs.
 	 * 
@@ -216,7 +245,7 @@ public class Cost {
 		if (player == null) {
 			return true;
 		}
-		
+
 		for (Cost c : costs) {
 			if (c.getQuantity() <= 0)
 				continue;
@@ -260,7 +289,7 @@ public class Cost {
 		}
 		return true;
 	}
-	
+
 	private static int getNewQuantity(int original, double adjust, int min, int max) {
 		int newQuantity = original - (int) adjust;
 		if (newQuantity < min) {
