@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.listeners;
 
+import java.util.logging.Level;
+
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.util.Debugger;
@@ -12,7 +14,7 @@ import me.desht.scrollingmenusign.views.SMSView;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.material.Sign;
+import org.bukkit.material.Attachable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -87,16 +89,18 @@ public class SMSBlockListener extends BlockListener {
 
 		Block b = event.getBlock();
 		Location loc = b.getLocation();
+
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
-			Debugger.getDebugger().debug("block physics event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
+			Debugger.getDebugger().debug("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
 			if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
 				event.setCancelled(true);
-			} else {
-				Sign s = (Sign) b.getState().getData();
-				Block attachedBlock = b.getRelative(s.getAttachedFace());
+			} else if (b.getState().getData() instanceof Attachable) {
+				Attachable a = (Attachable)	b.getState().getData();
+				Block attachedBlock = b.getRelative(a.getAttachedFace());
 				if (attachedBlock.getTypeId() == 0) {
-					// attached to air? looks like the sign has become detached
+					// attached to air? looks like the sign (or other attachable) has become detached
+					MiscUtil.log(Level.INFO, "Attachable view block " + view.getName() + " @ " + loc + " has become detached: deleting");
 					view.deletePermanent();
 				}
 			}
