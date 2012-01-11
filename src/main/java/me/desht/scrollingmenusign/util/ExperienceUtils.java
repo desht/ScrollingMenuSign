@@ -78,13 +78,8 @@ public class ExperienceUtils {
 	public static int getRealLevel(int exp) {
 		if (exp <= 0)
 			return 0;
-		for (int i = 0; i < 20; i++) {
-			System.out.println("level " + i + " xp = " + xpLookup[i]);
-		}
 		// since we know the xp lookup table is sorted...
 		int pos = Arrays.binarySearch(xpLookup, exp);
-		System.out.println("exp " + exp + " => pos " + pos);
 		return pos < 0 ? -pos - 2 : pos;
-		//		return Arrays.binarySearch(xpLookup, exp) - 1;
 	}
 }
