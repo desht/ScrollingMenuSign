@@ -30,35 +30,38 @@ commands:
       /sms givemap <map-id> <quantity>
       /sms var [<name>] [<value>]
 permissions:
+  scrollingmenusign.denied:
+    description: Prevents any usage of SMS functionality
+    children:
+      scrollingmenusign.scroll: false
+      scrollingmenusign.execute: false
+      scrollingmenusign.execute.elevated: false
+      scrollingmenusign.commands.getcfg: false
+      scrollingmenusign.commands.list: false
+      scrollingmenusign.commands.show: false
   scrollingmenusign.guest:
     description: Gives access to very basic SMS functionality (no permission elevation)
     children:
-      scrollingmenusign.scroll: true
-      scrollingmenusign.execute: true
       scrollingmenusign.execute.elevated: false
-      scrollingmenusign.use.sign: true
-      scrollingmenusign.use.redstone: true
       scrollingmenusign.commands.getcfg: false
       scrollingmenusign.commands.list: false
       scrollingmenusign.commands.show: false
   scrollingmenusign.user:
     description: Gives access to basic SMS functionality
     children:
-      scrollingmenusign.guest: true
-      scrollingmenusign.execute.elevated: true
+      scrollingmenusign.commands.getcfg: false
+      scrollingmenusign.commands.list: false
+      scrollingmenusign.commands.show: false
   scrollingmenusign.poweruser:
     description: Gives access to basic SMS functionality plus map and spout views
     children:
-      scrollingmenusign.user: true
-      scrollingmenusign.commands.getcfg: true
-      scrollingmenusign.commands.list: true
-      scrollingmenusign.commands.show: true
       scrollingmenusign.use.map: true
       scrollingmenusign.use.spout: true
   scrollingmenusign.admin:
     description: Gives complete access to all SMS features
     children:
-      scrollingmenusign.poweruser: true
+      scrollingmenusign.use.map: true
+      scrollingmenusign.use.spout: true
       scrollingmenusign.commands.create: true
       scrollingmenusign.commands.title: true
       scrollingmenusign.commands.delete: true
@@ -76,7 +79,6 @@ permissions:
       scrollingmenusign.commands.givemap: true
       scrollingmenusign.commands.uses: true
       scrollingmenusign.commands.view: true
-      scrollingmenusign.commands.var: true
       scrollingmenusign.coloursigns: true
       scrollingmenusign.destroy: true
       scrollingmenusign.maps.toSign: true
@@ -161,7 +163,7 @@ permissions:
     default: op
   scrollingmenusign.commands.var:
     description: Allows command substitution variables to be defined
-    default: op
+    default: true
   scrollingmenusign.scroll:
     description: Allows menus to be scrolled
     default: true
