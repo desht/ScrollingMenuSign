@@ -131,11 +131,11 @@ public class ScrollingMenuSign extends JavaPlugin {
 		for (SMSMacro macro : SMSMacro.listMacros()) {
 			macro.deleteTemporary();
 		}
-		
+
 		economy = null;
 		permission = null;
 		setInstance(null);
-		
+
 		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
 	}
 
