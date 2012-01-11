@@ -270,7 +270,11 @@ public class ParsedCommand {
 		}
 		
 		if (check.startsWith("g:")) {
-			return ScrollingMenuSign.permission.playerInGroup(player, check.substring(2));
+			if (ScrollingMenuSign.permission != null) {
+				return ScrollingMenuSign.permission.playerInGroup(player, check.substring(2));
+			} else {
+				return false;
+			}
 		} else if (check.startsWith("p:")) {
 			return player.getName().equalsIgnoreCase(check.substring(2));
 		} else if (check.startsWith("w:")) {
