@@ -33,6 +33,9 @@ public class ExperienceUtils {
 	 * @param xp		The amount of XP to grant
 	 */
 	public static void awardExperience(Player player, int xp) {
+		if (xp < 0 && -xp > player.getTotalExperience())
+			return;
+		
 		int curLevel = player.getLevel();
 		player.giveExp(xp);
 		//System.out.println("gave " + player.getName() + " " + xp + " exp, new totalexp = " + player.getTotalExperience() + " new getExp() = " + player.getExp());
