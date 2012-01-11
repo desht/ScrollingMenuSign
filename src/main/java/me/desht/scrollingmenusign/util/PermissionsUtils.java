@@ -7,8 +7,6 @@ import org.bukkit.entity.Player;
 
 public class PermissionsUtils {
 
-	private static boolean useVaultPerms = true;
-
 	/**
 	 * Check if the player has the specified permission node.
 	 * 
@@ -21,9 +19,12 @@ public class PermissionsUtils {
 		if (player == null || node == null) {
 			allowed = true;
 		} else {
-			if (ScrollingMenuSign.permission != null && useVaultPerms) { 
+			// We'll try use the native Bukkit hasPermission() method if possible.
+			// This is mainly for the benefit of PermissionsEx, which seems to have problems if we use its native method
+			// to check for parent permission nodes, but using the native superperms call is OK.
+			if (ScrollingMenuSign.permission != null && !ScrollingMenuSign.permission.hasSuperPermsCompat()) {
 				allowed = ScrollingMenuSign.permission.has(player, node);
-			} else { 
+			} else {
 				allowed = player.hasPermission(node);
 			}
 		}
