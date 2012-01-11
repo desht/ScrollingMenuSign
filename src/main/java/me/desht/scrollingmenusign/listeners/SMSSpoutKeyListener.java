@@ -84,8 +84,12 @@ public class SMSSpoutKeyListener extends InputListener {
 		}
 		// check if user is looking at a sign view...
 		if (view == null) {
-			Block block = player.getTargetBlock(null, 3);
-			view = SMSView.getViewForLocation(block.getLocation());
+			try {
+				Block block = player.getTargetBlock(null, 3);
+				view = SMSView.getViewForLocation(block.getLocation());
+			} catch (IllegalStateException e) {
+				// ignore - view remains null
+			}
 		}
 		
 		return view;

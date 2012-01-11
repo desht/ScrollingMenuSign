@@ -33,7 +33,11 @@ public class ShowMenuCommand extends AbstractCommand {
 			menu = handler.getMenu(args[0]);
 		} else {
 			notFromConsole(player);
-			view = SMSView.getViewForLocation(player.getTargetBlock(null, 3).getLocation());
+			try {
+				view = SMSView.getViewForLocation(player.getTargetBlock(null, 3).getLocation());
+			} catch (IllegalStateException e) {
+				// ignore - view remains null
+			}
 			if (view == null) {
 				if (player.getItemInHand().getType() == Material.MAP) {		// map
 					PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");

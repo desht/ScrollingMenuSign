@@ -41,8 +41,13 @@ public class CreateMenuCommand extends AbstractCommand {
 
 		if (player != null) {
 			owner = player.getName();
-			Block b = player.getTargetBlock(null, 3);
-			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
+			Block b = null;
+			try {
+				b = player.getTargetBlock(null, 3);
+			} catch (IllegalStateException e) {
+				// ignore
+			}				
+			if (b != null && (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN)) {
 				if (plugin.getHandler().getMenuNameAt(b.getLocation()) == null) {
 					PermissionsUtils.requirePerms(player, "scrollingmenusign.use.sign");
 					signLoc = b.getLocation();
@@ -54,6 +59,7 @@ public class CreateMenuCommand extends AbstractCommand {
 					mapId = id;
 				}
 			}
+
 		}
 
 		String menuTitle = MiscUtil.parseColourSpec(player, combine(args, 1));

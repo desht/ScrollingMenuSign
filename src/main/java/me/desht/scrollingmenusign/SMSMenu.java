@@ -621,8 +621,14 @@ public class SMSMenu extends Observable implements Freezable {
 	 * @throws SMSException	if there is not menu and <b>complain</b> is true
 	 */
 	public static String getTargetedMenuSign(Player player, boolean complain) throws SMSException {
-		Block b = player.getTargetBlock(null, 3);
-		String name = SMSMenu.getMenuNameAt(b.getLocation());
+		String name;
+		try {
+			Block b = player.getTargetBlock(null, 3);
+			name = SMSMenu.getMenuNameAt(b.getLocation());
+			return name;
+		} catch (IllegalStateException e) {
+			name = null;
+		}
 		if (name == null && complain)
 			throw new SMSException("You are not looking at a menu.");
 		return name;

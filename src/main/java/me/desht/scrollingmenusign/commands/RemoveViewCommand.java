@@ -45,8 +45,12 @@ public class RemoveViewCommand extends AbstractCommand {
 		} else if (args.length == 0) {
 			// detaching a view that the player is looking at
 			notFromConsole(player);
-			Block b = player.getTargetBlock(null, 3);
-			view = SMSView.getViewForLocation(b.getLocation());
+			try {
+				Block b = player.getTargetBlock(null, 3);
+				view = SMSView.getViewForLocation(b.getLocation());
+			} catch (IllegalStateException e) {
+				// ignore
+			}
 		}
 
 		if (view == null) {

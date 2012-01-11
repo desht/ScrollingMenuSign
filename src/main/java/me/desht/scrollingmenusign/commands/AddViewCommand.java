@@ -69,9 +69,13 @@ public class AddViewCommand extends AbstractCommand {
 				short mapId = player.getItemInHand().getDurability();
 				view = SMSMapView.addMapToMenu(menu, mapId);
 			} else {
-				Block b = player.getTargetBlock(null, 3);						// sign view ?
-				if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
-					view = SMSSignView.addSignToMenu(menu, b.getLocation());
+				try {
+					Block b = player.getTargetBlock(null, 3);						// sign view ?
+					if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
+						view = SMSSignView.addSignToMenu(menu, b.getLocation());
+					}
+				} catch (IllegalStateException e) {
+					// ignore
 				}
 			}
 		}

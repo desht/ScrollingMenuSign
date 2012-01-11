@@ -123,6 +123,8 @@ public class SMSPlayerListener extends PlayerListener {
 			}
 		} catch (SMSException e) {
 			MiscUtil.log(Level.WARNING, e.getMessage());
+		} catch (IllegalStateException e) {
+			// ignore
 		}
 	}
 	
