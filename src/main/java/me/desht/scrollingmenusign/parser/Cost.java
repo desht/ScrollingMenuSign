@@ -10,13 +10,15 @@ import org.bukkit.inventory.ItemStack;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.CostType;
+import me.desht.scrollingmenusign.util.ExperienceUtils;
 
 public class Cost {
+	
 	private CostType type;
 	private int id;
 	private Byte data;
 	private double quantity;
-
+	
 	/**
 	 * Construct a new Cost object, charging 1 of the given item ID
 	 * 
@@ -187,7 +189,7 @@ public class Cost {
 				player.updateInventory();
 				break;
 			case EXPERIENCE:
-				awardExperience(player, (int) -c.getQuantity());
+				ExperienceUtils.awardExperience(player, (int) -c.getQuantity());
 				break;
 			case FOOD:
 				player.setFoodLevel(getNewQuantity(player.getFoodLevel(), c.getQuantity(), 1, 20));
@@ -196,41 +198,6 @@ public class Cost {
 				player.setHealth(getNewQuantity(player.getHealth(), c.getQuantity(), 1, 20));
 				break;
 			}
-		}
-	}
-
-	/**
-	 * Give the player some experience (possibly negative) and ensure player's level and client XP
-	 * bar is correctly updated too.  See http://www.minecraftwiki.net/wiki/Experience for the various
-	 * tables and formulae used.
-	 * 
-	 * @param player	The player to grant XP to
-	 * @param xp		The amount of XP to grant
-	 */
-	private static void awardExperience(Player player, int xp) {
-		player.giveExp(xp);
-
-		int newXp = player.getTotalExperience();
-		int newLevel = (int) (Math.sqrt(newXp / 3.5 + 0.25) - 0.5);	
-		
-		player.setLevel(newLevel);
-		int xpForThisLevel = xpNeeded(newLevel);
-		float neededForThisLevel = xpNeeded(newLevel + 1) - xpForThisLevel;
-		float distanceThruLevel = player.getTotalExperience() -  xpForThisLevel;
-		player.setExp(distanceThruLevel / neededForThisLevel);
-	}
-
-	/**
-	 * Return the total amount of XP needed for the given level. 
-	 * 
-	 * @param level
-	 * @return
-	 */
-	private static int xpNeeded(int level) {
-		if (level <= 0) {
-			return 0;
-		} else {
-			return (int) (3.5 * level * (level + 1));
 		}
 	}
 
