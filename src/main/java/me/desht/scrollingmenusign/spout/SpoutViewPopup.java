@@ -3,13 +3,10 @@ package me.desht.scrollingmenusign.spout;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
-import org.getspout.spoutapi.gui.Container;
-import org.getspout.spoutapi.gui.GenericContainer;
 import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.GenericPopup;
 import org.getspout.spoutapi.gui.Label;
 import org.getspout.spoutapi.gui.Screen;
-import org.getspout.spoutapi.gui.WidgetAnchor;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SpoutViewPopup extends GenericPopup {
@@ -21,7 +18,6 @@ public class SpoutViewPopup extends GenericPopup {
 	private SMSSpoutView view;
 	private boolean poppedUp;
 	private Label title;
-	private Container mainBox;
 	private SMSListWidget listWidget;
 
 	public SpoutViewPopup(SpoutPlayer sp, SMSSpoutView view) {
@@ -31,21 +27,15 @@ public class SpoutViewPopup extends GenericPopup {
 
 		Screen mainScreen = sp.getMainScreen();
 
-		mainBox = (Container) new GenericContainer();
-		mainBox.setX((mainScreen.getWidth() - LIST_WIDTH) / 2).setY(5).setWidth(LIST_WIDTH).setHeight(mainScreen.getHeight() - 10);
-		mainBox.setAlign(WidgetAnchor.TOP_CENTER);
-
 		title = new GenericLabel(view.getMenu().getTitle());
-		title.setMaxHeight(TITLE_HEIGHT).setMaxWidth(TITLE_WIDTH).setAnchor(WidgetAnchor.CENTER_CENTER);
-		title.setMargin(2);
+		title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(5).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
+		title.setAuto(false	);
 
 		listWidget = new SMSListWidget(sp, view);
-		listWidget.setMargin(2);
+		listWidget.setX((mainScreen.getWidth() - LIST_WIDTH) / 2).setY(5 + 2 + TITLE_HEIGHT).setWidth(LIST_WIDTH).setHeight(mainScreen.getHeight() - (10 + TITLE_HEIGHT));
 
-		mainBox.addChild(title);
-		mainBox.addChild(listWidget);
-
-		this.attachWidget(ScrollingMenuSign.getInstance(), mainBox);
+		this.attachWidget(ScrollingMenuSign.getInstance(), title);
+		this.attachWidget(ScrollingMenuSign.getInstance(), listWidget);
 	}
 
 	public SMSSpoutView getView() {
@@ -62,6 +52,7 @@ public class SpoutViewPopup extends GenericPopup {
 	}
 
 	public void scrollTo(int scrollPos) {
+		listWidget.ignoreNextSelection(true);
 		listWidget.setSelection(scrollPos - 1);
 //		System.out.println("scroll to " + scrollPos + " = " + listWidget.getSelectedItem().getTitle());
 	}

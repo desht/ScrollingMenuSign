@@ -502,9 +502,13 @@ public abstract class SMSView implements Observer, Freezable {
 		return attributes.get(k);
 	}
 
-	public String getAttributeAsString(String k)  {
+	public String getAttributeAsString(String k, String def) {
 		Object o = getAttribute(k);
-		return o == null ? "(none)" : o.toString();
+		return o == null ? def : o.toString();
+	}
+	
+	public String getAttributeAsString(String k)  {
+		return getAttributeAsString(k, "(none)");
 	}
 
 	public void setAttribute(String k, String val) throws SMSException {

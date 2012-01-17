@@ -31,6 +31,8 @@ sms:
         grant_op: false
     spout:
         double_click: false
+        list_alpha: 0.5
+        list_background: ccc07280
         show_command_text: true
     persistent_user_vars: false
     resource_base_url: ''

@@ -136,19 +136,13 @@ public class SMSConfig {
 
 		if (key.equalsIgnoreCase("sms.ignore_view_ownership")) {
 			// redraw map views
-			for (SMSView v : SMSView.listViews()) {
-				if (v instanceof SMSMapView)
-					v.update(v.getMenu(), SMSMenuAction.REPAINT);
-			}
+			repaintViews("map");
 		} else if (key.startsWith("sms.actions.spout") && ScrollingMenuSign.getInstance().isSpoutEnabled()) {
 			// reload & re-cache spout key definitions
 			SpoutUtils.loadKeyDefinitions();
-		} else if (key.equalsIgnoreCase("sms.spout.show_command_text") && ScrollingMenuSign.getInstance().isSpoutEnabled()) {
-			for (SMSView v : SMSView.listViews()) {
-				if (v instanceof SMSSpoutView) {
-					v.update(v.getMenu(), SMSMenuAction.REPAINT);
-				}
-			}
+		} else if (key.startsWith("sms.spout.") && ScrollingMenuSign.getInstance().isSpoutEnabled()) {
+			// catch-all for any setting which affects how spout views are drawn
+			repaintViews("spout");
 		} else if (key.equalsIgnoreCase("sms.command_log_file")) {
 			CommandParser.setLogFile(val);
 		}
@@ -156,6 +150,14 @@ public class SMSConfig {
 		ScrollingMenuSign.getInstance().saveConfig();
 	}
 
+	private static void repaintViews(String type) {
+		for (SMSView v : SMSView.listViews()) {
+			if (type == null || v.getType().equals(type)) {
+				v.update(v.getMenu(), SMSMenuAction.REPAINT);
+			}
+		}
+	}
+	
 	public static <T> void setPluginConfiguration(String key, List<T> list) throws SMSException {
 		if (!key.startsWith("sms.")) {
 			key = "sms." + key;

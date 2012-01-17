@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 
 public abstract class SMSScrollableView extends SMSView {
 
+	private boolean wrap;
 	private int lastScrollPos;
 	private final Map<String,Integer> playerScrollPos = new HashMap<String, Integer>();
 
@@ -22,6 +23,7 @@ public abstract class SMSScrollableView extends SMSView {
 	public SMSScrollableView(String name, SMSMenu menu) {
 		super(name, menu);
 		lastScrollPos = 1;
+		wrap = true;
 	}
 
 	@Override
@@ -29,6 +31,14 @@ public abstract class SMSScrollableView extends SMSView {
 		Map<String, Object> map = super.freeze();
 		
 		return map;
+	}
+	
+	public boolean isWrap() {
+		return wrap;
+	}
+
+	public void setWrap(boolean wrap) {
+		this.wrap = wrap;
 	}
 	
 	protected void thaw(ConfigurationSection node) throws SMSException {
@@ -116,7 +126,7 @@ public abstract class SMSScrollableView extends SMSView {
 	@Deprecated
 	public void scrollDown() {
 		lastScrollPos++;
-		if (lastScrollPos > getMenu().getItemCount())
+		if (wrap && lastScrollPos > getMenu().getItemCount())
 			lastScrollPos = 1;
 		setDirty(true);
 	}
@@ -128,7 +138,7 @@ public abstract class SMSScrollableView extends SMSView {
 	 */
 	public void scrollDown(String playerName) {
 		int pos = getScrollPos(playerName) + 1;
-		if (pos > getMenu().getItemCount())
+		if (wrap && pos > getMenu().getItemCount())
 			pos = 1;
 		setScrollPos(playerName, pos);
 	}
@@ -144,7 +154,7 @@ public abstract class SMSScrollableView extends SMSView {
 			return;
 		
 		lastScrollPos--;
-		if (lastScrollPos <= 0)
+		if (wrap && lastScrollPos <= 0)
 			lastScrollPos = getMenu().getItemCount();
 		setDirty(true);
 	}
@@ -159,7 +169,7 @@ public abstract class SMSScrollableView extends SMSView {
 			return;
 		
 		int pos = getScrollPos(playerName) - 1;
-		if (pos <= 0)
+		if (wrap && pos <= 0)
 			pos = getMenu().getItemCount();
 		setScrollPos(playerName, pos);
 	}

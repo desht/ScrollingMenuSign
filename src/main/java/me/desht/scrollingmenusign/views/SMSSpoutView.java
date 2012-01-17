@@ -6,9 +6,12 @@ import java.util.Observable;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
+import javax.smartcardio.ATR;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.gui.Color;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 import me.desht.scrollingmenusign.SMSException;
@@ -23,8 +26,10 @@ import me.desht.scrollingmenusign.util.PermissionsUtils;
 public class SMSSpoutView extends SMSScrollableView {
 
 	// attributes
-	protected static final String AUTOPOPDOWN = "autopopdown";
-	protected static final String SPOUTKEYS = "spoutkeys";
+	public static final String AUTOPOPDOWN = "autopopdown";
+	public static final String SPOUTKEYS = "spoutkeys";
+	public static final String BACKGROUND = "background";
+	public static final String ALPHA = "alpha";
 
 	// list of all popups which are active at this time, keyed by player name
 	private static final Map<String, SpoutViewPopup> activePopups = new HashMap<String, SpoutViewPopup>();
@@ -44,12 +49,15 @@ public class SMSSpoutView extends SMSScrollableView {
 	 */
 	public SMSSpoutView(String name, SMSMenu menu) throws SMSException {
 		super(name, menu);
+		setWrap(false);
 
 		if (!ScrollingMenuSign.getInstance().isSpoutEnabled()) {
 			throw new SMSException("Spout view cannot be created - server does not have Spout enabled");
 		}		
 		registerAttribute(SPOUTKEYS, new SMSSpoutKeyMap());
 		registerAttribute(AUTOPOPDOWN, true);
+		registerAttribute(BACKGROUND, "");
+		registerAttribute(ALPHA, "");
 	}
 
 	public SMSSpoutView(SMSMenu menu) throws SMSException {
@@ -136,6 +144,12 @@ public class SMSSpoutView extends SMSScrollableView {
 	 */
 	@Override
 	public void update(Observable menu, Object arg1) {
+		if (arg1 instanceof SMSMenuAction) {
+			// spout view will have repainted itself if it was scrolled
+			SMSMenuAction act = (SMSMenuAction)arg1;
+			if (act == SMSMenuAction.SCROLLED)
+				return;
+		}
 		for (SpoutViewPopup gui : popups.values()) {
 			gui.repaint();
 		}
@@ -175,19 +189,35 @@ public class SMSSpoutView extends SMSScrollableView {
 	 */
 	@Override
 	protected void onAttributeValidate(String attribute, String curVal, String newVal) throws SMSException {
-		if (attribute.equals(SPOUTKEYS)) {
-			if (!newVal.isEmpty()) {
-				SMSSpoutKeyMap sp = new SMSSpoutKeyMap(newVal);
-				if (keyMap.containsKey(sp.toString())) {
-					String otherView = keyMap.get(sp.toString());
-					if (SMSView.checkForView(otherView)) {
-						throw new SMSException(sp.toString() + " is already used as the hotkey for another view (" + keyMap.get(sp.toString()) + ")");
-					}
+		String err = null;
+		if (attribute.equals(SPOUTKEYS) && !newVal.isEmpty()) {
+			SMSSpoutKeyMap sp = new SMSSpoutKeyMap(newVal);
+			if (keyMap.containsKey(sp.toString())) {
+				String otherView = keyMap.get(sp.toString());
+				if (SMSView.checkForView(otherView)) {
+					err = sp.toString() + " is already used as the hotkey for another view (" + keyMap.get(sp.toString()) + ")";
 				}
 			}
+		} else if (attribute.equals(ALPHA) && !newVal.isEmpty()) {
+			try {
+				double d = Double.parseDouble(newVal);
+				if (d < 0.0 || d > 1.0)
+					err = "Invalid value for alpha channel (must be a floating point number between 0.0 and 1.0)";
+			} catch (NumberFormatException e) {
+				err = "Invalid value for alpha channel (must be a floating point number between 0.0 and 1.0)";
+			}
+		} else if (attribute.equals(BACKGROUND) && !newVal.isEmpty()) {
+			try {
+				new Color(newVal);
+			} catch (NumberFormatException e) {
+				err = "Invalid value for background (must be RRGGBB hex string, e.g. fffff for white)";
+			}
+		}
+		if (err != null) {
+			throw new SMSException(err);
 		}
 	}
-	
+
 	@Override
 	protected void onAttributeChanged(String attribute, String oldVal, String newVal) {
 		super.onAttributeChanged(attribute, oldVal, newVal);
@@ -198,9 +228,11 @@ public class SMSSpoutView extends SMSScrollableView {
 			if (!newVal.isEmpty()) {
 				keyMap.put(newVal, getName());
 			}
+		} else if (attribute.equals(ALPHA) || attribute.equals(BACKGROUND)) {
+			update(getMenu(), SMSMenuAction.REPAINT);
 		}
 	}
-
+	
 	@Override
 	public void onExecuted(Player player) {
 		super.onExecuted(player);
@@ -218,7 +250,7 @@ public class SMSSpoutView extends SMSScrollableView {
 			popups.get(playerName).scrollTo(scrollPos);
 		}
 	}
-	
+
 	/**
 	 * Check if the given player has an active GUI
 	 * 
@@ -302,7 +334,7 @@ public class SMSSpoutView extends SMSScrollableView {
 		activePopups.get(playerName).getView().screenClosed(playerName);
 		activePopups.remove(playerName);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSView#clearPlayerForView(org.bukkit.entity.Player)
 	 */
@@ -310,7 +342,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	public void clearPlayerForView(Player player) {
 		super.clearPlayerForView(player);
 		popups.remove(player.getName());
-		
+
 		// a little ugly, since this gets called once for every spout view when it only needs to be called once...
 		activePopups.remove(player.getName());
 	}
