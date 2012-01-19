@@ -34,7 +34,8 @@ public class SMSMapRenderer extends MapRenderer {
 
 	@Override
 	public void render(MapView map, MapCanvas canvas, Player player) {
-		if (smsMapView.isDirty()) {
+		System.out.println("render: " + smsMapView.getName() + ", " + player.getName() + " dirty=" + smsMapView.isDirty(player.getName()));
+		if (smsMapView.isDirty(player.getName())) {
 			drawImage(canvas, smsMapView.getImage());
 			if (!smsMapView.allowedToUse(player)) {
 				drawMessage(canvas, NOT_OWNER);
@@ -43,7 +44,7 @@ public class SMSMapRenderer extends MapRenderer {
 			} else {
 				drawMenu(canvas, player);
 			}
-			smsMapView.setDirty(false);
+			smsMapView.setDirty(player.getName(), false);
 			player.sendMap(map);
 		}
 	}

@@ -52,6 +52,8 @@ public abstract class SMSView implements Observer, Freezable {
 	private boolean dirty;
 	private Configuration attributes;	// view attributes to be displayed and/or edited by players
 	private int maxLocations;
+	// we can't use a Set here, since there are three possible values: 1) dirty, 2) clean, 3) unknown
+	private final Map<String,Boolean> dirtyPlayers = new HashMap<String,Boolean>();
 
 	@Override
 	public abstract void update(Observable menu, Object arg1);
@@ -179,7 +181,7 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 
 	/**
-	 * Get the "dirty" status for this view - whether or not a repaint is needed.
+	 * Get the "dirty" status for this view - whether or not a repaint is needed for all players.
 	 * 
 	 * @return true if a repaint is needed, false otherwise
 	 */
@@ -188,14 +190,37 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 
 	/**
-	 * Set the "dirty" status for this view - whether or not a repaint is needed.
+	 * Get the "dirty" status for this view - whether or not a repaint is needed for the given player.
+	 * 
+	 * @param playerName
+	 * @return
+	 */
+	public boolean isDirty(String playerName) {
+		return dirtyPlayers.containsKey(playerName) ? dirtyPlayers.get(playerName) : dirty;
+	}
+	
+	/**
+	 * Set the "dirty" status for this view - whether or not a repaint is needed for all players.
 	 * 
 	 * @param dirty	true if a repaint is needed, false otherwise
 	 */
 	public void setDirty(boolean dirty) {
 		this.dirty = dirty;
+		if (dirty) {
+			dirtyPlayers.clear();
+		}
 	}
 
+	/**
+	 * Set the "dirty" status for this view - whether or not a repaint is needed for the given player.
+	 * 
+	 * @param playerName	The player
+	 * @param dirty			Whether or not a repaint is needed
+	 */
+	public void setDirty(String playerName, boolean dirty) {
+		dirtyPlayers.put(playerName, dirty);
+	}
+	
 	@Deprecated
 	public String getOwner() {
 		return getAttributeAsString(OWNER);

@@ -6,8 +6,6 @@ import java.util.Observable;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
-import javax.smartcardio.ATR;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.SpoutManager;

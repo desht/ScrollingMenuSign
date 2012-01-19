@@ -115,7 +115,7 @@ public abstract class SMSScrollableView extends SMSView {
 	public void setScrollPos(String playerName, int scrollPos) {
 		playerScrollPos.put(playerName, scrollPos);
 		lastScrollPos = scrollPos;
-		setDirty(true);
+		setDirty(playerName, true);
 	}
 
 	/**
