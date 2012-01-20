@@ -31,7 +31,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class CommandParser {
 	private static Logger cmdLogger = null;
-	
+
 	private Set<String> macroHistory;
 
 	public CommandParser() {
@@ -84,7 +84,7 @@ public class CommandParser {
 		ParsedCommand cmd = runCommand(player, command);
 		return cmd.getStatus();
 	}
-	
+
 	/**
 	 * High-level wrapper to run a command.  Return status is reported to the calling player.
 	 * 
@@ -137,7 +137,7 @@ public class CommandParser {
 				ScrollingMenuSign.getInstance().expecter.expectingResponse(player, new ExpectCommandSubstitution(command));
 				return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
 			}
-			
+
 			// pre-defined substitutions ...
 			ItemStack stack =  player.getItemInHand();
 			command = command.replace("<X>", "" + player.getLocation().getBlockX());
@@ -229,13 +229,13 @@ public class CommandParser {
 			cmd.setStatus(ReturnStatus.CMD_OK);
 			return;
 		}
-		
+
 		StringBuilder sb = new StringBuilder(cmd.getCommand()).append(" ");
 		for (String arg : cmd.getArgs()) {
 			sb.append(arg).append(" ");
 		}
 		String command = sb.toString().trim();
-		
+
 		if (cmd.isMacro()) {
 			// run a macro
 			runMacro(player, cmd);
@@ -256,10 +256,11 @@ public class CommandParser {
 		} else if (cmd.isElevated()) {
 			// this is a /@ command, to be run as the real player, but with temporary permissions
 			// (this now also handles the /* fake-player style, which is no longer directly supported)
-
 			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated") || ScrollingMenuSign.permission == null) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
-				cmd.setLastError("You don't have permission to run this command.");
+				cmd.setLastError(ScrollingMenuSign.permission == null ? 
+						"Permission elevation is not supported." : 
+						"You don't have permission to run this command.");
 				return;
 			}
 
@@ -300,7 +301,7 @@ public class CommandParser {
 	private void logCommandUsage(Player player, ParsedCommand cmd)	 {
 		logCommandUsage(player, cmd, null);
 	}
-	
+
 	private void logCommandUsage(Player player, ParsedCommand cmd, String message) {
 		if (SMSConfig.getConfig().getBoolean("sms.log_commands")) {
 			String playerName = player == null ? "CONSOLE" : player.getName();

@@ -62,9 +62,8 @@ public class ShowMenuCommand extends AbstractCommand {
 			pager.add(" Default command: &f" + menu.getDefaultCommand());
 		}
 		if (view != null) {
-			String owner = view.getAttributeAsString("owner");
-			pager.add(String.format("View &e%s&-, Owner &e%s&-",
-			                                       view.getName(), owner.isEmpty() ? "(no one)" : owner));
+			String owner = view.getAttributeAsString("owner", "(no one)");
+			pager.add(String.format("View &e%s&-, Owner &e%s&-", view.getName(), owner));
 		}
 		
 		List<SMSMenuItem> items = menu.getItems();

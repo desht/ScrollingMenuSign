@@ -124,7 +124,6 @@ public class SMSMenu extends Observable implements Freezable {
 				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
 				try {
 					SMSView v = SMSSignView.addSignToMenu(this, loc);
-					System.out.println("add view " + v.getName() + " to menu " + getName());
 					SMSPersistence.save(v);
 				} catch (SMSException e) {
 					MiscUtil.log(Level.WARNING, "Could not add sign to menu " + name + ": " + e.getMessage());

@@ -27,7 +27,7 @@ public class ViewCommand extends AbstractCommand {
 			MessagePager pager = MessagePager.getPager(player).clear();
 			pager.add(String.format("View &e%s&- (%s) :", view.getName(), view.toString()));
 			for (String k : view.listAttributeKeys(true)) {
-				pager.add(String.format("&5*&- &e%s&- = &e%s&-", k, view.getAttributeAsString(k)));
+				pager.add(String.format("&5*&- &e%s&- = &e%s&-", k, view.getAttributeAsString(k, "")));
 			}
 			pager.showPage();
 			return true;

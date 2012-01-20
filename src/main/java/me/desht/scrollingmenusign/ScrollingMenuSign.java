@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -299,5 +301,19 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private static void notCompatible(String pVer, int bukkitBuild, String needed) {
 		MiscUtil.log(Level.SEVERE, "ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
 		MiscUtil.log(Level.SEVERE, "You need to use ScrollingMenuSign v" + needed);
+	}
+	
+	public static URL makeImageURL(String base, String file) throws MalformedURLException {
+		if (file == null || file.isEmpty()) {
+			throw new MalformedURLException("file must be non-null and not an empty string");
+		}
+		if ((base == null || base.isEmpty()) && !file.startsWith("http:")) {
+			throw new MalformedURLException("base URL must be set (use /sms setcfg resource_base_url ...");
+		}
+		if (file.startsWith("http:") || base == null) {
+			return new URL(file);
+		} else {
+			return new URL(new URL(base), file);
+		}
 	}
 }

@@ -32,33 +32,31 @@ commands:
 permissions:
   scrollingmenusign.denied:
     description: Prevents any usage of SMS functionality
+    default: false
     children:
       scrollingmenusign.scroll: false
       scrollingmenusign.execute: false
       scrollingmenusign.execute.elevated: false
-      scrollingmenusign.commands.getcfg: false
-      scrollingmenusign.commands.list: false
-      scrollingmenusign.commands.show: false
   scrollingmenusign.guest:
     description: Gives access to very basic SMS functionality (no permission elevation)
+    default: false
     children:
       scrollingmenusign.execute.elevated: false
-      scrollingmenusign.commands.getcfg: false
-      scrollingmenusign.commands.list: false
-      scrollingmenusign.commands.show: false
   scrollingmenusign.user:
     description: Gives access to basic SMS functionality
-    children:
-      scrollingmenusign.commands.getcfg: false
-      scrollingmenusign.commands.list: false
-      scrollingmenusign.commands.show: false
+    default: true
   scrollingmenusign.poweruser:
     description: Gives access to basic SMS functionality plus map and spout views
+    default: false
     children:
+      scrollingmenusign.commands.getcfg: true
+      scrollingmenusign.commands.list: true
+      scrollingmenusign.commands.show: true
       scrollingmenusign.use.map: true
       scrollingmenusign.use.spout: true
   scrollingmenusign.admin:
     description: Gives complete access to all SMS features
+    default: op
     children:
       scrollingmenusign.use.map: true
       scrollingmenusign.use.spout: true
@@ -135,7 +133,7 @@ permissions:
     default: op
   scrollingmenusign.commands.getcfg:
     description: Allows configuration items to be viewed
-    default: true
+    default: op
   scrollingmenusign.commands.setcfg:
     description: Allows configuration items to be changed
     default: op
@@ -154,10 +152,10 @@ permissions:
       scrollingmenusign.coloursigns: true
   scrollingmenusign.commands.list:
     description: Allows menus to be listed
-    default: true
+    default: op
   scrollingmenusign.commands.show:
     description: Allows menu contents to be shown
-    default: true
+    default: op
   scrollingmenusign.commands.view:
     description: Allows menu views to be inspected and modified
     default: op

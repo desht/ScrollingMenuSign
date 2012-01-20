@@ -34,7 +34,6 @@ public class SMSMapRenderer extends MapRenderer {
 
 	@Override
 	public void render(MapView map, MapCanvas canvas, Player player) {
-		System.out.println("render: " + smsMapView.getName() + ", " + player.getName() + " dirty=" + smsMapView.isDirty(player.getName()));
 		if (smsMapView.isDirty(player.getName())) {
 			drawImage(canvas, smsMapView.getImage());
 			if (!smsMapView.allowedToUse(player)) {

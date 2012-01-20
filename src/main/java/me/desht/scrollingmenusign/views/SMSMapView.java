@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +42,9 @@ import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
  */
 public class SMSMapView extends SMSScrollableView {
 
-	private static final String IMAGE_FILE = "imagefile";
 	private static final String CACHED_FILE_FORMAT = "png";
+
+	public static final String IMAGE_FILE = "imagefile";
 
 	private MapView mapView = null;
 	private SMSMapRenderer mapRenderer = null;
@@ -85,29 +88,32 @@ public class SMSMapView extends SMSScrollableView {
 
 	private void loadBackgroundImage() {
 		image = null;
-		
+
+		String file = getAttributeAsString(IMAGE_FILE, "");
+		if (file.isEmpty()) {
+			return;
+		}
+
 		String base = SMSConfig.getConfig().getString("sms.resource_base_url");
-		if (base == null || base.isEmpty()) {
+		if ((base == null || base.isEmpty()) && !file.startsWith("http:")) {
 			return;
 		}
-		String file = getAttributeAsString(IMAGE_FILE);
-		if (file == null || file.isEmpty()) {
-			return;
-		}
-		
+
 		// Load the file from the given URL, and write a cached copy (PNG, 128x128) to our local
 		// directory structure.  The cached file can be used for subsequent loads to improve performance.
 		try {
-			File cached = getCachedFile(file);
+			URL url = ScrollingMenuSign.makeImageURL(base, file);
+			File cached = getCachedFile(url);
 			BufferedImage resizedImage;
-			if (cached.canRead()) {
+			if (cached != null && cached.canRead()) {
 				resizedImage = ImageIO.read(cached);
 			} else {
-				URL url = new URL(new URL(base), file);
 				BufferedImage orig = ImageIO.read(url);
 				resizedImage = MapPalette.resizeImage(orig);
-				ImageIO.write(resizedImage, CACHED_FILE_FORMAT, cached);
-				MiscUtil.log(Level.INFO, "Cached image " + url + " as " + cached);
+				if (cached != null) {
+					ImageIO.write(resizedImage, CACHED_FILE_FORMAT, cached);
+					MiscUtil.log(Level.INFO, "Cached image " + url + " as " + cached);
+				}
 			}
 			image = resizedImage;
 		} catch (MalformedURLException e) {
@@ -117,8 +123,17 @@ public class SMSMapView extends SMSScrollableView {
 		}
 	}
 
-	private static File getCachedFile(String file) {
-		return new File(SMSConfig.getImgCacheFolder(), FilenameUtils.getBaseName(file) + "." + CACHED_FILE_FORMAT);
+	private static File getCachedFile(URL url) {
+		byte[] bytes = url.toString().getBytes();
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("MD5");
+			byte[] thedigest = md.digest(bytes);
+			return new File(SMSConfig.getImgCacheFolder(), new String(thedigest) + "." + CACHED_FILE_FORMAT);
+		} catch (NoSuchAlgorithmException e) {
+			MiscUtil.log(Level.WARNING, "Can't get MD5 MessageDigest algorithm, no image caching");
+			return null;
+		}
 	}
 
 	@Override

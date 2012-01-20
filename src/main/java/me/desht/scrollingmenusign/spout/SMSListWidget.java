@@ -43,16 +43,12 @@ public class SMSListWidget extends GenericListWidget {
 		Color c;
 		try {
 			c = new Color(bgCol);
-			String a = view.getAttributeAsString(SMSSpoutView.ALPHA);
-			if (a != null && !a.isEmpty()) {
-				c.setAlpha((float) Double.parseDouble(a));
-			} else {
-				c.setAlpha((float) cfg.getDouble("sms.spout.list_alpha"));
-			}
+			String a = view.getAttributeAsString(SMSSpoutView.ALPHA, cfg.getString("sms.spout.list_alpha"));
+			c.setAlpha(Float.parseFloat(a));
 		} catch (NumberFormatException	e) {
-			MiscUtil.log(Level.WARNING, "Invalid Spout view colour/alpha specification: using default background");
+			MiscUtil.log(Level.WARNING, "Invalid Spout view colour/alpha specification for " + view.getName() + ": using default settings");
 			c = new Color(cfg.getDefaults().getString("sms.spout.list_background"));
-			c.setAlpha(0.5f);
+			c.setAlpha((float) cfg.getDefaults().getDouble("sms.spout.list_alpha"));
 		}
 //		System.out.println("background = " + c.toString());
 		
