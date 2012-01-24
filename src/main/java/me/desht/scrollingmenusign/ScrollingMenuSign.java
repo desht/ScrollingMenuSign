@@ -65,7 +65,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	public static Economy economy = null;
 	public static Permission permission = null;
-
+	
 	public final ExpectResponse expecter = new ExpectResponse();
 
 	@Override

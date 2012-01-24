@@ -18,6 +18,7 @@ import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -29,6 +30,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.map.MapView;
 
 public class SMSPlayerListener extends PlayerListener {
 	private ScrollingMenuSign plugin;
@@ -48,7 +51,7 @@ public class SMSPlayerListener extends PlayerListener {
 			// only interested in the player clicking a block
 			return;
 		}
-		
+
 		Player player = event.getPlayer();
 
 		if (plugin.expecter.isExpecting(player, ExpectViewCreation.class)) {
@@ -67,7 +70,7 @@ public class SMSPlayerListener extends PlayerListener {
 			event.setCancelled(true);
 			return;
 		}
-		
+
 		SMSView locView = SMSView.getViewForLocation(block.getLocation());
 		SMSMapView mapView = null;
 		if (player.getItemInHand().getType() == Material.MAP) {
@@ -79,7 +82,7 @@ public class SMSPlayerListener extends PlayerListener {
 				// No view present at this location, but a left-click could create a new sign view if the sign's
 				// text is in the right format...
 				tryToActivateSign(block, player); 
-			} else if (locView != null && player.getItemInHand().getType() == Material.MAP) {
+			} else if (locView != null && player.getItemInHand().getType() == Material.MAP && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
 				// Hit an existing view with a map - the map now becomes a view on the same menu
 				tryToActivateMap(block, player);
 			} else if (player.getItemInHand().getType() == Material.MAP && block.getType() == Material.GLASS) {
@@ -127,7 +130,7 @@ public class SMSPlayerListener extends PlayerListener {
 			// ignore
 		}
 	}
-	
+
 	@Override
 	public void onPlayerChat(PlayerChatEvent event) {
 		Player player = event.getPlayer();
@@ -142,22 +145,22 @@ public class SMSPlayerListener extends PlayerListener {
 			}
 		}
 	}
-	
+
 	@Override
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
-		
+
 		// clear out user variables if not persistent
 		Configuration cfg = SMSConfig.getConfig();
 		if (!cfg.getBoolean("sms.persistent_user_vars") && cfg.contains("uservar." + player.getName())) {
 			cfg.set("uservar." + player.getName(), null);
 			ScrollingMenuSign.getInstance().saveConfig();
 		}
-		
+
 		Debugger.getDebugger().removeDebugger(player);
-		
+
 		MessagePager.deletePager(player);
-		
+
 		SMSView.clearPlayer(player);
 	}
 
@@ -319,4 +322,5 @@ public class SMSPlayerListener extends PlayerListener {
 		MiscUtil.statusMessage(player, String.format("Added new map view &e%s&- to menu &e%s&-.",
 		                                             mapView.getName(), mapView.getMenu().getName()));
 	}
+
 }

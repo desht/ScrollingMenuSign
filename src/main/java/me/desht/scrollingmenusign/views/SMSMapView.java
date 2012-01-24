@@ -16,9 +16,9 @@ import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
@@ -41,6 +41,9 @@ import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
  * 
  */
 public class SMSMapView extends SMSScrollableView {
+
+	// magic map X value used by the Courier plugin
+	public static final int COURIER_MAP_X = 2147087904;
 
 	private static final String CACHED_FILE_FORMAT = "png";
 
@@ -416,5 +419,19 @@ public class SMSMapView extends SMSScrollableView {
 			loadBackgroundImage();
 			setDirty(true);
 		}
+	}
+	
+	/**
+	 * Check to see if this map ID is used by another plugin, to avoid toe-stepping-upon...
+	 * 
+	 * @param item	The map item to check
+	 * @return	True if it's a Courier map, false otherwise
+	 */
+	public static boolean usedByOtherPlugin(ItemStack item) {
+		short mapId = item.getDurability();
+		MapView mapView = Bukkit.getServer().getMap(mapId);
+		
+		// Courier uses a magic X value to indicate the map it uses
+		return mapView.getCenterX() == COURIER_MAP_X;
 	}
 }
