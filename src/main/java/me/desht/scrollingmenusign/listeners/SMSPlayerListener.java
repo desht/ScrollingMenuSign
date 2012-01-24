@@ -18,7 +18,6 @@ import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -30,8 +29,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.map.MapView;
 
 public class SMSPlayerListener extends PlayerListener {
 	private ScrollingMenuSign plugin;
@@ -42,19 +39,18 @@ public class SMSPlayerListener extends PlayerListener {
 
 	@Override
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.isCancelled())
-			return;
 		Block block = event.getClickedBlock();
-		if (block == null)
-			return;
-		if (event.getAction() == Action.PHYSICAL) {
-			// only interested in the player clicking a block
-			return;
-		}
-
 		Player player = event.getPlayer();
-
-		if (plugin.expecter.isExpecting(player, ExpectViewCreation.class)) {
+        SMSMapView mapView = null;
+        if (player.getItemInHand().getType() == Material.MAP) {
+            mapView = SMSMapView.getViewForId(player.getItemInHand().getDurability());
+        }
+        // If there is no mapView and no selected block - lets ignore the event
+        if (block == null && mapView == null) {
+            return;
+        }
+		
+		if (block != null && plugin.expecter.isExpecting(player, ExpectViewCreation.class)) {
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				try {
 					ExpectViewCreation c = (ExpectViewCreation) plugin.expecter.getAction(player, ExpectViewCreation.class);
@@ -71,24 +67,24 @@ public class SMSPlayerListener extends PlayerListener {
 			return;
 		}
 
-		SMSView locView = SMSView.getViewForLocation(block.getLocation());
-		SMSMapView mapView = null;
-		if (player.getItemInHand().getType() == Material.MAP) {
-			mapView = SMSMapView.getViewForId(player.getItemInHand().getDurability());
+		SMSView locView = null;
+		if (block != null) {
+		   locView = SMSView.getViewForLocation(block.getLocation());
 		}
 
+
 		try {
-			if (locView == null && block.getState() instanceof Sign && player.getItemInHand().getTypeId() == 0) {
+			if (locView == null && block != null && block.getState() instanceof Sign && player.getItemInHand().getTypeId() == 0) {
 				// No view present at this location, but a left-click could create a new sign view if the sign's
 				// text is in the right format...
 				tryToActivateSign(block, player); 
-			} else if (locView != null && player.getItemInHand().getType() == Material.MAP && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
+			} else if (locView != null && player.getItemInHand().getType() == Material.MAP && block != null && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
 				// Hit an existing view with a map - the map now becomes a view on the same menu
 				tryToActivateMap(block, player);
-			} else if (player.getItemInHand().getType() == Material.MAP && block.getType() == Material.GLASS) {
+			} else if (player.getItemInHand().getType() == Material.MAP && block != null && block.getType() == Material.GLASS) {
 				// Hit glass with map - deactivate the map if it has a sign view on it
 				tryToDeactivateMap(block, player);
-			} else if (mapView != null && locView == null && block.getState() instanceof Sign) {
+			} else if (mapView != null && locView == null && block != null && block.getState() instanceof Sign) {
 				// Hit a non-active sign with an active map - try to make the sign into a view
 				tryToActivateSign(block, player, mapView);
 			} else if (mapView != null) {
@@ -98,7 +94,7 @@ public class SMSPlayerListener extends PlayerListener {
 				if (action != null) {
 					action.execute(player, mapView);
 				}
-			} else if (locView != null) {
+			} else if (locView != null && block != null) {
 				// There's a view at the targeted block, use that as the view
 				Debugger.getDebugger().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
