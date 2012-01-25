@@ -21,11 +21,11 @@ public enum SMSUserAction {
 		StringBuilder key;
 		switch (event.getAction()) {
 		case RIGHT_CLICK_BLOCK:
-			//		case RIGHT_CLICK_AIR:
+		case RIGHT_CLICK_AIR:
 			key = new StringBuilder("sms.actions.rightclick.");
 			break;
 		case LEFT_CLICK_BLOCK:
-			//		case LEFT_CLICK_AIR:
+		case LEFT_CLICK_AIR:
 			key = new StringBuilder("sms.actions.leftclick.");
 			break;
 		default:

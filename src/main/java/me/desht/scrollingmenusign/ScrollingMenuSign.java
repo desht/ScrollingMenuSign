@@ -109,6 +109,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		MessagePager.setPageCmd("/sms page [#|n|p]");
 
 		// delayed loading of saved menu files to ensure all worlds are loaded first
+		/*
 		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 			@Override
 			public void run() {
@@ -116,8 +117,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 			}
 		}) == -1) {
 			MiscUtil.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
+			*/
 			loadPersistedData();
-		}
+		//}
 
 		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
 	}
