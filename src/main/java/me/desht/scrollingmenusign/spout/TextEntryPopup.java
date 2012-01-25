@@ -11,6 +11,7 @@ import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.GenericPopup;
 import org.getspout.spoutapi.gui.GenericTextField;
@@ -24,6 +25,8 @@ public class TextEntryPopup extends GenericPopup {
 	private static Map<String,TextEntryPopup> allPopups = new HashMap<String, TextEntryPopup>();
 	private static Set<String> visiblePopups = new HashSet<String>();
 	
+	private static final String labelColour = ChatColor.YELLOW.toString();
+	
 	private SpoutPlayer sp;
 	private Label label;
 	private TextField textField;
@@ -36,7 +39,7 @@ public class TextEntryPopup extends GenericPopup {
 		int x = (mainScreen.getWidth() - width) / 2;
 		int y = mainScreen.getHeight() / 2 - 20;
 		
-		label = new GenericLabel(ChatColor.YELLOW + prompt);
+		label = new GenericLabel(labelColour + prompt);
 		label.setX(x).setY(y).setWidth(width).setHeight(10);
 		
 		textField = new GenericTextField();
@@ -52,7 +55,7 @@ public class TextEntryPopup extends GenericPopup {
 	}
 	
 	private void setPrompt(String prompt) {
-		label.setText(prompt);
+		label.setText(labelColour + prompt);
 		textField.setText("");
 	}
 
@@ -78,6 +81,8 @@ public class TextEntryPopup extends GenericPopup {
 		
 		close();
 		visiblePopups.remove(sp.getName());
+		
+		sp.sendNotification("Command cancelled", "Escape pressed", Material.SIGN_POST);
 	}
 
 	public static void show(SpoutPlayer sp, String prompt) {

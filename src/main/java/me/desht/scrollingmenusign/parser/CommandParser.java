@@ -25,6 +25,7 @@ import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -102,7 +103,7 @@ public class CommandParser {
 				break;
 			case SUBSTITUTION_NEEDED:
 				if (!ScrollingMenuSign.getInstance().isSpoutEnabled() || !SpoutUtils.showTextEntryPopup(player, pCmd.getLastError())) {
-					MiscUtil.alertMessage(player, pCmd.getLastError());
+					MiscUtil.alertMessage(player, pCmd.getLastError() + " &6(Left or right-click anywhere to cancel)");
 				}
 				break;
 			default:

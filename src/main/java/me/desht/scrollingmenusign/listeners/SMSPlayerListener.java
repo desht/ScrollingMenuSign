@@ -30,6 +30,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class SMSPlayerListener implements Listener {
@@ -53,6 +54,14 @@ public class SMSPlayerListener implements Listener {
 		}
 		// If there is no mapView and no selected block - lets ignore the event
 		if (block == null && mapView == null) {
+			return;
+		}
+		
+		// left or right-clicking cancels any command substitution in progress
+		if (plugin.expecter.isExpecting(player, ExpectCommandSubstitution.class)) {
+			plugin.expecter.cancelAction(player, ExpectCommandSubstitution.class);
+			MiscUtil.alertMessage(player, "&6Command execution cancelled.");
+			event.setCancelled(true);
 			return;
 		}
 
