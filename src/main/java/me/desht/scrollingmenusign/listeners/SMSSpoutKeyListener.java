@@ -7,6 +7,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.scrollingmenusign.spout.TextEntryPopup;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSMapView;
@@ -48,6 +49,11 @@ public class SMSSpoutKeyListener implements Listener {
 			return;
 
 		try {
+			// is there substituion textfield up?
+			if (TextEntryPopup.isPoppedUp(player)) {
+				TextEntryPopup.handleKeypress(player, event.getKey());
+				return;
+			}
 			// first see if any existing spout view has a mapping for the pressed keys
 			if (SMSSpoutView.handleKeypress(player, pressed)) {
 				return;
@@ -55,7 +61,7 @@ public class SMSSpoutKeyListener implements Listener {
 
 			// otherwise, check for use of the scroll/execute keys on a targeted view
 			SMSView view = findViewForPlayer(player);
-			if (view != null) {			
+			if (view != null) {	
 				SMSUserAction action = getAction(pressed);
 				Debugger.getDebugger().debug("spout keypress event: keys pressed = " + pressed
 						+ ", view = " + view.getName() + ", menu = " + view.getMenu().getName()

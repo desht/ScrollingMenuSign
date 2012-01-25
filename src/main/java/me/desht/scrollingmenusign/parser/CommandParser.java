@@ -19,6 +19,7 @@ import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
+import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
@@ -100,7 +101,9 @@ public class CommandParser {
 			case CMD_OK:
 				break;
 			case SUBSTITUTION_NEEDED:
-				MiscUtil.alertMessage(player, pCmd.getLastError());
+				if (!ScrollingMenuSign.getInstance().isSpoutEnabled() || !SpoutUtils.showTextEntryPopup(player, pCmd.getLastError())) {
+					MiscUtil.alertMessage(player, pCmd.getLastError());
+				}
 				break;
 			default:
 				MiscUtil.errorMessage(player, pCmd.getLastError());
@@ -135,6 +138,7 @@ public class CommandParser {
 			Matcher m = p.matcher(command);
 			if (m.find() && m.groupCount() > 0 && mode == RunMode.EXECUTE) {
 				ScrollingMenuSign.getInstance().expecter.expectingResponse(player, new ExpectCommandSubstitution(command));
+
 				return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
 			}
 

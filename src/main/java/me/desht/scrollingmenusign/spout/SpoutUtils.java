@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -12,6 +15,10 @@ import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
+/**
+ * @author des
+ *
+ */
 public class SpoutUtils {
 	private static final Map<String, SMSSpoutKeyMap> wantedKeys = new HashMap<String, SMSSpoutKeyMap>();
 
@@ -52,6 +59,21 @@ public class SpoutUtils {
 				}
 			}
 		}
+	}
+
+	public static boolean showTextEntryPopup(final Player player, final String prompt) {
+		final SpoutPlayer sp = (SpoutPlayer)player;
+		if (!sp.isSpoutCraftEnabled()) {
+			return false;
+		}
 		
+		// delaying this makes it play nicely with any spout view that might currently be showing
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
+			@Override
+			public void run() {
+				TextEntryPopup.show(sp, prompt);
+			}
+		});
+		return true;
 	}
 }
