@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 public class AddItemCommand extends AbstractCommand {
 
 	public AddItemCommand() {
-		super("sms a", 1);
+		super("sms a", 2);
 		setPermissionNode("scrollingmenusign.commands.add");
 		setUsage("/sms add <menu-name> \"label\" [\"command\"] [\"message\"]");
 		setQuotedArgs(true);
