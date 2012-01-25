@@ -28,7 +28,8 @@ public class SMSSpoutView extends SMSScrollableView {
 	public static final String SPOUTKEYS = "spoutkeys";
 	public static final String BACKGROUND = "background";
 	public static final String ALPHA = "alpha";
-
+	public static final String TEXTURE = "texture";
+	
 	// list of all popups which are active at this time, keyed by player name
 	private static final Map<String, SpoutViewPopup> activePopups = new HashMap<String, SpoutViewPopup>();
 
@@ -37,7 +38,7 @@ public class SMSSpoutView extends SMSScrollableView {
 
 	// map a set of keypresses to the view which handles them
 	private static final Map<String, String> keyMap = new HashMap<String, String>();
-
+	
 	/**
 	 * Construct a new SMSSPoutView object
 	 * 
@@ -56,6 +57,7 @@ public class SMSSpoutView extends SMSScrollableView {
 		registerAttribute(AUTOPOPDOWN, true);
 		registerAttribute(BACKGROUND, "");
 		registerAttribute(ALPHA, "");
+		registerAttribute(TEXTURE, "");
 	}
 
 	public SMSSpoutView(SMSMenu menu) throws SMSException {
@@ -226,7 +228,10 @@ public class SMSSpoutView extends SMSScrollableView {
 			if (!newVal.isEmpty()) {
 				keyMap.put(newVal, getName());
 			}
-		} else if (attribute.equals(ALPHA) || attribute.equals(BACKGROUND)) {
+		} else if (attribute.equals(AUTOPOPDOWN)) {
+			// nothing
+		} else {
+			// all other attributes affect the appearance and require a redraw
 			update(getMenu(), SMSMenuAction.REPAINT);
 		}
 	}

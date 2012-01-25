@@ -37,6 +37,7 @@ import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutScreenListener;
+import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.util.MessagePager;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import net.milkbowl.vault.economy.Economy;
@@ -100,6 +101,10 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 		loadPersistedData();
 
+		if (spoutEnabled) {
+			SpoutUtils.precacheTextures();
+		}
+		
 		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
 	}
 

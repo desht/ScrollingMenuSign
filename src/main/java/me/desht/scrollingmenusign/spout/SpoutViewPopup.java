@@ -5,8 +5,11 @@ import me.desht.scrollingmenusign.views.SMSSpoutView;
 
 import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.GenericPopup;
+import org.getspout.spoutapi.gui.GenericTexture;
 import org.getspout.spoutapi.gui.Label;
+import org.getspout.spoutapi.gui.RenderPriority;
 import org.getspout.spoutapi.gui.Screen;
+import org.getspout.spoutapi.gui.Texture;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SpoutViewPopup extends GenericPopup {
@@ -18,6 +21,7 @@ public class SpoutViewPopup extends GenericPopup {
 	private SMSSpoutView view;
 	private boolean poppedUp;
 	private Label title;
+	private Texture texture;
 	private SMSListWidget listWidget;
 
 	public SpoutViewPopup(SpoutPlayer sp, SMSSpoutView view) {
@@ -31,10 +35,19 @@ public class SpoutViewPopup extends GenericPopup {
 		title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(5).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
 		title.setAuto(false	);
 
+		int listX = (mainScreen.getWidth() - LIST_WIDTH) / 2;
+		int listY = 5 + 2 + TITLE_HEIGHT;
+		
+		texture = new GenericTexture(view.getAttributeAsString(SMSSpoutView.TEXTURE));
+		texture.setDrawAlphaChannel(true);
+		texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
+		texture.setPriority(RenderPriority.Highest);	// put it behind the list widget
+		
 		listWidget = new SMSListWidget(sp, view);
-		listWidget.setX((mainScreen.getWidth() - LIST_WIDTH) / 2).setY(5 + 2 + TITLE_HEIGHT).setWidth(LIST_WIDTH).setHeight(mainScreen.getHeight() - (10 + TITLE_HEIGHT));
+		listWidget.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
 
 		this.attachWidget(ScrollingMenuSign.getInstance(), title);
+		this.attachWidget(ScrollingMenuSign.getInstance(), texture);
 		this.attachWidget(ScrollingMenuSign.getInstance(), listWidget);
 	}
 
@@ -48,6 +61,7 @@ public class SpoutViewPopup extends GenericPopup {
 
 	public void repaint() {
 		title.setText(view.getMenu().getTitle());
+		texture.setUrl(view.getAttributeAsString(SMSSpoutView.TEXTURE));
 		listWidget.repaint();
 	}
 
@@ -66,5 +80,4 @@ public class SpoutViewPopup extends GenericPopup {
 		poppedUp = false;
 		sp.getMainScreen().closePopup();
 	}
-
 }
