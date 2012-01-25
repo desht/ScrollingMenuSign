@@ -24,7 +24,7 @@ public class ExpectViewCreation extends ExpectBase {
 		return loc;
 	}
 
-	public void setLoc(Location loc) {
+	public void setLocation(Location loc) {
 		this.loc = loc;
 	}
 
