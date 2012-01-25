@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.views;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -131,8 +132,9 @@ public class SMSMapView extends SMSScrollableView {
 		MessageDigest md;
 		try {
 			md = MessageDigest.getInstance("MD5");
-			byte[] thedigest = md.digest(bytes);
-			return new File(SMSConfig.getImgCacheFolder(), new String(thedigest) + "." + CACHED_FILE_FORMAT);
+			byte[] d = md.digest(bytes);
+			BigInteger i = new BigInteger(d);
+			return new File(SMSConfig.getImgCacheFolder(), String.format("%1$032X", i) + "." + CACHED_FILE_FORMAT);
 		} catch (NoSuchAlgorithmException e) {
 			MiscUtil.log(Level.WARNING, "Can't get MD5 MessageDigest algorithm, no image caching");
 			return null;
@@ -423,9 +425,10 @@ public class SMSMapView extends SMSScrollableView {
 	
 	/**
 	 * Check to see if this map ID is used by another plugin, to avoid toe-stepping-upon...
+	 * Right now, only Courier is checked for.
 	 * 
 	 * @param item	The map item to check
-	 * @return	True if it's a Courier map, false otherwise
+	 * @return	True if it's used by someone else, false otherwise
 	 */
 	public static boolean usedByOtherPlugin(ItemStack item) {
 		short mapId = item.getDurability();
