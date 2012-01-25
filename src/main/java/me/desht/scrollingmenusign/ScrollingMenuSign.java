@@ -49,7 +49,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 
 public class ScrollingMenuSign extends JavaPlugin {
 
@@ -84,42 +83,22 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 		SMSConfig.init(this);
 
-		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Event.Priority.High, this);
-		pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Normal, this);
-		//		pm.registerEvent(Event.Type.PLAYER_ANIMATION, playerListener, Event.Priority.Normal, this);
-
-		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Normal, this);
-
-		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
-
+		pm.registerEvents(playerListener, this);
+		pm.registerEvents(blockListener, this);
+		pm.registerEvents(entityListener, this);
+		
 		if (spoutEnabled) {
 			spoutKeyListener = new SMSSpoutKeyListener();
 			spoutScreenListener = new SMSSpoutScreenListener();
-			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutKeyListener, Event.Priority.Normal, this);
-			pm.registerEvent(Event.Type.CUSTOM_EVENT, spoutScreenListener, Event.Priority.Normal, this);
+			pm.registerEvents(spoutKeyListener, this);
+			pm.registerEvents(spoutScreenListener, this);
 		}
 
 		registerCommands();
 
 		MessagePager.setPageCmd("/sms page [#|n|p]");
 
-		// delayed loading of saved menu files to ensure all worlds are loaded first
-		/*
-		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-			@Override
-			public void run() {
-				loadPersistedData();
-			}
-		}) == -1) {
-			MiscUtil.log(Level.WARNING, "Couldn't schedule menu loading - multiworld support might not work.");
-			*/
-			loadPersistedData();
-		//}
+		loadPersistedData();
 
 		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
 	}

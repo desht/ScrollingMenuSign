@@ -16,13 +16,14 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.material.Attachable;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 
-public class SMSBlockListener extends BlockListener {
+public class SMSBlockListener implements Listener {
 
 	private ScrollingMenuSign plugin;
 
@@ -30,7 +31,7 @@ public class SMSBlockListener extends BlockListener {
 		this.plugin = plugin;
 	}
 
-	@Override
+	@EventHandler
 	public void onBlockDamage(BlockDamageEvent event) {
 		if (event.isCancelled())
 			return;
@@ -51,7 +52,7 @@ public class SMSBlockListener extends BlockListener {
 		event.setCancelled(true);
 	}
 
-	@Override
+	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		if (event.isCancelled())
 			return;
@@ -82,7 +83,7 @@ public class SMSBlockListener extends BlockListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (event.isCancelled())
 			return;
@@ -107,7 +108,7 @@ public class SMSBlockListener extends BlockListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onBlockRedstoneChange(BlockRedstoneEvent event) {
 		SMSRedstoneView.processRedstoneEvent(event);
 	}

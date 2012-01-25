@@ -16,23 +16,23 @@ import me.desht.scrollingmenusign.views.SMSView;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.getspout.spoutapi.event.input.InputListener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.getspout.spoutapi.event.input.KeyPressedEvent;
 import org.getspout.spoutapi.event.input.KeyReleasedEvent;
 import org.getspout.spoutapi.gui.ScreenType;
 import org.getspout.spoutapi.keyboard.Keyboard;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
-public class SMSSpoutKeyListener extends InputListener {
+public class SMSSpoutKeyListener implements Listener {
 	private static final Map<String, SMSSpoutKeyMap> pressedKeys = new HashMap<String, SMSSpoutKeyMap>();
 
 	public SMSSpoutKeyListener() {
 		SpoutUtils.loadKeyDefinitions();
 	}
 
-	@Override
+	@EventHandler
 	public void onKeyPressedEvent(KeyPressedEvent event) {
-
 		SpoutPlayer player = event.getPlayer();
 
 		SMSSpoutKeyMap pressed = getPressedKeys(player);
@@ -69,6 +69,11 @@ public class SMSSpoutKeyListener extends InputListener {
 		}
 	}
 
+	@EventHandler
+	public void onKeyReleasedEvent(KeyReleasedEvent event) {
+		getPressedKeys(event.getPlayer()).remove(event.getKey());
+	}
+
 	private SMSView findViewForPlayer(SpoutPlayer player) {
 		SMSView view = null;
 		
@@ -96,11 +101,6 @@ public class SMSSpoutKeyListener extends InputListener {
 	}
 	
 	
-	@Override
-	public void onKeyReleasedEvent(KeyReleasedEvent event) {
-		getPressedKeys(event.getPlayer()).remove(event.getKey());
-	}
-
 	private SMSSpoutKeyMap getPressedKeys(Player player) {
 		if (!pressedKeys.containsKey(player.getName())) {
 			pressedKeys.put(player.getName(), new SMSSpoutKeyMap());

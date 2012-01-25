@@ -23,21 +23,23 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class SMSPlayerListener extends PlayerListener {
+public class SMSPlayerListener implements Listener {
 	private ScrollingMenuSign plugin;
 
 	public SMSPlayerListener(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
 	}
 
-	@Override
+	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		// Ignore physical Actions
 		if (event.getAction() == Action.PHYSICAL) {
@@ -120,7 +122,7 @@ public class SMSPlayerListener extends PlayerListener {
 
 	}
 
-	@Override
+	@EventHandler
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
 		try {
 			Player player = event.getPlayer();
@@ -140,7 +142,7 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 	}
 
-	@Override
+	@EventHandler(priority=EventPriority.HIGH)
 	public void onPlayerChat(PlayerChatEvent event) {
 		Player player = event.getPlayer();
 		if (plugin.expecter.isExpecting(player, ExpectCommandSubstitution.class)) {
@@ -155,7 +157,7 @@ public class SMSPlayerListener extends PlayerListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 
@@ -172,64 +174,6 @@ public class SMSPlayerListener extends PlayerListener {
 
 		SMSView.clearPlayer(player);
 	}
-
-	//	@Override
-	//	public void onPlayerDropItem(PlayerDropItemEvent event) {
-	//		if (event.isCancelled())
-	//			return;
-	//
-	//		Item item = event.getItemDrop();
-	//		ItemStack is = item.getItemStack();
-	//
-	//		if (is.getType() == Material.MAP && SMSMapView.checkForMapId(is.getDurability()) && !SMSConfig.getConfiguration().getBoolean("sms.maps.tradable", true)) {
-	//			short d = 0;
-	//			SMSMenu menu = SMSMapView.getViewForId(is.getDurability()).getMenu();
-	//			while (Bukkit.getServer().getMap(d) != null) {
-	//				if (SMSMapView.checkForMapId(d)) {
-	//					d++;
-	//				} else {
-	//					item.getItemStack().setDurability(d);
-	//					MiscUtil.statusMessage(event.getPlayer(), "Dropped map detached from menu &e" + menu.getName() + "&-.");
-	//					break;
-	//				}
-	//			}
-	//			if (Bukkit.getServer().getMap(d) == null) {
-	//				MapView mv = Bukkit.getServer().createMap(event.getPlayer().getWorld());
-	//				item.getItemStack().setDurability(mv.getId());
-	//				MiscUtil.statusMessage(event.getPlayer(), "Dropped map detached from menu &e" + menu.getName() + "&-.");
-	//			}
-	//		}
-	//	}
-
-	//	@Override
-	//	public void onPlayerAnimation(PlayerAnimationEvent event) {
-	//		if (event.isCancelled())
-	//			return;
-	//		
-	//		Player player = event.getPlayer();
-	//		
-	//		SMSMapView mapView = null;
-	//		if (player.getItemInHand().getType() == Material.MAP) {
-	//			mapView = SMSMapView.getViewForId(player.getItemInHand().getDurability());
-	//		}
-	//		
-	//		try {
-	//			switch (event.getAnimationType()) {
-	//			case ARM_SWING:
-	//				if (mapView != null) {
-	//					Block b = player.getTargetBlock(null, 2);
-	//					if (b.getTypeId() == 0) {
-	//						// we'll only do this if the player is targeting air - if a block is targeted, the onPlayerInteract handler deals with it
-	//						Debugger.getDebugger().debug("player animation event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + ", menu=" + mapView.getMenu().getName());
-	//						SMSUserAction action = SMSUserAction.getAction(event);
-	//						processAction(action, player, mapView);
-	//					}
-	//				}	
-	//			}
-	//		} catch (SMSException e) {
-	//			MiscUtil.log(Level.WARNING, e.getMessage());
-	//		}
-	//	}
 
 	/**
 	 * Try to activate a sign by punching it.  The sign needs to contain "[sms]"

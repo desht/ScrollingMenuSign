@@ -10,17 +10,18 @@ import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityListener;
 
-public class SMSEntityListener extends EntityListener {
+public class SMSEntityListener implements Listener {
 	private ScrollingMenuSign plugin;
 	
 	public SMSEntityListener(ScrollingMenuSign plugin) {
 		this.plugin = plugin;
 	}
 	
-	@Override
+	@EventHandler
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
 		boolean noExplode = plugin.getConfig().getBoolean("sms.no_explosions", false);

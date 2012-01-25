@@ -122,7 +122,6 @@ public class SMSPersistence {
 			if (view != null) {
 				view.getMenu().addObserver(view);
 				view.update(view.getMenu(), SMSMenuAction.REPAINT);
-//				view.register();
 			}
 		}
 
@@ -171,12 +170,11 @@ public class SMSPersistence {
 		MiscUtil.log(Level.INFO, "read " + SMSMenu.listMenus().size() + " menus from file.");
 	}	
 
-	@SuppressWarnings("unchecked")
 	private static void oldStyleMacroLoad(File macrosFile) {
 		YamlConfiguration conf = YamlConfiguration.loadConfiguration(macrosFile);
 		for (String key : conf.getKeys(false)) {
 			SMSMacro m = new SMSMacro(key);
-			List<String> cmds = conf.getList(key, null);
+			List<String> cmds = conf.getStringList(key);
 			for (String cmd : cmds) {
 				m.addLine(cmd);
 			}

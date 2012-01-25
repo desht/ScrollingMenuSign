@@ -2,13 +2,14 @@ package me.desht.scrollingmenusign.listeners;
 
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.getspout.spoutapi.event.screen.ScreenCloseEvent;
-import org.getspout.spoutapi.event.screen.ScreenListener;
 import org.getspout.spoutapi.gui.ScreenType;
 
-public class SMSSpoutScreenListener extends ScreenListener {
+public class SMSSpoutScreenListener implements Listener {
 	
-	@Override
+	@EventHandler
 	public void onScreenClose(ScreenCloseEvent event) {		
 		if (event.getScreenType() == ScreenType.CUSTOM_SCREEN && SMSSpoutView.hasActiveGUI(event.getPlayer())) {
 			SMSSpoutView.screenClosed(event.getPlayer());

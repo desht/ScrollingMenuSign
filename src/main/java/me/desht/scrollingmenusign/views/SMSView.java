@@ -489,30 +489,28 @@ public abstract class SMSView implements Observer, Freezable {
 			v.register();
 			return v;
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "can't find class for view " + viewName + ": " + e.getMessage());
+			loadError(viewName, e);
 		} catch (SMSException e) {
-			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "can't load view " + viewName + ": " + e.getMessage());
+			loadError(viewName, e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "can't instantiate view " + viewName + ": " + e.getMessage());
+			loadError(viewName, e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "illegal access while loading view " + viewName + ": " + e.getMessage());
+			loadError(viewName, e);
 		} catch (SecurityException e) {
-			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "security exception while loading view " + viewName + ": " + e.getMessage());
+			loadError(viewName, e);
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "no such method while loading view " + viewName + ": " + e.getMessage());
+			loadError(viewName, e);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-			MiscUtil.log(Level.WARNING, "illegal argument while loading view " + viewName + ": " + e.getMessage());
+			loadError(viewName, e);
 		} catch (InvocationTargetException e) {
-			MiscUtil.log(Level.WARNING, "invocation target exception while loading view " + viewName + ": " + e.getCause().getMessage());
+			loadError(viewName, e);
 		}
 		return null;
+	}
+	
+	private static void loadError(String viewName, Exception e) {
+		MiscUtil.log(Level.WARNING, "Caught " + e.getClass().getName() + " while loading view " + viewName);
+		MiscUtil.log(Level.WARNING, "  Exception message: " + e.getMessage());
 	}
 
 	protected void registerAttribute(String attr, Object def) {
