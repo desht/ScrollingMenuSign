@@ -296,7 +296,7 @@ public class CommandParser {
 				}
 			}
 		} else {
-			// just an ordinary command, no special privilege elevation
+			// just an ordinary command (possibly chat), no special privilege elevation
 			Debugger.getDebugger().debug("execute (normal): " + command);
 			executeLowLevelCommand(player, cmd, command);
 		}
@@ -350,7 +350,7 @@ public class CommandParser {
 
 	private void executeLowLevelCommand(CommandSender sender, ParsedCommand cmd, String command) {
 		cmd.setStatus(ReturnStatus.CMD_OK);
-		if (command.startsWith("/")) {
+		if (command.startsWith("/") && !cmd.isChat()) {
 			if (!Bukkit.getServer().dispatchCommand(sender, command.substring(1))) {
 				cmd.setStatus(ReturnStatus.CMD_FAILED);
 				cmd.setLastError("Execution of command '" + cmd.getCommand() + "' failed (unknown command?)");

@@ -21,6 +21,7 @@ public class ParsedCommand {
 	private List<Cost> costs;
 	private ReturnStatus status;
 	private boolean whisper;
+	private boolean chat;
 	private boolean macro;
 	private boolean commandStopped, macroStopped;
 	private boolean console;
@@ -30,7 +31,7 @@ public class ParsedCommand {
 	ParsedCommand (Player player, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
 		costs = new ArrayList<Cost>();
-		elevated = restricted = whisper = macro = console = false;
+		elevated = restricted = chat = whisper = macro = console = false;
 		commandStopped = macroStopped = false;
 		affordable = true;
 		command = null;
@@ -64,6 +65,7 @@ public class ParsedCommand {
 			} else if (token.startsWith("\\") && command == null) {
 				// a chat string
 				command = token.substring(1);
+				chat = true;
 			} else if (token.startsWith("@!") && command == null) {
 				// verify NOT player or group name
 				if (restrictionCheck(player, token.substring(2))) {
@@ -196,6 +198,10 @@ public class ParsedCommand {
 	 */
 	public boolean isWhisper() {
 		return whisper;
+	}
+
+	public boolean isChat() {
+		return chat;
 	}
 
 	/**
