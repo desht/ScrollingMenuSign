@@ -47,7 +47,7 @@ public class SpoutViewPopup extends GenericPopup {
 		if (textureName != null && !textureName.isEmpty()) {
 			try {
 				URL textureURL = ScrollingMenuSign.makeImageURL(textureName);
-				texture = new GenericTexture(view.getAttributeAsString(textureURL.toString()));
+				texture = new GenericTexture(textureURL.toString());
 				texture.setDrawAlphaChannel(true);
 				texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
 				texture.setPriority(RenderPriority.Highest);	// put it behind the list widget
