@@ -33,7 +33,7 @@ public class GiveMapCommand extends AbstractCommand {
 		try {
 			mapId = Short.parseShort(args[0]);
 		} catch (NumberFormatException e) {
-			throw new SMSException("Invalid amount '" + args[0] + "'.");
+			throw new SMSException("Invalid map ID '" + args[0] + "'.");
 		}
 		
 		if (amount < 1)
