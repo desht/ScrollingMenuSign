@@ -87,7 +87,7 @@ public enum SMSUserAction {
 		switch (this) {
 		case EXECUTE:
 			PermissionsUtils.requirePerms(player, "scrollingmenusign.execute");
-			SMSMenuItem item = menu.getItem(sview.getScrollPos(player.getName()));
+			SMSMenuItem item = menu.getItemAt(sview.getScrollPos(player.getName()));
 			if (item != null) {
 				item.execute(player);
 				item.feedbackMessage(player);

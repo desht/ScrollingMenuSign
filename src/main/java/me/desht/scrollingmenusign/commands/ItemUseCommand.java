@@ -47,7 +47,7 @@ public class ItemUseCommand extends AbstractCommand {
 			if (idx <= 0) {
 				throw new SMSException("Unknown menu item: " + a.get(1));
 			}
-			SMSMenuItem item = menu.getItem(idx);
+			SMSMenuItem item = menu.getItemAt(idx);
 			if (isClearing) {
 				item.getUseLimits().clearUses();
 				MiscUtil.statusMessage(player, "Unset all usage limits for item &e" + item.getLabel());

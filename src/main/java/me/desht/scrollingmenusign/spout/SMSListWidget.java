@@ -81,9 +81,12 @@ public class SMSListWidget extends GenericListWidget {
 			return;
 		}
 		
-		SMSMenuItem item = view.getMenu().getItem(idx + 1);
+		SMSMenuItem item = view.getMenu().getItemAt(idx + 1);
 		SpoutPlayer player = getScreen().getPlayer();
 		try {
+			if (item == null) {
+				throw new SMSException("spout list widget onSelected: index " + idx + " out of range for " + view.getMenu().getName() + " ?");
+			}
 			item.execute(player);
 			item.feedbackMessage(player);
 			view.onExecuted(player);

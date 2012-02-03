@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
@@ -87,7 +88,8 @@ public class SMSMapRenderer extends MapRenderer {
 		if (menu.getItemCount() > 0) {
 			int current = smsMapView.getScrollPos(player.getName());
 			for (int n = 0; n < nDisplayable; n++) {
-				String lineText = menu.getItem(current).getLabel();
+				SMSMenuItem item = menu.getItemAt(current);
+				String lineText = item == null ? "???" : item.getLabel();
 				if (n == 0) {
 					lineText = prefix2 + lineText;
 				} else {

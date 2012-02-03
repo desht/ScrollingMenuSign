@@ -115,14 +115,14 @@ public class SMSSignView extends SMSScrollableView {
 		if (prevPos < 1) {
 			prevPos = getMenu().getItemCount();
 		}
-		return getMenu().getItem(prevPos).getLabel();
+		return getMenu().getItemAt(prevPos).getLabel();
 	}
 	
 	private String getLine3Item(int pos) {
 		if (getMenu().getItemCount() < 1) {
 			return "";
 		}
-		return getMenu().getItem(pos).getLabel();
+		return getMenu().getItemAt(pos).getLabel();
 	}
 
 	private String getLine4Item(int pos) {
@@ -133,7 +133,7 @@ public class SMSSignView extends SMSScrollableView {
 		if (nextPos > getMenu().getItemCount()) {
 			nextPos = 1;
 		}
-		return getMenu().getItem(nextPos).getLabel();
+		return getMenu().getItemAt(nextPos).getLabel();
 	}
 	
 	private String makePrefix(String prefix) {

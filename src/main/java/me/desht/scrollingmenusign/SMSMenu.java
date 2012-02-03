@@ -312,9 +312,25 @@ public class SMSMenu extends Observable implements Freezable {
 	 * 
 	 * @param index	1-based numeric index
 	 * @return		The menu item at that index
+	 * @deprecated	Use getItemAt()
 	 */
+	@Deprecated
 	public SMSMenuItem getItem(int index) {
 		return items.get(index - 1);
+	}
+	
+	/**
+	 * Get the item at the given numeric index
+	 * 
+	 * @param 	index	1-based numeric index
+	 * @return		The menu item at that index, or null if the index is out of range
+	 */
+	public SMSMenuItem getItemAt(int index) {
+		if (index < 1 || index > items.size()) {
+			return null;
+		} else {
+			return items.get(index - 1);
+		}
 	}
 
 	/**
