@@ -292,17 +292,25 @@ public class ScrollingMenuSign extends JavaPlugin {
 		MiscUtil.log(Level.SEVERE, "You need to use ScrollingMenuSign v" + needed);
 	}
 	
-	public static URL makeImageURL(String base, String file) throws MalformedURLException {
-		if (file == null || file.isEmpty()) {
+	public static URL makeImageURL(String path) throws MalformedURLException {
+		if (path == null || path.isEmpty()) {
 			throw new MalformedURLException("file must be non-null and not an empty string");
 		}
-		if ((base == null || base.isEmpty()) && !file.startsWith("http:")) {
+		
+		return makeImageURL(SMSConfig.getConfig().getString("resource_base_url"), path);
+	}
+	
+	public static URL makeImageURL(String base, String path) throws MalformedURLException {
+		if (path == null || path.isEmpty()) {
+			throw new MalformedURLException("file must be non-null and not an empty string");
+		}
+		if ((base == null || base.isEmpty()) && !path.startsWith("http:")) {
 			throw new MalformedURLException("base URL must be set (use /sms setcfg resource_base_url ...");
 		}
-		if (file.startsWith("http:") || base == null) {
-			return new URL(file);
+		if (path.startsWith("http:") || base == null) {
+			return new URL(path);
 		} else {
-			return new URL(new URL(base), file);
+			return new URL(new URL(base), path);
 		}
 	}
 }

@@ -97,16 +97,11 @@ public class SMSMapView extends SMSScrollableView {
 		if (file.isEmpty()) {
 			return;
 		}
-
-		String base = SMSConfig.getConfig().getString("sms.resource_base_url");
-		if ((base == null || base.isEmpty()) && !file.startsWith("http:")) {
-			return;
-		}
-
+		
 		// Load the file from the given URL, and write a cached copy (PNG, 128x128) to our local
 		// directory structure.  The cached file can be used for subsequent loads to improve performance.
 		try {
-			URL url = ScrollingMenuSign.makeImageURL(base, file);
+			URL url = ScrollingMenuSign.makeImageURL(file);
 			File cached = getCachedFile(url);
 			BufferedImage resizedImage;
 			if (cached != null && cached.canRead()) {

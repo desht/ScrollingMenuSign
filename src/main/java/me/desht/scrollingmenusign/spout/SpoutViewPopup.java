@@ -1,6 +1,11 @@
 package me.desht.scrollingmenusign.spout;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.logging.Level;
+
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
 import org.getspout.spoutapi.gui.GenericLabel;
@@ -38,10 +43,18 @@ public class SpoutViewPopup extends GenericPopup {
 		int listX = (mainScreen.getWidth() - LIST_WIDTH) / 2;
 		int listY = 5 + 2 + TITLE_HEIGHT;
 		
-		texture = new GenericTexture(view.getAttributeAsString(SMSSpoutView.TEXTURE));
-		texture.setDrawAlphaChannel(true);
-		texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
-		texture.setPriority(RenderPriority.Highest);	// put it behind the list widget
+		String textureName = view.getAttributeAsString(SMSSpoutView.TEXTURE);
+		if (textureName != null && !textureName.isEmpty()) {
+			try {
+				URL textureURL = ScrollingMenuSign.makeImageURL(textureName);
+				texture = new GenericTexture(view.getAttributeAsString(textureURL.toString()));
+				texture.setDrawAlphaChannel(true);
+				texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
+				texture.setPriority(RenderPriority.Highest);	// put it behind the list widget
+			} catch (MalformedURLException e) {
+				MiscUtil.log(Level.WARNING, "malformed texture URL for spout view " + view.getName() + ": " + e.getMessage());
+			}
+		}
 		
 		listWidget = new SMSListWidget(sp, view);
 		listWidget.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
