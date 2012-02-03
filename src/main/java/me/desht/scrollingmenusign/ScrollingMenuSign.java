@@ -37,6 +37,7 @@ import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutScreenListener;
+import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.util.MessagePager;
 import me.desht.scrollingmenusign.util.MiscUtil;
@@ -53,9 +54,10 @@ import org.bukkit.entity.Player;
 
 public class ScrollingMenuSign extends JavaPlugin {
 
-	private final SMSPlayerListener playerListener = new SMSPlayerListener(this);
-	private final SMSBlockListener blockListener = new SMSBlockListener(this);
-	private final SMSEntityListener entityListener = new SMSEntityListener(this);
+	private final SMSPlayerListener playerListener = new SMSPlayerListener();
+	private final SMSBlockListener blockListener = new SMSBlockListener();
+	private final SMSEntityListener entityListener = new SMSEntityListener();
+	private final SMSWorldListener worldListener = new SMSWorldListener();
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
 	private final CommandManager cmds = new CommandManager(this);
 	private SMSSpoutKeyListener spoutKeyListener;
@@ -87,6 +89,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		pm.registerEvents(playerListener, this);
 		pm.registerEvents(blockListener, this);
 		pm.registerEvents(entityListener, this);
+		pm.registerEvents(worldListener, this);
 		
 		if (spoutEnabled) {
 			spoutKeyListener = new SMSSpoutKeyListener();

@@ -2,8 +2,8 @@ package me.desht.scrollingmenusign.listeners;
 
 import java.util.logging.Level;
 
+import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
@@ -24,13 +24,7 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 
 public class SMSBlockListener implements Listener {
-
-	private ScrollingMenuSign plugin;
-
-	public SMSBlockListener(ScrollingMenuSign plugin) {
-		this.plugin = plugin;
-	}
-
+	
 	@EventHandler
 	public void onBlockDamage(BlockDamageEvent event) {
 		if (event.isCancelled())
@@ -64,7 +58,7 @@ public class SMSBlockListener implements Listener {
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
 			Debugger.getDebugger().debug("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
-			if (plugin.getConfig().getBoolean("sms.no_destroy_signs", false)) {
+			if (SMSConfig.getConfig().getBoolean("sms.no_destroy_signs", false)) {
 				event.setCancelled(true);
 			} else if (p.getItemInHand().getType() == Material.MAP) {
 				if (SMSMapView.getViewForId(p.getItemInHand().getDurability()) != null) {
@@ -94,7 +88,7 @@ public class SMSBlockListener implements Listener {
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
 			Debugger.getDebugger().debug("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
-			if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
+			if (SMSConfig.getConfig().getBoolean("sms.no_physics", false)) {
 				event.setCancelled(true);
 			} else if (b.getState().getData() instanceof Attachable) {
 				Attachable a = (Attachable)	b.getState().getData();

@@ -29,20 +29,21 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 /**
  * @author des
  *
  */
 public abstract class SMSView implements Observer, Freezable {
-
-	// attributes
+	// view attributes
 	protected static final String OWNER = "owner";
+	
 	// map view name to view object for registered views
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
 	// map location to view object for registered views
 	private static final Map<Location, SMSView> allViewLocations = new HashMap<Location, SMSView>();
-
+	// track the number we append to each new view name
 	private static final Map<String,Integer> viewIdx = new HashMap<String, Integer>();
 
 	private SMSMenu menu;
@@ -54,7 +55,9 @@ public abstract class SMSView implements Observer, Freezable {
 	private int maxLocations;
 	// we can't use a Set here, since there are three possible values: 1) dirty, 2) clean, 3) unknown
 	private final Map<String,Boolean> dirtyPlayers = new HashMap<String,Boolean>();
-
+	// map a world name (which hasn't been loaded yet) to a list of x,y,z positions
+	private final Map<String,List<Vector>> deferredLocations = new HashMap<String, List<Vector>>();
+		
 	@Override
 	public abstract void update(Observable menu, Object arg1);
 
@@ -159,15 +162,37 @@ public abstract class SMSView implements Observer, Freezable {
 		List<Object> locs = node.getList("locations");
 		for (Object o : locs) {
 			List<Object> locList = (List<Object>) o;
-			World w = MiscUtil.findWorld((String) locList.get(0));
-			Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
-			addLocation(loc);
+			String worldName = (String)locList.get(0);
+			int x = (Integer) locList.get(1);
+			int y = (Integer) locList.get(2);
+			int z = (Integer) locList.get(3);
+			try {
+				World w = MiscUtil.findWorld(worldName);
+				addLocation(new Location(w, x, y, z));
+			} catch (IllegalArgumentException e) {
+				// world not loaded? we'll defer adding this location to the view for now
+				// perhaps the world will get loaded later
+				addDeferredLocation(worldName, new Vector(x, y, z));
+			}
 		}
 		for (String k : node.getKeys(false)) {
 			if (hasAttribute(k)) {
 				setAttribute(k, node.getString(k));
 			}
 		}
+	}
+
+	private void addDeferredLocation(String worldName, Vector v) {
+		List<Vector> l = deferredLocations.get(worldName);
+		if (l == null) {
+			l = new ArrayList<Vector>();
+			deferredLocations.put(worldName, l);
+		}
+		l.add(v);
+	}
+	
+	public List<Vector> getDeferredLocations(String worldName) {
+		return deferredLocations.get(worldName);
 	}
 
 	private List<Object> freezeLocation(Location l) {

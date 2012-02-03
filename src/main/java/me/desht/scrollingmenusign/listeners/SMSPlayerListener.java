@@ -33,12 +33,6 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class SMSPlayerListener implements Listener {
-	private ScrollingMenuSign plugin;
-
-	public SMSPlayerListener(ScrollingMenuSign plugin) {
-		this.plugin = plugin;
-	}
-
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		// Ignore physical Actions
@@ -55,6 +49,8 @@ public class SMSPlayerListener implements Listener {
 		if (block == null && mapView == null) {
 			return;
 		}
+		
+		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		
 		// left or right-clicking cancels any command substitution in progress
 		if (plugin.expecter.isExpecting(player, ExpectCommandSubstitution.class)) {
@@ -152,6 +148,7 @@ public class SMSPlayerListener implements Listener {
 
 	@EventHandler(priority=EventPriority.HIGH)
 	public void onPlayerChat(PlayerChatEvent event) {
+		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		Player player = event.getPlayer();
 		if (plugin.expecter.isExpecting(player, ExpectCommandSubstitution.class)) {
 			try {
@@ -201,7 +198,8 @@ public class SMSPlayerListener implements Listener {
 		String title = MiscUtil.parseColourSpec(player, sign.getLine(2));
 		if (menuName.isEmpty())
 			return;
-
+		
+		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		SMSHandler handler = plugin.getHandler();
 		if (handler.checkMenu(menuName)) {
 			if (title.isEmpty()) {

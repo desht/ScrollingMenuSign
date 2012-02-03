@@ -2,8 +2,8 @@ package me.desht.scrollingmenusign.listeners;
 
 import java.util.logging.Level;
 
+import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -15,16 +15,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class SMSEntityListener implements Listener {
-	private ScrollingMenuSign plugin;
-	
-	public SMSEntityListener(ScrollingMenuSign plugin) {
-		this.plugin = plugin;
-	}
 	
 	@EventHandler
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
-		boolean noExplode = plugin.getConfig().getBoolean("sms.no_explosions", false);
+		boolean noExplode = SMSConfig.getConfig().getBoolean("sms.no_explosions", false);
 		for (Block b : event.blockList()) {
 			Location loc = b.getLocation();
 			SMSView view = SMSView.getViewForLocation(loc);
