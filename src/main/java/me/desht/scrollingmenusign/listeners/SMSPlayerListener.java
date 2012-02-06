@@ -157,7 +157,7 @@ public class SMSPlayerListener implements Listener {
 			if (locView == null && block.getState() instanceof Sign && player.getItemInHand().getTypeId() == 0) {
 				// No view present at this location, but a left-click could create a new sign view if the sign's
 				// text is in the right format...
-				tryToActivateSign(block, player);
+				return tryToActivateSign(block, player);
 			} else if (locView != null && player.getItemInHand().getType() == Material.MAP && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
 				// Hit an existing view with a map - the map now becomes a view on the same menu
 				tryToActivateMap(block, player);
@@ -182,17 +182,18 @@ public class SMSPlayerListener implements Listener {
 	 * 
 	 * @param b
 	 * @param player
+	 * @return true if the sign can be activated, false otherwise
 	 * @throws SMSException
 	 */
-	private void tryToActivateSign(Block b, Player player) throws SMSException {
+	private boolean tryToActivateSign(Block b, Player player) throws SMSException {
 		Sign sign = (Sign) b.getState();
 		if (!sign.getLine(0).equals("[sms]"))
-			return;
+			return false;
 
 		String menuName = sign.getLine(1);
 		String title = MiscUtil.parseColourSpec(player, sign.getLine(2));
 		if (menuName.isEmpty())
-			return;
+			return false;
 
 		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		SMSHandler handler = plugin.getHandler();
@@ -213,7 +214,7 @@ public class SMSPlayerListener implements Listener {
 			MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to new menu &e%s&-.",
 			                                             view.getName(), MiscUtil.formatLocation(b.getLocation()), menuName));
 		}
-
+		return true;
 	}
 
 	/**
