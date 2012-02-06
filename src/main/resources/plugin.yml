@@ -84,14 +84,6 @@ permissions:
       scrollingmenusign.create.elevated: true
       scrollingmenusign.create.cost: true
       scrollingmenusign.ignoreViewOwnership: true
-  scrollingmenusign.maps:
-    description: Allow use of maps (backwards compatibility - use scrollingmenusign.use.map now)
-    children:
-      scrollingmenusign.use.map: true
-  scrollingmenusign.useAnyView:
-     description: Allows views owned by others to be used (backwards compatibility - use scrollingmenusign.ignoreViewOwnership now)
-     children:
-       scrollingmenusign.ignoreViewOwnership: true
   scrollingmenusign.commands.create:
     description: Allow creation of new menus
     default: op
@@ -141,15 +133,14 @@ permissions:
     description: Allows giving of maps with a specific map ID
     default: op
   scrollingmenusign.destroy:
-    description: Allows destruction of signs belonging to a menu created by someone else
+    description: Allows destruction of views belonging to a menu created by someone else
     default: op
   scrollingmenusign.coloursigns:
     description: Allows creation of signs with coloured titles and menu items
     default: op
   scrollingmenusign.colorsigns:
     description: Synonym for scrollingmenusign.coloursigns
-    children:
-      scrollingmenusign.coloursigns: true
+    default: op
   scrollingmenusign.commands.list:
     description: Allows menus to be listed
     default: op
