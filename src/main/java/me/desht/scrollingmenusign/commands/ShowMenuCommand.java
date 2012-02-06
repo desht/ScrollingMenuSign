@@ -8,7 +8,6 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.util.MessagePager;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -40,7 +39,6 @@ public class ShowMenuCommand extends AbstractCommand {
 			}
 			if (view == null) {
 				if (player.getItemInHand().getType() == Material.MAP) {		// map
-					PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");
 					short mapId = player.getItemInHand().getDurability();
 					view = SMSMapView.getViewForId(mapId);
 				}
