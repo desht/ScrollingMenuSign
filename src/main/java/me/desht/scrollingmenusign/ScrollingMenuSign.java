@@ -297,7 +297,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 			throw new MalformedURLException("file must be non-null and not an empty string");
 		}
 		
-		return makeImageURL(SMSConfig.getConfig().getString("resource_base_url"), path);
+		return makeImageURL(SMSConfig.getConfig().getString("sms.resource_base_url"), path);
 	}
 	
 	public static URL makeImageURL(String base, String path) throws MalformedURLException {
