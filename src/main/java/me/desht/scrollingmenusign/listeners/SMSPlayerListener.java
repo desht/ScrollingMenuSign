@@ -35,95 +35,17 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class SMSPlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		// Ignore physical Actions
-		if (event.getAction() == Action.PHYSICAL) {
-			return;
-		}
-		Block block = event.getClickedBlock();
-		Player player = event.getPlayer();
-		SMSMapView mapView = null;
-		if (player.getItemInHand().getType() == Material.MAP) {
-			mapView = SMSMapView.getViewForId(player.getItemInHand().getDurability());
-		}
-		// If there is no mapView and no selected block - lets ignore the event
-		if (block == null && mapView == null) {
+		// Not interested in physical actions
+		if (event.isCancelled() || event.getAction() == Action.PHYSICAL) {
 			return;
 		}
 		
-		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
-		
-		// left or right-clicking cancels any command substitution in progress
-		if (plugin.expecter.isExpecting(player, ExpectCommandSubstitution.class)) {
-			plugin.expecter.cancelAction(player, ExpectCommandSubstitution.class);
-			MiscUtil.alertMessage(player, "&6Command execution cancelled.");
-			event.setCancelled(true);
-			return;
-		}
-
-		if (block != null && plugin.expecter.isExpecting(player, ExpectViewCreation.class)) {
-			// Handle the case where the player is creating a view interactively: left-click to create,
-			// right-click to cancel.
-			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-				try {
-					ExpectViewCreation c = (ExpectViewCreation) plugin.expecter.getAction(player, ExpectViewCreation.class);
-					c.setLocation(block.getLocation());
-					plugin.expecter.handleAction(player, c.getClass());
-				} catch (SMSException e) {
-					MiscUtil.errorMessage(player, e.getMessage());
-				}
-			} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				plugin.expecter.cancelAction(player, ExpectViewCreation.class);
-				MiscUtil.statusMessage(player, "View creation cancelled.");
-			}
-			event.setCancelled(true);
-			return;
-		}
-
-		SMSView locView = block == null ? null : SMSView.getViewForLocation(block.getLocation());
-
 		try {
-			// Only perform these actions if the block is non-null
-			if (block != null) {
-				if (locView == null && block.getState() instanceof Sign && player.getItemInHand().getTypeId() == 0) {
-					// No view present at this location, but a left-click could create a new sign view if the sign's
-					// text is in the right format...
-					tryToActivateSign(block, player); 
-					return;
-				} else if (locView != null && player.getItemInHand().getType() == Material.MAP && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
-					// Hit an existing view with a map - the map now becomes a view on the same menu
-					tryToActivateMap(block, player);
-					return;
-				} else if (player.getItemInHand().getType() == Material.MAP && block.getType() == Material.GLASS) {
-					// Hit glass with map - deactivate the map if it has a sign view on it
-					tryToDeactivateMap(block, player);
-					return;
-				} else if (mapView != null && locView == null && block.getState() instanceof Sign) {
-					// Hit a non-active sign with an active map - try to make the sign into a view
-					tryToActivateSign(block, player, mapView);
-					return;
-				} else if (locView != null) {
-					// There's a view at the targeted block, use that as the view
-					Debugger.getDebugger().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
-					SMSUserAction action = SMSUserAction.getAction(event);
-					if (action != null) {
-						action.execute(player, locView);
-					}
-					return;
-				}
-			} 
-			// Execute this if the mapView is non-null
-			if (mapView != null) {
-				// Holding an active map, use that as the view
-				Debugger.getDebugger().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
-				SMSUserAction action = SMSUserAction.getAction(event);
-				if (action != null) {
-					action.execute(player, mapView);
-				}
-			}
+			boolean cancelEvent = handleInteraction(event);
+			event.setCancelled(cancelEvent);
 		} catch (SMSException e) {
-			MiscUtil.errorMessage(player, e.getMessage());
+			MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
 		}
-
 	}
 
 	@EventHandler
@@ -181,6 +103,79 @@ public class SMSPlayerListener implements Listener {
 	}
 
 	/**
+	 * Main handler for PlayerInterfact events.
+	 * 
+	 * @param event		the event to handle
+	 * @return			true if the event has been handled and should be cancelled now, false otherwise
+	 * @throws SMSException	for any error that should be reported to the player
+	 */
+	private boolean handleInteraction(PlayerInteractEvent event) throws SMSException { 
+		Player player = event.getPlayer();
+		Block block = event.getClickedBlock();
+		SMSMapView mapView = player.getItemInHand().getType() == Material.MAP ?	SMSMapView.getViewForId(player.getItemInHand().getDurability()) : null;
+	
+		// If there is no mapView and no selected block, there's nothing for us to do
+		if (block == null && mapView == null) {
+			return false;
+		}
+	
+		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
+	
+		SMSView locView = block == null ? null : SMSView.getViewForLocation(block.getLocation());
+	
+		// left or right-clicking cancels any command substitution in progress
+		if (plugin.expecter.isExpecting(player, ExpectCommandSubstitution.class)) {
+			plugin.expecter.cancelAction(player, ExpectCommandSubstitution.class);
+			MiscUtil.alertMessage(player, "&6Command execution cancelled.");
+		} else if (plugin.expecter.isExpecting(player, ExpectViewCreation.class) && block != null) {
+			// Handle the case where the player is creating a view interactively: left-click to create,
+			// right-click to cancel.
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+				ExpectViewCreation c = (ExpectViewCreation) plugin.expecter.getAction(player, ExpectViewCreation.class);
+				c.setLocation(block.getLocation());
+				plugin.expecter.handleAction(player, c.getClass());
+			} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				plugin.expecter.cancelAction(player, ExpectViewCreation.class);
+				MiscUtil.statusMessage(player, "View creation cancelled.");
+			}
+		} else if (mapView != null) {
+			// Holding an active map view
+			Debugger.getDebugger().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
+			if (block != null & block.getType() == Material.GLASS) {
+				// Hit glass with active map - deactivate the map if it has a sign view on it
+				tryToDeactivateMap(block, player);
+			} else if (locView == null && block.getState() instanceof Sign) {
+				// Hit a non-active sign with an active map - try to make the sign into a view
+				tryToActivateSign(block, player, mapView);
+			} else {
+				SMSUserAction action = SMSUserAction.getAction(event);
+				if (action != null) {
+					action.execute(player, mapView);
+				}
+			}
+		} else if (block != null) {
+			if (locView == null && block.getState() instanceof Sign && player.getItemInHand().getTypeId() == 0) {
+				// No view present at this location, but a left-click could create a new sign view if the sign's
+				// text is in the right format...
+				tryToActivateSign(block, player);
+			} else if (locView != null && player.getItemInHand().getType() == Material.MAP && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
+				// Hit an existing view with a map - the map now becomes a view on the same menu
+				tryToActivateMap(block, player);
+			} else if (locView != null) {
+				// There's a view at the targeted block, use that as the view
+				Debugger.getDebugger().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
+				SMSUserAction action = SMSUserAction.getAction(event);
+				if (action != null) {
+					action.execute(player, locView);
+				}
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Try to activate a sign by punching it.  The sign needs to contain "[sms]"
 	 * on the first line, the menu name on the second line, and (only if a new menu
 	 * is to be created) the menu title on the third line. 
@@ -198,7 +193,7 @@ public class SMSPlayerListener implements Listener {
 		String title = MiscUtil.parseColourSpec(player, sign.getLine(2));
 		if (menuName.isEmpty())
 			return;
-		
+
 		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		SMSHandler handler = plugin.getHandler();
 		if (handler.checkMenu(menuName)) {
