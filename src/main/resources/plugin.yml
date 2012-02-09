@@ -3,7 +3,7 @@ description: Scrollable command menus with signs/maps/spout/redstone views
 author: desht
 website: http://dev.bukkit.org/server-mods/scrollingmenusign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
-version: 1.1.3
+version: 1.1.4
 softdepend: [ Spout, Vault ]
 commands:
   sms:
@@ -27,28 +27,30 @@ commands:
       /sms save [<all|menus|macros|config>]
       /sms reload [<all|menus|macros|config>]
       /sms defcmd <menu> <command>
-      /sms givemap <map-id> <quantity>
+      /sms givemap <map-id> <quantity> [<player>]
       /sms var [<name>] [<value>]
 permissions:
-  scrollingmenusign.denied:
-    description: Prevents any usage of SMS functionality
-    default: false
-    children:
-      scrollingmenusign.scroll: false
-      scrollingmenusign.execute: false
-      scrollingmenusign.execute.elevated: false
   scrollingmenusign.guest:
     description: Gives access to very basic SMS functionality (no permission elevation)
     default: false
     children:
+      scrollingmenusign.scroll: true
+      scrollingmenusign.execute: true
       scrollingmenusign.execute.elevated: false
   scrollingmenusign.user:
     description: Gives access to basic SMS functionality
     default: true
+    children:
+      scrollingmenusign.scroll: true
+      scrollingmenusign.execute: true
+      scrollingmenusign.execute.elevated: true
   scrollingmenusign.poweruser:
     description: Gives access to basic SMS functionality plus map and spout views
     default: false
     children:
+      scrollingmenusign.scroll: true
+      scrollingmenusign.execute: true
+      scrollingmenusign.execute.elevated: true
       scrollingmenusign.commands.getcfg: true
       scrollingmenusign.commands.list: true
       scrollingmenusign.commands.show: true
@@ -58,6 +60,9 @@ permissions:
     description: Gives complete access to all SMS features
     default: op
     children:
+      scrollingmenusign.scroll: true
+      scrollingmenusign.execute: true
+      scrollingmenusign.execute.elevated: true
       scrollingmenusign.use.map: true
       scrollingmenusign.use.spout: true
       scrollingmenusign.commands.create: true
@@ -70,7 +75,10 @@ permissions:
       scrollingmenusign.commands.save: true
       scrollingmenusign.commands.reload: true
       scrollingmenusign.commands.macro: true
+      scrollingmenusign.commands.getcfg: true
       scrollingmenusign.commands.setcfg: true
+      scrollingmenusign.commands.list: true
+      scrollingmenusign.commands.show: true
       scrollingmenusign.commands.debug: true
       scrollingmenusign.commands.sort: true
       scrollingmenusign.commands.defcmd: true
