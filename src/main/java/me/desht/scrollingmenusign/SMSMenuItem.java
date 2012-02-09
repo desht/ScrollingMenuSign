@@ -30,7 +30,11 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		this.uses = new SMSRemainingUses(this);
 	}
 
-	SMSMenuItem(SMSMenu menu, ConfigurationSection node) {
+	SMSMenuItem(SMSMenu menu, ConfigurationSection node) throws SMSException {
+		SMSPersistence.mustHaveField(node, "label");
+		SMSPersistence.mustHaveField(node, "command");
+		SMSPersistence.mustHaveField(node, "message");
+		
 		this.menu = menu;
 		this.label = MiscUtil.parseColourSpec(node.getString("label"));
 		this.command = node.getString("command");
