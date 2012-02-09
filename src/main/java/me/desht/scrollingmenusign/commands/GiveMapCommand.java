@@ -13,14 +13,14 @@ import org.bukkit.map.MapView;
 public class GiveMapCommand extends AbstractCommand {
 
 	public GiveMapCommand() {
-		super("sms gi", 1, 2);
+		super("sms gi", 1, 3);
 		setPermissionNode("scrollingmenusign.commands.givemap");
-		setUsage("/sms givemap <id> [<amount>]");
+		setUsage("/sms givemap <id> [<amount>] [<player>]");
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {		
 		int amount = 1;
 		if (args.length >= 2) {
 			try {
@@ -28,6 +28,12 @@ public class GiveMapCommand extends AbstractCommand {
 			} catch (NumberFormatException e) {
 				throw new SMSException("Invalid amount '" + args[1] + "'.");
 			}
+		}
+		Player targetPlayer = player;
+		if (args.length >= 3) {
+			targetPlayer = Bukkit.getPlayer(args[2]);
+		} else {
+			notFromConsole(player);
 		}
 		short mapId;
 		try {
@@ -48,12 +54,14 @@ public class GiveMapCommand extends AbstractCommand {
 		
 		ItemStack stack = new ItemStack(Material.MAP, amount);
 		stack.setDurability(mapId);
-		player.getInventory().addItem(stack);
-		player.updateInventory();
+		targetPlayer.getInventory().addItem(stack);
+		targetPlayer.updateInventory();
 		
 		String s = amount == 1 ? "" : "s";
-		MiscUtil.statusMessage(player, String.format("Created %d map%s (map_%d)", amount, s, mapId));
-		
+		MiscUtil.statusMessage(player, String.format("Gave %d map%s (map_%d) to %s", amount, s, mapId, targetPlayer.getName()));
+		if (player != targetPlayer) {
+			MiscUtil.statusMessage(targetPlayer, String.format("You received %d map%s of type &6map_%d&-", amount, s, mapId));	
+		}
 		return true;
 	}
 
