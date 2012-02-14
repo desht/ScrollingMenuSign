@@ -11,7 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 public abstract class SMSScrollableView extends SMSView {
-
+	private boolean perPlayerScrolling;
 	private boolean wrap;
 	private int lastScrollPos;
 	private final Map<String,Integer> playerScrollPos = new HashMap<String, Integer>();
@@ -24,6 +24,7 @@ public abstract class SMSScrollableView extends SMSView {
 		super(name, menu);
 		lastScrollPos = 1;
 		wrap = true;
+		perPlayerScrolling = true;
 	}
 
 	@Override
@@ -41,6 +42,14 @@ public abstract class SMSScrollableView extends SMSView {
 		this.wrap = wrap;
 	}
 	
+	public boolean isPerPlayerScrolling() {
+		return perPlayerScrolling;
+	}
+
+	public void setPerPlayerScrolling(boolean perPlayerScrolling) {
+		this.perPlayerScrolling = perPlayerScrolling;
+	}
+
 	protected void thaw(ConfigurationSection node) throws SMSException {
 		super.thaw(node);
 		lastScrollPos = node.getInt("scrollPos", 1);
@@ -86,12 +95,16 @@ public abstract class SMSScrollableView extends SMSView {
 	 * @return				The scroll position
 	 */
 	public int getScrollPos(String playerName) {
-		if (!playerScrollPos.containsKey(playerName) || playerScrollPos.get(playerName) < 1) {
-			setScrollPos(playerName, 1);
-		} else if (playerScrollPos.get(playerName) > getMenu().getItemCount())
-			setScrollPos(playerName, getMenu().getItemCount());
-		
-		return playerScrollPos.get(playerName);
+		if (perPlayerScrolling) {
+			if (!playerScrollPos.containsKey(playerName) || playerScrollPos.get(playerName) < 1) {
+				setScrollPos(playerName, 1);
+			} else if (playerScrollPos.get(playerName) > getMenu().getItemCount())
+				setScrollPos(playerName, getMenu().getItemCount());
+
+			return playerScrollPos.get(playerName);
+		} else {
+			return getLastScrollPos();
+		}
 	}
 
 	/**
@@ -113,9 +126,14 @@ public abstract class SMSScrollableView extends SMSView {
 	 * @param scrollPos		The scroll position
 	 */
 	public void setScrollPos(String playerName, int scrollPos) {
-		playerScrollPos.put(playerName, scrollPos);
-		lastScrollPos = scrollPos;
-		setDirty(playerName, true);
+		if (perPlayerScrolling) {
+			playerScrollPos.put(playerName, scrollPos);
+			lastScrollPos = scrollPos;
+			setDirty(playerName, true);
+		} else {
+			lastScrollPos = scrollPos;
+			setDirty(true);
+		}
 	}
 
 	/**

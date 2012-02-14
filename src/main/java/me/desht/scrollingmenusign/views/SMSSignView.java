@@ -18,29 +18,6 @@ import org.bukkit.block.Sign;
  *
  */
 public class SMSSignView extends SMSScrollableView {
-
-	/**
-	 * Create a new sign view object with no registered location.  A location
-	 * which contains a sign must be added with @see #addLocation(Location) before
-	 * this view is useful.
-	 * 
-	 * @param name	Unique name for this view.
-	 * @param menu	The SMSMenu object to attach this view to.
-	 */
-	public SMSSignView(String name, SMSMenu menu) {
-		super(name, menu);
-	}
-	
-	/**
-	 * Create a new sign view object.  Equivalent to calling SMSSignView(null, menu, loc)
-	 * 
-	 * @param menu	The SMSMenu object to attach this view to.
-	 * @param loc	The location of this view's sign
-	 * @throws SMSException	if the given location is not suitable for this view
-	 */
-	public SMSSignView(SMSMenu menu, Location loc) throws SMSException {
-		this(null, menu, loc);
-	}
 	
 	/**
 	 * Create a new sign view object.
@@ -53,6 +30,32 @@ public class SMSSignView extends SMSScrollableView {
 	public SMSSignView(String name, SMSMenu menu, Location loc) throws SMSException {
 		super(name, menu);
 		addLocation(loc);
+		setPerPlayerScrolling(false);
+	}
+
+	/**
+	 * Create a new sign view object with no registered location.  A location
+	 * which contains a sign must be added with @see #addLocation(Location) before
+	 * this view is useful.
+	 * 
+	 * @param name	Unique name for this view.
+	 * @param menu	The SMSMenu object to attach this view to.
+	 */
+	public SMSSignView(String name, SMSMenu menu) {
+		super(name, menu);
+		setPerPlayerScrolling(false);
+	}
+	
+	/**
+	 * Create a new sign view object.  Equivalent to calling SMSSignView(null, menu, loc).  The
+	 * view's name will be automatically generated, based on the menu name.
+	 * 
+	 * @param menu	The SMSMenu object to attach this view to.
+	 * @param loc	The location of this view's sign
+	 * @throws SMSException	if the given location is not suitable for this view
+	 */
+	public SMSSignView(SMSMenu menu, Location loc) throws SMSException {
+		this(null, menu, loc);
 	}
 
 	/* (non-Javadoc)
