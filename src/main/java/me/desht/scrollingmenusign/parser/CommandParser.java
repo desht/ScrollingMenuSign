@@ -239,7 +239,8 @@ public class CommandParser {
 			sb.append(arg).append(" ");
 		}
 		String command = sb.toString().trim();
-
+		String playerName = player == null ? "CONSOLE" : player.getName();
+		
 		if (cmd.isMacro()) {
 			// run a macro
 			runMacro(player, cmd);
@@ -255,7 +256,7 @@ public class CommandParser {
 				cmd.setLastError("You don't have permission to run this command.");
 				return;
 			}
-			Debugger.getDebugger().debug("execute (console): " + command);
+			Debugger.getDebugger().debug("Execute (console): " + command);
 			executeLowLevelCommand(Bukkit.getServer().getConsoleSender(), cmd, command);
 		} else if (cmd.isElevated()) {
 			// this is a /@ command, to be run as the real player, but with temporary permissions
@@ -268,8 +269,6 @@ public class CommandParser {
 				return;
 			}
 
-			Debugger.getDebugger().debug("execute (elevated): " + command);
-
 			boolean tempOp = false;
 			@SuppressWarnings("unchecked")
 			List<String> nodes = (List<String>) SMSConfig.getConfig().getList("sms.elevation.nodes");
@@ -277,27 +276,32 @@ public class CommandParser {
 				for (String node : nodes) {
 					if (!node.isEmpty()) {
 						ScrollingMenuSign.permission.playerAddTransient(player, node);
+						Debugger.getDebugger().debug("Added temporary permission node '" + node + "' to " + playerName);
 					}
 				}
 				if (SMSConfig.getConfig().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
 					tempOp = true;
 					player.setOp(true);
+					Debugger.getDebugger().debug("Granted temporary op to " + playerName);
 				}
+				Debugger.getDebugger().debug("Execute (elevated): " + command);
 				executeLowLevelCommand(player, cmd, command);
 			} finally {
 				// revoke all temporary permissions granted to the user
 				for (String node : nodes) {
 					if (!node.isEmpty()) {
 						ScrollingMenuSign.permission.playerRemoveTransient(player, node);
+						Debugger.getDebugger().debug("Removed temporary permission node '" + node + "' from " + player.getName());
 					}
 				}
 				if (tempOp) {
 					player.setOp(false);
+					Debugger.getDebugger().debug("Removed temporary op from " + playerName);
 				}
 			}
 		} else {
 			// just an ordinary command (possibly chat), no special privilege elevation
-			Debugger.getDebugger().debug("execute (normal): " + command);
+			Debugger.getDebugger().debug("Execute (normal): " + command);
 			executeLowLevelCommand(player, cmd, command);
 		}
 	}
