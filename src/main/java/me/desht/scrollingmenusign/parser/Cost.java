@@ -57,7 +57,7 @@ public class Cost {
 	/**
 	 * Construct a new Cost object from the given string specification.
 	 * 
-	 * @param costSpec	The specification, in the format <id>[:<data>],<quantity>
+	 * @param costSpec	The specification, in the format <i>id[:data],quantity</i>
 	 * @throws IllegalArgumentException if the specification contains an error
 	 */
 	public Cost(String costSpec) {
