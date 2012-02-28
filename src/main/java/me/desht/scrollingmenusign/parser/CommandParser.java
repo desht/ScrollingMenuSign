@@ -30,6 +30,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.google.common.base.Joiner;
+
 public class CommandParser {
 	private static Logger cmdLogger = null;
 
@@ -99,6 +101,7 @@ public class CommandParser {
 		if (pCmd != null) {
 			switch(pCmd.getStatus()) {
 			case CMD_OK:
+			case UNKNOWN:
 				break;
 			case SUBSTITUTION_NEEDED:
 				if (!ScrollingMenuSign.getInstance().isSpoutEnabled() || !SpoutUtils.showTextEntryPopup(player, pCmd.getLastError())) {
@@ -270,8 +273,7 @@ public class CommandParser {
 			}
 
 			boolean tempOp = false;
-			@SuppressWarnings("unchecked")
-			List<String> nodes = (List<String>) SMSConfig.getConfig().getList("sms.elevation.nodes");
+			List<String> nodes = SMSConfig.getConfig().getStringList("sms.elevation.nodes");
 			try {
 				for (String node : nodes) {
 					if (!node.isEmpty()) {
@@ -329,9 +331,10 @@ public class CommandParser {
 			macroHistory.add(macroName);
 			ParsedCommand cmd2 = null;
 			for (String c : SMSMacro.getCommands(macroName)) {
-				for (int i = 0; i < cmd.getArgs().size(); i++) {
-					c = c.replace("<" + (i + 1) + ">", cmd.arg(i));
+				for (int i = 0; i < cmd.getQuotedArgs().length; i++) {
+					c = c.replace("<" + i + ">", cmd.getQuotedArgs()[i]);
 				}
+				c = c.replace("<*>", Joiner.on(" ").join(cmd.getArgs()));
 				cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
 				if (cmd2.isMacroStopped())
 					break;
@@ -356,8 +359,15 @@ public class CommandParser {
 		cmd.setStatus(ReturnStatus.CMD_OK);
 		if (command.startsWith("/") && !cmd.isChat()) {
 			if (!Bukkit.getServer().dispatchCommand(sender, command.substring(1))) {
-				cmd.setStatus(ReturnStatus.CMD_FAILED);
-				cmd.setLastError("Execution of command '" + cmd.getCommand() + "' failed (unknown command?)");
+				
+				//				cmd.setStatus(ReturnStatus.CMD_FAILED);
+				//				cmd.setLastError("Execution of command '" + cmd.getCommand() + "' failed (unknown command?)");
+				
+				// It's possible the command is OK, but some plugins insist on implementing commands by hooking
+				// chat events, and dispatchCommand() does not work for those.  So we'll try running the command
+				// via player.chat().  Sadly, player.chat() doesn't tell us if the command was found or not.
+				cmd.setStatus(ReturnStatus.UNKNOWN);
+				((Player)sender).chat(command);
 			}
 		} else if (sender instanceof Player) {
 			((Player)sender).chat(MiscUtil.parseColourSpec(command));

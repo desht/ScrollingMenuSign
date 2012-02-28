@@ -45,6 +45,7 @@ public class TextEntryPopup extends GenericPopup {
 		textField = new GenericTextField();
 		textField.setX(x).setY(y + label.getHeight() + 2).setWidth(width).setHeight(20);
 		textField.setFocus(true	);
+		textField.setMaximumCharacters(0);
 		
 		Label label2 = new GenericLabel(ChatColor.GRAY + "Press Return to confirm, or Escape to cancel");
 		label2.setX(x).setY(mainScreen.getHeight() - 50).setHeight(10);
