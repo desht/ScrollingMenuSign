@@ -27,6 +27,7 @@ public class ParsedCommand {
 	private boolean console;
 	private String lastError;
 	private StringBuilder rawCommand;
+	private String[] quotedArgs;
 
 	ParsedCommand (Player player, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
@@ -111,6 +112,8 @@ public class ParsedCommand {
 			}
 		}
 		
+		quotedArgs = MiscUtil.splitQuotedString(rawCommand.toString()).toArray(new String[0]);
+
 		if (player == null && command != null && command.startsWith("/")) {
 			console = true;
 		}
@@ -132,12 +135,22 @@ public class ParsedCommand {
 	}
 
 	/**
-	 * Get the argument list for the command, split on whitespace.
+	 * Get the argument list for the command (excluding the command), split on whitespace.
 	 * 
 	 * @return	The command's arguments
 	 */
 	public List<String> getArgs() {
 		return args;
+	}
+
+	/**
+	 * Get the argument list for the command (including the command), split on quoted substrings
+	 * and/or whitespace.
+	 * 
+	 * @return
+	 */
+	public String[] getQuotedArgs() {
+		return quotedArgs;
 	}
 
 	/**
@@ -200,6 +213,11 @@ public class ParsedCommand {
 		return whisper;
 	}
 
+	/**
+	 * Check if this command is a chat string, i.e. it started with '\'
+	 * 
+	 * @return true if the command was a chat string, false otherwise
+	 */
 	public boolean isChat() {
 		return chat;
 	}

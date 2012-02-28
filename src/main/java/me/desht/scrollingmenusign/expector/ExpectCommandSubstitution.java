@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.expector;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.parser.CommandParser;
+import me.desht.scrollingmenusign.util.Debugger;
 
 import org.bukkit.entity.Player;
 
@@ -32,6 +33,7 @@ public class ExpectCommandSubstitution extends ExpectBase {
 	@Override
 	public void doResponse(Player player) throws SMSException {
 		String newCommand = command.replaceFirst("<\\$:.+?>", sub);
+		Debugger.getDebugger().debug("command substitution: sub = [" + sub + "], cmd = [" + newCommand + "]");
 		CommandParser.runCommandWrapper(player, newCommand);
 	}
 }

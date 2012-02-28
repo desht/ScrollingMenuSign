@@ -24,6 +24,7 @@ public class SpoutUtils {
 
 	public static void setSpoutMapName(short mapID, String name) {
 		new SMSSpoutMapItem(mapID).setName(name);
+//		MaterialData.getOrCreateMaterial(358, mapID).setName(name);
 	}
 
 	public static void loadKeyDefinitions() {

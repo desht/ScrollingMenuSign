@@ -217,8 +217,8 @@ public abstract class SMSView implements Observer, Freezable {
 	/**
 	 * Get the "dirty" status for this view - whether or not a repaint is needed for the given player.
 	 * 
-	 * @param playerName
-	 * @return
+	 * @param playerName	The player to check for
+	 * @return true if a repaint is needed, false otherwise
 	 */
 	public boolean isDirty(String playerName) {
 		return dirtyPlayers.containsKey(playerName) ? dirtyPlayers.get(playerName) : dirty;
@@ -239,8 +239,8 @@ public abstract class SMSView implements Observer, Freezable {
 	/**
 	 * Set the "dirty" status for this view - whether or not a repaint is needed for the given player.
 	 * 
-	 * @param playerName	The player
-	 * @param dirty			Whether or not a repaint is needed
+	 * @param playerName	The player to check for
+	 * @param dirty		Whether or not a repaint is needed
 	 */
 	public void setDirty(String playerName, boolean dirty) {
 		dirtyPlayers.put(playerName, dirty);
