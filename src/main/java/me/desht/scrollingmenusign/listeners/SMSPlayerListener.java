@@ -36,8 +36,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class SMSPlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		// Not interested in physical actions
-		if (event.isCancelled() || event.getAction() == Action.PHYSICAL) {
+		if (event.getAction() == Action.PHYSICAL) {
+			// We're not interested in physical actions (pressure plate) here
+			return;
+		}
+		if (event.isCancelled() && event.getPlayer().getItemInHand().getType() != Material.MAP) {
+			// Work around weird Bukkit behaviour where all air-click events
+			// arrive cancelled by default.
 			return;
 		}
 		
@@ -142,10 +147,10 @@ public class SMSPlayerListener implements Listener {
 		} else if (mapView != null) {
 			// Holding an active map view
 			Debugger.getDebugger().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
-			if (block != null & block.getType() == Material.GLASS) {
+			if (block != null && block.getType() == Material.GLASS) {
 				// Hit glass with active map - deactivate the map if it has a sign view on it
 				tryToDeactivateMap(block, player);
-			} else if (locView == null && block.getState() instanceof Sign) {
+			} else if (locView == null && block != null && block.getState() instanceof Sign) {
 				// Hit a non-active sign with an active map - try to make the sign into a view
 				tryToActivateSign(block, player, mapView);
 			} else {
