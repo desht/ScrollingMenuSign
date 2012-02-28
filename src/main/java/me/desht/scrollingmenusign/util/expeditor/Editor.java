@@ -124,9 +124,8 @@ public class Editor implements Listener {
 		recalcNeeded.remove(p.getName());
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEnchantItem(EnchantItemEvent event) {
-		if (event.isCancelled()) return;
 		recalcNeeded.add(event.getEnchanter().getName());
 	}
 
