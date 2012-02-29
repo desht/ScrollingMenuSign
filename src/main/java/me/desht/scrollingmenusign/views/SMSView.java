@@ -37,7 +37,7 @@ import org.bukkit.util.Vector;
  */
 public abstract class SMSView implements Observer, Freezable {
 	// view attributes
-	protected static final String OWNER = "owner";
+	public static final String OWNER = "owner";
 	
 	// map view name to view object for registered views
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
@@ -46,12 +46,13 @@ public abstract class SMSView implements Observer, Freezable {
 	// track the number we append to each new view name
 	private static final Map<String,Integer> viewIdx = new HashMap<String, Integer>();
 
-	private SMSMenu menu;
+	private final SMSMenu menu;
 	private final Set<Location> locations = new HashSet<Location>();
-	private String name;
+	private final String name;
+	private final Configuration attributes;	// view attributes to be displayed and/or edited by players
+	
 	private boolean autosave;
 	private boolean dirty;
-	private Configuration attributes;	// view attributes to be displayed and/or edited by players
 	private int maxLocations;
 	// we can't use a Set here, since there are three possible values: 1) dirty, 2) clean, 3) unknown
 	private final Map<String,Boolean> dirtyPlayers = new HashMap<String,Boolean>();

@@ -5,36 +5,19 @@ import java.util.Map;
 import org.bukkit.configuration.ConfigurationSection;
 
 public class SMSRemainingUses {
-	
-	
 	private static final String globalMax = "&GLOBAL";
 	private static final String global = "&GLOBALREMAINING";
 	private static final String perPlayerMax = "&PERPLAYER";
-	
-	private SMSMenuItem item = null;
-	private SMSMenu menu = null;
-	
+
+	private final UseLimitable attachedTo;
 	private final Map<String,Integer> uses = new HashMap<String, Integer>();
 
-	SMSRemainingUses(SMSMenuItem item) {
-		this.item = item;
-	}
-	
-	SMSRemainingUses(SMSMenuItem item, ConfigurationSection node) {
-		this.item = item;
-		if (node == null)
-			return;
-		for (String key : node.getKeys(false)) {
-			uses.put(key, node.getInt(key, 0));
-		}
+	SMSRemainingUses(UseLimitable lim) {
+		this.attachedTo = lim;
 	}
 
-	SMSRemainingUses(SMSMenu menu) {
-		this.menu = menu;
-	}
-	
-	SMSRemainingUses(SMSMenu menu, ConfigurationSection node) {
-		this.menu = menu;
+	SMSRemainingUses(UseLimitable lim, ConfigurationSection node) {
+		this.attachedTo = lim;
 		if (node == null)
 			return;
 		for (String key : node.getKeys(false)) {
@@ -51,7 +34,7 @@ public class SMSRemainingUses {
 	public boolean hasLimitedUses(String player) {
 		return uses.containsKey(globalMax) || uses.containsKey(perPlayerMax);
 	}
-	
+
 	/**
 	 * Return the remaining uses for the player.
 	 * 
@@ -62,12 +45,12 @@ public class SMSRemainingUses {
 		if (uses.containsKey(globalMax)) {
 			return uses.get(global);
 		} else if (uses.containsKey(perPlayerMax)) {
-			return uses.containsKey(player) ?  uses.get(player) : uses.get(perPlayerMax);
+			return uses.containsKey(player) ? uses.get(player) : uses.get(perPlayerMax);
 		} else {
 			return Integer.MAX_VALUE;
 		}
 	}
-	
+
 	/**
 	 * Clear all usage limits for this item, for all players.
 	 */
@@ -75,7 +58,7 @@ public class SMSRemainingUses {
 		uses.clear();
 		autosave();
 	}
-	
+
 	/**
 	 * Clear usage limits for the given player.
 	 * 
@@ -85,7 +68,7 @@ public class SMSRemainingUses {
 		uses.remove(player);
 		autosave();
 	}
-	
+
 	/**
 	 * Set the usage limits per player.  This is the total number of times an item/menu can be
 	 * used by each player.
@@ -97,7 +80,7 @@ public class SMSRemainingUses {
 		uses.put(perPlayerMax, useCount);
 		autosave();
 	}
-	
+
 	/**
 	 * Set the global usage limit.  This is the total number of times an item/menu can be
 	 * used by any player.
@@ -128,13 +111,9 @@ public class SMSRemainingUses {
 	}
 
 	private void autosave() {
-		if (item != null) {
-			item.autosave();
-		} else if (menu != null) {
-			menu.autosave();
-		}
+		attachedTo.autosave();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -148,7 +127,7 @@ public class SMSRemainingUses {
 			return "";
 		}
 	}
-	
+
 	/**
 	 * Return a formatted description of the total and remaining usage for the given player.
 	 * 
@@ -164,37 +143,16 @@ public class SMSRemainingUses {
 			return "";
 		}
 	}
-	
-	OwningEntity getOwningObject() {
-		if (menu != null)
-			return OwningEntity.Menu;
-		else if (item != null) 
-			return OwningEntity.MenuItem;
-		else
-			return OwningEntity.Unknown;
-	}
-	
+
 	private void decrementUses(String who) {
 		uses.put(who, uses.get(who) - 1);
 	}
-	
+
 	Map<String, Integer> freeze() {
 		return uses;
 	}
-	
-	enum OwningEntity {
-		Menu("menu"),
-		MenuItem("menu item"),
-		Unknown("???");
-		String text;
-		
-		private OwningEntity(String text) {
-			this.text = text;
-		}
-		
-		@Override
-		public String toString() {
-			return text;
-		}
+
+	String getDescription() {
+		return attachedTo.getDescription();
 	}
 }

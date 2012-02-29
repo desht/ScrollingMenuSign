@@ -22,13 +22,14 @@ public class SpoutViewPopup extends GenericPopup {
 	private static final int TITLE_HEIGHT = 15;
 	private static final int TITLE_WIDTH = 100;
 
-	private SpoutPlayer sp;
-	private SMSSpoutView view;
-	private boolean poppedUp;
-	private Label title;
+	private final SpoutPlayer sp;
+	private final SMSSpoutView view;
+	private final Label title;
+	private final SMSListWidget listWidget;
+	
 	private Texture texture;
-	private SMSListWidget listWidget;
-
+	private boolean poppedUp;
+	
 	public SpoutViewPopup(SpoutPlayer sp, SMSSpoutView view) {
 		this.sp = sp;
 		this.view = view;

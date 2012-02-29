@@ -23,11 +23,12 @@ import org.bukkit.material.Attachable;
 
 public class SMSRedstoneView extends SMSView {
 
-	private static final String POWERTOGGLE = "powertoggle";
-	private static final String POWEROFF = "poweroff";
-	private static final String POWERON = "poweron";
-	private static final String PLAYERRADIUS = "playerradius";
-	private static final String AFFECTONLYNEAREST = "affectonlynearest";
+	// attributes
+	public static final String POWERTOGGLE = "powertoggle";
+	public static final String POWEROFF = "poweroff";
+	public static final String POWERON = "poweron";
+	public static final String PLAYERRADIUS = "playerradius";
+	public static final String AFFECTONLYNEAREST = "affectonlynearest";
 
 	private final Map<Location,Boolean> powered = new HashMap<Location, Boolean>();
 

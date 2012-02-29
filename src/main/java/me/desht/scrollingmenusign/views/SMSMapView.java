@@ -18,7 +18,9 @@ import java.util.logging.Level;
 import javax.imageio.ImageIO;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MapPalette;
@@ -48,15 +50,16 @@ public class SMSMapView extends SMSScrollableView {
 
 	private static final String CACHED_FILE_FORMAT = "png";
 
+	// attributes
 	public static final String IMAGE_FILE = "imagefile";
 
 	private MapView mapView = null;
-	private SMSMapRenderer mapRenderer = null;
+	private final SMSMapRenderer mapRenderer;
 	private MapFont mapFont = MinecraftFont.Font;
 	private int x, y;
 	private int width, height;
 	private int lineSpacing;
-	private List<MapRenderer> previousRenderers = new ArrayList<MapRenderer>();
+	private final List<MapRenderer> previousRenderers = new ArrayList<MapRenderer>();
 	private BufferedImage image = null;
 
 	private static Map<Short,SMSMapView> allMapViews = new HashMap<Short, SMSMapView>();
@@ -403,6 +406,20 @@ public class SMSMapView extends SMSScrollableView {
 		return mapView;		
 	}
 
+	/**
+	 * Convenience routine.  Get the map view that the player is holding, if any.
+	 * 
+	 * @param player	The player to check for
+	 * @return			A SMSMapView object if the player is holding one, null otherwise
+	 */
+	public static SMSMapView getHeldMapView(Player player) {
+		if (player.getItemInHand().getType() == Material.MAP) {
+			return getViewForId(player.getItemInHand().getDurability());
+		} else {
+			return null;
+		}
+	}
+	
 	@Override
 	public String getType() {
 		return "map";

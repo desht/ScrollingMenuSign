@@ -13,7 +13,7 @@ import me.desht.scrollingmenusign.util.MiscUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-public class SMSMenuItem implements Comparable<SMSMenuItem> {
+public class SMSMenuItem implements Comparable<SMSMenuItem>, UseLimitable {
 	private final String label;
 	private final String command;
 	private final String message;
@@ -154,7 +154,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 	private void checkRemainingUses(SMSRemainingUses uses, Player player) throws SMSException {
 		String name = player.getName();
 		if (uses.hasLimitedUses(name)) {
-			String what = uses.getOwningObject().toString();
+			String what = uses.getDescription();
 			if (uses.getRemainingUses(name) == 0) {
 				throw new SMSException("You can't use that " + what + " anymore.");
 			}
@@ -307,8 +307,13 @@ public class SMSMenuItem implements Comparable<SMSMenuItem> {
 		return map;
 	}
 
-	void autosave() {
+	public void autosave() {
 		if (menu != null)
 			menu.autosave();
+	}
+
+	@Override
+	public String getDescription() {
+		return "menu item";
 	}
 }

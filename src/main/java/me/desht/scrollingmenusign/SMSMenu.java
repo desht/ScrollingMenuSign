@@ -27,7 +27,7 @@ import org.bukkit.entity.Player;
  * @author des
  *
  */
-public class SMSMenu extends Observable implements Freezable {
+public class SMSMenu extends Observable implements Freezable, UseLimitable {
 	private String name;
 	private String title;
 	private String owner;
@@ -76,7 +76,7 @@ public class SMSMenu extends Observable implements Freezable {
 	/**
 	 * Construct a new menu from data read from the save file
 	 * 
-	 * @param node 		A Bukkit ConfigurationNode containg the menu's properties
+	 * @param node 		A ConfigurationSection containing the menu's properties
 	 * @throws SMSException If there is already a menu at this location
 	 */
 	@SuppressWarnings("unchecked")
@@ -362,7 +362,7 @@ public class SMSMenu extends Observable implements Freezable {
 		try {
 			index = Integer.parseInt(wanted);
 		} catch (NumberFormatException e) {
-			// not an integer - try to remove by label
+			// not an integer - try to find it by label
 			String wantedClean = MiscUtil.deColourise(wanted);
 			for (int i = 0; i < items.size(); i++) {
 				String label = MiscUtil.deColourise(items.get(i).getLabel());
@@ -536,7 +536,7 @@ public class SMSMenu extends Observable implements Freezable {
 		}
 	}
 
-	void autosave() {
+	public void autosave() {
 		// we only save menus which have been registered via SMSMenu.addMenu()
 		if (autosave && SMSMenu.checkForMenu(getName()))
 			SMSPersistence.save(this);
@@ -716,4 +716,10 @@ public class SMSMenu extends Observable implements Freezable {
 	public File getSaveFolder() {
 		return SMSConfig.getMenusFolder();
 	}
+
+	@Override
+	public String getDescription() {
+		return "menu";
+	}
+
 }

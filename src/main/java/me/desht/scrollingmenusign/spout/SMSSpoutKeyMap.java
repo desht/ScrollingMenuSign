@@ -11,7 +11,7 @@ import org.getspout.spoutapi.keyboard.Keyboard;
 import com.google.common.base.Joiner;
 
 public class SMSSpoutKeyMap implements ConfigurationSerializable {
-	private Set<Keyboard> keys;
+	private final Set<Keyboard> keys;
 
 	public SMSSpoutKeyMap(String definition) {
 		keys = new HashSet<Keyboard>();

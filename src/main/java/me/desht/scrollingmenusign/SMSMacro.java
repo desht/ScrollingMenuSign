@@ -18,8 +18,8 @@ public class SMSMacro implements Freezable {
 	//	private static Configuration cmdSet;
 	private final static Map<String, SMSMacro> allMacros = new HashMap<String, SMSMacro>();
 
-	private String macroName;
-	private List<String> macroDefinition;
+	private final String macroName;
+	private final List<String> macroDefinition;
 
 	/**
 	 * Create a new macro object.

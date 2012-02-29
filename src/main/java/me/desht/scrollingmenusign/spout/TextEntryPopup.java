@@ -27,9 +27,9 @@ public class TextEntryPopup extends GenericPopup {
 	
 	private static final String labelColour = ChatColor.YELLOW.toString();
 	
-	private SpoutPlayer sp;
-	private Label label;
-	private TextField textField;
+	private final SpoutPlayer sp;
+	private final Label label;
+	private final TextField textField;
 	
 	public TextEntryPopup(SpoutPlayer sp, String prompt) {
 		this.sp = sp;

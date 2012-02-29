@@ -210,7 +210,7 @@ public class SMSSpoutView extends SMSScrollableView {
 			try {
 				new Color(newVal);
 			} catch (NumberFormatException e) {
-				err = "Invalid value for background (must be RRGGBB hex string, e.g. fffff for white)";
+				err = "Invalid value for background (must be RRGGBB hex string, e.g. ffffff for white)";
 			}
 		}
 		if (err != null) {

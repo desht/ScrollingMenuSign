@@ -49,7 +49,7 @@ public class SMSSpoutKeyListener implements Listener {
 			return;
 
 		try {
-			// is there substituion textfield up?
+			// is there substitution textfield up?
 			if (TextEntryPopup.isPoppedUp(player)) {
 				TextEntryPopup.handleKeypress(player, event.getKey());
 				return;

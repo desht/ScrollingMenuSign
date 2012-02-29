@@ -40,7 +40,7 @@ public class SMSPlayerListener implements Listener {
 			// We're not interested in physical actions (pressure plate) here
 			return;
 		}
-		if (event.isCancelled() && event.getPlayer().getItemInHand().getType() != Material.MAP) {
+		if (event.isCancelled() && SMSMapView.getHeldMapView(event.getPlayer()) == null) {
 			// Work around weird Bukkit behaviour where all air-click events
 			// arrive cancelled by default.
 			return;
@@ -118,7 +118,7 @@ public class SMSPlayerListener implements Listener {
 	private boolean handleInteraction(PlayerInteractEvent event) throws SMSException { 
 		Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
-		SMSMapView mapView = player.getItemInHand().getType() == Material.MAP ?	SMSMapView.getViewForId(player.getItemInHand().getDurability()) : null;
+		SMSMapView mapView = SMSMapView.getHeldMapView(player);
 	
 		// If there is no mapView and no selected block, there's nothing for us to do
 		if (block == null && mapView == null) {

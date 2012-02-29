@@ -21,8 +21,9 @@ import org.getspout.spoutapi.player.SpoutPlayer;
 public class SMSListWidget extends GenericListWidget {
 	private static final float THRESHOLD = 129;
 	
-	private SMSSpoutView view;
-	private SpoutPlayer sp;
+	private final SMSSpoutView view;
+	private final SpoutPlayer sp;
+	
 	private String defaultTextColor = ChatColor.BLACK.toString();
 	private boolean ignoreNextSelection;
 

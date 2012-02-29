@@ -22,6 +22,7 @@ public class ItemUseCommand extends AbstractCommand {
 				"/sms uses <menu> <count> [global]",
 				"/sms uses <menu> clear",
 		});
+		setQuotedArgs(true);
 	}
 
 	@Override
@@ -44,10 +45,10 @@ public class ItemUseCommand extends AbstractCommand {
 		if (a.size() == 3) {
 			// dealing with an item
 			int idx = menu.indexOfItem(a.get(1));
-			if (idx <= 0) {
+			SMSMenuItem item = menu.getItemAt(idx);
+			if (item == null) {
 				throw new SMSException("Unknown menu item: " + a.get(1));
 			}
-			SMSMenuItem item = menu.getItemAt(idx);
 			if (isClearing) {
 				item.getUseLimits().clearUses();
 				MiscUtil.statusMessage(player, "Unset all usage limits for item &e" + item.getLabel());
