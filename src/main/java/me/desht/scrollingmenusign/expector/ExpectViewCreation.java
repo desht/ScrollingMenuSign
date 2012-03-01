@@ -7,12 +7,10 @@ import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class ExpectViewCreation extends ExpectBase {
+public class ExpectViewCreation extends ExpectLocation {
 	private SMSMenu menu;
-	private Location loc;
 	private String arg;
 
 	public ExpectViewCreation(SMSMenu menu, String arg) {
@@ -20,22 +18,14 @@ public class ExpectViewCreation extends ExpectBase {
 		this.arg = arg;
 	}
 
-	public Location getLoc() {
-		return loc;
-	}
-
-	public void setLocation(Location loc) {
-		this.loc = loc;
-	}
-
 	@Override
 	public void doResponse(Player p) throws SMSException {
 		SMSView view = null;
 		
 		if (arg.equals("-sign")) {
-			view = SMSSignView.addSignToMenu(menu, getLoc());
+			view = SMSSignView.addSignToMenu(menu, getLocation());
 		} else if (arg.equals("-redstone")) {
-			view = SMSRedstoneView.addRedstoneViewToMenu(menu, getLoc()); 
+			view = SMSRedstoneView.addRedstoneViewToMenu(menu, getLocation()); 
 		}
 
 		if (view != null) 

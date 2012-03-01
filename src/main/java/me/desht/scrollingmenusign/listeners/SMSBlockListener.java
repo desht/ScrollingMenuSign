@@ -7,9 +7,11 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.redout.Switch;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,7 +26,7 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 
 public class SMSBlockListener implements Listener {
-	
+
 	@EventHandler
 	public void onBlockDamage(BlockDamageEvent event) {
 		if (event.isCancelled())
@@ -55,16 +57,17 @@ public class SMSBlockListener implements Listener {
 		Player p = event.getPlayer();
 		Location loc = b.getLocation();
 
+		if (SMSMapView.getHeldMapView(p) != null) {
+			// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
+			event.setCancelled(true);
+			return;
+		}
+
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
 			Debugger.getDebugger().debug("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
 			if (SMSConfig.getConfig().getBoolean("sms.no_destroy_signs", false)) {
 				event.setCancelled(true);
-			} else if (p.getItemInHand().getType() == Material.MAP) {
-				if (SMSMapView.getViewForId(p.getItemInHand().getDurability()) != null) {
-					// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
-					event.setCancelled(true);
-				}
 			} else {
 				view.removeLocation(loc);
 				if (view.getLocations().size() == 0) {
@@ -74,6 +77,12 @@ public class SMSBlockListener implements Listener {
 				                                        b.getType().toString(), MiscUtil.formatLocation(loc),
 				                                        view.getName(), view.getMenu().getName()));
 			}
+		} else if (Switch.getSwitchAt(loc) != null) {
+			Switch sw = Switch.getSwitchAt(loc);
+			sw.delete();
+			MiscUtil.statusMessage(p, String.format("%s output @ &f%s&- was removed from view &e%s / %s.",
+			                                        sw.getSwitchType(), MiscUtil.formatLocation(loc),
+			                                        sw.getView().getName(), sw.getTrigger()));
 		}
 	}
 

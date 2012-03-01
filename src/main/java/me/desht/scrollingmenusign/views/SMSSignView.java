@@ -16,8 +16,9 @@ import org.bukkit.block.Sign;
 /**
  * @author des
  *
+ * This view draws menus on signs.
  */
-public class SMSSignView extends SMSScrollableView {
+public class SMSSignView extends SMSGlobalScrollableView {
 	
 	/**
 	 * Create a new sign view object.
@@ -30,7 +31,6 @@ public class SMSSignView extends SMSScrollableView {
 	public SMSSignView(String name, SMSMenu menu, Location loc) throws SMSException {
 		super(name, menu);
 		addLocation(loc);
-		setPerPlayerScrolling(false);
 	}
 
 	/**
@@ -43,7 +43,6 @@ public class SMSSignView extends SMSScrollableView {
 	 */
 	public SMSSignView(String name, SMSMenu menu) {
 		super(name, menu);
-		setPerPlayerScrolling(false);
 	}
 	
 	/**
@@ -90,7 +89,6 @@ public class SMSSignView extends SMSScrollableView {
 		sign.update();
 		setDirty(false);
 	}
-
 
 	private String[] buildSignText(int scrollPos) {
 		String[] res = new String[4];
