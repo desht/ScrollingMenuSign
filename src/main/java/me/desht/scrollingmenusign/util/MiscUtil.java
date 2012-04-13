@@ -75,7 +75,7 @@ public class MiscUtil {
 	}
 
 	public static String parseColourSpec(String spec) {
-		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7"); 
+		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-Fk-oK-OrR])", "\u00A7"); 
 		return res.replace("&-", prevColour).replace("&&", "&");
 	}
 
