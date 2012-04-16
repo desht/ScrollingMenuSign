@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.redout.Switch;
 
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -34,5 +35,8 @@ public class SMSWorldListener implements Listener {
 			}
 			l.clear();
 		}
+		
+		// also load any switches for the world
+		Switch.loadDeferred(event.getWorld().getName());
 	}
 }

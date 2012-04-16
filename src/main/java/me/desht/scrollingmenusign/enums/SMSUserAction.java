@@ -98,11 +98,13 @@ public enum SMSUserAction {
 			PermissionsUtils.requirePerms(player, "scrollingmenusign.scroll");
 			sview.scrollDown(player.getName());
 			sview.update(menu, SMSMenuAction.SCROLLED);
+			sview.onScrolled(player, SCROLLDOWN);
 			break;
 		case SCROLLUP:
 			PermissionsUtils.requirePerms(player, "scrollingmenusign.scroll");
 			sview.scrollUp(player.getName());
 			sview.update(menu, SMSMenuAction.SCROLLED);
+			sview.onScrolled(player, SCROLLDOWN);
 			break;
 		}
 	}

@@ -9,15 +9,18 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
+import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MessagePager;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.redout.Switch;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -56,8 +59,16 @@ public class SMSPlayerListener implements Listener {
 
 	@EventHandler
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
+		Player player = event.getPlayer();
+		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
+		
+		if (plugin.expecter.isExpecting(player, ExpectSwitchAddition.class)) {
+			plugin.expecter.cancelAction(player, ExpectSwitchAddition.class);
+			MiscUtil.statusMessage(player, "&6Switch placement cancelled.");
+			return;
+		}
+		
 		try {
-			Player player = event.getPlayer();
 			Block block = player.getTargetBlock(null, 3);
 			SMSView view = SMSView.getViewForLocation(block.getLocation());
 			if (view == null)
@@ -142,7 +153,17 @@ public class SMSPlayerListener implements Listener {
 				plugin.expecter.handleAction(player, c.getClass());
 			} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				plugin.expecter.cancelAction(player, ExpectViewCreation.class);
-				MiscUtil.statusMessage(player, "View creation cancelled.");
+				MiscUtil.statusMessage(player, "&6View creation cancelled.");
+			}
+		} else if (plugin.expecter.isExpecting(player, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block) ) {
+			ExpectSwitchAddition swa = (ExpectSwitchAddition) plugin.expecter.getAction(player, ExpectSwitchAddition.class);
+			Switch sw = Switch.getSwitchAt(block.getLocation());
+			if (sw == null) {
+				swa.setLocation(event.getClickedBlock().getLocation());
+				plugin.expecter.handleAction(player, ExpectSwitchAddition.class);
+			} else {
+				MiscUtil.statusMessage(player, String.format("&6Lever is an output switch already (&e%s / %s&-).",
+				                                             sw.getView().getName(), sw.getTrigger()));
 			}
 		} else if (mapView != null) {
 			// Holding an active map view
@@ -167,6 +188,9 @@ public class SMSPlayerListener implements Listener {
 			} else if (locView != null && player.getItemInHand().getType() == Material.MAP && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
 				// Hit an existing view with a map - the map now becomes a view on the same menu
 				tryToActivateMap(block, player);
+			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK && isHittingViewWithSwitch(player, locView)) {
+				// Hit a globally scrollable view with a button or lever - adding it as a redstone output
+				tryToAddRedstoneOutput((SMSGlobalScrollableView) locView, player);
 			} else if (locView != null && locView instanceof SMSScrollableView) {
 				// There's an interactable view at the targeted block
 				Debugger.getDebugger().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
@@ -282,6 +306,33 @@ public class SMSPlayerListener implements Listener {
 
 		MiscUtil.statusMessage(player, String.format("Added new map view &e%s&- to menu &e%s&-.",
 		                                             mapView.getName(), mapView.getMenu().getName()));
+	}
+
+	private void tryToAddRedstoneOutput(SMSGlobalScrollableView locView, Player player) {
+		String trigger = locView.getMenu().getItemAt(locView.getLastScrollPos()).getLabel();
+		
+		MiscUtil.statusMessage(player, "Place your lever or hit an existing lever to add it as a");
+		MiscUtil.statusMessage(player, String.format("  redstone output on view &e%s&- / &e%s&-.",
+		                                             locView.getName(), trigger));
+		MiscUtil.statusMessage(player, "Change your held item to cancel.");
+		
+		ScrollingMenuSign.getInstance().expecter.expectingResponse(player, new ExpectSwitchAddition(locView, trigger));
+	}
+
+	private boolean isHittingViewWithSwitch(Player player, SMSView locView) {
+		if (!(locView instanceof SMSGlobalScrollableView))
+			return false;
+		
+		return player.getItemInHand().getType() == Material.LEVER;
+	}
+
+	private boolean isHittingLeverWithSwitch(Player player, Block block) {
+		if (block == null || block.getType() != Material.LEVER) 
+			return false;
+		if (player.getItemInHand().getType() != Material.LEVER)
+			return false;
+		
+		return true;
 	}
 
 }

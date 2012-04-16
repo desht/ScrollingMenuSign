@@ -21,6 +21,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.Location;
@@ -160,7 +161,7 @@ public abstract class SMSView implements Observer, Freezable {
 
 	@SuppressWarnings("unchecked")
 	protected void thaw(ConfigurationSection node) throws SMSException {
-		List<Object> locs = node.getList("locations");
+		List<Object> locs = (List<Object>) node.getList("locations");
 		for (Object o : locs) {
 			List<Object> locList = (List<Object>) o;
 			String worldName = (String)locList.get(0);
@@ -614,6 +615,16 @@ public abstract class SMSView implements Observer, Freezable {
 		// does nothing
 	}
 	
+	/**
+	 * Called automatically when the view is scrolled.  Override and extend this
+	 * in subclasses.
+	 * 
+	 * @param player	The player who did the scrolling
+	 * @param action	The scroll direction: SCROLLDOWN or SCROLLUP
+	 */
+	public void onScrolled(Player player, SMSUserAction action) {
+		// does nothing
+	}
 	
 	/**
 	 * Called automatically when a player logs out.  Call the clearPlayerForView() method on all

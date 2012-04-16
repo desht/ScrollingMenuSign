@@ -3,18 +3,19 @@ package me.desht.scrollingmenusign.listeners;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSConfig;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
-import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.material.Attachable;
 import org.bukkit.entity.Player;
@@ -23,15 +24,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 
 public class SMSBlockListener implements Listener {
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockDamage(BlockDamageEvent event) {
-		if (event.isCancelled())
-			return;
-
 		Block b = event.getBlock();
 		Location loc = b.getLocation();
 		SMSView view = SMSView.getViewForLocation(loc);
@@ -48,11 +47,8 @@ public class SMSBlockListener implements Listener {
 		event.setCancelled(true);
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (event.isCancelled())
-			return;
-
 		Block b = event.getBlock();
 		Player p = event.getPlayer();
 		Location loc = b.getLocation();
@@ -80,17 +76,14 @@ public class SMSBlockListener implements Listener {
 		} else if (Switch.getSwitchAt(loc) != null) {
 			Switch sw = Switch.getSwitchAt(loc);
 			sw.delete();
-			MiscUtil.statusMessage(p, String.format("%s output @ &f%s&- was removed from view &e%s / %s.",
-			                                        sw.getSwitchType(), MiscUtil.formatLocation(loc),
+			MiscUtil.statusMessage(p, String.format("Output switch @ &f%s&- was removed from view &e%s / %s.",
+			                                        MiscUtil.formatLocation(loc),
 			                                        sw.getView().getName(), sw.getTrigger()));
 		}
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
-		if (event.isCancelled())
-			return;
-
 		Block b = event.getBlock();
 		Location loc = b.getLocation();
 
@@ -111,6 +104,21 @@ public class SMSBlockListener implements Listener {
 		}
 	}
 
+	@EventHandler(ignoreCancelled = true)
+	public void onBlockPlace(BlockPlaceEvent event) {
+		Player p = event.getPlayer();
+		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
+		if (plugin.expecter.isExpecting(p, ExpectSwitchAddition.class)) {
+			ExpectSwitchAddition swa = (ExpectSwitchAddition) plugin.expecter.getAction(p, ExpectSwitchAddition.class);
+			swa.setLocation(event.getBlock().getLocation());
+			try {
+				plugin.expecter.handleAction(p, ExpectSwitchAddition.class);
+			} catch (SMSException e) {
+				MiscUtil.errorMessage(p, e.getMessage());
+			}
+		}
+	}
+	
 	@EventHandler
 	public void onBlockRedstoneChange(BlockRedstoneEvent event) {
 		SMSRedstoneView.processRedstoneEvent(event);

@@ -1,16 +1,16 @@
 package me.desht.scrollingmenusign.views;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.entity.Player;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
 /**
@@ -23,8 +23,11 @@ import me.desht.scrollingmenusign.views.redout.Switch;
  * the selected item in this view.
  */
 public abstract class SMSGlobalScrollableView extends SMSScrollableView {
-	private Set<Switch> switches;
-	
+
+	private final Set<Switch> switches = new HashSet<Switch>();
+
+	public final String RS_OUTPUT_MODE = "rsoutputmode";
+
 	public SMSGlobalScrollableView(SMSMenu menu) {
 		this(null, menu);
 	}
@@ -32,48 +35,95 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public SMSGlobalScrollableView(String name, SMSMenu menu) {
 		super(name, menu);
 		setPerPlayerScrolling(false);
+		registerAttribute(RS_OUTPUT_MODE, "selected");
 	}
-	
+
 	public void addSwitch(Switch sw) {
 		switches.add(sw);
+		autosave();
 	}
-	
+
 	public void removeSwitch(Switch sw) {
 		switches.remove(sw);
+		autosave();
 	}
-	
+
 	public void updateSwitchPower() {
-		String selected = getMenu().getItemAt(getLastScrollPos()).getLabel();
-		
+		String selectedItem = getMenu().getItemAt(getLastScrollPos()).getLabel();
+
 		for (Switch sw : switches) {
-			sw.setPowered(sw.getTrigger().equals(selected));
+			sw.setPowered(sw.getTrigger().equals(selectedItem));
 		}
 	}
-	
+
+	public void toggleSwitchPower() {
+		String selectedItem = getMenu().getItemAt(getLastScrollPos()).getLabel();
+		for (Switch sw : switches) {
+			if (sw.getTrigger().equals(selectedItem)) {
+				sw.setPowered(!sw.getPowered());
+			}
+		}
+	}
+
+	public Set<Switch> getSwitches() {
+		return switches;
+	}
+
 	@Override
 	public Map<String,Object> freeze() {
 		Map<String, Object> map = super.freeze();
-		
-		List<Map<String,Object>> l = new ArrayList<Map<String,Object>>();
+
+		Map<String,Map<String,Object>> l = new HashMap<String, Map<String,Object>>();
 		for (Switch sw : switches) {
-			l.add(sw.freeze());
+			l.put(sw.getName(), sw.freeze());
 		}
 		map.put("switches", l);
-		
+
 		return map;
 	}
-	
+
 	@Override
 	protected void thaw(ConfigurationSection node) throws SMSException {
 		super.thaw(node);
-		
-		List<Map<String,Object>> l = node.getMapList("switches");
-		for (Map<String,Object> m : l) {
-			MemoryConfiguration conf = new MemoryConfiguration();
-			for (Entry<String,Object> e : m.entrySet()) {
-				conf.set(e.getKey(), e.getValue());
+
+		ConfigurationSection sw = node.getConfigurationSection("switches");
+		if (sw == null) {
+			return;
+		}
+		for (String k : sw.getKeys(false)) {
+			ConfigurationSection conf = node.getConfigurationSection("switches." + k);
+			try {
+				new Switch(this, conf);
+			} catch (IllegalArgumentException e) {
+				Switch.deferLoading(this, conf);
 			}
-			addSwitch(new Switch(this, conf));
+		}
+	}
+
+	@Override
+	public void onScrolled(Player player, SMSUserAction action) {
+		super.onScrolled(player, action);
+
+		if (getAttributeAsString(RS_OUTPUT_MODE).equalsIgnoreCase("selected")) {
+			updateSwitchPower();
+		}
+	}
+	
+	@Override
+	public void onExecuted(Player player) {
+		super.onExecuted(player);
+		
+		if (getAttributeAsString(RS_OUTPUT_MODE).equalsIgnoreCase("toggle")) {
+			toggleSwitchPower();
+		}
+	}
+
+	@Override
+	protected void onAttributeValidate(String attribute, String curVal, String newVal) throws SMSException {
+		if (attribute.equalsIgnoreCase(RS_OUTPUT_MODE)) {
+			if (!newVal.equalsIgnoreCase("toggle") && !newVal.equalsIgnoreCase("selected")) {
+				throw new SMSException("Accepted values are 'selected' and 'toggle'.");
+			}
 		}
 	}
 }
