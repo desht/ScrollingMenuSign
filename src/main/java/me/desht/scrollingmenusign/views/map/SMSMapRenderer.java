@@ -124,6 +124,7 @@ public class SMSMapRenderer extends MapRenderer {
 			throw new IllegalArgumentException("text contains invalid characters");
 		}
 
+		System.out.println("draw text: " + text);
 		for (int i = 0; i < text.length(); i++) {
 			char ch = text.charAt(i);
 			if (ch == '\n') {
@@ -134,11 +135,16 @@ public class SMSMapRenderer extends MapRenderer {
 				i++;
 				if (i >= text.length())
 					break;
-				byte mcColor = Byte.parseByte(text.substring(i, i + 1), 16);
-				color = convertMcToPalette(mcColor);
-				i++;
+				Character c = text.charAt(i);
+				if (c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F') {
+					byte mcColor = Byte.parseByte(c.toString(), 16);
+					color = convertMcToPalette(mcColor);
+				}
+				// TODO: support for MC 1.2+ escape codes: bold/italic/strike/underline
+				continue;
 			}
 
+			System.out.println("char = " + text.charAt(i));
 			CharacterSprite sprite = font.getChar(text.charAt(i));
 			for (int r = 0; r < font.getHeight(); ++r) {
 				for (int c = 0; c < sprite.getWidth(); ++c) {
