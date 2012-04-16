@@ -31,10 +31,9 @@ public class SMSMacro implements Freezable {
 		this.macroDefinition = new ArrayList<String>();
 	}
 
-	@SuppressWarnings("unchecked")
 	SMSMacro(ConfigurationSection node) {
 		this.macroName = node.getString("name");
-		this.macroDefinition = node.getList("definition", null);
+		this.macroDefinition = node.getStringList("definition");
 	}
 
 	/**

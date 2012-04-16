@@ -95,7 +95,7 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 
 		loadLegacyLocations(node);	
 
-		List<Map<String,Object>> items = node.getList("items");
+		List<Map<String,Object>> items = (List<Map<String,Object>>) node.getList("items");
 		for (Map<String,Object> item : items) {
 			MemoryConfiguration itemNode = new MemoryConfiguration();
 			// need to expand here because the item may contain a usesRemaining object - item could contain a nested map
@@ -115,7 +115,7 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 	 */
 	@SuppressWarnings("unchecked")
 	private void loadLegacyLocations(ConfigurationSection node) throws SMSException {
-		List<Object> locs = node.getList("locations");
+		List<Object> locs = (List<Object>) node.getList("locations");
 		if (locs != null) {
 			// v0.3 or newer format - multiple locations per menu
 			for (Object o : locs) {
