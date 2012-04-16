@@ -124,7 +124,6 @@ public class SMSMapRenderer extends MapRenderer {
 			throw new IllegalArgumentException("text contains invalid characters");
 		}
 
-		System.out.println("draw text: " + text);
 		for (int i = 0; i < text.length(); i++) {
 			char ch = text.charAt(i);
 			if (ch == '\n') {
@@ -144,7 +143,6 @@ public class SMSMapRenderer extends MapRenderer {
 				continue;
 			}
 
-			System.out.println("char = " + text.charAt(i));
 			CharacterSprite sprite = font.getChar(text.charAt(i));
 			for (int r = 0; r < font.getHeight(); ++r) {
 				for (int c = 0; c < sprite.getWidth(); ++c) {
