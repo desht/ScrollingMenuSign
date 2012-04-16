@@ -2,7 +2,6 @@ package me.desht.scrollingmenusign;
 
 import java.util.List;
 
-import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.ParsedCommand;
 
@@ -95,18 +94,6 @@ public interface SMSHandler {
 	 * @return	A list of SMSMenu objects.
 	 */
 	public List<SMSMenu> listMenus(boolean isSorted);
-	
-	/**
-	 * Run a command using the ScrollingMenuSign command parser/executor.
-	 * 
-	 * @param player	The player who is running the command
-	 * @param command	The command string to be run
-	 * @return	A ReturnStatus value indicating how the command completed
-	 * @throws SMSException if the command string contains syntax errors
-	 * @deprecated Use runCommand()
-	 */
-	@Deprecated
-	public ReturnStatus runCommandString(Player player, String command) throws SMSException;
 	
 	/**
 	 * Run a command using the ScrollingMenuSign command parser/executor.

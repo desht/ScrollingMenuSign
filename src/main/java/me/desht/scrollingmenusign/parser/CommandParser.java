@@ -74,21 +74,6 @@ public class CommandParser {
 	private enum RunMode { CHECK_PERMS, EXECUTE };
 
 	/**
-	 * Parse and run a command string via the SMS command engine
-	 * 
-	 * @param player	Player who is running the command
-	 * @param command	Command to be run
-	 * @return			A return status indicating the outcome of the command
-	 * @throws SMSException
-	 * @deprecated use runCommand()	
-	 */
-	@Deprecated
-	public ReturnStatus runCommandString(Player player, String command) throws SMSException { 
-		ParsedCommand cmd = runCommand(player, command);
-		return cmd.getStatus();
-	}
-
-	/**
 	 * High-level wrapper to run a command.  Return status is reported to the calling player.
 	 * 
 	 * @param player	Player who is running the command
