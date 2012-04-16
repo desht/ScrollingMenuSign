@@ -19,6 +19,7 @@ public class ExpectSwitchAddition extends ExpectLocation {
 	@Override
 	public void doResponse(Player p) throws SMSException {
 		Switch sw = new Switch(view, trigger, getLocation());
+		view.updateSwitchPower();
 		
 		MiscUtil.statusMessage(p, String.format("Added output lever at %s to %s view &e%s / %s&-.",
 		                                        MiscUtil.formatLocation(sw.getLocation()),
