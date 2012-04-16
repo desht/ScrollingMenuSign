@@ -14,10 +14,12 @@ import me.desht.scrollingmenusign.util.ExperienceUtils;
 
 public class Cost {
 	
-	private CostType type;
-	private int id;
-	private Byte data;
-	private double quantity;
+	private static final int MAX_STACK_SIZE = 64;
+	
+	private final CostType type;
+	private final int id;
+	private final Byte data;
+	private final double quantity;
 	
 	/**
 	 * Construct a new Cost object, charging 1 of the given item ID
@@ -70,12 +72,16 @@ public class Cost {
 			throw new IllegalArgumentException("cost: item format must be <id[:data]>");
 		String itemType = s2[0];
 		if (itemType.equalsIgnoreCase("E")) {
+			id = 0;
 			type = CostType.MONEY;
 		} else if (itemType.equalsIgnoreCase("X")) {
+			id = 0;
 			type = CostType.EXPERIENCE;
 		} else if (itemType.equalsIgnoreCase("F")) {
+			id = 0;
 			type = CostType.FOOD;
 		} else if (itemType.equalsIgnoreCase("H")) {
+			id = 0;
 			type = CostType.HEALTH;
 		} else {
 			id = Integer.parseInt(s2[0]);
@@ -113,23 +119,18 @@ public class Cost {
 
 		int quantity = (int) -getQuantity();
 
-		ItemStack stack = null;
-		while (quantity > 64) {
-			if (getData() == null)
-				stack = new ItemStack(getId(), 64);
-			else
-				stack = new ItemStack(getId(), 64, (short)0, getData().byteValue());
-			player.getInventory().addItem(stack);
-			quantity -= 64;
+		while (quantity > MAX_STACK_SIZE) {
+			player.getInventory().addItem(makeStack(64));
+			quantity -= MAX_STACK_SIZE;
 		}
 
-		if (getData() == null)
-			stack = new ItemStack(getId(), quantity);
-		else
-			stack = new ItemStack(getId(), quantity, (short)0, getData().byteValue());
-		player.getInventory().addItem(stack);
+		player.getInventory().addItem(makeStack(quantity));
 	}
 
+	private ItemStack makeStack(int quantity) {
+		return data == null ? new ItemStack(getId(), quantity) : new ItemStack(getId(), quantity, (short)0, getData().byteValue());
+	}
+	
 	/**
 	 * Take items from a player's inventory.  Doesn't check to see if there is enough -
 	 * use playerCanAfford() for that.
@@ -189,7 +190,7 @@ public class Cost {
 				player.updateInventory();
 				break;
 			case EXPERIENCE:
-				ExperienceUtils.awardExperience(player, (int) -c.getQuantity());
+				ExperienceUtils.changeExp(player, (int) -c.getQuantity());
 				break;
 			case FOOD:
 				player.setFoodLevel(getNewQuantity(player.getFoodLevel(), c.getQuantity(), 1, 20));
