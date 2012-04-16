@@ -131,7 +131,7 @@ public class CommandParser {
 
 	public boolean verifyCreationPerms(Player player, String command) throws SMSException {
 		ParsedCommand cmd = handleCommandString(player, command, RunMode.CHECK_PERMS);
-		return cmd.getStatus() == ReturnStatus.CMD_OK;
+		return cmd == null || cmd.getStatus() == ReturnStatus.CMD_OK;
 	}
 
 	ParsedCommand handleCommandString(Player player, String command, RunMode mode) throws SMSException {
