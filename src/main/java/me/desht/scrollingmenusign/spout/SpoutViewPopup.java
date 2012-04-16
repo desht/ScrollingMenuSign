@@ -61,7 +61,9 @@ public class SpoutViewPopup extends GenericPopup {
 		listWidget.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
 
 		this.attachWidget(ScrollingMenuSign.getInstance(), title);
-		this.attachWidget(ScrollingMenuSign.getInstance(), texture);
+		if (texture != null) {
+			this.attachWidget(ScrollingMenuSign.getInstance(), texture);
+		}
 		this.attachWidget(ScrollingMenuSign.getInstance(), listWidget);
 	}
 
