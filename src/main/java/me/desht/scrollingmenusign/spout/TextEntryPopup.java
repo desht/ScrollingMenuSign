@@ -63,11 +63,11 @@ public class TextEntryPopup extends GenericPopup {
 	public void confirm() {
 		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		
-		if (plugin.expecter.isExpecting(sp, ExpectCommandSubstitution.class)) {
+		if (plugin.responseHandler.isExpecting(sp, ExpectCommandSubstitution.class)) {
 			try {
-				ExpectCommandSubstitution cs = (ExpectCommandSubstitution) plugin.expecter.getAction(sp, ExpectCommandSubstitution.class);
+				ExpectCommandSubstitution cs = (ExpectCommandSubstitution) plugin.responseHandler.getAction(sp, ExpectCommandSubstitution.class);
 				cs.setSub(textField.getText());
-				plugin.expecter.handleAction(sp, cs.getClass());
+				plugin.responseHandler.handleAction(sp, cs.getClass());
 			} catch (SMSException e) {
 				MiscUtil.errorMessage(sp, e.getMessage());
 			}
@@ -78,7 +78,7 @@ public class TextEntryPopup extends GenericPopup {
 	}
 
 	private void cancel() {
-		ScrollingMenuSign.getInstance().expecter.cancelAction(sp, ExpectCommandSubstitution.class);
+		ScrollingMenuSign.getInstance().responseHandler.cancelAction(sp, ExpectCommandSubstitution.class);
 		
 		close();
 		visiblePopups.remove(sp.getName());

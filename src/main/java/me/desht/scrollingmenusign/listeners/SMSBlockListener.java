@@ -108,11 +108,11 @@ public class SMSBlockListener implements Listener {
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Player p = event.getPlayer();
 		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
-		if (plugin.expecter.isExpecting(p, ExpectSwitchAddition.class)) {
-			ExpectSwitchAddition swa = (ExpectSwitchAddition) plugin.expecter.getAction(p, ExpectSwitchAddition.class);
+		if (plugin.responseHandler.isExpecting(p, ExpectSwitchAddition.class)) {
+			ExpectSwitchAddition swa = (ExpectSwitchAddition) plugin.responseHandler.getAction(p, ExpectSwitchAddition.class);
 			swa.setLocation(event.getBlock().getLocation());
 			try {
-				plugin.expecter.handleAction(p, ExpectSwitchAddition.class);
+				plugin.responseHandler.handleAction(p, ExpectSwitchAddition.class);
 			} catch (SMSException e) {
 				MiscUtil.errorMessage(p, e.getMessage());
 			}

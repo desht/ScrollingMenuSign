@@ -140,7 +140,7 @@ public class CommandParser {
 			Pattern p = Pattern.compile("<\\$:(.+?)>");
 			Matcher m = p.matcher(command);
 			if (m.find() && m.groupCount() > 0 && mode == RunMode.EXECUTE) {
-				ScrollingMenuSign.getInstance().expecter.expectingResponse(player, new ExpectCommandSubstitution(command));
+				ScrollingMenuSign.getInstance().responseHandler.expect(player, new ExpectCommandSubstitution(command));
 
 				return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
 			}

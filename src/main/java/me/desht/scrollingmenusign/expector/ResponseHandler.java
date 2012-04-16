@@ -7,15 +7,15 @@ import me.desht.scrollingmenusign.SMSException;
 
 import org.bukkit.entity.Player;
 
-public class ExpectResponse {
+public class ResponseHandler {
 
 	private final Map<String, ExpectBase> exp = new HashMap<String, ExpectBase>();
 
-	public void expectingResponse(Player p, ExpectBase data) {
-		expectingResponse(p, data, null);
+	public void expect(Player p, ExpectBase data) {
+		expect(p, data, null);
 	}
 
-	private void expectingResponse(Player p, ExpectBase data, String expectee) {
+	private void expect(Player p, ExpectBase data, String expectee) {
 		if (expectee != null) {
 			exp.put(genKey(expectee, data.getClass()), data);
 		} else {
@@ -37,7 +37,6 @@ public class ExpectResponse {
 
 	public void handleAction(Player p, Class<? extends ExpectBase> action) throws SMSException {
 		ExpectBase e = exp.get(genKey(p, action));
-//		exp.get(genKey(p, action)).doResponse(p);
 		cancelAction(p, action);
 		e.doResponse(p);
 	}
