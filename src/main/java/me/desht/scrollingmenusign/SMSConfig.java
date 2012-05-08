@@ -13,6 +13,7 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.configuration.Configuration;
@@ -128,8 +129,6 @@ public class SMSConfig {
 			key = "sms." + key;
 		}
 
-		setConfigItem(getConfig(), key, val);
-
 		// special hooks
 
 		if (key.equalsIgnoreCase("sms.ignore_view_ownership")) {
@@ -143,7 +142,13 @@ public class SMSConfig {
 			repaintViews("spout");
 		} else if (key.equalsIgnoreCase("sms.command_log_file")) {
 			CommandParser.setLogFile(val);
+		} else if (key.equalsIgnoreCase("log_level")) {
+			SMSLogger.setLogLevel(val);
+		} else if (key.startsWith("sms.item_prefix.") || key.endsWith("_justify")) {
+			repaintViews(null);
 		}
+
+		setConfigItem(getConfig(), key, val);
 
 		ScrollingMenuSign.getInstance().saveConfig();
 	}
@@ -205,6 +210,7 @@ public class SMSConfig {
 	 * @param val		The value
 	 * @throws SMSException	if the key is unknown or a bad numeric value is passed
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void setConfigItem(Configuration config, String key, String val) throws SMSException {
 		Configuration defaults = config.getDefaults();
 		if (!defaults.contains(key)) {
@@ -215,8 +221,18 @@ public class SMSConfig {
 			list.add(val);
 			handleListValue(config, key, list);
 		} else if (defaults.get(key) instanceof String) {
-			// should be marginally quicker than going through the following method...
+			// should be marginally quicker than going through the default method below...
 			config.set(key, val);
+		} else if (defaults.get(key) instanceof Enum<?>) {
+			// this really isn't very pretty, but as far as I can tell there's no way to
+			// do this with a parameterised Enum type
+			Class<?> c0 = defaults.get(key).getClass();		
+			Class<? extends Enum> c = c0.asSubclass(Enum.class);
+			try {
+				config.set(key, Enum.valueOf(c, val.toUpperCase()));
+			} catch (IllegalArgumentException e) {
+				throw new SMSException("'" + val + "' is not a valid value for '" + key + "'");
+			}
 		} else {
 			// the class we're converting to needs to have a constructor taking a single String argument
 			Class<?> c = null;

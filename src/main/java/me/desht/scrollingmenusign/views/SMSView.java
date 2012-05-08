@@ -22,6 +22,7 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
+import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.Location;
@@ -39,6 +40,8 @@ import org.bukkit.util.Vector;
 public abstract class SMSView implements Observer, Freezable {
 	// view attributes
 	public static final String OWNER = "owner";
+	public static final String JUSTIFY = "justify";
+	public static final String TITLE_JUSTIFY = "title_justify";
 	
 	// map view name to view object for registered views
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
@@ -88,6 +91,8 @@ public abstract class SMSView implements Observer, Freezable {
 		menu.addObserver(this);
 
 		registerAttribute(OWNER, "");
+		registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT);
+		registerAttribute(JUSTIFY, ViewJustification.DEFAULT);
 	}
 
 	private String makeUniqueName(String base) {
@@ -140,6 +145,38 @@ public abstract class SMSView implements Observer, Freezable {
 	 */
 	public SMSMenu getMenu() {
 		return menu;
+	}
+	
+	/**
+	 * Return the justification for menu items in this view
+	 * 
+	 * @return
+	 */
+	public ViewJustification getItemJustification() {
+		return getJustification("item_justify", JUSTIFY, ViewJustification.LEFT);
+	}
+	
+	/**
+	 * Return the justification for the menu title in this view
+	 * 
+	 * @return
+	 */
+	public ViewJustification getTitleJustification() {
+		return getJustification("title_justify", TITLE_JUSTIFY, ViewJustification.CENTER);
+	}
+	
+	private ViewJustification getJustification(String configItem, String attrName, ViewJustification fallback) {
+		ViewJustification viewJust = (ViewJustification) getAttribute(attrName);
+		if (viewJust != ViewJustification.DEFAULT) {
+			return viewJust;
+		}
+		
+		String j = SMSConfig.getConfig().getString(configItem, fallback.toString());
+		try {
+			return ViewJustification.valueOf(j.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			return fallback;
+		}
 	}
 
 	public Map<String, Object> freeze() {

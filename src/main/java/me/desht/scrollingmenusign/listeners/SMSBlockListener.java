@@ -7,9 +7,9 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
-import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -38,7 +38,7 @@ public class SMSBlockListener implements Listener {
 			return;
 
 		SMSMenu menu = view.getMenu();
-		Debugger.getDebugger().debug("block damage event @ " + MiscUtil.formatLocation(loc) + ", view = " + view.getName() + ", menu=" + menu.getName());
+		SMSLogger.fine("block damage event @ " + MiscUtil.formatLocation(loc) + ", view = " + view.getName() + ", menu=" + menu.getName());
 		Player p = event.getPlayer();
 		if (p.getName().equalsIgnoreCase(menu.getOwner()) || PermissionsUtils.isAllowedTo(p, "scrollingmenusign.destroy")) 
 			return;
@@ -61,7 +61,7 @@ public class SMSBlockListener implements Listener {
 
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
-			Debugger.getDebugger().debug("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
+			SMSLogger.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
 			if (SMSConfig.getConfig().getBoolean("sms.no_destroy_signs", false)) {
 				event.setCancelled(true);
 			} else {
@@ -89,7 +89,7 @@ public class SMSBlockListener implements Listener {
 
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
-			Debugger.getDebugger().debug("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
+			SMSLogger.fine("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
 			if (SMSConfig.getConfig().getBoolean("sms.no_physics", false)) {
 				event.setCancelled(true);
 			} else if (b.getState().getData() instanceof Attachable) {

@@ -40,6 +40,8 @@ public class SetConfigCommand extends AbstractCommand {
 		} catch (SMSException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
 			MiscUtil.errorMessage(player, "Use /sms getcfg to list all valid keys");
+		} catch (IllegalArgumentException e) {
+			MiscUtil.errorMessage(player, e.getMessage());
 		}
 		return true;
 	}

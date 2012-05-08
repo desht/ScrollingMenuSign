@@ -141,12 +141,12 @@ public class MiscUtil {
 	}
 
 	public static String unParseColourSpec(String spec) {
-		return spec.replaceAll("\u00A7", "&");
+		return spec.replace("\u00A7", "&");
 	}
 
 
 	public static String deColourise(String s) {
-		return s.replaceAll("\u00A7.", "");
+		return s.replace("\u00A7.", "");
 	}
 
 	public static World findWorld(String worldName) {

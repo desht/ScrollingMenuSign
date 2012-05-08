@@ -29,7 +29,7 @@ public class PermissionsUtils {
 			}
 		}
 
-		Debugger.getDebugger().debug("Permission check: player=" + player + ", node=" + node + ", allowed=" + allowed);
+		SMSLogger.fine("Permission check: player=" + player + ", node=" + node + ", allowed=" + allowed);
 
 		return allowed;
 	}

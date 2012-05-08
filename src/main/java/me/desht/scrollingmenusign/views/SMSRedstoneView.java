@@ -10,9 +10,9 @@ import java.util.logging.Level;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.scrollingmenusign.util.SMSLogger;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -286,7 +286,7 @@ public class SMSRedstoneView extends SMSView {
 		SMSRedstoneView rv = getRedstoneViewForLocation(neighbour.getLocation());
 
 		if (rv != null && rv.hasPowerChanged(neighbour.getLocation(), event.getNewCurrent())) {
-			Debugger.getDebugger().debug("block redstone event @ " + neighbour.getLocation() + ", view = " +
+			SMSLogger.fine("block redstone event @ " + neighbour.getLocation() + ", view = " +
 					rv.getName() + ", menu = " + rv.getMenu().getName() + ", new current = " + event.getNewCurrent());
 			rv.handlePowerChange(neighbour.getLocation(), event.getNewCurrent());
 		}

@@ -11,10 +11,10 @@ import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
-import me.desht.scrollingmenusign.util.Debugger;
 import me.desht.scrollingmenusign.util.MessagePager;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
@@ -73,7 +73,7 @@ public class SMSPlayerListener implements Listener {
 			SMSView view = SMSView.getViewForLocation(block.getLocation());
 			if (view == null)
 				return;
-			Debugger.getDebugger().debug("player item held change event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getPreviousSlot() + "->" + event.getNewSlot() + ", menu =" + view.getMenu().getName());
+			SMSLogger.fine("player item held change event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getPreviousSlot() + "->" + event.getNewSlot() + ", menu =" + view.getMenu().getName());
 			SMSUserAction action = SMSUserAction.getAction(event);
 			if (action != null) {
 				action.execute(player, view);
@@ -112,7 +112,7 @@ public class SMSPlayerListener implements Listener {
 			ScrollingMenuSign.getInstance().saveConfig();
 		}
 
-		Debugger.getDebugger().removeDebugger(player);
+//		Debugger.getDebugger().removeDebugger(player);
 
 		MessagePager.deletePager(player);
 
@@ -167,7 +167,7 @@ public class SMSPlayerListener implements Listener {
 			}
 		} else if (mapView != null) {
 			// Holding an active map view
-			Debugger.getDebugger().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
+			SMSLogger.fine("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
 			if (block != null && block.getType() == Material.GLASS) {
 				// Hit glass with active map - deactivate the map if it has a sign view on it
 				tryToDeactivateMap(block, player);
@@ -193,7 +193,7 @@ public class SMSPlayerListener implements Listener {
 				tryToAddRedstoneOutput((SMSGlobalScrollableView) locView, player);
 			} else if (locView != null && locView instanceof SMSScrollableView) {
 				// There's an interactable view at the targeted block
-				Debugger.getDebugger().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
+				SMSLogger.fine("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + locView.getMenu().getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
 				if (action != null) {
 					action.execute(player, locView);
