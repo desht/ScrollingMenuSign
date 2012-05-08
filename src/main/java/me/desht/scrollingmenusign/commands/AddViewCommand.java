@@ -7,6 +7,7 @@ import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
+import me.desht.scrollingmenusign.views.SMSMultiSignView;
 import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
@@ -30,6 +31,8 @@ public class AddViewCommand extends AbstractCommand {
 		SMSView view = null;
 		SMSMenu menu = plugin.getHandler().getMenu(args[0]);
 
+		boolean multiSign = false;
+		
 		if (args.length == 2 && args[1].equalsIgnoreCase("-spout")) {		// spout view
 			if (plugin.isSpoutEnabled())
 				view = SMSSpoutView.addSpoutViewToMenu(menu);
@@ -49,6 +52,8 @@ public class AddViewCommand extends AbstractCommand {
 			MiscUtil.statusMessage(player, "Right-click anywhere to cancel.");
 			plugin.responseHandler.expect(player, new ExpectViewCreation(menu, args[1]));
 			return true;
+		} else if (args.length == 2 && args[1].equalsIgnoreCase("-multi")) { 	// multi-sign view
+			multiSign = true;
 		} else if (args.length == 3 && args[1].equalsIgnoreCase("-map")) {	// map view
 			try {
 				short mapId = Short.parseShort(args[2]);
@@ -71,7 +76,9 @@ public class AddViewCommand extends AbstractCommand {
 			} else {
 				try {
 					Block b = player.getTargetBlock(null, 3);						// sign view ?
-					if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
+					if (multiSign && b.getType() == Material.WALL_SIGN) {
+						view = SMSMultiSignView.addSignToMenu(menu, b.getLocation());
+					} else if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
 						view = SMSSignView.addSignToMenu(menu, b.getLocation());
 					}
 				} catch (IllegalStateException e) {

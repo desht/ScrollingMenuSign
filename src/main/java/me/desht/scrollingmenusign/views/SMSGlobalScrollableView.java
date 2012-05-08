@@ -98,6 +98,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 				Switch.deferLoading(this, conf);
 			}
 		}
+		updateSwitchPower();
 	}
 
 	@Override
