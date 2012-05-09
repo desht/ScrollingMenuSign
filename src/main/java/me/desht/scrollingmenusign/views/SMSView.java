@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
@@ -511,6 +512,25 @@ public abstract class SMSView implements Observer, Freezable {
 		}
 	}
 
+	/**
+	 * Get a count of views used, keyed by view type.  Used for metrics gathering.
+	 * 
+	 * @return	a map of type -> count of views of that type 
+	 */
+	public static Map<String,Integer> getViewCounts() {
+		Map<String,Integer> map = new HashMap<String, Integer>();
+		for (Entry<String,SMSView> e : allViewNames.entrySet()) {
+			String type = e.getValue().getType();
+			if (!map.containsKey(type)) {
+				map.put(type, 1);
+			} else {
+				map.put(type, map.get(type) + 1);
+			}
+		}
+		map.put("TOTAL", allViewNames.size());
+		return map;
+	}
+	
 	/**
 	 * Check if the given player is allowed to use this view.
 	 * 

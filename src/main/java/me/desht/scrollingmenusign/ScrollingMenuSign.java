@@ -1,11 +1,15 @@
 package me.desht.scrollingmenusign;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.desht.scrollingmenusign.Metrics.Graph;
+import me.desht.scrollingmenusign.Metrics.Plotter;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
 import me.desht.scrollingmenusign.commands.AddViewCommand;
@@ -42,6 +46,7 @@ import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.util.MessagePager;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.scrollingmenusign.views.SMSView;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
@@ -111,7 +116,40 @@ public class ScrollingMenuSign extends JavaPlugin {
 			SpoutUtils.precacheTextures();
 		}
 		
+		setupMetrics();
+		
 		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
+	}
+
+	private void setupMetrics() {
+		try {
+			Metrics metrics = new Metrics(this);
+			
+			metrics.createGraph("Menu count").addPlotter(new Plotter() {
+				@Override
+				public int getValue() {
+					return SMSMenu.listMenus().size();
+				}
+			});
+			metrics.createGraph("Macro count").addPlotter(new Plotter() {
+				@Override
+				public int getValue() {
+					return SMSMacro.listMacros().size();
+				}
+			});
+			Graph graphV = metrics.createGraph("View Types");
+			for (final Entry<String,Integer> e : SMSView.getViewCounts().entrySet()) {
+				graphV.addPlotter(new Plotter(e.getKey()) {
+					@Override
+					public int getValue() {
+						return e.getValue();
+					}
+				});	
+			}
+			metrics.start();
+		} catch (IOException e) {
+			SMSLogger.warning("Can't submit metrics data: " + e.getMessage());
+		}
 	}
 
 	@Override
