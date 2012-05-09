@@ -33,9 +33,6 @@ public class SetConfigCommand extends AbstractCommand {
 			} else {
 				SMSConfig.setPluginConfiguration(key, val);
 			}
-			if (key.matches("item_(justify|prefix.*)")) {
-				SMSMenu.updateAllMenus();
-			}
 			MiscUtil.statusMessage(player, key + " is now set to '&e" + SMSConfig.getPluginConfiguration(key) + "&-'");
 		} catch (SMSException e) {
 			MiscUtil.errorMessage(player, e.getMessage());

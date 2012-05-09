@@ -33,6 +33,7 @@ public class SMSConfig {
 	static void init(ScrollingMenuSign plugin) {
 		setupDirectoryStructure();
 		initConfigFile();
+		SMSLogger.setLogLevel(getConfig().getString("sms.log_level", "INFO"));
 	}
 
 	private static void setupDirectoryStructure() {
@@ -129,6 +130,8 @@ public class SMSConfig {
 			key = "sms." + key;
 		}
 
+		setConfigItem(getConfig(), key, val);
+
 		// special hooks
 
 		if (key.equalsIgnoreCase("sms.ignore_view_ownership")) {
@@ -142,13 +145,11 @@ public class SMSConfig {
 			repaintViews("spout");
 		} else if (key.equalsIgnoreCase("sms.command_log_file")) {
 			CommandParser.setLogFile(val);
-		} else if (key.equalsIgnoreCase("log_level")) {
+		} else if (key.equalsIgnoreCase("sms.log_level")) {
 			SMSLogger.setLogLevel(val);
 		} else if (key.startsWith("sms.item_prefix.") || key.endsWith("_justify")) {
 			repaintViews(null);
 		}
-
-		setConfigItem(getConfig(), key, val);
 
 		ScrollingMenuSign.getInstance().saveConfig();
 	}

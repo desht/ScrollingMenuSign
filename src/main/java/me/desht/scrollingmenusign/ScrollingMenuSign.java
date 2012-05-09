@@ -41,6 +41,7 @@ import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.util.MessagePager;
 import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
@@ -74,6 +75,8 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public void onEnable() {
 		setInstance(this);
 
+		SMSLogger.init(this);
+		
 		PluginManager pm = getServer().getPluginManager();
 
 		if (!validateVersions(getDescription().getVersion(), getServer().getVersion())) {		
