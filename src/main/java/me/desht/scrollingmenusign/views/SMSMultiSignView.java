@@ -32,24 +32,8 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	private Block bottomRight;
 	private int height; // in blocks
 	private int width;  // in blocks
-	
+
 	private final Map<Location, String[]> updates = new HashMap<Location, String[]>();
-	
-	/**
-	 * Create a new multi-sign view at loc.  The signs around loc will be scanned to work out just
-	 * what signs comprise this view.
-	 * 
-	 * @param name
-	 * @param menu
-	 * @param loc
-	 * @throws SMSException
-	 */
-	public SMSMultiSignView(String name, SMSMenu menu, Location loc) throws SMSException {
-		this(name, menu);
-		
-		scanForSigns(loc);
-		addBlocks();
-	}
 
 	/**
 	 * Create a new multi-sign view object with no registered location.  A location
@@ -61,10 +45,28 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 */
 	public SMSMultiSignView(String name, SMSMenu menu) {
 		super(name, menu);
-			
+
 		this.setMaxLocations(100);
 	}
-	
+
+	/**
+	 * Create a new multi-sign view at loc.  The signs around loc will be scanned to work out just
+	 * what signs comprise this view.
+	 * 
+	 * @param name
+	 * @param menu
+	 * @param loc
+	 * @throws SMSException
+	 */
+	public SMSMultiSignView(String name, SMSMenu menu, Location loc) throws SMSException {
+		this(name, menu);
+
+		scanForSigns(loc);
+		for (Block b : getBlocks()) {
+			addLocation(b.getLocation());	
+		}
+	}
+
 	/**
 	 * Create a new sign view object.  Equivalent to calling SMSSignView(null, menu, loc).  The
 	 * view's name will be automatically generated, based on the menu name.
@@ -76,18 +78,21 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	public SMSMultiSignView(SMSMenu menu, Location loc) throws SMSException {
 		this(null, menu, loc);
 	}
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSGlobalScrollableView#thaw(org.bukkit.configuration.ConfigurationSection)
 	 */
 	@Override
 	public void thaw(ConfigurationSection node) throws SMSException {
 		super.thaw(node);
-		
+
 		scanForSigns(getLocationsArray()[0]);
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
+	 */
 	@Override
 	public void update(Observable menu, Object arg1) {
 		if (!(menu instanceof SMSMenu))
@@ -95,13 +100,13 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 		String prefix1 = SMSConfig.getConfig().getString("sms.item_prefix.not_selected", "  ");
 		String prefix2 = SMSConfig.getConfig().getString("sms.item_prefix.selected", "> ");
-		
+
 		int current = getLastScrollPos();
 		int nDisplayable = height * 4 - 1;
 		int nItems = getMenu().getItemCount();
-		
-		drawLine(0, formatTitle());
-		
+
+		drawText(0, formatTitle());
+
 		if (nItems > 0) {
 			for (int n = 0; n < nDisplayable; n++) {
 				SMSMenuItem item = getMenu().getItemAt(current);
@@ -113,19 +118,27 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 					lineText = "";
 				}
 				SMSLogger.finer("SMSMultiSignView: update: current=" + current + " line=" + n + " text=[" + lineText + "]");
-				drawLine(n + 1, formatItem(n == 0 ? prefix2 : prefix1, lineText));
+				drawText(n + 1, formatItem(n == 0 ? prefix2 : prefix1, lineText));
 				current++;
 				if (current > nItems)
 					current = 1;
 			}
 		}
-		
+
 		applyUpdates();
 	}
 
-	public void drawLine(int line, String text) {
+	/**
+	 * Draw a line of text at the given line, which will potentially span multiple signs.
+	 * Colour/markup codes are preserved across signs, which may lead to unexpectedly few
+	 * printable characters appearing on each sign if a lot of markup is used!
+	 * 
+	 * @param line	The line number on which to draw the text
+	 * @param text	The text to draw
+	 */
+	public void drawText(int line, String text) {
 		int y = line / 4;
-		
+
 		SMSLogger.finest("drawLine: line=" + line + "  text=[" + text + "]");
 		int begin = 0;
 		int x = 0;
@@ -162,36 +175,18 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 			x++;
 		}
 	}
-	
-	private void pendingUpdate(org.bukkit.block.Sign s, int i, String sub) {
-		Location l = s.getLocation();
-		if (!updates.containsKey(l)) {
-			updates.put(l, new String[4]);
-		}
-		String[] lines = updates.get(l);
-		lines[i] = sub;
-	}
-	
-	private void applyUpdates() {
-		for (Entry<Location,String[]> e : updates.entrySet()) {
-			Block b = e.getKey().getBlock();
-			org.bukkit.block.Sign s = (org.bukkit.block.Sign) b.getState();
-			for (int i = 0; i < 4; i++) {
-				String line = e.getValue()[i];
-				if (line != null) {
-					s.setLine(i, line);
-				}
-			}
-			s.update();
-		}
-		updates.clear();
-	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#getType()
+	 */
 	@Override
 	public String getType() {
 		return "multisign";
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "multisign @ " + MiscUtil.formatLocation(topLeft.getLocation()) + " (" + width + "x" + height + ")";
@@ -206,10 +201,10 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		if (b.getType() != Material.WALL_SIGN) {
 			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " does not contain a wall sign.");
 		}
-		
+
 		super.addLocation(loc);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSView#deletePermanent()
 	 */
@@ -218,14 +213,14 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		blankSigns();
 		super.deletePermanent();
 	}
-	
+
 	/**
-	 * Return the Sign at position (x,y) in the view.  (x, y) = (0, 0) is the top left sign.
-	 * x increases to the right, y increases downward.
+	 * Get the Sign at position (x,y) in the view.  (x, y) = (0, 0) is the top left sign.
+	 * x increases to the right, y increases downward.  This works regardless of sign orientation.
 	 * 
-	 * @param x
-	 * @param y
-	 * @return
+	 * @param x		X co-ordinate
+	 * @param y		Y co-ordinate
+	 * @return	the Sign block retrieved
 	 */
 	public org.bukkit.block.Sign getSign(int x, int y) {
 		int y1 = topLeft.getY() - y;
@@ -257,16 +252,51 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 			return null;
 		}
 	}
-	
+
+	/**
+	 * Mark one line on a given sign as requiring an update.
+	 * 
+	 * @param s
+	 * @param line
+	 * @param text
+	 */
+	private void pendingUpdate(org.bukkit.block.Sign s, int line, String text) {
+		Location loc = s.getLocation();
+		if (!updates.containsKey(loc)) {
+			updates.put(loc, new String[4]);
+		}
+		String[] lines = updates.get(loc);
+		lines[line] = text;
+	}
+
+	/**
+	 * Apply all the updates that have been marked as pending.  Doing them all at once means
+	 * we only need to send world updates each sign once.
+	 */
+	private void applyUpdates() {
+		for (Entry<Location,String[]> e : updates.entrySet()) {
+			Block b = e.getKey().getBlock();
+			org.bukkit.block.Sign s = (org.bukkit.block.Sign) b.getState();
+			for (int i = 0; i < 4; i++) {
+				String line = e.getValue()[i];
+				if (line != null) {
+					s.setLine(i, line);
+				}
+			}
+			s.update();
+		}
+		updates.clear();
+	}
+
 	private void scanForSigns(Location startLoc) throws SMSException {
 		Block b = startLoc.getBlock();
 		if (b.getType() != Material.WALL_SIGN) {
 			throw new SMSException("Location " + MiscUtil.formatLocation(b.getLocation()) + " does not contain a sign.");
 		}
-		
+
 		Sign s = (Sign) b.getState().getData();
 		facing = s.getFacing();
-		
+
 		switch (facing) {
 		case NORTH:
 			scan(b, BlockFace.EAST); break;
@@ -284,9 +314,9 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	private void scan(Block b, BlockFace horizontal) throws SMSException {
 		topLeft = scan(b, horizontal, BlockFace.UP);
 		bottomRight = scan(b, horizontal.getOppositeFace(), BlockFace.DOWN);
-		
+
 		validateSignArray();
-		
+
 		height = (topLeft.getY() - bottomRight.getY()) + 1;
 		switch (horizontal) {
 		case NORTH: case SOUTH:
@@ -302,12 +332,12 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 	private Block scan(Block b, BlockFace horizontal, BlockFace vertical) {
 		Block b1 = b;
-		
+
 		SMSLogger.finer("scan: " + b + " h=" + horizontal + " v=" + vertical);
-		
+
 		b1 = scanOneDir(b, horizontal);
 		b1 = scanOneDir(b1, vertical);
-		
+
 		return b1;
 	}
 
@@ -324,14 +354,14 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 	private List<Block> getBlocks() {
 		List<Block> res = new ArrayList<Block>();
-		
+
 		int x1 = Math.min(topLeft.getX(), bottomRight.getX());
 		int x2 = Math.max(topLeft.getX(), bottomRight.getX());
 		int z1 = Math.min(topLeft.getZ(), bottomRight.getZ());
 		int z2 = Math.max(topLeft.getZ(), bottomRight.getZ());
 		int y1 = bottomRight.getY();
 		int y2 = topLeft.getY();
-		
+
 		World w = topLeft.getWorld();
 		for (int x = x1; x <= x2; x++) {
 			for (int y = y1; y <= y2; y++) {
@@ -340,10 +370,10 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 				}
 			}
 		}
-		
+
 		return res;
 	}
-	
+
 	private void validateSignArray() throws SMSException {
 		for (Block b : getBlocks()) {
 			if (b.getType() != Material.WALL_SIGN) {
@@ -352,16 +382,15 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		}
 	}
 
-	private void addBlocks() throws SMSException {
-		for (Block b : getBlocks()) {
-			addLocation(b.getLocation());	
-		}
-	}
-
 	private String formatLine(String prefix, String text, ViewJustification just) {
 		int l = 15 * width - prefix.length();
 		String s = "";
-		String reset = text.matches("\u00a7[mn]") ? "\u00a7r" : "";
+		//		this regexp sadly doesn't work
+		//		String reset = text.matches("\u00a7[mn]") ? "\u00a7r" : "";
+		String reset = "";
+		if (text.contains("\u00a7m") || text.contains("\u00a7n")) {
+			reset = "\u00a7r";
+		}
 		switch (just) {
 		case LEFT:
 			s = prefix + Str.padRight(text + reset, l);
@@ -379,11 +408,11 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	private String formatTitle() {
 		return formatLine("", getMenu().getTitle(), getTitleJustification());
 	}
-	
+
 	private String formatItem(String prefix, String text) {
 		return formatLine(prefix, text, getItemJustification());
 	}
-	
+
 	/**
 	 * Erase all the signs for this view.
 	 */
