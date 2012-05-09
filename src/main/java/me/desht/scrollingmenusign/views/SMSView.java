@@ -153,7 +153,7 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @return
 	 */
 	public ViewJustification getItemJustification() {
-		return getJustification("item_justify", JUSTIFY, ViewJustification.LEFT);
+		return getJustification("sms.item_justify", JUSTIFY, ViewJustification.LEFT);
 	}
 	
 	/**
@@ -162,7 +162,7 @@ public abstract class SMSView implements Observer, Freezable {
 	 * @return
 	 */
 	public ViewJustification getTitleJustification() {
-		return getJustification("title_justify", TITLE_JUSTIFY, ViewJustification.CENTER);
+		return getJustification("sms.title_justify", TITLE_JUSTIFY, ViewJustification.CENTER);
 	}
 	
 	private ViewJustification getJustification(String configItem, String attrName, ViewJustification fallback) {

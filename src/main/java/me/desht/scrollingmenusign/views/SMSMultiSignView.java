@@ -12,6 +12,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.util.Str;
@@ -99,7 +100,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		int nDisplayable = height * 4 - 1;
 		int nItems = getMenu().getItemCount();
 		
-		drawLine(0, Str.padCenter(getMenu().getTitle() + "\u00a7r", 15 * width));
+		drawLine(0, formatTitle());
 		
 		if (nItems > 0) {
 			for (int n = 0; n < nDisplayable; n++) {
@@ -112,7 +113,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 					lineText = "";
 				}
 				SMSLogger.finer("SMSMultiSignView: update: current=" + current + " line=" + n + " text=[" + lineText + "]");
-				drawLine(n + 1, formatLine(n == 0 ? prefix2 : prefix1, lineText));
+				drawLine(n + 1, formatItem(n == 0 ? prefix2 : prefix1, lineText));
 				current++;
 				if (current > nItems)
 					current = 1;
@@ -357,21 +358,30 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		}
 	}
 
-	private String formatLine(String prefix, String text) {
+	private String formatLine(String prefix, String text, ViewJustification just) {
 		int l = 15 * width - prefix.length();
 		String s = "";
-		switch (getItemJustification()) {
+		String reset = text.matches("\u00a7[mn]") ? "\u00a7r" : "";
+		switch (just) {
 		case LEFT:
-			s = prefix + Str.padRight(text + "\u00a7r", l);
+			s = prefix + Str.padRight(text + reset, l);
 			break;
 		case CENTER:
-			s = prefix + Str.padCenter(text + "\u00a7r", l);
+			s = prefix + Str.padCenter(text + reset, l);
 			break;
 		case RIGHT:
-			s = prefix + Str.padLeft(text + "\u00a7r", l);
+			s = prefix + Str.padLeft(text + reset, l);
 			break;		
 		}
 		return MiscUtil.parseColourSpec(null, s);
+	}
+
+	private String formatTitle() {
+		return formatLine("", getMenu().getTitle(), getTitleJustification());
+	}
+	
+	private String formatItem(String prefix, String text) {
+		return formatLine(prefix, text, getItemJustification());
 	}
 	
 	/**

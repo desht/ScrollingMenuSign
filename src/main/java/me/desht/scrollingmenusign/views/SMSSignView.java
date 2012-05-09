@@ -6,6 +6,7 @@ import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.scrollingmenusign.util.MiscUtil;
 
 import org.bukkit.Location;
@@ -93,17 +94,18 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	private String[] buildSignText(int scrollPos) {
 		String[] res = new String[4];
 
-		// first line of the sign in the menu title
-		res[0] = getMenu().getTitle();
+		// first line of the sign is the menu title
+		res[0] = String.format(makePrefix("", getTitleJustification()), getMenu().getTitle());
 		
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
 		String prefix1 = SMSConfig.getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
 		String prefix2 = SMSConfig.getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
 		
-		res[1] = String.format(makePrefix(prefix1), getLine2Item(scrollPos));
-		res[2] = String.format(makePrefix(prefix2), getLine3Item(scrollPos));
-		res[3] = String.format(makePrefix(prefix1), getLine4Item(scrollPos));
+		ViewJustification ij = getItemJustification();
+		res[1] = String.format(makePrefix(prefix1, ij), getLine2Item(scrollPos));
+		res[2] = String.format(makePrefix(prefix2, ij), getLine3Item(scrollPos));
+		res[3] = String.format(makePrefix(prefix1, ij), getLine4Item(scrollPos));
 		
 		return res;
 	}
@@ -137,16 +139,17 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		return getMenu().getItemAt(nextPos).getLabel();
 	}
 	
-	private String makePrefix(String prefix) {
-		String just = SMSConfig.getConfig().getString("sms.item_justify", "left");
+	private String makePrefix(String prefix, ViewJustification just) {
 		int l = 15 - prefix.length();
 		String s = "";
-		if (just.equals("left"))
-			s =  prefix + "%1$-" + l + "s";
-		else if (just.equals("right"))
-			s = prefix + "%1$" + l + "s";
-		else
-			s = prefix + "%1$s";
+		switch (just) {
+		case LEFT:
+			s =  prefix + "%1$-" + l + "s"; break;
+		case CENTER:
+			s = prefix + "%1$s"; break;
+		case RIGHT:
+			s = prefix + "%1$" + l + "s"; break;
+		}
 		return MiscUtil.parseColourSpec(null, s);
 	}
 	
