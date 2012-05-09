@@ -85,7 +85,7 @@ public class SMSMapView extends SMSScrollableView {
 		registerAttribute(IMAGE_FILE, "");
 
 		x = 4;
-		y = 10;
+		y = 10;	// leaving space for the map name in the top left
 		width = 120;
 		height = 120;
 		lineSpacing = 1;

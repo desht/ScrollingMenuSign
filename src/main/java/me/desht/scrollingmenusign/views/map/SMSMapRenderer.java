@@ -6,7 +6,9 @@ import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSMapView;
 
 import org.bukkit.entity.Player;
@@ -26,8 +28,8 @@ public class SMSMapRenderer extends MapRenderer {
 	private static final String[] NOT_OWNER = { "This map belongs", "to someone else." };
 	private static final String[] NO_PERM = { "You do not have", "permission to use", "map views." };
 
-	SMSMapView smsMapView;
-
+	private final SMSMapView smsMapView;
+	
 	public SMSMapRenderer(SMSMapView view) {
 		super(true);
 		smsMapView = view;
@@ -50,7 +52,7 @@ public class SMSMapRenderer extends MapRenderer {
 	}
 
 	private void drawImage(MapCanvas canvas, BufferedImage image) {
-		//		System.out.println("draw background image: " + image);
+		SMSLogger.finer(smsMapView.getName() + ": draw background image: " + image);
 		if (image != null) {
 			canvas.drawImage(0, 0, image);
 		}
@@ -75,8 +77,7 @@ public class SMSMapRenderer extends MapRenderer {
 
 		if (drawTitle) {
 			String title = menu.getTitle();
-			int titleWidth = getWidth(smsMapView.getMapFont(), title);
-			drawText(canvas, smsMapView.getX() + (smsMapView.getWidth() - titleWidth) / 2, y, smsMapView.getMapFont(), title);
+			drawText(canvas, smsMapView.getTitleJustification(), y, smsMapView.getMapFont(), title);
 			y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
 		}
 
@@ -87,6 +88,7 @@ public class SMSMapRenderer extends MapRenderer {
 
 		if (menu.getItemCount() > 0) {
 			int current = smsMapView.getScrollPos(player.getName());
+			ViewJustification itemJust = smsMapView.getItemJustification();
 			for (int n = 0; n < nDisplayable; n++) {
 				SMSMenuItem item = menu.getItemAt(current);
 				String lineText = item == null ? "???" : item.getLabel();
@@ -95,7 +97,7 @@ public class SMSMapRenderer extends MapRenderer {
 				} else {
 					lineText = prefix1 + lineText;
 				}
-				drawText(canvas, smsMapView.getX(), y, smsMapView.getMapFont(), lineText);
+				drawText(canvas, itemJust, y, smsMapView.getMapFont(), lineText);
 				y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
 				current++;
 				if (current > menu.getItemCount())
@@ -103,6 +105,19 @@ public class SMSMapRenderer extends MapRenderer {
 				if (n + 1 >= menu.getItemCount())
 					break;
 			}
+		}
+	}
+
+	private int getXOffset(ViewJustification just, int width) {
+		switch (just) {
+		case LEFT:
+			return smsMapView.getX();
+		case CENTER:
+			return smsMapView.getX() + (smsMapView.getWidth() - width) / 2;
+		case RIGHT:
+			return smsMapView.getX() + smsMapView.getWidth() - width;
+		default:
+			return 0;
 		}
 	}
 
@@ -117,13 +132,19 @@ public class SMSMapRenderer extends MapRenderer {
 		}
 	}
 
-	static void drawText(MapCanvas canvas, int x, int y, MapFont font, String text) {
-		int xStart = x;
-		byte color = convertMcToPalette((byte)0);
+	private void drawText(MapCanvas canvas, ViewJustification just, int y, MapFont font, String text) {
+		int textWidth = getWidth(smsMapView.getMapFont(), text);
+		drawText(canvas, getXOffset(just, textWidth), y, font, text);
+	}
+
+	private void drawText(MapCanvas canvas, int x, int y, MapFont font, String text) {
 		if (!font.isValid(text)) {
 			throw new IllegalArgumentException("text contains invalid characters");
 		}
-
+		int xStart = x;
+		byte color = convertMcToPalette((byte)0);
+		boolean bold = false, italic = false, strike = false, underline = false;
+		
 		for (int i = 0; i < text.length(); i++) {
 			char ch = text.charAt(i);
 			if (ch == '\n') {
@@ -134,21 +155,53 @@ public class SMSMapRenderer extends MapRenderer {
 				i++;
 				if (i >= text.length())
 					break;
-				Character c = text.charAt(i);
-				if (c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F') {
+				Character c = Character.toLowerCase(text.charAt(i));
+				if (c >= '0' && c <= '9' || c >= 'a' && c <= 'f') {
 					byte mcColor = Byte.parseByte(c.toString(), 16);
 					color = convertMcToPalette(mcColor);
+					bold = italic = strike = underline = false;
+				} else if (c == 'l') {
+					bold = !bold;
+				} else if (c == 'm') {
+					strike = !strike;
+				} else if (c == 'n') {
+					underline = !underline;
+				} else if (c == 'o') {
+					italic = !italic;
+				} else if (c == 'r') {
+					bold = italic = strike = underline = false;
+					color = convertMcToPalette((byte)0);
 				}
-				// TODO: support for MC 1.2+ escape codes: bold/italic/strike/underline
 				continue;
 			}
 
 			CharacterSprite sprite = font.getChar(text.charAt(i));
 			for (int r = 0; r < font.getHeight(); ++r) {
 				for (int c = 0; c < sprite.getWidth(); ++c) {
+					int sx = x + c;
 					if (sprite.get(r, c)) {
-						canvas.setPixel(x + c, y + r, color);
+						if (italic) {
+							if (r < font.getHeight() / 2) {
+								sx = x + c + 1;
+							} else {
+								sx = x + c;
+							}
+						}
+						canvas.setPixel(sx, y + r, color);
+						if (bold) {
+							canvas.setPixel(sx + 1, y + r, color);
+						}
 					}
+				}
+			}
+			if (strike) {
+				for (int c = 0; c <= sprite.getWidth(); c++) {
+					canvas.setPixel(x + c, y + font.getHeight() / 2 - 1, color);
+				}
+			}
+			if (underline) {
+				for (int c = 0; c <= sprite.getWidth(); c++) {
+					canvas.setPixel(x + c, y + font.getHeight() - 1, color);
 				}
 			}
 			x += sprite.getWidth() + 1;
@@ -208,6 +261,6 @@ public class SMSMapRenderer extends MapRenderer {
 	}
 
 	static int getWidth(MapFont font, String text) {
-		return font.getWidth(text.replaceAll("\u00A7.", ""));
+		return font.getWidth(text.replaceAll("\u00A7.", "")) + text.length();
 	}
 }
