@@ -13,6 +13,10 @@ public class SMSLogger {
 
 	public static void init(Plugin plugin) {
 		logger = plugin.getLogger();
+		for (Handler h : logger.getParent().getHandlers()) {
+			logger.addHandler(h);
+		}
+		logger.setUseParentHandlers(false);
 	}
 
 	public static Level getLogLevel() {
@@ -22,7 +26,7 @@ public class SMSLogger {
 	public static void setLogLevel(Level level) {
 		logger.setLevel(level);
 		logger.getParent().setLevel(level);
-		for (Handler h : logger.getParent().getHandlers()) {
+		for (Handler h : logger.getHandlers()) {
 			h.setLevel(level);
 		}
 	}
@@ -40,7 +44,7 @@ public class SMSLogger {
 	public static void log(Level level, String message) {
 		logger.log(level, message);
 	}
-	
+
 	public static void fine(String message) {
 		logger.fine(message);
 	}
@@ -85,5 +89,5 @@ public class SMSLogger {
 		return message == null ? e.getMessage() : ChatColor.stripColor(message);
 	}
 
-} // end class ChessCraftLogger
+}
 
