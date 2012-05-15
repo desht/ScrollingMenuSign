@@ -2,7 +2,6 @@ package me.desht.scrollingmenusign.spout;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -11,7 +10,7 @@ import org.getspout.spoutapi.player.SpoutPlayer;
 
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -42,7 +41,7 @@ public class SpoutUtils {
 		try {
 			wantedKeys.put(key, new SMSSpoutKeyMap(wanted));
 		} catch (IllegalArgumentException e) {
-			MiscUtil.log(Level.WARNING, "invalid key definition [" + wanted + "] for " + key);
+			SMSLogger.warning("invalid key definition [" + wanted + "] for " + key);
 			wantedKeys.put(key, new SMSSpoutKeyMap(SMSConfig.getConfig().getDefaults().getString(key)));
 		}
 	}

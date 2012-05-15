@@ -13,8 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
-import java.util.logging.Level;
-
 import javax.imageio.ImageIO;
 
 import org.bukkit.Bukkit;
@@ -34,7 +32,7 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
 
 /**
@@ -114,14 +112,14 @@ public class SMSMapView extends SMSScrollableView {
 				resizedImage = MapPalette.resizeImage(orig);
 				if (cached != null) {
 					ImageIO.write(resizedImage, CACHED_FILE_FORMAT, cached);
-					MiscUtil.log(Level.INFO, "Cached image " + url + " as " + cached);
+					SMSLogger.info("Cached image " + url + " as " + cached);
 				}
 			}
 			image = resizedImage;
 		} catch (MalformedURLException e) {
-			MiscUtil.log(Level.WARNING, "malformed image URL for map view " + getName() + ": " + e.getMessage());
+			SMSLogger.warning("malformed image URL for map view " + getName() + ": " + e.getMessage());
 		} catch (IOException e) {
-			MiscUtil.log(Level.WARNING, "cannot load image URL for map view " + getName() + ": " + e.getMessage());
+			SMSLogger.warning("cannot load image URL for map view " + getName() + ": " + e.getMessage());
 		}
 	}
 
@@ -134,7 +132,7 @@ public class SMSMapView extends SMSScrollableView {
 			BigInteger i = new BigInteger(d);
 			return new File(SMSConfig.getImgCacheFolder(), String.format("%1$032X", i) + "." + CACHED_FILE_FORMAT);
 		} catch (NoSuchAlgorithmException e) {
-			MiscUtil.log(Level.WARNING, "Can't get MD5 MessageDigest algorithm, no image caching");
+			SMSLogger.warning("Can't get MD5 MessageDigest algorithm, no image caching");
 			return null;
 		}
 	}
@@ -162,7 +160,7 @@ public class SMSMapView extends SMSScrollableView {
 	public void setMapId(short id) {
 		mapView = Bukkit.getServer().getMap(id);
 		if (mapView == null) {
-			MiscUtil.log(Level.WARNING, "No such map view for map ID " + id);
+			SMSLogger.warning("No such map view for map ID " + id);
 			return;
 		}
 

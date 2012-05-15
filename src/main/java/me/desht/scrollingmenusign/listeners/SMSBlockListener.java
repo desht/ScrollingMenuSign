@@ -1,7 +1,5 @@
 package me.desht.scrollingmenusign.listeners;
 
-import java.util.logging.Level;
-
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -97,7 +95,7 @@ public class SMSBlockListener implements Listener {
 				Block attachedBlock = b.getRelative(a.getAttachedFace());
 				if (attachedBlock.getTypeId() == 0) {
 					// attached to air? looks like the sign (or other attachable) has become detached
-					MiscUtil.log(Level.INFO, "Attachable view block " + view.getName() + " @ " + loc + " has become detached: deleting");
+					SMSLogger.info("Attachable view block " + view.getName() + " @ " + loc + " has become detached: deleting");
 					view.deletePermanent();
 				}
 			}

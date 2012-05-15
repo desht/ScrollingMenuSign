@@ -1,12 +1,11 @@
 package me.desht.scrollingmenusign.spout;
 
-import java.util.logging.Level;
-
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
@@ -47,11 +46,11 @@ public class SMSListWidget extends GenericListWidget {
 			String a = view.getAttributeAsString(SMSSpoutView.ALPHA, cfg.getString("sms.spout.list_alpha"));
 			c.setAlpha(Float.parseFloat(a));
 		} catch (NumberFormatException	e) {
-			MiscUtil.log(Level.WARNING, "Invalid Spout view colour/alpha specification for " + view.getName() + ": using default settings");
+			SMSLogger.warning("Invalid Spout view colour/alpha specification for " + view.getName() + ": using default settings");
 			c = new Color(cfg.getDefaults().getString("sms.spout.list_background"));
 			c.setAlpha((float) cfg.getDefaults().getDouble("sms.spout.list_alpha"));
 		}
-//		System.out.println("background = " + c.toString());
+		SMSLogger.finer("updateBackground: view = " + view.getName() + " background = " + c.toString());
 		
 		// choose a contrasting text colour - black for a pale background, white for a dark background
 		int luminance = (int) Math.sqrt(c.getRedI() * c.getRedI() * 0.241 + c.getGreenI() * c.getGreenI() * 0.691 + c.getBlueI() * c.getBlueI() * 0.068);

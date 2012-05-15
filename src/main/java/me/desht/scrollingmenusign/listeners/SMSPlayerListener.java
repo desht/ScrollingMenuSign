@@ -1,7 +1,5 @@
 package me.desht.scrollingmenusign.listeners;
 
-import java.util.logging.Level;
-
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
@@ -79,7 +77,7 @@ public class SMSPlayerListener implements Listener {
 				action.execute(player, view);
 			}
 		} catch (SMSException e) {
-			MiscUtil.log(Level.WARNING, e.getMessage());
+			SMSLogger.warning(e.getMessage());
 		} catch (IllegalStateException e) {
 			// ignore
 		}

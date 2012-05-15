@@ -1,7 +1,5 @@
 package me.desht.scrollingmenusign.listeners;
 
-import java.util.logging.Level;
-
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.util.MiscUtil;
@@ -29,11 +27,11 @@ public class SMSEntityListener implements Listener {
 			SMSMenu menu = view.getMenu();
 			SMSLogger.fine("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
 			if (noExplode) {
-				MiscUtil.log(Level.INFO, "stopped an explosion to protect view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ")");
+				SMSLogger.info("stopped an explosion to protect view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ")");
 				event.setCancelled(true);
 				break;
 			} else {
-				MiscUtil.log(Level.INFO, "view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
+				SMSLogger.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
 				view.deletePermanent();
 			}
 		}

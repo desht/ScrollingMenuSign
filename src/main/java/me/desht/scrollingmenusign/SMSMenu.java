@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -126,7 +126,7 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 					SMSView v = SMSSignView.addSignToMenu(this, loc);
 					SMSPersistence.save(v);
 				} catch (SMSException e) {
-					MiscUtil.log(Level.WARNING, "Could not add sign to menu " + name + ": " + e.getMessage());
+					SMSLogger.warning("Could not add sign to menu " + name + ": " + e.getMessage());
 				}
 				SMSPersistence.save(this);
 			}
@@ -518,7 +518,7 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 			SMSPersistence.unPersist(this);
 		} catch (SMSException e) {
 			// Should not get here
-			MiscUtil.log(Level.WARNING, "Impossible: deletePermanent got SMSException?");
+			SMSLogger.warning("Impossible: deletePermanent got SMSException?");
 		}
 	}
 
@@ -532,7 +532,7 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 			deleteAllViews(false);
 		} catch (SMSException e) {
 			// Should not get here
-			MiscUtil.log(Level.WARNING, "Impossible: deleteTemporary got SMSException?");
+			SMSLogger.warning("Impossible: deleteTemporary got SMSException?");
 		}
 	}
 

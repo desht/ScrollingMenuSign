@@ -14,7 +14,6 @@ import java.util.Observer;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.Freezable;
 import me.desht.scrollingmenusign.SMSConfig;
@@ -25,6 +24,7 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.SMSLogger;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -593,8 +593,8 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 	
 	private static void loadError(String viewName, Exception e) {
-		MiscUtil.log(Level.WARNING, "Caught " + e.getClass().getName() + " while loading view " + viewName);
-		MiscUtil.log(Level.WARNING, "  Exception message: " + e.getMessage());
+		SMSLogger.warning("Caught " + e.getClass().getName() + " while loading view " + viewName);
+		SMSLogger.warning("  Exception message: " + e.getMessage());
 	}
 
 	protected void registerAttribute(String attr, Object def) {

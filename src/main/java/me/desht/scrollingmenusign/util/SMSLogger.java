@@ -9,7 +9,7 @@ import org.bukkit.plugin.Plugin;
 
 public class SMSLogger {
 
-	protected static Logger logger;
+	private static Logger logger;
 
 	public static void init(Plugin plugin) {
 		logger = plugin.getLogger();
@@ -37,6 +37,10 @@ public class SMSLogger {
 		setLogLevel(Level.parse(val.toUpperCase()));
 	}
 
+	public static void log(Level level, String message) {
+		logger.log(level, message);
+	}
+	
 	public static void fine(String message) {
 		logger.fine(message);
 	}

@@ -5,10 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.SMSLogger;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -185,7 +185,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, UseLimitable {
 			// macro expansion
 			String macro = message.substring(1);
 			if (history.contains(macro)) {
-				MiscUtil.log(Level.WARNING, "sendFeedback [" + macro + "]: recursion detected");
+				SMSLogger.warning("sendFeedback [" + macro + "]: recursion detected");
 				MiscUtil.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
 				return;
 			} else if (SMSMacro.hasMacro(macro)) {

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -118,7 +117,52 @@ public class ScrollingMenuSign extends JavaPlugin {
 		
 		setupMetrics();
 		
-		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
+		SMSLogger.info(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
+	}
+
+	@Override
+	public void onDisable() {
+		SMSPersistence.saveMenusAndViews();
+		SMSPersistence.saveMacros();
+		for (SMSMenu menu : SMSMenu.listMenus()) {
+			// this also deletes all the menu's views...
+			menu.deleteTemporary();
+		}
+		for (SMSMacro macro : SMSMacro.listMacros()) {
+			macro.deleteTemporary();
+		}
+
+		economy = null;
+		permission = null;
+		setInstance(null);
+
+		SMSLogger.info(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		Player player = null;
+		if (sender instanceof Player) {
+			player = (Player) sender;
+		}
+		try {
+			return cmds.dispatch(player, command.getName(), args);
+		} catch (SMSException e) {
+			MiscUtil.errorMessage(player, e.getMessage());
+			return true;
+		}
+	}
+
+	public SMSHandler getHandler() {
+		return handler;
+	}
+
+	public boolean isSpoutEnabled() {
+		return spoutEnabled;
+	}
+
+	public static ScrollingMenuSign getInstance() {
+		return instance;
 	}
 
 	private void setupMetrics() {
@@ -152,51 +196,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 		}
 	}
 
-	@Override
-	public void onDisable() {
-		SMSPersistence.saveMenusAndViews();
-		SMSPersistence.saveMacros();
-		for (SMSMenu menu : SMSMenu.listMenus()) {
-			// this also deletes all the menu's views...
-			menu.deleteTemporary();
-		}
-		for (SMSMacro macro : SMSMacro.listMacros()) {
-			macro.deleteTemporary();
-		}
-
-		economy = null;
-		permission = null;
-		setInstance(null);
-
-		MiscUtil.log(Level.INFO, getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
-	}
-
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		Player player = null;
-		if (sender instanceof Player) {
-			player = (Player) sender;
-		}
-		try {
-			return cmds.dispatch(player, command.getName(), args);
-		} catch (SMSException e) {
-			MiscUtil.errorMessage(player, e.getMessage());
-			return true;
-		}
-	}
-
-	public SMSHandler getHandler() {
-		return handler;
-	}
-
-	public boolean isSpoutEnabled() {
-		return spoutEnabled;
-	}
-
-	public static ScrollingMenuSign getInstance() {
-		return instance;
-	}
-
 	private static void setInstance(ScrollingMenuSign plugin) {
 		instance = plugin;
 	}
@@ -205,22 +204,22 @@ public class ScrollingMenuSign extends JavaPlugin {
 		Plugin spout = pm.getPlugin("Spout");
 		if (spout != null && spout.isEnabled()) {
 			spoutEnabled = true;
-			MiscUtil.log(Level.INFO, "Loaded Spout v" + spout.getDescription().getVersion());
+			SMSLogger.info("Loaded Spout v" + spout.getDescription().getVersion());
 		}
 	}
 
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			MiscUtil.log(Level.INFO, "Loaded Vault v" + vault.getDescription().getVersion());
+			SMSLogger.info("Loaded Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
-				MiscUtil.log(Level.WARNING, "No economy plugin detected - economy command costs not available");
+				SMSLogger.warning("No economy plugin detected - economy command costs not available");
 			}
 			if (!setupPermission()) {
-				MiscUtil.log(Level.WARNING, "No permissions plugin detected - no permission elevation support");
+				SMSLogger.warning("No permissions plugin detected - no permission elevation support");
 			}
 		} else {
-			MiscUtil.log(Level.WARNING, "Vault not loaded: no economy support & no permission elevation support");
+			SMSLogger.warning("Vault not loaded: no economy support & no permission elevation support");
 		}
 	}
 
@@ -283,7 +282,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		if (m.find()) {
 			bukkitBuild = Integer.parseInt(m.group(1));
 		} else {
-			MiscUtil.log(Level.WARNING, "Can't determine build number for CraftBukkit from " + cbVer);
+			SMSLogger.warning("Can't determine build number for CraftBukkit from " + cbVer);
 			return true;
 		}
 		if (pluginBuild < 7000 && bukkitBuild >= 1093) {
@@ -323,14 +322,14 @@ public class ScrollingMenuSign extends JavaPlugin {
 			}
 			return major * 1000000 + minor * 1000 + rel;
 		} catch (NumberFormatException e) {
-			MiscUtil.log(Level.WARNING, "Version string [" + ver + "] doesn't look right!");
+			SMSLogger.warning("Version string [" + ver + "] doesn't look right!");
 			return 0;
 		}
 	}
 
 	private static void notCompatible(String pVer, int bukkitBuild, String needed) {
-		MiscUtil.log(Level.SEVERE, "ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
-		MiscUtil.log(Level.SEVERE, "You need to use ScrollingMenuSign v" + needed);
+		SMSLogger.severe("ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
+		SMSLogger.severe("You need to use ScrollingMenuSign v" + needed);
 	}
 	
 	public static URL makeImageURL(String path) throws MalformedURLException {

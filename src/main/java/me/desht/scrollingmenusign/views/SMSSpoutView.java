@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,8 +17,8 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.SpoutViewPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
-import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.scrollingmenusign.util.SMSLogger;
 
 public class SMSSpoutView extends SMSScrollableView {
 
@@ -312,7 +311,7 @@ public class SMSSpoutView extends SMSScrollableView {
 						((SMSSpoutView) v).toggleGUI(sp);
 						return true;
 					} else {
-						MiscUtil.log(Level.WARNING, "Key mapping was added for a non-spout view?");
+						SMSLogger.warning("Key mapping was added for a non-spout view?");
 					}
 				} catch (SMSException e) {
 					// shouldn't get here - we checked for the view

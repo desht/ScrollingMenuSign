@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
-import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -105,10 +104,10 @@ public class SMSRedstoneView extends SMSView {
 					item.execute(null);
 				}
 			} else {
-				MiscUtil.log(Level.WARNING, "No such menu item '" + label + "' in menu " + getMenu().getName());
+				SMSLogger.warning("No such menu item '" + label + "' in menu " + getMenu().getName());
 			}
 		} catch (SMSException e) {
-			MiscUtil.log(Level.WARNING, e.getMessage());
+			SMSLogger.warning(e.getMessage());
 		}
 	}
 

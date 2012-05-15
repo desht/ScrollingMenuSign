@@ -2,10 +2,9 @@ package me.desht.scrollingmenusign.spout;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
 import org.getspout.spoutapi.gui.GenericLabel;
@@ -53,7 +52,7 @@ public class SpoutViewPopup extends GenericPopup {
 				texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
 				texture.setPriority(RenderPriority.Highest);	// put it behind the list widget
 			} catch (MalformedURLException e) {
-				MiscUtil.log(Level.WARNING, "malformed texture URL for spout view " + view.getName() + ": " + e.getMessage());
+				SMSLogger.warning("malformed texture URL for spout view " + view.getName() + ": " + e.getMessage());
 			}
 		}
 		

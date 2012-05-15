@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,7 +17,7 @@ import org.bukkit.material.Lever;
 import org.bukkit.material.Redstone;
 
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -94,7 +93,7 @@ public class Switch {
 		if (getSwitchType() == Material.LEVER) {
 			return ((Redstone)b.getState().getData()).isPowered();
 		} else {
-			MiscUtil.log(Level.WARNING, "Found " + getSwitchType() + " at " + location + " - expecting LEVER!");
+			SMSLogger.warning("Found " + getSwitchType() + " at " + location + " - expecting LEVER!");
 			return false;
 		}
 	}
@@ -103,7 +102,7 @@ public class Switch {
 		if (getSwitchType() == Material.LEVER) {
 			setLeverPowered(location.getBlock(), powered);
 		} else {
-			MiscUtil.log(Level.WARNING, "Found " + getSwitchType() + " at " + location + " - expecting LEVER!");
+			SMSLogger.warning("Found " + getSwitchType() + " at " + location + " - expecting LEVER!");
 		}
 	}
 
@@ -188,10 +187,10 @@ public class Switch {
 				SMSView view = SMSView.getView(viewName);
 				new Switch((SMSGlobalScrollableView)view, conf);
 			} catch (SMSException e) {
-				MiscUtil.log(Level.WARNING, "Unknown view " + viewName + " while loading deferred switch?");
+				SMSLogger.warning("Unknown view " + viewName + " while loading deferred switch?");
 			} catch (IllegalArgumentException e) {
 				// really shouldn't happen
-				MiscUtil.log(Level.WARNING, "Can't load  deferred switch for view " + viewName + ": " + e.getMessage());
+				SMSLogger.warning("Can't load  deferred switch for view " + viewName + ": " + e.getMessage());
 			}
 		}
 

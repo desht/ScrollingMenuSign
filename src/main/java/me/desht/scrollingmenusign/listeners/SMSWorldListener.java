@@ -1,10 +1,8 @@
 package me.desht.scrollingmenusign.listeners;
 
 import java.util.List;
-import java.util.logging.Level;
-
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
@@ -29,8 +27,8 @@ public class SMSWorldListener implements Listener {
 					view.addLocation(new Location(event.getWorld(), vec.getBlockX(), vec.getBlockY(), vec.getBlockZ()));
 					System.out.println("added loc " + event.getWorld().getName() + ", " + vec + " to view " + view.getName());
 				} catch (SMSException e) {
-					MiscUtil.log(Level.WARNING, "Can't add location " + event.getWorld().getName() + ", " + vec + " to view " + view.getName());
-					MiscUtil.log(Level.WARNING, "  Exception message: " + e.getMessage());
+					SMSLogger.warning("Can't add location " + event.getWorld().getName() + ", " + vec + " to view " + view.getName());
+					SMSLogger.warning("  Exception message: " + e.getMessage());
 				}
 			}
 			l.clear();

@@ -59,10 +59,10 @@ public class CommandParser {
 				cmdLogger.addHandler(fh);
 				cmdLogger.setUseParentHandlers(false);
 			} catch (SecurityException e) {
-				MiscUtil.log(Level.WARNING, "Can't log to " + logFileName + ": " + e.getMessage());
+				SMSLogger.warning("Can't log to " + logFileName + ": " + e.getMessage());
 				e.printStackTrace();
 			} catch (IOException e) {
-				MiscUtil.log(Level.WARNING, "Can't log to " + logFileName + ": " + e.getMessage());
+				SMSLogger.warning("Can't log to " + logFileName + ": " + e.getMessage());
 				e.printStackTrace();
 			}
 		} else {
@@ -308,7 +308,7 @@ public class CommandParser {
 	private void runMacro(Player player, ParsedCommand cmd) throws SMSException {
 		String macroName = cmd.getCommand();
 		if (macroHistory.contains(macroName)) {
-			MiscUtil.log(Level.WARNING, "Recursion detected and stopped in macro " + macroName);
+			SMSLogger.warning("Recursion detected and stopped in macro " + macroName);
 			cmd.setStatus(ReturnStatus.WOULD_RECURSE);
 			cmd.setLastError("Recursion detected and stopped in macro " + macroName);
 			return;
@@ -357,7 +357,7 @@ public class CommandParser {
 		} else if (sender instanceof Player) {
 			((Player)sender).chat(MiscUtil.parseColourSpec(command));
 		} else {
-			MiscUtil.log(Level.INFO, "Chat: " + command);
+			SMSLogger.info("Chat: " + command);
 		}
 	}
 }

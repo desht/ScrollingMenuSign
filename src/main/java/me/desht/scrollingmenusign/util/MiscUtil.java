@@ -49,7 +49,7 @@ public class MiscUtil {
 			if (player != null) {
 				player.sendMessage(line);
 			} else {
-				log(Level.INFO, ChatColor.stripColor(line));
+				SMSLogger.info(ChatColor.stripColor(line));
 			}
 		}
 	}
@@ -59,7 +59,7 @@ public class MiscUtil {
 			if (player != null) {
 				player.sendMessage(parseColourSpec(line));
 			} else {
-				log(level, ChatColor.stripColor(parseColourSpec(line)));
+				SMSLogger.log(level, ChatColor.stripColor(parseColourSpec(line)));
 			}
 		}
 	}
@@ -69,7 +69,7 @@ public class MiscUtil {
 			if (player != null) {
 				player.sendMessage(colour + parseColourSpec(line));
 			} else {
-				log(level, ChatColor.stripColor(parseColourSpec(line)));
+				SMSLogger.log(level, ChatColor.stripColor(parseColourSpec(line)));
 			}
 		}
 	}
@@ -116,29 +116,29 @@ public class MiscUtil {
 			throw new IllegalArgumentException("Invalid number in " + arglist);
 		}
 	}
-
-	public static void log(String message) {
-		if (message != null) {
-			logger.log(Level.INFO, String.format(messageFormat, message));
-		}
-	}
-
-	public static void log(Level level, String message) {
-		if (level == null) {
-			level = Level.INFO;
-		}
-		if (message != null) {
-			logger.log(level, String.format(messageFormat, message));
-		}
-	}
-
-	public static void log(Level level, String message, Exception err) {
-		if (err == null) {
-			log(level, message);
-		} else {
-			logger.log(level, String.format(messageFormat, message == null ? err.getMessage() : message), err);
-		}
-	}
+//
+//	public static void log(String message) {
+//		if (message != null) {
+//			logger.log(Level.INFO, String.format(messageFormat, message));
+//		}
+//	}
+//
+//	public static void log(Level level, String message) {
+//		if (level == null) {
+//			level = Level.INFO;
+//		}
+//		if (message != null) {
+//			logger.log(level, String.format(messageFormat, message));
+//		}
+//	}
+//
+//	public static void log(Level level, String message, Exception err) {
+//		if (err == null) {
+//			log(level, message);
+//		} else {
+//			logger.log(level, String.format(messageFormat, message == null ? err.getMessage() : message), err);
+//		}
+//	}
 
 	public static String unParseColourSpec(String spec) {
 		return spec.replace("\u00A7", "&");

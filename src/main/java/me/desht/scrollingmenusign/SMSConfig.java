@@ -7,12 +7,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.SMSLogger;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -59,7 +57,7 @@ public class SMSConfig {
 			return;
 		}
 		if (!dir.mkdir()) {
-			MiscUtil.log(Level.WARNING, "Can't make directory " + dir.getName()); //$NON-NLS-1$
+			SMSLogger.warning("Can't make directory " + dir.getName()); //$NON-NLS-1$
 		}
 	}
 
