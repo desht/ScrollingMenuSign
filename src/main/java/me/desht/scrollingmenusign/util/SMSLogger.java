@@ -29,7 +29,6 @@ public class SMSLogger {
 
 	public static void setLogLevel(Level level) {
 		logger.setLevel(level);
-		logger.getParent().setLevel(level);
 		for (Handler h : logger.getHandlers()) {
 			h.setLevel(level);
 		}
