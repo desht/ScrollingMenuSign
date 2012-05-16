@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.CostType;
-import me.desht.scrollingmenusign.util.ExperienceUtils;
+import me.desht.scrollingmenusign.util.ExperienceManager;
 
 public class Cost {
 	
@@ -190,7 +190,8 @@ public class Cost {
 				player.updateInventory();
 				break;
 			case EXPERIENCE:
-				ExperienceUtils.changeExp(player, (int) -c.getQuantity());
+				ExperienceManager em = new ExperienceManager(player);
+				em.changeExp((int) -c.getQuantity());
 				break;
 			case FOOD:
 				player.setFoodLevel(getNewQuantity(player.getFoodLevel(), c.getQuantity(), 1, 20));
