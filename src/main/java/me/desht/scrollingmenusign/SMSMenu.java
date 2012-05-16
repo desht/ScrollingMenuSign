@@ -11,11 +11,12 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.scrollingmenusign.util.MiscUtil;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -126,7 +127,7 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 					SMSView v = SMSSignView.addSignToMenu(this, loc);
 					SMSPersistence.save(v);
 				} catch (SMSException e) {
-					SMSLogger.warning("Could not add sign to menu " + name + ": " + e.getMessage());
+					LogUtils.warning("Could not add sign to menu " + name + ": " + e.getMessage());
 				}
 				SMSPersistence.save(this);
 			}
@@ -363,9 +364,9 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 			index = Integer.parseInt(wanted);
 		} catch (NumberFormatException e) {
 			// not an integer - try to find it by label
-			String wantedClean = MiscUtil.deColourise(wanted);
+			String wantedClean = ChatColor.stripColor(wanted);
 			for (int i = 0; i < items.size(); i++) {
-				String label = MiscUtil.deColourise(items.get(i).getLabel());
+				String label = ChatColor.stripColor(items.get(i).getLabel());
 				if (wantedClean.equalsIgnoreCase(label)) {
 					index = i + 1;
 					break;
@@ -429,7 +430,7 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 		} catch (NumberFormatException e) {
 			// not an integer - try to remove by label
 			for (int i = 0; i < items.size(); i++) {
-				String label = MiscUtil.deColourise(items.get(i).getLabel());
+				String label = ChatColor.stripColor(items.get(i).getLabel());
 				if (indexStr.equalsIgnoreCase(label)) {
 					index = i + 1;
 					break;
@@ -518,7 +519,7 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 			SMSPersistence.unPersist(this);
 		} catch (SMSException e) {
 			// Should not get here
-			SMSLogger.warning("Impossible: deletePermanent got SMSException?");
+			LogUtils.warning("Impossible: deletePermanent got SMSException?");
 		}
 	}
 
@@ -532,7 +533,7 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 			deleteAllViews(false);
 		} catch (SMSException e) {
 			// Should not get here
-			SMSLogger.warning("Impossible: deleteTemporary got SMSException?");
+			LogUtils.warning("Impossible: deleteTemporary got SMSException?");
 		}
 	}
 

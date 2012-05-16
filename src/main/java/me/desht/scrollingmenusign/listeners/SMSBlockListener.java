@@ -1,14 +1,13 @@
 package me.desht.scrollingmenusign.listeners;
 
 import me.desht.dhutils.DHUtilsException;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSConfig;
-import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
-import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -16,7 +15,6 @@ import me.desht.scrollingmenusign.views.redout.Switch;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.material.Attachable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,6 +23,7 @@ import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.material.Attachable;
 
 public class SMSBlockListener implements Listener {
 
@@ -37,7 +36,7 @@ public class SMSBlockListener implements Listener {
 			return;
 
 		SMSMenu menu = view.getMenu();
-		SMSLogger.fine("block damage event @ " + MiscUtil.formatLocation(loc) + ", view = " + view.getName() + ", menu=" + menu.getName());
+		LogUtils.fine("block damage event @ " + MiscUtil.formatLocation(loc) + ", view = " + view.getName() + ", menu=" + menu.getName());
 		Player p = event.getPlayer();
 		if (p.getName().equalsIgnoreCase(menu.getOwner()) || PermissionsUtils.isAllowedTo(p, "scrollingmenusign.destroy")) 
 			return;
@@ -60,7 +59,7 @@ public class SMSBlockListener implements Listener {
 
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
-			SMSLogger.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
+			LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
 			if (SMSConfig.getConfig().getBoolean("sms.no_destroy_signs", false)) {
 				event.setCancelled(true);
 			} else {
@@ -88,7 +87,7 @@ public class SMSBlockListener implements Listener {
 
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
-			SMSLogger.fine("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
+			LogUtils.fine("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
 			if (SMSConfig.getConfig().getBoolean("sms.no_physics", false)) {
 				event.setCancelled(true);
 			} else if (b.getState().getData() instanceof Attachable) {
@@ -96,7 +95,7 @@ public class SMSBlockListener implements Listener {
 				Block attachedBlock = b.getRelative(a.getAttachedFace());
 				if (attachedBlock.getTypeId() == 0) {
 					// attached to air? looks like the sign (or other attachable) has become detached
-					SMSLogger.info("Attachable view block " + view.getName() + " @ " + loc + " has become detached: deleting");
+					LogUtils.info("Attachable view block " + view.getName() + " @ " + loc + " has become detached: deleting");
 					view.deletePermanent();
 				}
 			}

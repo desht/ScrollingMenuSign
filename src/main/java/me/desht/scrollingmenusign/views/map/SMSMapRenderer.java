@@ -8,7 +8,7 @@ import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 
 import org.bukkit.entity.Player;
@@ -52,7 +52,7 @@ public class SMSMapRenderer extends MapRenderer {
 	}
 
 	private void drawImage(MapCanvas canvas, BufferedImage image) {
-		SMSLogger.finer(smsMapView.getName() + ": draw background image: " + image);
+		LogUtils.finer(smsMapView.getName() + ": draw background image: " + image);
 		if (image != null) {
 			canvas.drawImage(0, 0, image);
 		}

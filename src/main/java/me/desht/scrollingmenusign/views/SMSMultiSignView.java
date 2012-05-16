@@ -7,15 +7,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Observable;
 
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.Str;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
-import me.desht.scrollingmenusign.util.MiscUtil;
-import me.desht.scrollingmenusign.util.SMSLogger;
-import me.desht.scrollingmenusign.util.Str;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -117,7 +117,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 					// no more menu items - blank lines to the bottom of the view
 					lineText = "";
 				}
-				SMSLogger.finer("SMSMultiSignView: update: current=" + current + " line=" + n + " text=[" + lineText + "]");
+				LogUtils.finer("SMSMultiSignView: update: current=" + current + " line=" + n + " text=[" + lineText + "]");
 				drawText(n + 1, formatItem(n == 0 ? prefix2 : prefix1, lineText));
 				current++;
 				if (current > nItems)
@@ -139,7 +139,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	public void drawText(int line, String text) {
 		int y = line / 4;
 
-		SMSLogger.finest("drawLine: line=" + line + "  text=[" + text + "]");
+		LogUtils.finest("drawLine: line=" + line + "  text=[" + text + "]");
 		int begin = 0;
 		int x = 0;
 		String ctrlColour = "";
@@ -165,10 +165,10 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 					}
 				}
 			}
-			SMSLogger.finest("drawLine: sub = [" + sub + "]");
+			LogUtils.finest("drawLine: sub = [" + sub + "]");
 			org.bukkit.block.Sign s = getSign(x, y);
 			if (s != null) {
-				SMSLogger.finest("drawLine: x=" + x + " y=" + y + " sign = " + s.getLocation() + " line = " + line % 4);
+				LogUtils.finest("drawLine: x=" + x + " y=" + y + " sign = " + s.getLocation() + " line = " + line % 4);
 				pendingUpdate(s, line % 4, sub);
 			}
 			begin += sub.length() - ctrl.length();
@@ -326,14 +326,14 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 			width = Math.abs(topLeft.getZ() - bottomRight.getZ()) + 1;
 			break;
 		}
-		SMSLogger.finer("multisign: topleft=" + topLeft + ", bottomright=" + bottomRight);
-		SMSLogger.finer("multisign: height=" + height + ", width=" + width);
+		LogUtils.finer("multisign: topleft=" + topLeft + ", bottomright=" + bottomRight);
+		LogUtils.finer("multisign: height=" + height + ", width=" + width);
 	}
 
 	private Block scan(Block b, BlockFace horizontal, BlockFace vertical) {
 		Block b1 = b;
 
-		SMSLogger.finer("scan: " + b + " h=" + horizontal + " v=" + vertical);
+		LogUtils.finer("scan: " + b + " h=" + horizontal + " v=" + vertical);
 
 		b1 = scanOneDir(b, horizontal);
 		b1 = scanOneDir(b1, vertical);

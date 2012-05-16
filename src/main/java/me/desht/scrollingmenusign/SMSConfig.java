@@ -11,7 +11,7 @@ import java.util.List;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -32,7 +32,7 @@ public class SMSConfig {
 	static void init(ScrollingMenuSign plugin) {
 		setupDirectoryStructure();
 		initConfigFile();
-		SMSLogger.setLogLevel(getConfig().getString("sms.log_level", "INFO"));
+		LogUtils.setLogLevel(getConfig().getString("sms.log_level", "INFO"));
 	}
 
 	private static void setupDirectoryStructure() {
@@ -58,7 +58,7 @@ public class SMSConfig {
 			return;
 		}
 		if (!dir.mkdir()) {
-			SMSLogger.warning("Can't make directory " + dir.getName()); //$NON-NLS-1$
+			LogUtils.warning("Can't make directory " + dir.getName()); //$NON-NLS-1$
 		}
 	}
 
@@ -145,7 +145,7 @@ public class SMSConfig {
 		} else if (key.equalsIgnoreCase("sms.command_log_file")) {
 			CommandParser.setLogFile(val);
 		} else if (key.equalsIgnoreCase("sms.log_level")) {
-			SMSLogger.setLogLevel(val);
+			LogUtils.setLogLevel(val);
 		} else if (key.startsWith("sms.item_prefix.") || key.endsWith("_justify")) {
 			repaintViews(null);
 		}

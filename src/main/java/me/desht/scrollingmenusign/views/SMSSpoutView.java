@@ -18,7 +18,7 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.SpoutViewPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.LogUtils;
 
 public class SMSSpoutView extends SMSScrollableView {
 
@@ -318,7 +318,7 @@ public class SMSSpoutView extends SMSScrollableView {
 						((SMSSpoutView) v).toggleGUI(sp);
 						return true;
 					} else {
-						SMSLogger.warning("Got non-Spout view " + v.getName() + " for keymap " + s);
+						LogUtils.warning("Got non-Spout view " + v.getName() + " for keymap " + s);
 					}
 				} catch (SMSException e) {
 					// shouldn't get here - we checked for the view

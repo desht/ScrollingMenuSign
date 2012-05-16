@@ -7,8 +7,8 @@ import java.util.Scanner;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
-import me.desht.scrollingmenusign.util.MiscUtil;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.entity.Player;
 
@@ -309,7 +309,7 @@ public class ParsedCommand {
 			try {
 				return player.getItemInHand().getTypeId() == Integer.parseInt(check.substring(2));
 			} catch (NumberFormatException e) {
-				SMSLogger.warning("bad number format in restriction check: " + check);
+				LogUtils.warning("bad number format in restriction check: " + check);
 				return false;
 			}
 		} else {

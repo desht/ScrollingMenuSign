@@ -20,9 +20,9 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -59,10 +59,10 @@ public class CommandParser {
 				cmdLogger.addHandler(fh);
 				cmdLogger.setUseParentHandlers(false);
 			} catch (SecurityException e) {
-				SMSLogger.warning("Can't log to " + logFileName + ": " + e.getMessage());
+				LogUtils.warning("Can't log to " + logFileName + ": " + e.getMessage());
 				e.printStackTrace();
 			} catch (IOException e) {
-				SMSLogger.warning("Can't log to " + logFileName + ": " + e.getMessage());
+				LogUtils.warning("Can't log to " + logFileName + ": " + e.getMessage());
 				e.printStackTrace();
 			}
 		} else {
@@ -244,7 +244,7 @@ public class CommandParser {
 				cmd.setLastError("You don't have permission to run this command.");
 				return;
 			}
-			SMSLogger.fine("Execute (console): " + command);
+			LogUtils.fine("Execute (console): " + command);
 			executeLowLevelCommand(Bukkit.getServer().getConsoleSender(), cmd, command);
 		} else if (cmd.isElevated()) {
 			// this is a /@ command, to be run as the real player, but with temporary permissions
@@ -263,32 +263,32 @@ public class CommandParser {
 				for (String node : nodes) {
 					if (!node.isEmpty()) {
 						ScrollingMenuSign.permission.playerAddTransient(player, node);
-						SMSLogger.fine("Added temporary permission node '" + node + "' to " + playerName);
+						LogUtils.fine("Added temporary permission node '" + node + "' to " + playerName);
 					}
 				}
 				if (SMSConfig.getConfig().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
 					tempOp = true;
 					player.setOp(true);
-					SMSLogger.fine("Granted temporary op to " + playerName);
+					LogUtils.fine("Granted temporary op to " + playerName);
 				}
-				SMSLogger.fine("Execute (elevated): " + command);
+				LogUtils.fine("Execute (elevated): " + command);
 				executeLowLevelCommand(player, cmd, command);
 			} finally {
 				// revoke all temporary permissions granted to the user
 				for (String node : nodes) {
 					if (!node.isEmpty()) {
 						ScrollingMenuSign.permission.playerRemoveTransient(player, node);
-						SMSLogger.fine("Removed temporary permission node '" + node + "' from " + player.getName());
+						LogUtils.fine("Removed temporary permission node '" + node + "' from " + player.getName());
 					}
 				}
 				if (tempOp) {
 					player.setOp(false);
-					SMSLogger.fine("Removed temporary op from " + playerName);
+					LogUtils.fine("Removed temporary op from " + playerName);
 				}
 			}
 		} else {
 			// just an ordinary command (possibly chat), no special privilege elevation
-			SMSLogger.fine("Execute (normal): " + command);
+			LogUtils.fine("Execute (normal): " + command);
 			executeLowLevelCommand(player, cmd, command);
 		}
 	}
@@ -308,7 +308,7 @@ public class CommandParser {
 	private void runMacro(Player player, ParsedCommand cmd) throws SMSException {
 		String macroName = cmd.getCommand();
 		if (macroHistory.contains(macroName)) {
-			SMSLogger.warning("Recursion detected and stopped in macro " + macroName);
+			LogUtils.warning("Recursion detected and stopped in macro " + macroName);
 			cmd.setStatus(ReturnStatus.WOULD_RECURSE);
 			cmd.setLastError("Recursion detected and stopped in macro " + macroName);
 			return;
@@ -357,7 +357,7 @@ public class CommandParser {
 		} else if (sender instanceof Player) {
 			((Player)sender).chat(MiscUtil.parseColourSpec(command));
 		} else {
-			SMSLogger.info("Chat: " + command);
+			LogUtils.info("Chat: " + command);
 		}
 	}
 }

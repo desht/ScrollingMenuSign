@@ -9,9 +9,9 @@ import java.util.Observable;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.util.PermissionsUtils;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -104,10 +104,10 @@ public class SMSRedstoneView extends SMSView {
 					item.execute(null);
 				}
 			} else {
-				SMSLogger.warning("No such menu item '" + label + "' in menu " + getMenu().getName());
+				LogUtils.warning("No such menu item '" + label + "' in menu " + getMenu().getName());
 			}
 		} catch (SMSException e) {
-			SMSLogger.warning(e.getMessage());
+			LogUtils.warning(e.getMessage());
 		}
 	}
 
@@ -285,7 +285,7 @@ public class SMSRedstoneView extends SMSView {
 		SMSRedstoneView rv = getRedstoneViewForLocation(neighbour.getLocation());
 
 		if (rv != null && rv.hasPowerChanged(neighbour.getLocation(), event.getNewCurrent())) {
-			SMSLogger.fine("block redstone event @ " + neighbour.getLocation() + ", view = " +
+			LogUtils.fine("block redstone event @ " + neighbour.getLocation() + ", view = " +
 					rv.getName() + ", menu = " + rv.getMenu().getName() + ", new current = " + event.getNewCurrent());
 			rv.handlePowerChange(neighbour.getLocation(), event.getNewCurrent());
 		}

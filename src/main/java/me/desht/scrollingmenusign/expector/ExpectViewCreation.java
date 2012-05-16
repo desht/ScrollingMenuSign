@@ -3,7 +3,7 @@ package me.desht.scrollingmenusign.expector;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;

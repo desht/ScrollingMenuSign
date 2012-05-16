@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -29,7 +29,7 @@ public class SMSPersistence {
 	public static void unPersist(Freezable object) {
 		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
 		if (!saveFile.delete()) {
-			SMSLogger.warning("can't delete " + saveFile);
+			LogUtils.warning("can't delete " + saveFile);
 		}
 	}
 
@@ -41,7 +41,7 @@ public class SMSPersistence {
 		try {
 			conf.save(saveFile);
 		} catch (IOException e) {
-			SMSLogger.severe("Can't save " + saveFile + ": " + e.getMessage());
+			LogUtils.severe("Can't save " + saveFile + ": " + e.getMessage());
 		}
 	}
 
@@ -72,7 +72,7 @@ public class SMSPersistence {
 		for (SMSView view : SMSView.listViews()) {
 			save(view);
 		}
-		SMSLogger.info("saved " + SMSMenu.listMenus().size() + " menus and " +
+		LogUtils.info("saved " + SMSMenu.listMenus().size() + " menus and " +
 		             SMSView.listViews().size() + " views to file.");
 	}
 
@@ -91,14 +91,14 @@ public class SMSPersistence {
 		if (oldMacrosFile.exists()) {
 			oldStyleMacroLoad(oldMacrosFile);
 			oldMacrosFile.renameTo(new File(oldMacrosFile.getParent(), oldMacrosFile.getName() + ".OLD"));
-			SMSLogger.info("Converted old-style macro data file to new v0.8+ format");
+			LogUtils.info("Converted old-style macro data file to new v0.8+ format");
 		} else {
 			for (File f : SMSConfig.getMacrosFolder().listFiles(ymlFilter)) {
 				YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 				SMSMacro m = new SMSMacro(conf);
 				SMSMacro.addMacro(m);
 			}
-			SMSLogger.info("Loaded " + SMSMacro.listMacros().size() + " macros from file.");
+			LogUtils.info("Loaded " + SMSMacro.listMacros().size() + " macros from file.");
 		}
 	}
 
@@ -106,7 +106,7 @@ public class SMSPersistence {
 		for (SMSMacro macro : SMSMacro.listMacros()) {
 			save(macro);
 		}
-		SMSLogger.info("saved " + SMSMacro.listMacros().size() + " macros to file.");
+		LogUtils.info("saved " + SMSMacro.listMacros().size() + " macros to file.");
 	}
 
 	private static void loadViews() {
@@ -123,7 +123,7 @@ public class SMSPersistence {
 			}
 		}
 
-		SMSLogger.info("Loaded " + SMSView.listViews().size() + " views from file.");
+		LogUtils.info("Loaded " + SMSView.listViews().size() + " views from file.");
 	}
 
 	private static void loadMenus() {
@@ -138,7 +138,7 @@ public class SMSPersistence {
 			oldStyleMenuLoad(oldMenusFile);
 			oldMenusFile.renameTo(new File(oldMenusFile.getParent(), oldMenusFile.getName() + ".OLD"));
 			saveMenusAndViews();
-			SMSLogger.info("Converted old-style menu data file to new v0.5+ format");
+			LogUtils.info("Converted old-style menu data file to new v0.5+ format");
 		} else {
 			for (File f : SMSConfig.getMenusFolder().listFiles(ymlFilter)) {
 				try {
@@ -146,10 +146,10 @@ public class SMSPersistence {
 					SMSMenu menu = new SMSMenu(conf);
 					SMSMenu.addMenu(menu.getName(), menu, true);
 				} catch (SMSException e) {
-					SMSLogger.severe("Can't load menu data from " + f + ": " + e.getMessage());
+					LogUtils.severe("Can't load menu data from " + f + ": " + e.getMessage());
 				}
 			}
-			SMSLogger.info("Loaded " + SMSMenu.listMenus().size() + " menus from file.");
+			LogUtils.info("Loaded " + SMSMenu.listMenus().size() + " menus from file.");
 		}
 	}
 
@@ -163,9 +163,9 @@ public class SMSPersistence {
 				SMSMenu.addMenu(menu.getName(), menu, true);
 			}
 		} catch (SMSException e) {
-			SMSLogger.severe("Can't restore menus: " + e.getMessage());
+			LogUtils.severe("Can't restore menus: " + e.getMessage());
 		}
-		SMSLogger.info("read " + SMSMenu.listMenus().size() + " menus from file.");
+		LogUtils.info("read " + SMSMenu.listMenus().size() + " menus from file.");
 	}	
 
 	private static void oldStyleMacroLoad(File macrosFile) {
@@ -184,10 +184,10 @@ public class SMSPersistence {
 		try {
 			File backup = getBackupFileName(original.getParentFile(), original.getName());
 			copy(original, backup);
-			SMSLogger.info("An error occurred while loading " + original +
+			LogUtils.info("An error occurred while loading " + original +
 			             ", so a backup has been created at " + backup.getPath());
 		} catch (IOException e) {
-			SMSLogger.severe("Error while trying to write backup file: " + e);
+			LogUtils.severe("Error while trying to write backup file: " + e);
 		}
 	}
 

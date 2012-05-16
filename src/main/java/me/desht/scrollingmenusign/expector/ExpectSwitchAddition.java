@@ -1,6 +1,6 @@
 package me.desht.scrollingmenusign.expector;
 
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 

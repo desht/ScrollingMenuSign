@@ -4,7 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
 import org.getspout.spoutapi.gui.GenericLabel;
@@ -68,7 +68,7 @@ public class SpoutViewPopup extends GenericPopup {
 				t.setDrawAlphaChannel(true);
 				t.setPriority(RenderPriority.Highest);	// put it behind the list widget
 			} catch (MalformedURLException e) {
-				SMSLogger.warning("malformed texture URL for spout view " + view.getName() + ": " + e.getMessage());
+				LogUtils.warning("malformed texture URL for spout view " + view.getName() + ": " + e.getMessage());
 			}
 		}
 		return t;

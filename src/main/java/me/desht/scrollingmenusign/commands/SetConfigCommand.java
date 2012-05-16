@@ -6,7 +6,7 @@ import java.util.List;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.entity.Player;
 

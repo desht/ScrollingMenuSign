@@ -7,8 +7,8 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.util.MessagePager;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.ChatColor;

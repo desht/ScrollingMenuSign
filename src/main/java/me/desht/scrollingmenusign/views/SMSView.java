@@ -23,8 +23,8 @@ import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
-import me.desht.scrollingmenusign.util.MiscUtil;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -593,8 +593,8 @@ public abstract class SMSView implements Observer, Freezable {
 	}
 	
 	private static void loadError(String viewName, Exception e) {
-		SMSLogger.warning("Caught " + e.getClass().getName() + " while loading view " + viewName);
-		SMSLogger.warning("  Exception message: " + e.getMessage());
+		LogUtils.warning("Caught " + e.getClass().getName() + " while loading view " + viewName);
+		LogUtils.warning("  Exception message: " + e.getMessage());
 	}
 
 	protected void registerAttribute(String attr, Object def) {

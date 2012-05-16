@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.util;
 
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 
@@ -29,7 +30,7 @@ public class PermissionsUtils {
 			}
 		}
 
-		SMSLogger.fine("Permission check: player=" + player + ", node=" + node + ", allowed=" + allowed);
+		LogUtils.fine("Permission check: player=" + player + ", node=" + node + ", allowed=" + allowed);
 
 		return allowed;
 	}

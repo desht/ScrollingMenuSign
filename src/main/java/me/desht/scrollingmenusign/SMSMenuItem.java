@@ -7,9 +7,10 @@ import java.util.Map;
 import java.util.Set;
 
 import me.desht.scrollingmenusign.parser.CommandParser;
-import me.desht.scrollingmenusign.util.MiscUtil;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.LogUtils;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -185,7 +186,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, UseLimitable {
 			// macro expansion
 			String macro = message.substring(1);
 			if (history.contains(macro)) {
-				SMSLogger.warning("sendFeedback [" + macro + "]: recursion detected");
+				LogUtils.warning("sendFeedback [" + macro + "]: recursion detected");
 				MiscUtil.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
 				return;
 			} else if (SMSMacro.hasMacro(macro)) {
@@ -293,7 +294,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, UseLimitable {
 	 */
 	@Override
 	public int compareTo(SMSMenuItem other) {
-		return MiscUtil.deColourise(label).compareToIgnoreCase(MiscUtil.deColourise(other.label));
+		return ChatColor.stripColor(label).compareToIgnoreCase(ChatColor.stripColor(other.label));
 	}
 
 	Map<String, Object> freeze() {

@@ -42,9 +42,9 @@ import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutScreenListener;
 import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.util.MessagePager;
-import me.desht.scrollingmenusign.util.MiscUtil;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSView;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -79,7 +79,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	public void onEnable() {
 		setInstance(this);
 
-		SMSLogger.init(this);
+		LogUtils.init(this);
 		
 		PluginManager pm = getServer().getPluginManager();
 
@@ -117,7 +117,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		
 		setupMetrics();
 		
-		SMSLogger.info(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
+		LogUtils.info(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
 	}
 
 	@Override
@@ -136,7 +136,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		permission = null;
 		setInstance(null);
 
-		SMSLogger.info(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
+		LogUtils.info(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
 	}
 
 	@Override
@@ -192,7 +192,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 			}
 			metrics.start();
 		} catch (IOException e) {
-			SMSLogger.warning("Can't submit metrics data: " + e.getMessage());
+			LogUtils.warning("Can't submit metrics data: " + e.getMessage());
 		}
 	}
 
@@ -204,22 +204,22 @@ public class ScrollingMenuSign extends JavaPlugin {
 		Plugin spout = pm.getPlugin("Spout");
 		if (spout != null && spout.isEnabled()) {
 			spoutEnabled = true;
-			SMSLogger.info("Loaded Spout v" + spout.getDescription().getVersion());
+			LogUtils.info("Loaded Spout v" + spout.getDescription().getVersion());
 		}
 	}
 
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			SMSLogger.info("Loaded Vault v" + vault.getDescription().getVersion());
+			LogUtils.info("Loaded Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
-				SMSLogger.warning("No economy plugin detected - economy command costs not available");
+				LogUtils.warning("No economy plugin detected - economy command costs not available");
 			}
 			if (!setupPermission()) {
-				SMSLogger.warning("No permissions plugin detected - no permission elevation support");
+				LogUtils.warning("No permissions plugin detected - no permission elevation support");
 			}
 		} else {
-			SMSLogger.warning("Vault not loaded: no economy support & no permission elevation support");
+			LogUtils.warning("Vault not loaded: no economy support & no permission elevation support");
 		}
 	}
 
@@ -282,7 +282,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		if (m.find()) {
 			bukkitBuild = Integer.parseInt(m.group(1));
 		} else {
-			SMSLogger.warning("Can't determine build number for CraftBukkit from " + cbVer);
+			LogUtils.warning("Can't determine build number for CraftBukkit from " + cbVer);
 			return true;
 		}
 		if (pluginBuild < 7000 && bukkitBuild >= 1093) {
@@ -322,14 +322,14 @@ public class ScrollingMenuSign extends JavaPlugin {
 			}
 			return major * 1000000 + minor * 1000 + rel;
 		} catch (NumberFormatException e) {
-			SMSLogger.warning("Version string [" + ver + "] doesn't look right!");
+			LogUtils.warning("Version string [" + ver + "] doesn't look right!");
 			return 0;
 		}
 	}
 
 	private static void notCompatible(String pVer, int bukkitBuild, String needed) {
-		SMSLogger.severe("ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
-		SMSLogger.severe("You need to use ScrollingMenuSign v" + needed);
+		LogUtils.severe("ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
+		LogUtils.severe("You need to use ScrollingMenuSign v" + needed);
 	}
 	
 	public static URL makeImageURL(String path) throws MalformedURLException {

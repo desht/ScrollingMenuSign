@@ -8,7 +8,7 @@ import java.util.Set;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
-import me.desht.scrollingmenusign.util.MiscUtil;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

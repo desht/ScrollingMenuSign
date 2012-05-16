@@ -2,8 +2,8 @@ package me.desht.scrollingmenusign.listeners;
 
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.util.MiscUtil;
-import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Location;
@@ -25,13 +25,13 @@ public class SMSEntityListener implements Listener {
 				continue;
 			
 			SMSMenu menu = view.getMenu();
-			SMSLogger.fine("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
+			LogUtils.fine("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
 			if (noExplode) {
-				SMSLogger.info("stopped an explosion to protect view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ")");
+				LogUtils.info("stopped an explosion to protect view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ")");
 				event.setCancelled(true);
 				break;
 			} else {
-				SMSLogger.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
+				LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
 				view.deletePermanent();
 			}
 		}
