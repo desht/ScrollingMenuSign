@@ -14,6 +14,7 @@ import org.getspout.spoutapi.gui.Label;
 import org.getspout.spoutapi.gui.RenderPriority;
 import org.getspout.spoutapi.gui.Screen;
 import org.getspout.spoutapi.gui.Texture;
+import org.getspout.spoutapi.gui.WidgetAnchor;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SpoutViewPopup extends GenericPopup {
@@ -26,7 +27,7 @@ public class SpoutViewPopup extends GenericPopup {
 	private final Label title;
 	private final SMSListWidget listWidget;
 	
-	private Texture texture;
+	private final Texture texture;
 	private boolean poppedUp;
 	
 	public SpoutViewPopup(SpoutPlayer sp, SMSSpoutView view) {
@@ -39,31 +40,38 @@ public class SpoutViewPopup extends GenericPopup {
 		title = new GenericLabel(view.getMenu().getTitle());
 		title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(5).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
 		title.setAuto(false	);
+		updateTitleJustification();
 
 		int listX = (mainScreen.getWidth() - LIST_WIDTH) / 2;
 		int listY = 5 + 2 + TITLE_HEIGHT;
 		
 		String textureName = view.getAttributeAsString(SMSSpoutView.TEXTURE);
-		if (textureName != null && !textureName.isEmpty()) {
-			try {
-				URL textureURL = ScrollingMenuSign.makeImageURL(textureName);
-				texture = new GenericTexture(textureURL.toString());
-				texture.setDrawAlphaChannel(true);
-				texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
-				texture.setPriority(RenderPriority.Highest);	// put it behind the list widget
-			} catch (MalformedURLException e) {
-				SMSLogger.warning("malformed texture URL for spout view " + view.getName() + ": " + e.getMessage());
-			}
-		}
+		texture = makeTexture(textureName);
 		
 		listWidget = new SMSListWidget(sp, view);
 		listWidget.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
 
 		this.attachWidget(ScrollingMenuSign.getInstance(), title);
 		if (texture != null) {
+			texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
 			this.attachWidget(ScrollingMenuSign.getInstance(), texture);
 		}
 		this.attachWidget(ScrollingMenuSign.getInstance(), listWidget);
+	}
+	
+	private Texture makeTexture(String textureName) {
+		Texture t = null;
+		if (textureName != null && !textureName.isEmpty()) {
+			try {
+				URL textureURL = ScrollingMenuSign.makeImageURL(textureName);
+				t = new GenericTexture(textureURL.toString());
+				t.setDrawAlphaChannel(true);
+				t.setPriority(RenderPriority.Highest);	// put it behind the list widget
+			} catch (MalformedURLException e) {
+				SMSLogger.warning("malformed texture URL for spout view " + view.getName() + ": " + e.getMessage());
+			}
+		}
+		return t;
 	}
 
 	public SMSSpoutView getView() {
@@ -94,5 +102,17 @@ public class SpoutViewPopup extends GenericPopup {
 	public void popdown() {
 		poppedUp = false;
 		sp.getMainScreen().closePopup();
+	}
+	
+	public void updateTitleJustification() {
+		switch (getView().getTitleJustification()) {
+		case LEFT:
+			title.setAlign(WidgetAnchor.CENTER_LEFT); break;
+		case RIGHT:
+			title.setAlign(WidgetAnchor.CENTER_LEFT); break;
+		case CENTER:
+		default:
+			title.setAlign(WidgetAnchor.CENTER_LEFT); break;
+		}
 	}
 }

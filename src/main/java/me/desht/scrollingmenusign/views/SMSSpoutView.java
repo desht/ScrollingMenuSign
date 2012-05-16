@@ -142,12 +142,11 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
 	 */
 	@Override
-	public void update(Observable menu, Object arg1) {
-		if (arg1 instanceof SMSMenuAction) {
-			// spout view will have repainted itself if it was scrolled
-			SMSMenuAction act = (SMSMenuAction)arg1;
+	public void update(Observable menu, Object arg) {
+		if (arg instanceof SMSMenuAction) {
+			SMSMenuAction act = (SMSMenuAction)arg;
 			if (act == SMSMenuAction.SCROLLED)
-				return;
+				return;		// spout view will have repainted itself if it was scrolled
 		}
 		for (SpoutViewPopup gui : popups.values()) {
 			gui.repaint();
@@ -229,6 +228,8 @@ public class SMSSpoutView extends SMSScrollableView {
 			}
 		} else if (attribute.equals(AUTOPOPDOWN)) {
 			// nothing
+		} else if (attribute.equals(SMSView.TITLE_JUSTIFY)) {
+			rejustify();
 		} else {
 			// all other attributes affect the appearance and require a redraw
 			update(getMenu(), SMSMenuAction.REPAINT);
@@ -253,6 +254,12 @@ public class SMSSpoutView extends SMSScrollableView {
 		}
 	}
 
+	public void rejustify() {
+		for (SpoutViewPopup popup: popups.values()) {
+			popup.updateTitleJustification();
+		}
+	}
+	
 	/**
 	 * Check if the given player has an active GUI
 	 * 
@@ -311,7 +318,7 @@ public class SMSSpoutView extends SMSScrollableView {
 						((SMSSpoutView) v).toggleGUI(sp);
 						return true;
 					} else {
-						SMSLogger.warning("Key mapping was added for a non-spout view?");
+						SMSLogger.warning("Got non-Spout view " + v.getName() + " for keymap " + s);
 					}
 				} catch (SMSException e) {
 					// shouldn't get here - we checked for the view

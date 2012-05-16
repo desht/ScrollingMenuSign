@@ -12,6 +12,7 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.util.SMSLogger;
+import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.configuration.Configuration;
@@ -156,6 +157,9 @@ public class SMSConfig {
 		for (SMSView v : SMSView.listViews()) {
 			if (type == null || v.getType().equals(type)) {
 				v.update(v.getMenu(), SMSMenuAction.REPAINT);
+			}
+			if (v instanceof SMSSpoutView) {
+				((SMSSpoutView) v).rejustify();
 			}
 		}
 	}
