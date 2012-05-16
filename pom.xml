@@ -45,6 +45,32 @@
 					<excludePackageNames>me.desht.scrollingmenusign.commands:me.desht.scrollingmenusign.util:me.desht.scrollingmenusign.expector:me.desht.scrollingmenusign.spout:me.desht.scrollingmenusign.listeners</excludePackageNames>
 				</configuration>
 			</plugin>
+                        <plugin>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                <artifactId>maven-shade-plugin</artifactId>
+                                <version>1.5</version>
+                                <executions>
+                                  <execution>
+                                    <phase>package</phase>
+                                    <goals>
+                                      <goal>shade</goal>
+                                    </goals>
+                                    <configuration>
+                                      <artifactSet>
+                                        <includes>
+                                          <include>me.desht:dhutils</include>
+                                        </includes>
+                                      </artifactSet>
+                                      <relocations>
+                                        <relocation>
+                                          <pattern>me.desht.dhutils</pattern>
+                                          <shadedPattern>me.desht.scrollingmenusign.dhutils</shadedPattern>
+                                        </relocation>
+                                      </relocations>
+                                    </configuration>
+                                  </execution>
+                                </executions>
+                      </plugin>
 		</plugins>
 		<resources>
 			<resource>
@@ -74,6 +100,12 @@
 			<artifactId>Vault</artifactId>
 			<version>[1.1.1,)</version>
 		</dependency>
+                <dependency>
+                        <groupId>me.desht</groupId>
+                        <artifactId>dhutils</artifactId>
+                        <version>0.0.1-SNAPSHOT</version>
+                </dependency>
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

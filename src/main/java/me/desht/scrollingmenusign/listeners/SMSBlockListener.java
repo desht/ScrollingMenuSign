@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.listeners;
 
+import me.desht.dhutils.DHUtilsException;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -111,7 +112,7 @@ public class SMSBlockListener implements Listener {
 			swa.setLocation(event.getBlock().getLocation());
 			try {
 				plugin.responseHandler.handleAction(p, ExpectSwitchAddition.class);
-			} catch (SMSException e) {
+			} catch (DHUtilsException e) {
 				MiscUtil.errorMessage(p, e.getMessage());
 			}
 		}

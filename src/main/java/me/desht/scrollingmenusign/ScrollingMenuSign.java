@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.Metrics.Graph;
 import me.desht.scrollingmenusign.Metrics.Plotter;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
@@ -34,7 +35,6 @@ import me.desht.scrollingmenusign.commands.ShowMenuCommand;
 import me.desht.scrollingmenusign.commands.SortMenuCommand;
 import me.desht.scrollingmenusign.commands.VarCommand;
 import me.desht.scrollingmenusign.commands.ViewCommand;
-import me.desht.scrollingmenusign.expector.ResponseHandler;
 import me.desht.scrollingmenusign.listeners.SMSBlockListener;
 import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;

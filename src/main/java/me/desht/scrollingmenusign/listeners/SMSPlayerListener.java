@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.listeners;
 
+import me.desht.dhutils.DHUtilsException;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
@@ -93,7 +94,7 @@ public class SMSPlayerListener implements Listener {
 				cs.setSub(event.getMessage());
 				plugin.responseHandler.handleAction(player, cs.getClass());
 				event.setCancelled(true);
-			} catch (SMSException e) {
+			} catch (DHUtilsException e) {
 				MiscUtil.errorMessage(player, e.getMessage());
 			}
 		}
@@ -109,8 +110,6 @@ public class SMSPlayerListener implements Listener {
 			cfg.set("uservar." + player.getName(), null);
 			ScrollingMenuSign.getInstance().saveConfig();
 		}
-
-//		Debugger.getDebugger().removeDebugger(player);
 
 		MessagePager.deletePager(player);
 

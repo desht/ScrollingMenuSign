@@ -1,6 +1,5 @@
 package me.desht.scrollingmenusign.expector;
 
-import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.util.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.redout.Switch;
@@ -17,13 +16,12 @@ public class ExpectSwitchAddition extends ExpectLocation {
 	}
 	
 	@Override
-	public void doResponse(Player p) throws SMSException {
+	public void doResponse(Player p) {
 		Switch sw = new Switch(view, trigger, getLocation());
 		view.updateSwitchPower();
 		
 		MiscUtil.statusMessage(p, String.format("Added output lever at %s to %s view &e%s / %s&-.",
 		                                        MiscUtil.formatLocation(sw.getLocation()),
 		                                        view.getType(), view.getName(), trigger));
-		
 	}
 }

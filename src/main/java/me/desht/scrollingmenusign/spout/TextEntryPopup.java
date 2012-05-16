@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import me.desht.scrollingmenusign.SMSException;
+import me.desht.dhutils.DHUtilsException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.util.MiscUtil;
@@ -68,7 +68,7 @@ public class TextEntryPopup extends GenericPopup {
 				ExpectCommandSubstitution cs = (ExpectCommandSubstitution) plugin.responseHandler.getAction(sp, ExpectCommandSubstitution.class);
 				cs.setSub(textField.getText());
 				plugin.responseHandler.handleAction(sp, cs.getClass());
-			} catch (SMSException e) {
+			} catch (DHUtilsException e) {
 				MiscUtil.errorMessage(sp, e.getMessage());
 			}
 		}

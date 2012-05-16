@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.expector;
 
+import me.desht.dhutils.responsehandler.ExpectBase;
+
 import org.bukkit.Location;
 
 public abstract class ExpectLocation extends ExpectBase {

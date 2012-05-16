@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.expector;
 
+import me.desht.dhutils.DHUtilsException;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.util.MiscUtil;
@@ -19,13 +20,17 @@ public class ExpectViewCreation extends ExpectLocation {
 	}
 
 	@Override
-	public void doResponse(Player p) throws SMSException {
+	public void doResponse(Player p) {
 		SMSView view = null;
 		
-		if (arg.equals("-sign")) {
-			view = SMSSignView.addSignToMenu(menu, getLocation());
-		} else if (arg.equals("-redstone")) {
-			view = SMSRedstoneView.addRedstoneViewToMenu(menu, getLocation()); 
+		try {
+			if (arg.equals("-sign")) {
+				view = SMSSignView.addSignToMenu(menu, getLocation());
+			} else if (arg.equals("-redstone")) {
+				view = SMSRedstoneView.addRedstoneViewToMenu(menu, getLocation()); 
+			}
+		} catch (SMSException e) {
+			throw new DHUtilsException(e.getMessage());
 		}
 
 		if (view != null) 
