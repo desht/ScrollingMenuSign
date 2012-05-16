@@ -13,6 +13,10 @@ public class SMSLogger {
 
 	public static void init(Plugin plugin) {
 		logger = plugin.getLogger();
+		
+		// this feels a bit hack-ish, but it avoids the problem where we would need to 
+		// modify the parent logger (which is the Bukkit.getServer().getLogger() logger,
+		// common to all plugins) just to change the log level
 		for (Handler h : logger.getParent().getHandlers()) {
 			logger.addHandler(h);
 		}
