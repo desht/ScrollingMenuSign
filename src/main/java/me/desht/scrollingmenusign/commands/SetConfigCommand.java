@@ -3,12 +3,13 @@ package me.desht.scrollingmenusign.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.dhutils.MiscUtil;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class SetConfigCommand extends AbstractCommand {
 
@@ -20,7 +21,7 @@ public class SetConfigCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+	public boolean execute(Plugin plugin, CommandSender player, String[] args) {
 		String key = args[0], val = args[1];
 		
 		try {

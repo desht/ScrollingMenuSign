@@ -20,6 +20,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
@@ -87,7 +88,7 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 		SMSPersistence.mustHaveField(node, "owner");
 		
 		initCommon(node.getString("name"),
-		           MiscUtil.parseColourSpec(null, node.getString("title")),
+		           MiscUtil.parseColourSpec(node.getString("title")),
 		           node.getString("owner"));
 
 		autosort = node.getBoolean("autosort", false);
@@ -702,11 +703,11 @@ public class SMSMenu extends Observable implements Freezable, UseLimitable {
 	 * @param player	Player to retrieve the usage information for
 	 * @return			Formatted usage information
 	 */
-	public String formatUses(Player player) {
-		if (player == null) {
-			return formatUses();
+	public String formatUses(CommandSender sender) {
+		if (sender instanceof Player) {
+			return uses.toString(sender.getName());
 		} else {
-			return uses.toString(player.getName());
+			return formatUses();
 		}
 	}
 

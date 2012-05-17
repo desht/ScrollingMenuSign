@@ -1,11 +1,11 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class PageCommand extends AbstractCommand {
 
@@ -15,13 +15,13 @@ public class PageCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		MessagePager pager = MessagePager.getPager(player);
-		if (args.length == 0 || partialMatch(args, 0, "n")) {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
+		MessagePager pager = MessagePager.getPager(sender);
+		if (args.length == 0 || args[0].startsWith("n")) {
 			// default is to advance one page and display
 			pager.nextPage();
 			pager.showPage();
-		} else if (partialMatch(args, 0, "p")) { //$NON-NLS-1$
+		} else if (args[0].startsWith("p")) { //$NON-NLS-1$
 			pager.prevPage();
 			pager.showPage();
 		} else {
@@ -29,7 +29,7 @@ public class PageCommand extends AbstractCommand {
 				int pageNum = Integer.parseInt(args[0]);
 				pager.showPage(pageNum);
 			} catch (NumberFormatException e) {
-				MiscUtil.errorMessage(player, "Invalid page number " + args[1]);
+				MiscUtil.errorMessage(sender, "Invalid page number " + args[1]);
 			}
 		}
 		

@@ -5,8 +5,11 @@ import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class DeleteMenuCommand extends AbstractCommand {
 	
@@ -17,18 +20,18 @@ public class DeleteMenuCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		SMSHandler handler = plugin.getHandler();
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws SMSException {
+		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
 		
 		SMSMenu menu = null;
 		if (args.length > 0) {
 			menu = handler.getMenu(args[0]);
 		} else {
-			notFromConsole(player);
-			menu = handler.getMenu(SMSMenu.getTargetedMenuSign(player, true));
+			notFromConsole(sender);
+			menu = handler.getMenu(SMSMenu.getTargetedMenuSign((Player)sender, true));
 		}
 		handler.deleteMenu(menu.getName());
-		MiscUtil.statusMessage(player, "Deleted menu &e" + menu.getName());
+		MiscUtil.statusMessage(sender, "Deleted menu &e" + menu.getName());
 
 		return true;
 	}

@@ -1,12 +1,11 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSPersistence;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.dhutils.commands.AbstractCommand;
+import me.desht.scrollingmenusign.SMSPersistence;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class SaveCommand extends AbstractCommand {
 
@@ -17,8 +16,7 @@ public class SaveCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.save");
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		
 		boolean saveMenus = false;
 		boolean saveMacros = false;
@@ -39,8 +37,8 @@ public class SaveCommand extends AbstractCommand {
 		if (saveAll || saveMacros)
 			SMSPersistence.saveMacros();
 		
-		if (player != null)
-			MiscUtil.statusMessage(player, "Save complete.");
+		if (sender != null)
+			MiscUtil.statusMessage(sender, "Save complete.");
 
 		return true;
 	}

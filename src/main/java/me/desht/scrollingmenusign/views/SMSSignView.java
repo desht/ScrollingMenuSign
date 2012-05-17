@@ -150,7 +150,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		case RIGHT:
 			s = prefix + "%1$" + l + "s"; break;
 		}
-		return MiscUtil.parseColourSpec(null, s);
+		return MiscUtil.parseColourSpec(s);
 	}
 	
 	/**

@@ -3,16 +3,17 @@ package me.desht.scrollingmenusign.commands;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.desht.scrollingmenusign.SMSException;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class ListMenusCommand extends AbstractCommand {
 
@@ -23,18 +24,18 @@ public class ListMenusCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {		
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {		
 		
-		MessagePager pager = MessagePager.getPager(player).clear();
+		MessagePager pager = MessagePager.getPager(sender).clear();
 		
-		SMSHandler handler = plugin.getHandler();
+		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
 		if (args.length > 0) {
 			SMSMenu menu = handler.getMenu(args[0]);
 			listMenu(pager, menu, true);
 		} else {
 			List<SMSMenu> menus = handler.listMenus(true);
 			if (menus.size() == 0) {
-				MiscUtil.statusMessage(player, "No menu signs exist.");
+				MiscUtil.statusMessage(sender, "No menu signs exist.");
 			} else {
 				pager.add("Use &f/sms list <menu-name>&- to see all the views for a menu");
 				for (SMSMenu menu : menus) {

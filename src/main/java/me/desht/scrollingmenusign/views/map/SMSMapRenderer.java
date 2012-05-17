@@ -7,8 +7,8 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ViewJustification;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 
 import org.bukkit.entity.Player;
@@ -41,7 +41,7 @@ public class SMSMapRenderer extends MapRenderer {
 			drawImage(canvas, smsMapView.getImage());
 			if (!smsMapView.allowedToUse(player)) {
 				drawMessage(canvas, NOT_OWNER);
-			} else if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
+			} else if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
 				drawMessage(canvas, NO_PERM);
 			} else {
 				drawMenu(canvas, player);

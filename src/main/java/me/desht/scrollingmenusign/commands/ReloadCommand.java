@@ -1,13 +1,12 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class ReloadCommand extends AbstractCommand {
 
@@ -18,9 +17,8 @@ public class ReloadCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.reload");
-
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
+		
 		boolean loadMenus = false;
 		boolean loadMacros = false;
 		boolean loadConfig = false;
@@ -49,8 +47,8 @@ public class ReloadCommand extends AbstractCommand {
 			SMSPersistence.loadMacros();
 		}
 
-		if (player != null)
-			MiscUtil.statusMessage(player, "Reload complete.");
+		if (sender != null)
+			MiscUtil.statusMessage(sender, "Reload complete.");
 
 		return true;
 	}

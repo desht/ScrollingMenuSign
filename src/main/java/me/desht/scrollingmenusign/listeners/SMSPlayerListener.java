@@ -12,7 +12,7 @@ import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
@@ -226,7 +226,7 @@ public class SMSPlayerListener implements Listener {
 		SMSHandler handler = plugin.getHandler();
 		if (handler.checkMenu(menuName)) {
 			if (title.isEmpty()) {
-				PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
+				PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 				SMSMenu menu = handler.getMenu(menuName);
 				SMSView view = SMSSignView.addSignToMenu(menu, b.getLocation());
 				MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
@@ -235,7 +235,7 @@ public class SMSPlayerListener implements Listener {
 				MiscUtil.errorMessage(player, "A menu called '" + menuName + "' already exists.");
 			}
 		} else if (title.length() > 0) {
-			PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.create");
+			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.create");
 			SMSMenu menu = plugin.getHandler().createMenu(menuName, title, player.getName());
 			SMSView view = SMSSignView.addSignToMenu(menu, b.getLocation());
 			MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to new menu &e%s&-.",
@@ -254,9 +254,9 @@ public class SMSPlayerListener implements Listener {
 	 * @throws SMSException
 	 */
 	private void tryToActivateSign(Block block, Player player, SMSMapView mapView) throws SMSException {
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps.toSign");
+		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
+		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
+		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.toSign");
 		SMSMenu menu = mapView.getMenu();
 		SMSView view = SMSSignView.addSignToMenu(menu, block.getLocation());
 		MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
@@ -271,8 +271,8 @@ public class SMSPlayerListener implements Listener {
 	 * @throws SMSException
 	 */
 	private void tryToDeactivateMap(Block block, Player player) throws SMSException {
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.break");
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");
+		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.break");
+		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
 		short mapId = player.getItemInHand().getDurability();
 		SMSMapView mapView = SMSMapView.getViewForId(mapId);
 		if (mapView != null) {
@@ -290,9 +290,9 @@ public class SMSPlayerListener implements Listener {
 	 * @throws SMSException
 	 */
 	private void tryToActivateMap(Block block, Player player) throws SMSException {
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.commands.sync");
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.use.map");
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.maps.fromSign");
+		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
+		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
+		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.fromSign");
 
 		SMSView currentView = SMSSignView.getViewForLocation(block.getLocation());
 		if (currentView == null)

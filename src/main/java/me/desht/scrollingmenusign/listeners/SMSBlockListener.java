@@ -2,11 +2,11 @@ package me.desht.scrollingmenusign.listeners;
 
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSRedstoneView;
@@ -38,7 +38,7 @@ public class SMSBlockListener implements Listener {
 		SMSMenu menu = view.getMenu();
 		LogUtils.fine("block damage event @ " + MiscUtil.formatLocation(loc) + ", view = " + view.getName() + ", menu=" + menu.getName());
 		Player p = event.getPlayer();
-		if (p.getName().equalsIgnoreCase(menu.getOwner()) || PermissionsUtils.isAllowedTo(p, "scrollingmenusign.destroy")) 
+		if (p.getName().equalsIgnoreCase(menu.getOwner()) || PermissionUtils.isAllowedTo(p, "scrollingmenusign.destroy")) 
 			return;
 
 		// don't allow destruction

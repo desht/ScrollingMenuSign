@@ -1,12 +1,12 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
+import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class RemoveItemCommand extends AbstractCommand {
 
@@ -18,20 +18,20 @@ public class RemoveItemCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 
 		String menuName = args[0];
 		String item = args[1];
 
 		try {
-			SMSMenu menu = plugin.getHandler().getMenu(menuName);
+			SMSMenu menu = SMSMenu.getMenu(menuName);
 			menu.removeItem(item);
 			menu.notifyObservers(SMSMenuAction.REPAINT);
-			MiscUtil.statusMessage(player, "Menu entry &f#" + item + "&- removed from &e" + menuName);
+			MiscUtil.statusMessage(sender, "Menu entry &f#" + item + "&- removed from &e" + menuName);
 		} catch (IndexOutOfBoundsException e) {
-			MiscUtil.errorMessage(player, "Item index " + item + " out of range");
+			MiscUtil.errorMessage(sender, "Item index " + item + " out of range");
 		} catch (IllegalArgumentException e) {
-			MiscUtil.errorMessage(player, e.getMessage());
+			MiscUtil.errorMessage(sender, e.getMessage());
 		}
 		
 		return true;

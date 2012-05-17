@@ -17,8 +17,8 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.SpoutViewPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PermissionUtils;
 
 public class SMSSpoutView extends SMSScrollableView {
 
@@ -313,7 +313,7 @@ public class SMSSpoutView extends SMSScrollableView {
 				try {
 					SMSView v = SMSView.getView(viewName);
 					if (v instanceof SMSSpoutView) {
-						if (!PermissionsUtils.isAllowedTo(sp, "scrollingmenusign.use.spout"))
+						if (!PermissionUtils.isAllowedTo(sp, "scrollingmenusign.use.spout"))
 							return false;
 						((SMSSpoutView) v).toggleGUI(sp);
 						return true;

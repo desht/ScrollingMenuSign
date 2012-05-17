@@ -6,10 +6,11 @@ import java.util.Arrays;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class ItemUseCommand extends AbstractCommand {
 
@@ -26,21 +27,21 @@ public class ItemUseCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {		
+	public boolean execute(Plugin plugin, CommandSender player, String[] args) {		
 		ArrayList<String> a = new ArrayList<String>(Arrays.asList(args));
 		
 		boolean isGlobal = false;
 		boolean isClearing = false;
 		
-		if (partialMatch(a.get(a.size() - 1), "g")) {
+		if (a.get(a.size() - 1).startsWith("g")) {
 			isGlobal = true;
 			a.remove(a.size() - 1);
 		}
-		if (partialMatch(a.get(a.size() - 1), "c")) {
+		if (a.get(a.size() - 1).startsWith("c")) {
 			isClearing = true;
 		}
 		
-		SMSMenu menu = plugin.getHandler().getMenu(a.get(0));
+		SMSMenu menu = SMSMenu.getMenu(a.get(0));
 		
 		if (a.size() == 3) {
 			// dealing with an item

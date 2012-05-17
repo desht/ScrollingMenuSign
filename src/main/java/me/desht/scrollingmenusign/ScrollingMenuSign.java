@@ -7,13 +7,13 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.Metrics.Graph;
 import me.desht.scrollingmenusign.Metrics.Plotter;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
 import me.desht.scrollingmenusign.commands.AddViewCommand;
-import me.desht.scrollingmenusign.commands.CommandManager;
 import me.desht.scrollingmenusign.commands.CreateMenuCommand;
 import me.desht.scrollingmenusign.commands.DebugCommand;
 import me.desht.scrollingmenusign.commands.DefaultCmdCommand;
@@ -42,6 +42,7 @@ import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutScreenListener;
 import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
@@ -55,7 +56,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class ScrollingMenuSign extends JavaPlugin {
 
@@ -141,14 +141,17 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		Player player = null;
-		if (sender instanceof Player) {
-			player = (Player) sender;
-		}
+//		Player player = null;
+//		if (sender instanceof Player) {
+//			player = (Player) sender;
+//		}
 		try {
-			return cmds.dispatch(player, command.getName(), args);
+			return cmds.dispatch(sender, command.getName(), args);
+		} catch (DHUtilsException e) {
+			MiscUtil.errorMessage(sender, e.getMessage());
+			return true;
 		} catch (SMSException e) {
-			MiscUtil.errorMessage(player, e.getMessage());
+			MiscUtil.errorMessage(sender, e.getMessage());
 			return true;
 		}
 	}

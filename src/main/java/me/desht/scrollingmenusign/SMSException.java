@@ -1,6 +1,6 @@
 package me.desht.scrollingmenusign;
 
-public class SMSException extends Exception {
+public class SMSException extends RuntimeException {
 
 	/**
 	 * 

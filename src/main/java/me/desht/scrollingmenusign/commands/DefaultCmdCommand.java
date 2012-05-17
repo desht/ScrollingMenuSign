@@ -1,11 +1,11 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class DefaultCmdCommand extends AbstractCommand {
 
@@ -16,16 +16,16 @@ public class DefaultCmdCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		String menuName = args[0];
-		SMSMenu menu = plugin.getHandler().getMenu(menuName);
+		SMSMenu menu = SMSMenu.getMenu(menuName);
 		String cmd = combine(args, 1);
 		menu.setDefaultCommand(cmd);
 		
 		if (cmd.isEmpty()) {
-			MiscUtil.statusMessage(player, "Default command has been cleared for menu &e" + menuName);
+			MiscUtil.statusMessage(sender, "Default command has been cleared for menu &e" + menuName);
 		} else {
-			MiscUtil.statusMessage(player, "Default command has been set for menu &e" + menuName);
+			MiscUtil.statusMessage(sender, "Default command has been set for menu &e" + menuName);
 		}
 		
 		return false;

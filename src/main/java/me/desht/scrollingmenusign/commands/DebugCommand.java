@@ -3,12 +3,12 @@ package me.desht.scrollingmenusign.commands;
 import java.util.logging.Level;
 
 import me.desht.scrollingmenusign.SMSConfig;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class DebugCommand extends AbstractCommand {
 
@@ -19,7 +19,7 @@ public class DebugCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+	public boolean execute(Plugin plugin, CommandSender player, String[] args) {
 		// backwards compatibility - only toggles between INFO and FINE
 		// use /sms set log_level for better control
 		

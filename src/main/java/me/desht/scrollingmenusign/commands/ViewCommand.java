@@ -1,10 +1,9 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
@@ -12,7 +11,9 @@ import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class ViewCommand extends AbstractCommand {
 
@@ -29,12 +30,13 @@ public class ViewCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		SMSView view = null;
 		if (args.length > 0 && !args[0].equals(".")) {
 			view = SMSView.getView(args[0]);
 		} else {
-			notFromConsole(player);
+			notFromConsole(sender);
+			Player player = (Player)sender;
 			try {
 				Block b = player.getTargetBlock(null, 3);
 				view = SMSView.getViewForLocation(b.getLocation());
@@ -48,16 +50,16 @@ public class ViewCommand extends AbstractCommand {
 		
 		if (view == null) {
 			// maybe the player's looking at an output switch
-			if (lookingAtSwitch(player)) {
+			if (lookingAtSwitch(sender)) {
 				return true;
 			} else {
-				MiscUtil.errorMessage(player, "No suitable view found.");
+				MiscUtil.errorMessage(sender, "No suitable view found.");
 				return true;
 			}
 		}
 
 		if (args.length <= 1) {
-			MessagePager pager = MessagePager.getPager(player).clear();
+			MessagePager pager = MessagePager.getPager(sender).clear();
 			pager.add(String.format("View &e%s&- (%s) :", view.getName(), view.toString()));
 			for (String k : view.listAttributeKeys(true)) {
 				pager.add(String.format("&5*&- &e%s&- = &e%s&-", k, view.getAttributeAsString(k, "")));
@@ -79,11 +81,11 @@ public class ViewCommand extends AbstractCommand {
 		}
 
 		if (args[1].equals("-popup")) {
-			notFromConsole(player);
-			PermissionsUtils.requirePerms(player, "scrollingmenusign.use.spout");
+			notFromConsole(sender);
+			PermissionUtils.requirePerms(sender, "scrollingmenusign.use.spout");
 			if (view instanceof SMSSpoutView) {
 				SMSSpoutView spv = (SMSSpoutView) view;
-				spv.toggleGUI(player);
+				spv.toggleGUI((Player) sender);
 			}
 		} else {
 			String attr = args[1];
@@ -93,18 +95,21 @@ public class ViewCommand extends AbstractCommand {
 				view.autosave();
 			}
 
-			MiscUtil.statusMessage(player, String.format("&e%s.%s&- = &e%s&-", view.getName(), attr, view.getAttributeAsString(attr)));
+			MiscUtil.statusMessage(sender, String.format("&e%s.%s&- = &e%s&-", view.getName(), attr, view.getAttributeAsString(attr)));
 		}
 		
 		return true;
 	}
 
-	private boolean lookingAtSwitch(Player player) {
+	private boolean lookingAtSwitch(CommandSender sender) {
+		if (!(sender instanceof Player)) {
+			return false;
+		}
 		try {
-			Block b = player.getTargetBlock(null, 3);
+			Block b = ((Player) sender).getTargetBlock(null, 3);
 			Switch sw = Switch.getSwitchAt(b.getLocation());
 			if (sw != null) {
-				MiscUtil.statusMessage(player, String.format("Output switch @ &e%s&- for view &e%s&- / &e%s&-",
+				MiscUtil.statusMessage(sender, String.format("Output switch @ &e%s&- for view &e%s&- / &e%s&-",
 				                                             MiscUtil.formatLocation(sw.getLocation()),
 				                                             sw.getView().getName(), sw.getTrigger()));
 				return true;

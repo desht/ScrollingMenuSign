@@ -4,8 +4,8 @@ import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
@@ -102,7 +102,7 @@ public class SMSListWidget extends GenericListWidget {
 
 	private void populateMenu() {
 		clear();
-		boolean showCommand = SMSConfig.getConfig().getBoolean("sms.spout.show_command_text") && PermissionsUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
+		boolean showCommand = SMSConfig.getConfig().getBoolean("sms.spout.show_command_text") && PermissionUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
 		for (SMSMenuItem item : view.getMenu().getItems()) {
 			addItem(new ListWidgetItem(defaultTextColor + item.getLabel(), showCommand ? item.getCommand() : ""));
 		}

@@ -1,12 +1,12 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.SMSPersistence;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class AddMacroCommand extends AbstractCommand {
 
@@ -17,13 +17,13 @@ public class AddMacroCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		String s = combine(args, 1);
+
 		SMSMacro.getMacro(args[0], true).addLine(s);
-		MiscUtil.statusMessage(player, "Added command to macro &e" + args[0] + "&-.");
-		
+		MiscUtil.statusMessage(sender, "Added command to macro &e" + args[0] + "&-.");
+
 		SMSPersistence.saveMacros();
-		
 		return true;
 	}
 

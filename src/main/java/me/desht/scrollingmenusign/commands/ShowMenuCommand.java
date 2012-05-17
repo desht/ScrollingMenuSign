@@ -2,17 +2,20 @@ package me.desht.scrollingmenusign.commands;
 
 import java.util.List;
 
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.dhutils.MessagePager;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class ShowMenuCommand extends AbstractCommand {
 
@@ -23,15 +26,16 @@ public class ShowMenuCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {	
-		SMSHandler handler = plugin.getHandler();
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {	
+		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
 		
 		SMSMenu menu = null;
 		SMSView view = null;
 		if (args.length > 0) {
 			menu = handler.getMenu(args[0]);
 		} else {
-			notFromConsole(player);
+			notFromConsole(sender);
+			Player player = (Player) sender;
 			try {
 				view = SMSView.getViewForLocation(player.getTargetBlock(null, 3).getLocation());
 			} catch (IllegalStateException e) {
@@ -49,12 +53,12 @@ public class ShowMenuCommand extends AbstractCommand {
 			menu = view.getMenu();
 		}
 		
-		MessagePager pager = MessagePager.getPager(player).clear();
+		MessagePager pager = MessagePager.getPager(sender).clear();
 		String mo = menu.getOwner().isEmpty() ? "(no one)" : menu.getOwner();
 		pager.add(String.format("Menu &e%s&-, Title \"&f%s&-\", Owner &e%s&-",
 		                                       menu.getName(),  menu.getTitle(), mo));
-		if (!menu.formatUses(player).isEmpty()) {
-			pager.add("&c" + menu.formatUses(player));
+		if (!menu.formatUses(sender).isEmpty()) {
+			pager.add("&c" + menu.formatUses(sender));
 		}
 		if (!menu.getDefaultCommand().isEmpty()) {
 			pager.add(" Default command: &f" + menu.getDefaultCommand());
@@ -68,7 +72,7 @@ public class ShowMenuCommand extends AbstractCommand {
 		int n = 1;
 		for (SMSMenuItem item : items) {
 			String s = String.format("&e%2d) &f%s " + "&f[%s] \"%s\"&f &c%s",
-					n, item.getLabel(), item.getCommand(), item.getMessage(), item.formatUses(player));
+					n, item.getLabel(), item.getCommand(), item.getMessage(), item.formatUses(sender));
 			n++;
 			pager.add(s);
 		}

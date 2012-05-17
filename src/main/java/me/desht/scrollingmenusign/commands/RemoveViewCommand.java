@@ -1,14 +1,16 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class RemoveViewCommand extends AbstractCommand {
 
@@ -23,7 +25,7 @@ public class RemoveViewCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		SMSView view = null;
 
 		if (args.length == 2 && args[0].equals("-view")) {
@@ -32,18 +34,18 @@ public class RemoveViewCommand extends AbstractCommand {
 		} else if (args.length == 2 && args[0].equals("-loc")) {
 			// detaching a view by location
 			try {
-				view = SMSView.getViewForLocation(MiscUtil.parseLocation(args[0], player));
+				view = SMSView.getViewForLocation(MiscUtil.parseLocation(args[0], sender));
 			} catch (IllegalArgumentException e) {
 				throw new SMSException(e.getMessage());
 			}
-			view = SMSView.getViewForLocation(MiscUtil.parseLocation(args[0], player));
-		} else if (player != null && (view = SMSMapView.getHeldMapView(player)) != null) {
+			view = SMSView.getViewForLocation(MiscUtil.parseLocation(args[0], sender));
+		} else if (sender instanceof Player && (view = SMSMapView.getHeldMapView((Player)sender)) != null) {
 			// detaching a map view - nothing else to check here
 		} else if (args.length == 0) {
 			// detaching a view that the player is looking at?
-			notFromConsole(player);
+			notFromConsole(sender);
 			try {
-				Block b = player.getTargetBlock(null, 3);
+				Block b = ((Player)sender).getTargetBlock(null, 3);
 				view = SMSView.getViewForLocation(b.getLocation());
 			} catch (IllegalStateException e) {
 				// ignore
@@ -53,9 +55,9 @@ public class RemoveViewCommand extends AbstractCommand {
 		if (view == null) {
 			throw new SMSException("No suitable view found to remove.");
 		} else {
-			PermissionsUtils.requirePerms(player, "scrollingmenusign.use." + view.getType());
+			PermissionUtils.requirePerms(sender, "scrollingmenusign.use." + view.getType());
 			view.deletePermanent();
-			MiscUtil.statusMessage(player, String.format("Removed &9%s&- view &e%s&- from menu &e%s&-.",
+			MiscUtil.statusMessage(sender, String.format("Removed &9%s&- view &e%s&- from menu &e%s&-.",
 			                                             view.getType(), view.getName(), view.getMenu().getName()));
 		}
 

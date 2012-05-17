@@ -1,11 +1,11 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class ListMacroCommand extends AbstractCommand {
 
@@ -16,8 +16,8 @@ public class ListMacroCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		MessagePager pager = MessagePager.getPager(player).clear();
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
+		MessagePager pager = MessagePager.getPager(sender).clear();
 		int i = 1;
 		if (args.length == 0) {
 			pager.add("&e" + SMSMacro.getMacros().size() + " macros:");

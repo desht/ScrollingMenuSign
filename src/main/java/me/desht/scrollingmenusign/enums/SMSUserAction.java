@@ -1,11 +1,11 @@
 package me.desht.scrollingmenusign.enums;
 
 
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -80,13 +80,13 @@ public enum SMSUserAction {
 			return;
 		}
 		
-		PermissionsUtils.requirePerms(player, "scrollingmenusign.use." + view.getType());
+		PermissionUtils.requirePerms(player, "scrollingmenusign.use." + view.getType());
 		
 		SMSScrollableView sview = (SMSScrollableView) view;
 		SMSMenu menu = sview.getMenu();
 		switch (this) {
 		case EXECUTE:
-			PermissionsUtils.requirePerms(player, "scrollingmenusign.execute");
+			PermissionUtils.requirePerms(player, "scrollingmenusign.execute");
 			SMSMenuItem item = menu.getItemAt(sview.getScrollPos(player.getName()));
 			if (item != null) {
 				item.execute(player);
@@ -95,13 +95,13 @@ public enum SMSUserAction {
 			}
 			break;
 		case SCROLLDOWN:
-			PermissionsUtils.requirePerms(player, "scrollingmenusign.scroll");
+			PermissionUtils.requirePerms(player, "scrollingmenusign.scroll");
 			sview.scrollDown(player.getName());
 			sview.update(menu, SMSMenuAction.SCROLLED);
 			sview.onScrolled(player, SCROLLDOWN);
 			break;
 		case SCROLLUP:
-			PermissionsUtils.requirePerms(player, "scrollingmenusign.scroll");
+			PermissionUtils.requirePerms(player, "scrollingmenusign.scroll");
 			sview.scrollUp(player.getName());
 			sview.update(menu, SMSMenuAction.SCROLLED);
 			sview.onScrolled(player, SCROLLDOWN);

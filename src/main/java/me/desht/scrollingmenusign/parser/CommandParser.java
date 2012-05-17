@@ -21,7 +21,7 @@ import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
@@ -178,10 +178,10 @@ public class CommandParser {
 				break;
 			case CHECK_PERMS:
 				cmd.setStatus(ReturnStatus.CMD_OK);
-				if ((cmd.isElevated() || cmd.isConsole()) && !PermissionsUtils.isAllowedTo(player, "scrollingmenusign.create.elevated")) {
+				if ((cmd.isElevated() || cmd.isConsole()) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.create.elevated")) {
 					cmd.setStatus(ReturnStatus.NO_PERMS);
 					return cmd;
-				} else if (!cmd.getCosts().isEmpty() && !PermissionsUtils.isAllowedTo(player, "scrollingmenusign.create.cost")) {
+				} else if (!cmd.getCosts().isEmpty() && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.create.cost")) {
 					cmd.setStatus(ReturnStatus.NO_PERMS);
 					return cmd;
 				}
@@ -239,7 +239,7 @@ public class CommandParser {
 		} else if (cmd.isConsole()) {
 			// run this as a console command
 			// only works for commands that may be run via the console, but should always work
-			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated")) {
+			if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated")) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
 				cmd.setLastError("You don't have permission to run this command.");
 				return;
@@ -249,7 +249,7 @@ public class CommandParser {
 		} else if (cmd.isElevated()) {
 			// this is a /@ command, to be run as the real player, but with temporary permissions
 			// (this now also handles the /* fake-player style, which is no longer directly supported)
-			if (!PermissionsUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated") || ScrollingMenuSign.permission == null) {
+			if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated") || ScrollingMenuSign.permission == null) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
 				cmd.setLastError(ScrollingMenuSign.permission == null ? 
 						"Permission elevation is not supported." : 

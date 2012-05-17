@@ -1,14 +1,17 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
+import org.bukkit.plugin.Plugin;
 
 public class GiveMapCommand extends AbstractCommand {
 
@@ -20,7 +23,7 @@ public class GiveMapCommand extends AbstractCommand {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {		
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {		
 		int amount = 1;
 		if (args.length >= 2) {
 			try {
@@ -29,11 +32,12 @@ public class GiveMapCommand extends AbstractCommand {
 				throw new SMSException("Invalid amount '" + args[1] + "'.");
 			}
 		}
-		Player targetPlayer = player;
+		Player targetPlayer;
 		if (args.length >= 3) {
 			targetPlayer = Bukkit.getPlayer(args[2]);
 		} else {
-			notFromConsole(player);
+			notFromConsole(sender);
+			targetPlayer = (Player) sender;
 		}
 		short mapId;
 		try {
@@ -48,7 +52,8 @@ public class GiveMapCommand extends AbstractCommand {
 			amount = 64;
 		
 		if (Bukkit.getServer().getMap(mapId) == null) {
-			MapView mv = Bukkit.getServer().createMap(player.getWorld());
+			World world = (sender instanceof Player) ? ((Player) sender).getWorld() : Bukkit.getWorlds().get(0);
+			MapView mv = Bukkit.getServer().createMap(world);
 			mapId = mv.getId();
 		}
 		
@@ -58,8 +63,8 @@ public class GiveMapCommand extends AbstractCommand {
 		targetPlayer.updateInventory();
 		
 		String s = amount == 1 ? "" : "s";
-		MiscUtil.statusMessage(player, String.format("Gave %d map%s (map_%d) to %s", amount, s, mapId, targetPlayer.getName()));
-		if (player != targetPlayer) {
+		MiscUtil.statusMessage(sender, String.format("Gave %d map%s (map_%d) to %s", amount, s, mapId, targetPlayer.getName()));
+		if (sender != targetPlayer) {
 			MiscUtil.statusMessage(targetPlayer, String.format("You received %d map%s of type &6map_%d&-", amount, s, mapId));	
 		}
 		return true;

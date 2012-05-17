@@ -10,7 +10,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.util.PermissionsUtils;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Location;
@@ -94,7 +94,7 @@ public class SMSRedstoneView extends SMSView {
 				if (players != null) {
 					// run the command for each affected player
 					for (Player p : players) {
-						if (PermissionsUtils.isAllowedTo(p, "scrollingmenusign.use.redstone")) {
+						if (PermissionUtils.isAllowedTo(p, "scrollingmenusign.use.redstone")) {
 							item.execute(p);
 							item.feedbackMessage(p);
 						}

@@ -1,12 +1,12 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.SMSPersistence;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.dhutils.MiscUtil;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class RemoveMacroCommand extends AbstractCommand {
 
@@ -17,19 +17,19 @@ public class RemoveMacroCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		if (args.length == 1) {
 			SMSMacro.removeMacro(args[0]);
-			MiscUtil.statusMessage(player, "Removed macro &e" + args[0] + "&-.");	
+			MiscUtil.statusMessage(sender, "Removed macro &e" + args[0] + "&-.");	
 		} else {
 			try { 
 				int index = Integer.parseInt(args[1]);
 				SMSMacro.getMacro(args[0]).removeLine(index - 1);
-				MiscUtil.statusMessage(player, "Removed command #" + index + " from macro &e" + args[0] + "&-.");
+				MiscUtil.statusMessage(sender, "Removed command #" + index + " from macro &e" + args[0] + "&-.");
 			} catch (NumberFormatException e) {
-				MiscUtil.errorMessage(player, "invalid index: " + args[1]);
+				MiscUtil.errorMessage(sender, "invalid index: " + args[1]);
 			} catch (IndexOutOfBoundsException e) {
-				MiscUtil.errorMessage(player, "invalid index: " + args[1]);	
+				MiscUtil.errorMessage(sender, "invalid index: " + args[1]);	
 			}
 		}
 	

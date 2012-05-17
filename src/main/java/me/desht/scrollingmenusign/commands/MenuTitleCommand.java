@@ -1,12 +1,12 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
+import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class MenuTitleCommand extends AbstractCommand {
 
@@ -17,13 +17,13 @@ public class MenuTitleCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {
-		SMSMenu menu = plugin.getHandler().getMenu(args[0]);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
+		SMSMenu menu = SMSMenu.getMenu(args[0]);
 		String title = combine(args, 1);
-		menu.setTitle(MiscUtil.parseColourSpec(player, title));
+		menu.setTitle(MiscUtil.parseColourSpec(sender, title));
 		menu.notifyObservers(SMSMenuAction.REPAINT);
 		
-		MiscUtil.statusMessage(player, "Title for menu &e" + menu.getName() + "&- has been set to &f" + title + "&-.");
+		MiscUtil.statusMessage(sender, "Title for menu &e" + menu.getName() + "&- has been set to &f" + title + "&-.");
 
 		return true;
 	}

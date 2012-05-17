@@ -402,7 +402,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 			s = prefix + Str.padLeft(text + reset, l);
 			break;		
 		}
-		return MiscUtil.parseColourSpec(null, s);
+		return MiscUtil.parseColourSpec(s);
 	}
 
 	private String formatTitle() {

@@ -1,12 +1,12 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.SMSConfig;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class GetConfigCommand extends AbstractCommand {
 
@@ -17,8 +17,8 @@ public class GetConfigCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, Player player, String[] args) throws SMSException {	
-		MessagePager pager = MessagePager.getPager(player).clear();
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {	
+		MessagePager pager = MessagePager.getPager(sender).clear();
 		
 		if (args.length == 0) {
 			for (String line : SMSConfig.getPluginConfiguration()) {
@@ -28,7 +28,7 @@ public class GetConfigCommand extends AbstractCommand {
 		} else {
 			String key = args[0];
 			Object res = SMSConfig.getPluginConfiguration(key);
-			MiscUtil.statusMessage(player, "&f" + key + " = '&e" + res + "&-'");
+			MiscUtil.statusMessage(sender, "&f" + key + " = '&e" + res + "&-'");
 		}
 		
 		return true;

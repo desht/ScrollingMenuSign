@@ -11,6 +11,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -39,7 +40,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, UseLimitable {
 		this.menu = menu;
 		this.label = MiscUtil.parseColourSpec(node.getString("label"));
 		this.command = node.getString("command");
-		this.message = MiscUtil.parseColourSpec(null, node.getString("message"));
+		this.message = MiscUtil.parseColourSpec(node.getString("message"));
 		this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
 	}
 
@@ -235,14 +236,14 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, UseLimitable {
 	/**
 	 * Returns a printable representation of the number of uses remaining for this item, for the given player.
 	 * 
-	 * @param player	Player to retrieve the usage information for
+	 * @param sender	Player to retrieve the usage information for
 	 * @return			Formatted usage information
 	 */
-	public String formatUses(Player player) {
-		if (player == null) {
-			return formatUses();
+	public String formatUses(CommandSender sender) {
+		if (sender instanceof Player) {
+			return uses.toString(sender.getName());
 		} else {
-			return uses.toString(player.getName());
+			return formatUses();
 		}
 	}
 
