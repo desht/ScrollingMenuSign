@@ -108,7 +108,7 @@ public class SMSMacro implements SMSPersistable {
 	 */
 	@Override
 	public File getSaveFolder() {
-		return SMSConfig.getMacrosFolder();
+		return DirectoryStructure.getMacrosFolder();
 	}
 
 	private void deleteCommon() {

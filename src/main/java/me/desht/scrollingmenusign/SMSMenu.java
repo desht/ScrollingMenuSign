@@ -716,7 +716,7 @@ public class SMSMenu extends Observable implements SMSPersistable, UseLimitable 
 	 */
 	@Override
 	public File getSaveFolder() {
-		return SMSConfig.getMenusFolder();
+		return DirectoryStructure.getMenusFolder();
 	}
 
 	@Override

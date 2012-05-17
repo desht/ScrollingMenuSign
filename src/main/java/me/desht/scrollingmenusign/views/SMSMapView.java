@@ -26,7 +26,7 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.map.MinecraftFont;
 
-import me.desht.scrollingmenusign.SMSConfig;
+import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -130,7 +130,7 @@ public class SMSMapView extends SMSScrollableView {
 			md = MessageDigest.getInstance("MD5");
 			byte[] d = md.digest(bytes);
 			BigInteger i = new BigInteger(d);
-			return new File(SMSConfig.getImgCacheFolder(), String.format("%1$032X", i) + "." + CACHED_FILE_FORMAT);
+			return new File(DirectoryStructure.getImgCacheFolder(), String.format("%1$032X", i) + "." + CACHED_FILE_FORMAT);
 		} catch (NoSuchAlgorithmException e) {
 			LogUtils.warning("Can't get MD5 MessageDigest algorithm, no image caching");
 			return null;

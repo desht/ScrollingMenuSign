@@ -82,7 +82,7 @@ public class SMSPersistence {
 	}
 
 	public static void loadMacros() {
-		final File oldMacrosFile = new File(SMSConfig.getPluginFolder(), "commands.yml");
+		final File oldMacrosFile = new File(DirectoryStructure.getPluginFolder(), "commands.yml");
 
 		for (SMSMacro macro : SMSMacro.listMacros()) {
 			macro.deleteTemporary();
@@ -93,7 +93,7 @@ public class SMSPersistence {
 			oldMacrosFile.renameTo(new File(oldMacrosFile.getParent(), oldMacrosFile.getName() + ".OLD"));
 			LogUtils.info("Converted old-style macro data file to new v0.8+ format");
 		} else {
-			for (File f : SMSConfig.getMacrosFolder().listFiles(ymlFilter)) {
+			for (File f : DirectoryStructure.getMacrosFolder().listFiles(ymlFilter)) {
 				YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 				SMSMacro m = new SMSMacro(conf);
 				SMSMacro.addMacro(m);
@@ -114,7 +114,7 @@ public class SMSPersistence {
 			view.deleteTemporary();
 		}
 
-		for (File f : SMSConfig.getViewsFolder().listFiles(ymlFilter)) {
+		for (File f : DirectoryStructure.getViewsFolder().listFiles(ymlFilter)) {
 			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 			SMSView view = SMSView.load(conf);
 			if (view != null) {
@@ -127,7 +127,7 @@ public class SMSPersistence {
 	}
 
 	private static void loadMenus() {
-		final File oldMenusFile = new File(SMSConfig.getPluginFolder(), "scrollingmenus.yml");
+		final File oldMenusFile = new File(DirectoryStructure.getPluginFolder(), "scrollingmenus.yml");
 
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			menu.deleteTemporary();
@@ -140,7 +140,7 @@ public class SMSPersistence {
 			saveMenusAndViews();
 			LogUtils.info("Converted old-style menu data file to new v0.5+ format");
 		} else {
-			for (File f : SMSConfig.getMenusFolder().listFiles(ymlFilter)) {
+			for (File f : DirectoryStructure.getMenusFolder().listFiles(ymlFilter)) {
 				try {
 					YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 					SMSMenu menu = new SMSMenu(conf);

@@ -72,21 +72,23 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	public static Economy economy = null;
 	public static Permission permission = null;
-	
+
 	public final ResponseHandler responseHandler = new ResponseHandler();
 
 	@Override
 	public void onEnable() {
 		setInstance(this);
 
-		LogUtils.init(this);
+		DirectoryStructure.setupDirectoryStructure();
 		
+		LogUtils.init(this);
+
 		PluginManager pm = getServer().getPluginManager();
 
 		if (!validateVersions(getDescription().getVersion(), getServer().getVersion())) {		
 			pm.disablePlugin(this);
 			return;
-		}	
+		}
 
 		setupSpout(pm);
 		setupVault(pm);
@@ -97,7 +99,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 		pm.registerEvents(blockListener, this);
 		pm.registerEvents(entityListener, this);
 		pm.registerEvents(worldListener, this);
-		
+
 		if (spoutEnabled) {
 			spoutKeyListener = new SMSSpoutKeyListener();
 			spoutScreenListener = new SMSSpoutScreenListener();
@@ -114,9 +116,9 @@ public class ScrollingMenuSign extends JavaPlugin {
 		if (spoutEnabled) {
 			SpoutUtils.precacheTextures();
 		}
-		
+
 		setupMetrics();
-		
+
 		LogUtils.info(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
 	}
 
@@ -141,10 +143,6 @@ public class ScrollingMenuSign extends JavaPlugin {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-//		Player player = null;
-//		if (sender instanceof Player) {
-//			player = (Player) sender;
-//		}
 		try {
 			return cmds.dispatch(sender, command.getName(), args);
 		} catch (DHUtilsException e) {
@@ -171,7 +169,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 	private void setupMetrics() {
 		try {
 			Metrics metrics = new Metrics(this);
-			
+
 			metrics.createGraph("Menu count").addPlotter(new Plotter() {
 				@Override
 				public int getValue() {
@@ -191,7 +189,7 @@ public class ScrollingMenuSign extends JavaPlugin {
 					public int getValue() {
 						return e.getValue();
 					}
-				});	
+				});
 			}
 			metrics.start();
 		} catch (IOException e) {
@@ -334,15 +332,15 @@ public class ScrollingMenuSign extends JavaPlugin {
 		LogUtils.severe("ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
 		LogUtils.severe("You need to use ScrollingMenuSign v" + needed);
 	}
-	
+
 	public static URL makeImageURL(String path) throws MalformedURLException {
 		if (path == null || path.isEmpty()) {
 			throw new MalformedURLException("file must be non-null and not an empty string");
 		}
-		
+
 		return makeImageURL(SMSConfig.getConfig().getString("sms.resource_base_url"), path);
 	}
-	
+
 	public static URL makeImageURL(String base, String path) throws MalformedURLException {
 		if (path == null || path.isEmpty()) {
 			throw new MalformedURLException("file must be non-null and not an empty string");

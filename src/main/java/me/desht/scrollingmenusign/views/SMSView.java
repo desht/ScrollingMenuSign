@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSPersistable;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
@@ -424,7 +425,7 @@ public abstract class SMSView implements Observer, SMSPersistable {
 	 * @see me.desht.scrollingmenusign.Freezable#getSaveFolder()
 	 */
 	public File getSaveFolder() {
-		return SMSConfig.getViewsFolder();
+		return DirectoryStructure.getViewsFolder();
 	}
 
 	/**
