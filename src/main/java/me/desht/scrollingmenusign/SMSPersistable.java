@@ -3,7 +3,7 @@ package me.desht.scrollingmenusign;
 import java.io.File;
 import java.util.Map;
 
-public interface Freezable {
+public interface SMSPersistable {
 	/**
 	 * Get the unique name for this freezable object.
 	 * @return	The object's unique name.

@@ -26,14 +26,14 @@ public class SMSPersistence {
 		}
 	};
 
-	public static void unPersist(Freezable object) {
+	public static void unPersist(SMSPersistable object) {
 		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
 		if (!saveFile.delete()) {
 			LogUtils.warning("can't delete " + saveFile);
 		}
 	}
 
-	public static void save(Freezable object) {
+	public static void save(SMSPersistable object) {
 		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
 		YamlConfiguration conf = new YamlConfiguration();
 		Map<String, Object> map = object.freeze();

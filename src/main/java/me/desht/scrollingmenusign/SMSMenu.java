@@ -29,7 +29,7 @@ import org.bukkit.entity.Player;
  * @author des
  *
  */
-public class SMSMenu extends Observable implements Freezable, UseLimitable {
+public class SMSMenu extends Observable implements SMSPersistable, UseLimitable {
 	private String name;
 	private String title;
 	private String owner;

@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import me.desht.scrollingmenusign.Freezable;
+import me.desht.scrollingmenusign.SMSPersistable;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -38,7 +38,7 @@ import org.bukkit.util.Vector;
  * @author des
  *
  */
-public abstract class SMSView implements Observer, Freezable {
+public abstract class SMSView implements Observer, SMSPersistable {
 	// view attributes
 	public static final String OWNER = "owner";
 	public static final String JUSTIFY = "justify";

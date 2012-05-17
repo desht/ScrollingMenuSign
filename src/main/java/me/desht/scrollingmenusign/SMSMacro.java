@@ -14,7 +14,7 @@ import org.bukkit.configuration.ConfigurationSection;
  * @author desht
  *
  */
-public class SMSMacro implements Freezable {
+public class SMSMacro implements SMSPersistable {
 	//	private static Configuration cmdSet;
 	private final static Map<String, SMSMacro> allMacros = new HashMap<String, SMSMacro>();
 
