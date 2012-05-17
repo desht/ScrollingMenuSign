@@ -8,9 +8,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import me.desht.dhutils.ExperienceManager;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.CostType;
-import me.desht.scrollingmenusign.util.ExperienceManager;
 
 public class Cost {
 	
