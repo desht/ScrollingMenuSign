@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.dhutils.MiscUtil;
@@ -31,7 +31,7 @@ public class AddItemCommand extends AbstractCommand {
 
 		String menuName = args[0];
 
-		String sep = SMSConfig.getConfig().getString("sms.menuitem_separator", "|");
+		String sep = ScrollingMenuSign.getInstance().getConfig().getString("sms.menuitem_separator", "|");
 		List<String> items;		
 		if (args[1].contains(sep)) {
 			items = Arrays.asList(combine(args, 1).split(Pattern.quote(sep)));

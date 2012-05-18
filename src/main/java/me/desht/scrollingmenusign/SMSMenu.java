@@ -151,7 +151,7 @@ public class SMSMenu extends Observable implements SMSPersistable, UseLimitable 
 		name = n;
 		title = t;
 		owner = o;
-		autosave = SMSConfig.getConfig().getBoolean("sms.autosave", true);
+		autosave = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autosave", true);
 		autosort = false;
 		uses = new SMSRemainingUses(this);
 		defaultCommand = "";

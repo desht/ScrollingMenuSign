@@ -1,7 +1,6 @@
 package me.desht.scrollingmenusign.listeners;
 
 import me.desht.dhutils.DHUtilsException;
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -105,7 +104,7 @@ public class SMSPlayerListener implements Listener {
 		Player player = event.getPlayer();
 
 		// clear out user variables if not persistent
-		Configuration cfg = SMSConfig.getConfig();
+		Configuration cfg = ScrollingMenuSign.getInstance().getConfig();
 		if (!cfg.getBoolean("sms.persistent_user_vars") && cfg.contains("uservar." + player.getName())) {
 			cfg.set("uservar." + player.getName(), null);
 			ScrollingMenuSign.getInstance().saveConfig();

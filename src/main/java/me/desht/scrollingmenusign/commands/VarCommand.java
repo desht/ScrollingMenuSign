@@ -2,9 +2,7 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
@@ -24,7 +22,7 @@ public class VarCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		notFromConsole(sender);
 		
-		Configuration cfg = SMSConfig.getConfig();
+		Configuration cfg = plugin.getConfig();
 		
 		if (args.length == 0) {
 			// list all variables for the player
@@ -55,7 +53,7 @@ public class VarCommand extends AbstractCommand {
 				MiscUtil.statusMessage(sender, "&f" + args[0] + " = '&e" + cfg.get(key) + "&-'");
 			}
 			
-			ScrollingMenuSign.getInstance().saveConfig();
+			plugin.saveConfig();
 		}
 		
 		return true;

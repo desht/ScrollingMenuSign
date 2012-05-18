@@ -2,10 +2,10 @@ package me.desht.scrollingmenusign.enums;
 
 
 import me.desht.dhutils.PermissionUtils;
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -64,7 +64,7 @@ public enum SMSUserAction {
 		else 
 			key.append("normal");
 
-		String s = SMSConfig.getConfig().getString(key.toString(), "none");
+		String s = ScrollingMenuSign.getInstance().getConfig().getString(key.toString(), "none");
 		return SMSUserAction.valueOf(s.toUpperCase());
 	}
 

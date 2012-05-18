@@ -17,21 +17,22 @@ import java.util.TreeSet;
 
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSPersistable;
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
+import me.desht.dhutils.AttributeCollection;
+import me.desht.dhutils.ConfigurationListener;
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -39,8 +40,8 @@ import org.bukkit.util.Vector;
  * @author des
  *
  */
-public abstract class SMSView implements Observer, SMSPersistable {
-	// view attributes
+public abstract class SMSView implements Observer, SMSPersistable, ConfigurationListener {
+	// view attribute names
 	public static final String OWNER = "owner";
 	public static final String JUSTIFY = "justify";
 	public static final String TITLE_JUSTIFY = "title_justify";
@@ -55,7 +56,7 @@ public abstract class SMSView implements Observer, SMSPersistable {
 	private final SMSMenu menu;
 	private final Set<Location> locations = new HashSet<Location>();
 	private final String name;
-	private final Configuration attributes;	// view attributes to be displayed and/or edited by players
+	private final AttributeCollection attributes;	// view attributes to be displayed and/or edited by players
 	
 	private boolean autosave;
 	private boolean dirty;
@@ -86,8 +87,9 @@ public abstract class SMSView implements Observer, SMSPersistable {
 		this.name = name;
 		this.menu = menu;
 		this.dirty = true;
-		this.autosave = SMSConfig.getConfig().getBoolean("sms.autosave", true);
-		this.attributes = new YamlConfiguration();
+		this.autosave = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autosave", true);
+		this.attributes = new AttributeCollection();
+		attributes.setConfigurationListener(this);
 		this.maxLocations = 1;
 
 		menu.addObserver(this);
@@ -173,7 +175,7 @@ public abstract class SMSView implements Observer, SMSPersistable {
 			return viewJust;
 		}
 		
-		String j = SMSConfig.getConfig().getString(configItem, fallback.toString());
+		String j = ScrollingMenuSign.getInstance().getConfig().getString(configItem, fallback.toString());
 		try {
 			return ViewJustification.valueOf(j.toUpperCase());
 		} catch (IllegalArgumentException e) {
@@ -217,7 +219,7 @@ public abstract class SMSView implements Observer, SMSPersistable {
 			}
 		}
 		for (String k : node.getKeys(false)) {
-			if (hasAttribute(k)) {
+			if (attributes.hasAttribute(k)) {
 				setAttribute(k, node.getString(k));
 			}
 		}
@@ -539,7 +541,7 @@ public abstract class SMSView implements Observer, SMSPersistable {
 	 * @return	True if the player may use this view, false if not
 	 */
 	public boolean allowedToUse(Player player) {
-		if (SMSConfig.getConfig().getBoolean("sms.ignore_view_ownership"))
+		if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.ignore_view_ownership"))
 			return true;
 		if (player.hasPermission("scrollingmenusign.ignoreViewOwnership"))
 			return true;
@@ -599,10 +601,10 @@ public abstract class SMSView implements Observer, SMSPersistable {
 	}
 
 	protected void registerAttribute(String attr, Object def) {
-		attributes.addDefault(attr, def);
+		attributes.registerAttribute(attr, def);
 	}
 
-	public Configuration getAttributes() {
+	public AttributeCollection getAttributes() {
 		return attributes;
 	}
 
@@ -623,46 +625,28 @@ public abstract class SMSView implements Observer, SMSPersistable {
 		if (!attributes.contains(k)) {
 			throw new SMSException("No such view attribute: " + k);
 		}
-		String oldVal = getAttributeAsString(k);
-		onAttributeValidate(k, oldVal, val);
-		SMSConfig.setConfigItem(attributes, k, val);
-		String newVal = attributes.get(k).toString();
-		onAttributeChanged(k, oldVal, newVal);
-	}
-
-	/**
-	 * Called automatically when an attribute is about to be changed.  Override and extend this
-	 * in subclasses.
-	 * @param attribute		The attribute name	
-	 * @param curVal		The current value
-	 * @param newVal		The proposed new value
-	 * @throws SMSException to prevent the attribute being changed (the exception's message will be
-	 * passed to the player)
-	 */
-	protected void onAttributeValidate(String attribute, String curVal, String newVal) throws SMSException {
-	}
-
-	public boolean hasAttribute(String k) {
-		return attributes.getDefaults().contains(k);
+		attributes.set(k, val);
 	}
 
 	public Set<String> listAttributeKeys(boolean isSorted) {
-		if (isSorted) {
-			SortedSet<String> sorted = new TreeSet<String>(attributes.getDefaults().getKeys(false));
-			return sorted;
-		} else {
-			return attributes.getDefaults().getKeys(false);
-		}
+		return attributes.listAttributeKeys(isSorted);
 	}
 
-	/**
-	 * Called automatically when an attribute is changed.  Override and extend this
-	 * in subclasses.
-	 */
-	protected void onAttributeChanged(String attribute, String oldVal, String newVal) {
+	@Override
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		update(getMenu(), SMSMenuAction.REPAINT);
 	}
-
+	
+	@Override
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
+		// no validation here, override in subclasses
+	}
+	
+	@Override
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, List<?> val) {
+		// no validation here, override in subclasses
+	}
+	
 	/**
 	 * Called automatically when the view is used to execute a menu item.  Override and extend this
 	 * in subclasses.

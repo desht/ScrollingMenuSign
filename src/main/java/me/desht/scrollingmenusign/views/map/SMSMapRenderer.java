@@ -2,7 +2,6 @@ package me.desht.scrollingmenusign.views.map;
 
 import java.awt.image.BufferedImage;
 
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -81,8 +80,8 @@ public class SMSMapRenderer extends MapRenderer {
 			y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
 		}
 
-		String prefix1 = SMSConfig.getConfig().getString("sms.item_prefix.not_selected", "  ");
-		String prefix2 = SMSConfig.getConfig().getString("sms.item_prefix.selected", "> ");
+		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ");
+		String prefix2 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ");
 
 		int nDisplayable = (smsMapView.getHeight() - y) / (smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing());
 

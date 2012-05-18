@@ -32,6 +32,7 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
 
@@ -423,9 +424,12 @@ public class SMSMapView extends SMSScrollableView {
 		return "map";
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationChanged(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.Object, java.lang.Object)
+	 */
 	@Override
-	protected void onAttributeChanged(String attribute, String oldVal, String newVal) {
-		super.onAttributeChanged(attribute, oldVal, newVal);
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
+		super.onConfigurationChanged(configurationManager, attribute, oldVal, newVal);
 
 		if (attribute.equals(IMAGE_FILE)) {
 			loadBackgroundImage();

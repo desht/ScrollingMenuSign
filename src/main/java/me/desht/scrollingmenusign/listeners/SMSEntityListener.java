@@ -1,7 +1,7 @@
 package me.desht.scrollingmenusign.listeners;
 
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -17,7 +17,7 @@ public class SMSEntityListener implements Listener {
 	@EventHandler
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
-		boolean noExplode = SMSConfig.getConfig().getBoolean("sms.no_explosions", false);
+		boolean noExplode = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.no_explosions", false);
 		for (Block b : event.blockList()) {
 			Location loc = b.getLocation();
 			SMSView view = SMSView.getViewForLocation(loc);

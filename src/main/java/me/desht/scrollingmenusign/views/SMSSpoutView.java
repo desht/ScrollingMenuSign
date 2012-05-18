@@ -17,6 +17,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.SpoutViewPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
 
@@ -183,19 +184,26 @@ public class SMSSpoutView extends SMSScrollableView {
 	}
 
 	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.views.SMSView#onAttributeValidate(java.lang.String, java.lang.String, java.lang.String)
+	 * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
 	 */
 	@Override
-	protected void onAttributeValidate(String attribute, String curVal, String newVal) throws SMSException {
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String attribute, String newVal) {
+		super.onConfigurationValidate(configurationManager, attribute, newVal);
+		
 		String err = null;
 		if (attribute.equals(SPOUTKEYS) && !newVal.isEmpty()) {
-			SMSSpoutKeyMap sp = new SMSSpoutKeyMap(newVal);
-			if (keyMap.containsKey(sp.toString())) {
-				String otherView = keyMap.get(sp.toString());
-				if (SMSView.checkForView(otherView)) {
-					err = sp.toString() + " is already used as the hotkey for another view (" + keyMap.get(sp.toString()) + ")";
+			try {
+				SMSSpoutKeyMap sp = new SMSSpoutKeyMap(newVal);
+				if (keyMap.containsKey(sp.toString())) {
+					String otherView = keyMap.get(sp.toString());
+					if (SMSView.checkForView(otherView)) {
+						err = sp.toString() + " is already used as the hotkey for another view (" + keyMap.get(sp.toString()) + ")";
+					}
 				}
+			} catch (IllegalArgumentException e) {
+				throw new SMSException("Invalid key binding: " + newVal);
 			}
+			
 		} else if (attribute.equals(ALPHA) && !newVal.isEmpty()) {
 			try {
 				double d = Double.parseDouble(newVal);
@@ -216,15 +224,18 @@ public class SMSSpoutView extends SMSScrollableView {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationChanged(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.Object, java.lang.Object)
+	 */
 	@Override
-	protected void onAttributeChanged(String attribute, String oldVal, String newVal) {
-		super.onAttributeChanged(attribute, oldVal, newVal);
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
+		super.onConfigurationChanged(configurationManager, attribute, oldVal, newVal);
 
 		if (attribute.equals(SPOUTKEYS)) {
 			// cache a new stringified key mapping definition for this view
-			keyMap.remove(oldVal);
-			if (!newVal.isEmpty()) {
-				keyMap.put(newVal, getName());
+			keyMap.remove(oldVal.toString());
+			if (!newVal.toString().isEmpty()) {
+				keyMap.put(newVal.toString(), getName());
 			}
 		} else if (attribute.equals(AUTOPOPDOWN)) {
 			// nothing

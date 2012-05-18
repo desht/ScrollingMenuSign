@@ -1,8 +1,8 @@
 package me.desht.scrollingmenusign.spout;
 
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
@@ -38,7 +38,7 @@ public class SMSListWidget extends GenericListWidget {
 	}
 
 	public Scrollable updateBackground() {
-		Configuration cfg = SMSConfig.getConfig();
+		Configuration cfg = ScrollingMenuSign.getInstance().getConfig();
 		String bgCol = view.getAttributeAsString(SMSSpoutView.BACKGROUND, cfg.getString("sms.spout.list_background"));
 		Color c;
 		try {
@@ -77,7 +77,7 @@ public class SMSListWidget extends GenericListWidget {
 		// bit of a hack - cast to SMSScrollableView to avoid an unnecessary call to SpoutViewPopup.scrollTo()
 		((SMSScrollableView)view).setScrollPos(getScreen().getPlayer().getName(), idx + 1);
 
-		if (!doubleClicked && SMSConfig.getConfig().getBoolean("sms.spout.double_click")) {
+		if (!doubleClicked && ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.double_click")) {
 			return;
 		}
 		
@@ -102,7 +102,7 @@ public class SMSListWidget extends GenericListWidget {
 
 	private void populateMenu() {
 		clear();
-		boolean showCommand = SMSConfig.getConfig().getBoolean("sms.spout.show_command_text") && PermissionUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
+		boolean showCommand = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.show_command_text") && PermissionUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
 		for (SMSMenuItem item : view.getMenu().getItems()) {
 			addItem(new ListWidgetItem(defaultTextColor + item.getLabel(), showCommand ? item.getCommand() : ""));
 		}

@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.enums.RedstoneOutputMode;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
@@ -35,7 +36,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public SMSGlobalScrollableView(String name, SMSMenu menu) {
 		super(name, menu);
 		setPerPlayerScrolling(false);
-		registerAttribute(RS_OUTPUT_MODE, "selected");
+		registerAttribute(RS_OUTPUT_MODE, RedstoneOutputMode.SELECTED);
 	}
 
 	public void addSwitch(Switch sw) {
@@ -105,7 +106,8 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public void onScrolled(Player player, SMSUserAction action) {
 		super.onScrolled(player, action);
 
-		if (getAttributeAsString(RS_OUTPUT_MODE).equalsIgnoreCase("selected")) {
+		RedstoneOutputMode mode = (RedstoneOutputMode) getAttribute(RS_OUTPUT_MODE);
+		if (mode == RedstoneOutputMode.SELECTED) {
 			updateSwitchPower();
 		}
 	}
@@ -114,17 +116,10 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public void onExecuted(Player player) {
 		super.onExecuted(player);
 		
-		if (getAttributeAsString(RS_OUTPUT_MODE).equalsIgnoreCase("toggle")) {
+		RedstoneOutputMode mode = (RedstoneOutputMode) getAttribute(RS_OUTPUT_MODE);
+		if (mode == RedstoneOutputMode.TOGGLE) {
 			toggleSwitchPower();
 		}
 	}
 
-	@Override
-	protected void onAttributeValidate(String attribute, String curVal, String newVal) throws SMSException {
-		if (attribute.equalsIgnoreCase(RS_OUTPUT_MODE)) {
-			if (!newVal.equalsIgnoreCase("toggle") && !newVal.equalsIgnoreCase("selected")) {
-				throw new SMSException("Accepted values are 'selected' and 'toggle'.");
-			}
-		}
-	}
 }

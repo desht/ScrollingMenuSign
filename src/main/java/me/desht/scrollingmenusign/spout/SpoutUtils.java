@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
@@ -37,12 +36,12 @@ public class SpoutUtils {
 	}
 
 	private static void addKeyDefinition(String key) {
-		String wanted = SMSConfig.getConfig().getString(key);
+		String wanted = ScrollingMenuSign.getInstance().getConfig().getString(key);
 		try {
 			wantedKeys.put(key, new SMSSpoutKeyMap(wanted));
 		} catch (IllegalArgumentException e) {
 			LogUtils.warning("invalid key definition [" + wanted + "] for " + key);
-			wantedKeys.put(key, new SMSSpoutKeyMap(SMSConfig.getConfig().getDefaults().getString(key)));
+			wantedKeys.put(key, new SMSSpoutKeyMap(ScrollingMenuSign.getInstance().getConfig().getDefaults().getString(key)));
 		}
 	}
 

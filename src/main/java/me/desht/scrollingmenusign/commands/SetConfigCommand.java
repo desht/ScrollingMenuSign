@@ -3,10 +3,11 @@ package me.desht.scrollingmenusign.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
@@ -24,16 +25,19 @@ public class SetConfigCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender player, String[] args) {
 		String key = args[0], val = args[1];
 		
+		ConfigurationManager configManager = ((ScrollingMenuSign) plugin).getConfigManager();
+		
 		try {
 			if (args.length > 2) {
 				List<String> list = new ArrayList<String>(args.length - 1);
 				for (int i = 1; i < args.length; i++)
 					list.add(args[i]);
-				SMSConfig.setPluginConfiguration(key, list);
+				configManager.set(key, list);	
 			} else {
-				SMSConfig.setPluginConfiguration(key, val);
+				configManager.set(key, val);
 			}
-			MiscUtil.statusMessage(player, key + " is now set to '&e" + SMSConfig.getPluginConfiguration(key) + "&-'");
+			Object res = configManager.get(key);
+			MiscUtil.statusMessage(player, key + " is now set to '&e" + res + "&-'");
 		} catch (SMSException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
 			MiscUtil.errorMessage(player, "Use /sms getcfg to list all valid keys");

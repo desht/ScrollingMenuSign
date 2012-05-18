@@ -2,9 +2,9 @@ package me.desht.scrollingmenusign.views;
 
 import java.util.Observable;
 
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.dhutils.MiscUtil;
@@ -99,8 +99,8 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
-		String prefix1 = SMSConfig.getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
-		String prefix2 = SMSConfig.getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
+		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
+		String prefix2 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
 		
 		ViewJustification ij = getItemJustification();
 		res[1] = String.format(makePrefix(prefix1, ij), getLine2Item(scrollPos));

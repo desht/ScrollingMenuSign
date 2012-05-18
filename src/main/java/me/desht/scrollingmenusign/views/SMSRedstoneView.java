@@ -9,6 +9,7 @@ import java.util.Observable;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.LogUtils;
@@ -292,10 +293,12 @@ public class SMSRedstoneView extends SMSView {
 	}
 	
 	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.views.SMSView#onAttributeValidate(java.lang.String, java.lang.String, java.lang.String)
+	 * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
 	 */
 	@Override
-	protected void onAttributeValidate(String attribute, String curVal, String newVal) throws SMSException {
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String attribute, String newVal) {
+		super.onConfigurationValidate(configurationManager, attribute, newVal);
+		
 		if (attribute.equals(POWERON) || attribute.equals(POWEROFF) || attribute.equals(POWERTOGGLE)) {
 			if (!newVal.isEmpty()) {
 				if (getMenu().indexOfItem(newVal) == -1) {

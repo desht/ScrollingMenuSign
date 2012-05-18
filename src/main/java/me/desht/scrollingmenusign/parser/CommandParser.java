@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -40,7 +39,7 @@ public class CommandParser {
 	public CommandParser() {
 		if (cmdLogger == null) {
 			cmdLogger = Logger.getLogger(CommandParser.class.getName());
-			setLogFile(SMSConfig.getConfig().getString("sms.command_log_file"));
+			setLogFile(ScrollingMenuSign.getInstance().getConfig().getString("sms.command_log_file"));
 		}
 		this.macroHistory = new HashSet<String>();
 	}
@@ -142,7 +141,7 @@ public class CommandParser {
 			command = command.replace("<INAME>", stack != null ? stack.getType().toString() : "???");
 
 			// user-defined substitutions...
-			ConfigurationSection cs = SMSConfig.getConfig().getConfigurationSection("uservar." + player.getName());
+			ConfigurationSection cs = ScrollingMenuSign.getInstance().getConfig().getConfigurationSection("uservar." + player.getName());
 			if (cs != null) {
 				for (String key : cs.getKeys(false)) {
 					command = command.replace("<$" + key + ">", cs.getString(key));	
@@ -258,7 +257,7 @@ public class CommandParser {
 			}
 
 			boolean tempOp = false;
-			List<String> nodes = SMSConfig.getConfig().getStringList("sms.elevation.nodes");
+			List<String> nodes = ScrollingMenuSign.getInstance().getConfig().getStringList("sms.elevation.nodes");
 			try {
 				for (String node : nodes) {
 					if (!node.isEmpty()) {
@@ -266,7 +265,7 @@ public class CommandParser {
 						LogUtils.fine("Added temporary permission node '" + node + "' to " + playerName);
 					}
 				}
-				if (SMSConfig.getConfig().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
+				if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
 					tempOp = true;
 					player.setOp(true);
 					LogUtils.fine("Granted temporary op to " + playerName);
@@ -298,7 +297,7 @@ public class CommandParser {
 	}
 
 	private void logCommandUsage(Player player, ParsedCommand cmd, String message) {
-		if (SMSConfig.getConfig().getBoolean("sms.log_commands")) {
+		if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.log_commands")) {
 			String playerName = player == null ? "CONSOLE" : player.getName();
 			String outcome = message == null ? cmd.getLastError() : message;
 			cmdLogger.log(Level.INFO, playerName + " ran [" + cmd.getRawCommand() + "], outcome = " + cmd.getStatus() + " (" + outcome + ")");
