@@ -131,7 +131,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		setupMetrics();
 
-		LogUtils.info(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
+		LogUtils.fine(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
 	}
 
 	@Override
@@ -150,7 +150,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		permission = null;
 		setInstance(null);
 
-		LogUtils.info(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
+		LogUtils.fine(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
 	}
 
 	@Override
@@ -221,14 +221,14 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		Plugin spout = pm.getPlugin("Spout");
 		if (spout != null && spout.isEnabled()) {
 			spoutEnabled = true;
-			LogUtils.info("Loaded Spout v" + spout.getDescription().getVersion());
+			LogUtils.fine("Loaded Spout v" + spout.getDescription().getVersion());
 		}
 	}
 
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			LogUtils.info("Loaded Vault v" + vault.getDescription().getVersion());
+			LogUtils.fine("Loaded Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
 				LogUtils.warning("No economy plugin detected - economy command costs not available");
 			}

@@ -1,17 +1,13 @@
 package me.desht.scrollingmenusign;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
+
 import me.desht.dhutils.LogUtils;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -65,6 +61,24 @@ public class SMSPersistence {
 		}
 	}
 
+	public static void loadMenusAndViews() {
+		loadMenus();
+		loadViews();
+	}
+
+	public static void loadMacros() {
+		for (SMSMacro macro : SMSMacro.listMacros()) {
+			macro.deleteTemporary();
+		}
+
+		for (File f : DirectoryStructure.getMacrosFolder().listFiles(ymlFilter)) {
+			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
+			SMSMacro m = new SMSMacro(conf);
+			SMSMacro.addMacro(m);
+		}
+		LogUtils.fine("Loaded " + SMSMacro.listMacros().size() + " macros from file.");
+	}
+
 	public static void saveMenusAndViews() {
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			save(menu);
@@ -72,41 +86,32 @@ public class SMSPersistence {
 		for (SMSView view : SMSView.listViews()) {
 			save(view);
 		}
-		LogUtils.info("saved " + SMSMenu.listMenus().size() + " menus and " +
-		             SMSView.listViews().size() + " views to file.");
-	}
-
-	public static void loadMenusAndViews() {
-		loadMenus();
-		loadViews();
-	}
-
-	public static void loadMacros() {
-		final File oldMacrosFile = new File(DirectoryStructure.getPluginFolder(), "commands.yml");
-
-		for (SMSMacro macro : SMSMacro.listMacros()) {
-			macro.deleteTemporary();
-		}
-
-		if (oldMacrosFile.exists()) {
-			oldStyleMacroLoad(oldMacrosFile);
-			oldMacrosFile.renameTo(new File(oldMacrosFile.getParent(), oldMacrosFile.getName() + ".OLD"));
-			LogUtils.info("Converted old-style macro data file to new v0.8+ format");
-		} else {
-			for (File f : DirectoryStructure.getMacrosFolder().listFiles(ymlFilter)) {
-				YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
-				SMSMacro m = new SMSMacro(conf);
-				SMSMacro.addMacro(m);
-			}
-			LogUtils.info("Loaded " + SMSMacro.listMacros().size() + " macros from file.");
-		}
+		LogUtils.fine("saved " + SMSMenu.listMenus().size() + " menus and " +
+				SMSView.listViews().size() + " views to file.");
 	}
 
 	public static void saveMacros() {
 		for (SMSMacro macro : SMSMacro.listMacros()) {
 			save(macro);
 		}
-		LogUtils.info("saved " + SMSMacro.listMacros().size() + " macros to file.");
+		LogUtils.fine("saved " + SMSMacro.listMacros().size() + " macros to file.");
+	}
+
+	private static void loadMenus() {
+		for (SMSMenu menu : SMSMenu.listMenus()) {
+			menu.deleteTemporary();
+		}
+	
+		for (File f : DirectoryStructure.getMenusFolder().listFiles(ymlFilter)) {
+			try {
+				YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
+				SMSMenu menu = new SMSMenu(conf);
+				SMSMenu.addMenu(menu.getName(), menu, true);
+			} catch (SMSException e) {
+				LogUtils.severe("Can't load menu data from " + f + ": " + e.getMessage());
+			}
+		}
+		LogUtils.fine("Loaded " + SMSMenu.listMenus().size() + " menus from file.");
 	}
 
 	private static void loadViews() {
@@ -123,100 +128,8 @@ public class SMSPersistence {
 			}
 		}
 
-		LogUtils.info("Loaded " + SMSView.listViews().size() + " views from file.");
+		LogUtils.fine("Loaded " + SMSView.listViews().size() + " views from file.");
 	}
-
-	private static void loadMenus() {
-		final File oldMenusFile = new File(DirectoryStructure.getPluginFolder(), "scrollingmenus.yml");
-
-		for (SMSMenu menu : SMSMenu.listMenus()) {
-			menu.deleteTemporary();
-		}
-
-		if (oldMenusFile.exists()) {
-			// old-style data file, all menus in one file
-			oldStyleMenuLoad(oldMenusFile);
-			oldMenusFile.renameTo(new File(oldMenusFile.getParent(), oldMenusFile.getName() + ".OLD"));
-			saveMenusAndViews();
-			LogUtils.info("Converted old-style menu data file to new v0.5+ format");
-		} else {
-			for (File f : DirectoryStructure.getMenusFolder().listFiles(ymlFilter)) {
-				try {
-					YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
-					SMSMenu menu = new SMSMenu(conf);
-					SMSMenu.addMenu(menu.getName(), menu, true);
-				} catch (SMSException e) {
-					LogUtils.severe("Can't load menu data from " + f + ": " + e.getMessage());
-				}
-			}
-			LogUtils.info("Loaded " + SMSMenu.listMenus().size() + " menus from file.");
-		}
-	}
-
-	private static void oldStyleMenuLoad(File menusFile) {
-		try {
-			YamlConfiguration conf = YamlConfiguration.loadConfiguration(menusFile);
-			for (String menuName : conf.getKeys(false)) {
-				ConfigurationSection cn = conf.getConfigurationSection(menuName);
-				cn.set("name", menuName);
-				SMSMenu menu = new SMSMenu(cn);
-				SMSMenu.addMenu(menu.getName(), menu, true);
-			}
-		} catch (SMSException e) {
-			LogUtils.severe("Can't restore menus: " + e.getMessage());
-		}
-		LogUtils.info("read " + SMSMenu.listMenus().size() + " menus from file.");
-	}	
-
-	private static void oldStyleMacroLoad(File macrosFile) {
-		YamlConfiguration conf = YamlConfiguration.loadConfiguration(macrosFile);
-		for (String key : conf.getKeys(false)) {
-			SMSMacro m = new SMSMacro(key);
-			List<String> cmds = conf.getStringList(key);
-			for (String cmd : cmds) {
-				m.addLine(cmd);
-			}
-			SMSMacro.addMacro(m);
-		}	
-	}
-
-	static void backupFile(File original) {
-		try {
-			File backup = getBackupFileName(original.getParentFile(), original.getName());
-			copy(original, backup);
-			LogUtils.info("An error occurred while loading " + original +
-			             ", so a backup has been created at " + backup.getPath());
-		} catch (IOException e) {
-			LogUtils.severe("Error while trying to write backup file: " + e);
-		}
-	}
-
-	static void copy(File src, File dst) throws IOException {
-		InputStream in = new FileInputStream(src);
-		OutputStream out = new FileOutputStream(dst);
-
-		// Transfer bytes from in to out
-		byte[] buf = new byte[1024];
-		int len;
-		while ((len = in.read(buf)) > 0) {
-			out.write(buf, 0, len);
-		}
-		in.close();
-		out.close();
-	}
-
-	static File getBackupFileName(File parentFile, String template) {
-		String ext = ".BACKUP.";
-		File backup;
-		int idx = 0;
-
-		do {
-			backup = new File(parentFile, template + ext + idx);
-			idx++;
-		} while (backup.exists());
-		return backup;
-	}
-
 
 	/**
 	 * Require the presence of the given field in the given configuration.
