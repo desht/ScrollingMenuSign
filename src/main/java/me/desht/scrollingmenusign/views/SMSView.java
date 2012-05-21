@@ -397,6 +397,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		for (Location l : getLocations()) {
 			allViewLocations.put(l, this);
 		}
+		
+		autosave();
 	}
 
 	private void deleteCommon() {
