@@ -308,18 +308,6 @@ public class SMSMenu extends Observable implements SMSPersistable, UseLimitable 
 	public int getItemCount() {
 		return items.size();
 	}
-
-	/**
-	 * Get the item at the given numeric index
-	 * 
-	 * @param index	1-based numeric index
-	 * @return		The menu item at that index
-	 * @deprecated	Use getItemAt()
-	 */
-	@Deprecated
-	public SMSMenuItem getItem(int index) {
-		return items.get(index - 1);
-	}
 	
 	/**
 	 * Get the item at the given numeric index

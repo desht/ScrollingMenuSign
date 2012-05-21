@@ -72,68 +72,6 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, UseLimitable {
 	}
 
 	/**
-	 * Set the maximum number of uses for this menu, globally (i.e. for all users).
-	 * This clears any per-player use counts for the item.
-	 * 
-	 * @param nUses	maximum use count
-	 * @deprecated	Use getUseLimits().setGlobalUses() instead
-	 */
-	@Deprecated
-	public void setGlobalUses(int nUses) {
-		uses.clearUses();
-		uses.setGlobalUses(nUses);
-	}
-
-	/**
-	 * Set the maximum number of uses for this menu, per player.
-	 * This clears any global use count for the item.
-	 * 
-	 * @param nUses	maximum use count
-	 * @deprecated	Use getUseLimits().setUses() instead
-	 */
-	@Deprecated
-	public void setUses(int nUses) {
-		uses.setUses(nUses);
-	}
-
-	/**
-	 * Get the remaining number of uses of this menu item for the given player
-	 * 
-	 * @param player	Player to check for
-	 * @return			Number of uses remaining
-	 * @deprecated	Use getUseLimits().getRemainingUses() instead
-	 */
-	@Deprecated
-	public int getRemainingUses(Player player) {
-		return uses.getRemainingUses(player.getName());
-	}
-
-	/**
-	 * Clear (reset) the number of uses for the given player
-	 * 
-	 * @param player	Player to reset
-	 * @deprecated	Use getUseLimits().clearUses() instead
-	 */
-	@Deprecated
-	public void clearUses(Player player) {
-		uses.clearUses(player.getName());
-		if (menu != null)
-			menu.autosave();
-	}
-
-	/**
-	 * Clears all usage limits for this menu item
-	 * 
-	 * @deprecated	Use getUseLimits().clearUses() instead
-	 */
-	@Deprecated
-	public void clearUses() {
-		uses.clearUses();
-		if (menu != null)
-			menu.autosave();
-	}
-
-	/**
 	 * Executes the command for this item
 	 * 
 	 * @param player		Player to execute the command for

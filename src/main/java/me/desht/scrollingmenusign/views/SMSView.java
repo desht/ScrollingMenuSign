@@ -288,20 +288,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public void setDirty(String playerName, boolean dirty) {
 		dirtyPlayers.put(playerName, dirty);
 	}
-	
-	@Deprecated
-	public String getOwner() {
-		return getAttributeAsString(OWNER);
-	}
-
-	@Deprecated
-	public void setOwner(String owner) {
-		try {
-			setAttribute(OWNER, owner);
-		} catch (SMSException e) {
-			// shouldn't get here... ignore it
-		}
-	}
 
 	/**
 	 * Get a set of all locations for this view.  Views may have zero or more locations (e.g. a sign

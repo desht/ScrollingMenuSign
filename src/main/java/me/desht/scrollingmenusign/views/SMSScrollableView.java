@@ -63,19 +63,6 @@ public abstract class SMSScrollableView extends SMSView {
 	 * adjusted to be in range before being returned.
 	 * 
 	 * @return	The scroll position
-	 * @deprecated Use getLastScrollPos()
-	 */
-	@Deprecated
-	public int getScrollPos() {
-		return getLastScrollPos();
-	}
-	
-	/**
-	 * Get the last scroll position (currently-selected item) for this view.  If the scroll position
-	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
-	 * adjusted to be in range before being returned.
-	 * 
-	 * @return	The scroll position
 	 */
 	public int getLastScrollPos() {
 		if (lastScrollPos < 1)
@@ -108,18 +95,6 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	/**
-	 * Set the last scroll position (currently-selected item) for this view.
-	 * 
-	 * @param scrollPos	The scroll position
-	 * @deprecated Use setScrollPos(String playerName, int scrollPos)
-	 */
-	@Deprecated
-	public void setScrollPos(int scrollPos) {
-		this.lastScrollPos = scrollPos;
-		setDirty(true);
-	}
-
-	/**
 	 * Sets the scroll position for the given player on this view.
 	 * 
 	 * @param playerName	The player's name
@@ -135,19 +110,6 @@ public abstract class SMSScrollableView extends SMSView {
 			setDirty(true);
 		}
 	}
-
-	/**
-	 * Set the currently selected item for this view to the next item.
-	 * 
-	 * @deprecated Use scrollDown(String playerName)
-	 */
-	@Deprecated
-	public void scrollDown() {
-		lastScrollPos++;
-		if (wrap && lastScrollPos > getMenu().getItemCount())
-			lastScrollPos = 1;
-		setDirty(true);
-	}
 	
 	/**
 	 * Sets the current selected item for the given player to the previous item.
@@ -159,22 +121,6 @@ public abstract class SMSScrollableView extends SMSView {
 		if (wrap && pos > getMenu().getItemCount())
 			pos = 1;
 		setScrollPos(playerName, pos);
-	}
-
-	/**
-	 * Set the currently selected item for this view to the previous item.
-	 * 
-	 * @deprecated Use scrollUp(String playerName)
-	 */
-	@Deprecated
-	public void scrollUp() {
-		if (getMenu().getItemCount() == 0)
-			return;
-		
-		lastScrollPos--;
-		if (wrap && lastScrollPos <= 0)
-			lastScrollPos = getMenu().getItemCount();
-		setDirty(true);
 	}
 	
 	/**
