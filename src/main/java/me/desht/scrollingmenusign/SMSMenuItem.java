@@ -15,7 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-public class SMSMenuItem implements Comparable<SMSMenuItem>, UseLimitable {
+public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	private final String label;
 	private final String command;
 	private final String message;

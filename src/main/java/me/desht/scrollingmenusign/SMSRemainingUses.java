@@ -9,14 +9,14 @@ public class SMSRemainingUses {
 	private static final String global = "&GLOBALREMAINING";
 	private static final String perPlayerMax = "&PERPLAYER";
 
-	private final UseLimitable attachedTo;
+	private final SMSUseLimitable attachedTo;
 	private final Map<String,Integer> uses = new HashMap<String, Integer>();
 
-	SMSRemainingUses(UseLimitable lim) {
+	SMSRemainingUses(SMSUseLimitable lim) {
 		this.attachedTo = lim;
 	}
 
-	SMSRemainingUses(UseLimitable lim, ConfigurationSection node) {
+	SMSRemainingUses(SMSUseLimitable lim, ConfigurationSection node) {
 		this.attachedTo = lim;
 		if (node == null)
 			return;

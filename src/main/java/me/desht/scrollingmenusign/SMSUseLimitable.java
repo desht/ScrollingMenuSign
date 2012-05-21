@@ -1,6 +1,6 @@
 package me.desht.scrollingmenusign;
 
-interface UseLimitable {
+interface SMSUseLimitable {
 	void autosave();
 	String getDescription();
 }
