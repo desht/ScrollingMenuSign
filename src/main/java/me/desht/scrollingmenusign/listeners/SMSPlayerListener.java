@@ -152,9 +152,9 @@ public class SMSPlayerListener implements Listener {
 				MiscUtil.statusMessage(player, "&6View creation cancelled.");
 			}
 		} else if (plugin.responseHandler.isExpecting(player, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block) ) {
-			ExpectSwitchAddition swa = (ExpectSwitchAddition) plugin.responseHandler.getAction(player, ExpectSwitchAddition.class);
 			Switch sw = Switch.getSwitchAt(block.getLocation());
 			if (sw == null) {
+				ExpectSwitchAddition swa = (ExpectSwitchAddition) plugin.responseHandler.getAction(player, ExpectSwitchAddition.class);
 				swa.setLocation(event.getClickedBlock().getLocation());
 				plugin.responseHandler.handleAction(player, ExpectSwitchAddition.class);
 			} else {
@@ -164,8 +164,9 @@ public class SMSPlayerListener implements Listener {
 		} else if (mapView != null) {
 			// Holding an active map view
 			LogUtils.fine("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
-			if (block != null && block.getType() == Material.GLASS) {
-				// Hit glass with active map - deactivate the map if it has a sign view on it
+			Configuration cfg = ScrollingMenuSign.getInstance().getConfig();
+			if (block != null && block.getTypeId() == cfg.getInt("sms.maps.break_block_id")) {
+				// Hit the "break block" with active map - deactivate the map if it has a view on it
 				tryToDeactivateMap(block, player);
 			} else if (locView == null && block != null && block.getState() instanceof Sign) {
 				// Hit a non-active sign with an active map - try to make the sign into a view
@@ -253,6 +254,9 @@ public class SMSPlayerListener implements Listener {
 	 * @throws SMSException
 	 */
 	private void tryToActivateSign(Block block, Player player, SMSMapView mapView) throws SMSException {
+		if (!ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.maps.transfer.to_sign")) {
+			return;
+		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.toSign");
@@ -289,21 +293,30 @@ public class SMSPlayerListener implements Listener {
 	 * @throws SMSException
 	 */
 	private void tryToActivateMap(Block block, Player player) throws SMSException {
+		if (!ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.maps.transfer.from_sign")) {
+			return;
+		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.fromSign");
 
-		SMSView currentView = SMSSignView.getViewForLocation(block.getLocation());
-		if (currentView == null)
+		SMSView clickedView = SMSView.getViewForLocation(block.getLocation());
+		if (clickedView == null || !(clickedView instanceof SMSGlobalScrollableView))
 			return;
 
 		short mapId = player.getItemInHand().getDurability();
-		SMSMapView mapView = SMSMapView.addMapToMenu(currentView.getMenu(), mapId);
+		SMSMapView mapView = SMSMapView.addMapToMenu(clickedView.getMenu(), mapId);
 
 		MiscUtil.statusMessage(player, String.format("Added new map view &e%s&- to menu &e%s&-.",
 		                                             mapView.getName(), mapView.getMenu().getName()));
 	}
 
+	/**
+	 * Try to associate a redstone output lever with the currently selected item of the given view.
+	 * 
+	 * @param locView
+	 * @param player
+	 */
 	private void tryToAddRedstoneOutput(SMSGlobalScrollableView locView, Player player) {
 		String trigger = locView.getMenu().getItemAt(locView.getLastScrollPos()).getLabel();
 		

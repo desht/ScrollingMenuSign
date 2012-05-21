@@ -30,6 +30,11 @@ sms:
     elevation:
         nodes: []
         grant_op: false
+    maps:
+        break_block_id: 0
+        transfer:
+            to_sign: true
+            from_sign: true
     spout:
         double_click: false
         list_alpha: 0.5

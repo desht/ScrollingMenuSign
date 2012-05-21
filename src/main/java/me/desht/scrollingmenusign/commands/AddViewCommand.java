@@ -96,7 +96,7 @@ public class AddViewCommand extends AbstractCommand {
 		if (view != null) {
 			MiscUtil.statusMessage(sender, String.format("Added &9%s&- view &e%s&- to menu &e%s&-.",
 			                                             view.getType(), view.getName(), menu.getName()));
-			view.autosave();
+//			view.autosave();
 		} else {
 			throw new SMSException("Found nothing suitable to add as a menu view");
 		}
