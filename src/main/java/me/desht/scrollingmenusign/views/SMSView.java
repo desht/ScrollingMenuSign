@@ -518,7 +518,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 				map.put(type, map.get(type) + 1);
 			}
 		}
-		map.put("TOTAL", allViewNames.size());
 		return map;
 	}
 	
