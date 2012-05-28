@@ -237,8 +237,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public List<Vector> getDeferredLocations(String worldName) {
 		return deferredLocations.get(worldName);
 	}
-
-	private List<Object> freezeLocation(Location l) {
+	
+	protected List<Object> freezeLocation(Location l) {
 		List<Object> list = new ArrayList<Object>();
 		list.add(l.getWorld().getName());
 		list.add(l.getBlockX());
@@ -455,7 +455,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 */
 	public static SMSView getView(String name) throws SMSException {
 		if (!checkForView(name))
-			throw new SMSException("No such view " + name);
+			throw new SMSException("No such view: " + name);
 
 		return allViewNames.get(name);
 	}
@@ -620,16 +620,25 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return attributes.listAttributeKeys(isSorted);
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.dhutils.ConfigurationListener#onConfigurationChanged(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.Object, java.lang.Object)
+	 */
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		update(getMenu(), SMSMenuAction.REPAINT);
 	}
 	
+	/* (non-Javadoc)
+	 * @see me.desht.dhutils.ConfigurationListener#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
 		// no validation here, override in subclasses
 	}
 	
+	/* (non-Javadoc)
+	 * @see me.desht.dhutils.ConfigurationListener#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.util.List)
+	 */
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, List<?> val) {
 		// no validation here, override in subclasses

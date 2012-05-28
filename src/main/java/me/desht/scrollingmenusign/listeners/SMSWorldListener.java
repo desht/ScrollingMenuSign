@@ -1,6 +1,8 @@
 package me.desht.scrollingmenusign.listeners;
 
 import java.util.List;
+
+import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -35,6 +37,8 @@ public class SMSWorldListener implements Listener {
 		}
 		
 		// also load any switches for the world
-		Switch.loadDeferred(event.getWorld().getName());
+		Switch.loadDeferred(event.getWorld());
+		// and any control signs
+		RedstoneControlSign.loadDeferred(event.getWorld());
 	}
 }

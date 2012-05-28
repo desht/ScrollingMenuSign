@@ -170,13 +170,13 @@ public class Switch {
 	}
 
 	/**
-	 * Go ahead and try to load any deferred switches for the given world.  Called from the
-	 * WorldListener.
+	 * Go ahead and try to load any deferred switches for the given world.   Called from the
+	 * WorldLoadEvent handler.
 	 * 
 	 * @param worldName
 	 */
-	public static void loadDeferred(String worldName) {
-		Set<ConfigurationSection> set = deferred.get(worldName);
+	public static void loadDeferred(World world) {
+		Set<ConfigurationSection> set = deferred.get(world.getName());
 		if (set == null) {
 			return;
 		}
@@ -194,6 +194,6 @@ public class Switch {
 			}
 		}
 
-		deferred.remove(worldName);
+		deferred.remove(world.getName());
 	}
 }

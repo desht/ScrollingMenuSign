@@ -46,7 +46,7 @@ public abstract class SMSScrollableView extends SMSView {
 		return perPlayerScrolling;
 	}
 
-	public void setPerPlayerScrolling(boolean perPlayerScrolling) {
+	protected void setPerPlayerScrolling(boolean perPlayerScrolling) {
 		this.perPlayerScrolling = perPlayerScrolling;
 	}
 

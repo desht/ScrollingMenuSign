@@ -16,7 +16,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 
 public enum SMSUserAction {
 	NONE, SCROLLDOWN, SCROLLUP, EXECUTE;
-	
+
 	public static SMSUserAction getAction(PlayerInteractEvent event) {
 		StringBuilder key;
 		switch (event.getAction()) {
@@ -71,23 +71,24 @@ public enum SMSUserAction {
 	public void execute(Player player, SMSView view) throws SMSException {
 		if (this == NONE)
 			return;
-		
-		if (!view.allowedToUse(player))
-			throw new SMSException("This " + view.getType() + " belongs to someone else.");
-
-		// this method only makes sense for scrollable views
 		if (!(view instanceof SMSScrollableView)) {
+			// this method only makes sense for scrollable views
 			return;
 		}
-		
-		PermissionUtils.requirePerms(player, "scrollingmenusign.use." + view.getType());
-		
+
+		if (player != null) {
+			if (!view.allowedToUse(player))
+				throw new SMSException("This " + view.getType() + " belongs to someone else.");
+			PermissionUtils.requirePerms(player, "scrollingmenusign.use." + view.getType());
+			PermissionUtils.requirePerms(player, getPermissionNode());
+		}
+
 		SMSScrollableView sview = (SMSScrollableView) view;
 		SMSMenu menu = sview.getMenu();
+		String playerName = player == null ? "CONSOLE" : player.getName();
 		switch (this) {
 		case EXECUTE:
-			PermissionUtils.requirePerms(player, "scrollingmenusign.execute");
-			SMSMenuItem item = menu.getItemAt(sview.getScrollPos(player.getName()));
+			SMSMenuItem item = menu.getItemAt(sview.getScrollPos(playerName));
 			if (item != null) {
 				item.execute(player);
 				item.feedbackMessage(player);
@@ -95,17 +96,23 @@ public enum SMSUserAction {
 			}
 			break;
 		case SCROLLDOWN:
-			PermissionUtils.requirePerms(player, "scrollingmenusign.scroll");
-			sview.scrollDown(player.getName());
+			sview.scrollDown(playerName);
 			sview.update(menu, SMSMenuAction.SCROLLED);
 			sview.onScrolled(player, SCROLLDOWN);
 			break;
 		case SCROLLUP:
-			PermissionUtils.requirePerms(player, "scrollingmenusign.scroll");
-			sview.scrollUp(player.getName());
+			sview.scrollUp(playerName);
 			sview.update(menu, SMSMenuAction.SCROLLED);
-			sview.onScrolled(player, SCROLLDOWN);
+			sview.onScrolled(player, SCROLLUP);
 			break;
+		}
+	}
+	
+	public String getPermissionNode() {
+		switch (this) {
+		case EXECUTE: return "scrollingmenusign.execute";
+		case SCROLLDOWN: case SCROLLUP: return "scrollingmenusign.scroll";
+		default: return null;
 		}
 	}
 }

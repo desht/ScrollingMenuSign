@@ -318,6 +318,7 @@ public class SMSPlayerListener implements Listener {
 	 * @param player
 	 */
 	private void tryToAddRedstoneOutput(SMSGlobalScrollableView locView, Player player) {
+		PermissionUtils.requirePerms(player, "scrollingmenusign.create.switch");
 		String trigger = locView.getMenu().getItemAt(locView.getLastScrollPos()).getLabel();
 		
 		MiscUtil.statusMessage(player, "Place your lever or hit an existing lever to add it as a");

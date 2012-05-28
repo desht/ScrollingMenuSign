@@ -111,7 +111,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 * @param player	Player to show the message to
 	 */
 	public void feedbackMessage(Player player) {
-		sendFeedback(player, getMessage());
+		if (player != null) {
+			sendFeedback(player, getMessage());
+		}
 	}
 
 	private static void sendFeedback(Player player, String message) {

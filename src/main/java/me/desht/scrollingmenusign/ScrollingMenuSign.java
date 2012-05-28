@@ -51,6 +51,7 @@ import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 import net.milkbowl.vault.economy.Economy;
@@ -62,6 +63,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
@@ -84,12 +86,17 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	public final ResponseHandler responseHandler = new ResponseHandler();
 
 	@Override
+	public void onLoad() {
+		ConfigurationSerialization.registerClass(PersistableLocation.class);	
+	}
+	
+	@Override
 	public void onEnable() {
 		setInstance(this);
-
-		DirectoryStructure.setupDirectoryStructure();
 		
 		LogUtils.init(this);
+
+		DirectoryStructure.setupDirectoryStructure();
 
 		configManager = new ConfigurationManager(this);
 		configManager.setPrefix("sms");
@@ -183,6 +190,10 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	}
 
 	private void setupMetrics() {
+		if (!getConfig().getBoolean("sms.mcstats")) {
+			return;
+		}
+		
 		try {
 			Metrics metrics = new Metrics(this);
 

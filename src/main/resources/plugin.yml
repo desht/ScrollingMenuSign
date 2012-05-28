@@ -91,6 +91,8 @@ permissions:
       scrollingmenusign.maps.fromSign: true
       scrollingmenusign.create.elevated: true
       scrollingmenusign.create.cost: true
+      scrollingmenusign.create.redstonecontrol: true
+      scrollingmenusign.create.switch: true
       scrollingmenusign.ignoreViewOwnership: true
   scrollingmenusign.commands.create:
     description: Allow creation of new menus
@@ -200,3 +202,9 @@ permissions:
   scrollingmenusign.use.redstone:
     description: Allows usage of redstone views
     default: true
+  scrollingmenusign.create.redstonecontrol:
+    description: Allows creation of redstone control signs
+    default: op
+  scrollingmenusign.create.switch:
+    description: Allows creation of redstone output switches
+    default: op

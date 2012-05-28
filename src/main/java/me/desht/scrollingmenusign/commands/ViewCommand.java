@@ -4,6 +4,7 @@ import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.commands.AbstractCommand;
+import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
@@ -69,10 +70,18 @@ public class ViewCommand extends AbstractCommand {
 				int nSwitches = gsv.getSwitches().size();
 				if (nSwitches > 0) {
 					String s = nSwitches > 1 ? "es"	: "";
-					pager.add("This view has &f" + nSwitches + "&- output switch" + s + ":");
+					pager.add("&f" + nSwitches + "&- output switch" + s + ":");
 					for (Switch sw: gsv.getSwitches()) {
 						pager.add(String.format("&5*&- &e%s&- @ &e%s",
 						                        sw.getTrigger(), MiscUtil.formatLocation(sw.getLocation())));
+					}
+				}
+				int nCtrlSigns = gsv.getControlSigns().size();
+				if (nCtrlSigns > 0) {
+					String s = nCtrlSigns > 1 ? "s"	: "";
+					pager.add("&f" + nCtrlSigns + "&- redstone control sign" + s + ":");
+					for (RedstoneControlSign sign: gsv.getControlSigns()) {
+						pager.add(String.format("&5*&- &e%s&-", sign));
 					}
 				}
 			}

@@ -1,13 +1,18 @@
 package me.desht.scrollingmenusign.views;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
+import me.desht.dhutils.PersistableLocation;
+import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.enums.RedstoneOutputMode;
@@ -26,6 +31,7 @@ import me.desht.scrollingmenusign.views.redout.Switch;
 public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
 	private final Set<Switch> switches = new HashSet<Switch>();
+	private final Set<RedstoneControlSign> controlSigns = new HashSet<RedstoneControlSign>();
 
 	public final String RS_OUTPUT_MODE = "rsoutputmode";
 
@@ -46,6 +52,16 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
 	public void removeSwitch(Switch sw) {
 		switches.remove(sw);
+		autosave();
+	}
+	
+	public void addControlSign(RedstoneControlSign sign) {
+		controlSigns.add(sign);
+		autosave();
+	}
+
+	public void removeControlSign(RedstoneControlSign sign) {
+		controlSigns.remove(sign);
 		autosave();
 	}
 
@@ -69,6 +85,10 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public Set<Switch> getSwitches() {
 		return switches;
 	}
+	
+	public Set<RedstoneControlSign> getControlSigns() {
+		return controlSigns;
+	}
 
 	@Override
 	public Map<String,Object> freeze() {
@@ -79,10 +99,19 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 			l.put(sw.getName(), sw.freeze());
 		}
 		map.put("switches", l);
+		
+		List<PersistableLocation> locs = new ArrayList<PersistableLocation>();
+		for (RedstoneControlSign s : controlSigns) {
+			PersistableLocation pl = new PersistableLocation(s.getlocation());
+			pl.setSavePitchAndYaw(false);
+			locs.add(pl);
+		}
+		map.put("controlSigns", locs);
 
 		return map;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void thaw(ConfigurationSection node) throws SMSException {
 		super.thaw(node);
@@ -96,10 +125,20 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 			try {
 				new Switch(this, conf);
 			} catch (IllegalArgumentException e) {
+				// world not loaded
 				Switch.deferLoading(this, conf);
 			}
 		}
 		updateSwitchPower();
+		
+		for (PersistableLocation pl : (List<PersistableLocation>) node.getList("controlSigns")) {
+			try {
+				RedstoneControlSign.getControlSign(pl.getLocation(), this);
+			} catch (IllegalStateException e) {
+				// world not loaded
+				RedstoneControlSign.deferLoading(pl.getWorldName(), new Vector(pl.getX(), pl.getY(), pl.getZ()));
+			}
+		}
 	}
 
 	@Override
