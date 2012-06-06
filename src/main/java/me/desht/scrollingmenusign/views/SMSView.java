@@ -43,7 +43,7 @@ import org.bukkit.util.Vector;
 public abstract class SMSView implements Observer, SMSPersistable, ConfigurationListener {
 	// view attribute names
 	public static final String OWNER = "owner";
-	public static final String JUSTIFY = "justify";
+	public static final String ITEM_JUSTIFY = "item_justify";
 	public static final String TITLE_JUSTIFY = "title_justify";
 	
 	// map view name to view object for registered views
@@ -96,7 +96,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 		registerAttribute(OWNER, "");
 		registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT);
-		registerAttribute(JUSTIFY, ViewJustification.DEFAULT);
+		registerAttribute(ITEM_JUSTIFY, ViewJustification.DEFAULT);
 	}
 
 	private String makeUniqueName(String base) {
@@ -157,7 +157,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @return
 	 */
 	public ViewJustification getItemJustification() {
-		return getJustification("sms.item_justify", JUSTIFY, ViewJustification.LEFT);
+		return getJustification("sms.item_justify", ITEM_JUSTIFY, ViewJustification.LEFT);
 	}
 	
 	/**
