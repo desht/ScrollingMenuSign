@@ -66,8 +66,8 @@ public class RedstoneControlSign {
 		
 		lastPowerLevel = sign.getBlock().getBlockPower();
 		
-		view.addControlSign(this);
-		view.autosave();
+		this.view.addControlSign(this);
+		this.view.autosave();
 	}
 
 	/**
