@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -55,7 +56,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		switches.remove(sw);
 		autosave();
 	}
-	
+
 	public void addControlSign(RedstoneControlSign sign) {
 		controlSigns.add(sign);
 		autosave();
@@ -71,7 +72,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		if (item == null) {
 			return;
 		}
-		String selectedItem = getMenu().getItemAt(getLastScrollPos()).getLabel();
+		String selectedItem = ChatColor.stripColor(item.getLabel());
 
 		for (Switch sw : switches) {
 			sw.setPowered(sw.getTrigger().equals(selectedItem));
@@ -79,7 +80,11 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	public void toggleSwitchPower() {
-		String selectedItem = getMenu().getItemAt(getLastScrollPos()).getLabel();
+		SMSMenuItem item = getMenu().getItemAt(getLastScrollPos());
+		if (item == null) {
+			return;
+		}
+		String selectedItem = ChatColor.stripColor(item.getLabel());
 		for (Switch sw : switches) {
 			if (sw.getTrigger().equals(selectedItem)) {
 				sw.setPowered(!sw.getPowered());
@@ -90,7 +95,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public Set<Switch> getSwitches() {
 		return switches;
 	}
-	
+
 	public Set<RedstoneControlSign> getControlSigns() {
 		return controlSigns;
 	}
@@ -104,7 +109,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 			l.put(sw.getName(), sw.freeze());
 		}
 		map.put("switches", l);
-		
+
 		List<PersistableLocation> locs = new ArrayList<PersistableLocation>();
 		for (RedstoneControlSign s : controlSigns) {
 			PersistableLocation pl = new PersistableLocation(s.getlocation());
@@ -122,26 +127,29 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		super.thaw(node);
 
 		ConfigurationSection sw = node.getConfigurationSection("switches");
-		if (sw == null) {
-			return;
-		}
-		for (String k : sw.getKeys(false)) {
-			ConfigurationSection conf = node.getConfigurationSection("switches." + k);
-			try {
-				new Switch(this, conf);
-			} catch (IllegalArgumentException e) {
-				// world not loaded
-				Switch.deferLoading(this, conf);
+		if (sw != null) {
+
+			for (String k : sw.getKeys(false)) {
+				ConfigurationSection conf = node.getConfigurationSection("switches." + k);
+				try {
+					new Switch(this, conf);
+				} catch (IllegalArgumentException e) {
+					// world not loaded
+					Switch.deferLoading(this, conf);
+				}
 			}
+			updateSwitchPower();
 		}
-		updateSwitchPower();
-		
-		for (PersistableLocation pl : (List<PersistableLocation>) node.getList("controlSigns")) {
-			try {
-				RedstoneControlSign.getControlSign(pl.getLocation(), this);
-			} catch (IllegalStateException e) {
-				// world not loaded
-				RedstoneControlSign.deferLoading(pl.getWorldName(), new Vector(pl.getX(), pl.getY(), pl.getZ()));
+
+		List<PersistableLocation> rcSignLocs = (List<PersistableLocation>) node.getList("controlSigns");
+		if (rcSignLocs != null) {
+			for (PersistableLocation pl : rcSignLocs) {
+				try {
+					RedstoneControlSign.getControlSign(pl.getLocation(), this);
+				} catch (IllegalStateException e) {
+					// world not loaded
+					RedstoneControlSign.deferLoading(pl.getWorldName(), new Vector(pl.getX(), pl.getY(), pl.getZ()));
+				}
 			}
 		}
 	}
@@ -155,11 +163,11 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 			updateSwitchPower();
 		}
 	}
-	
+
 	@Override
 	public void onExecuted(Player player) {
 		super.onExecuted(player);
-		
+
 		RedstoneOutputMode mode = (RedstoneOutputMode) getAttribute(RS_OUTPUT_MODE);
 		if (mode == RedstoneOutputMode.TOGGLE) {
 			toggleSwitchPower();
