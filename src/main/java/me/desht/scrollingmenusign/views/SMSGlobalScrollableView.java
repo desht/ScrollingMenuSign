@@ -12,6 +12,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
@@ -174,4 +175,12 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		}
 	}
 
+	@Override
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+		super.onConfigurationChanged(configurationManager, key, oldVal, newVal);
+
+		if (key.equals(RS_OUTPUT_MODE) && (RedstoneOutputMode)newVal == RedstoneOutputMode.SELECTED) {
+			updateSwitchPower();
+		}
+	}
 }
