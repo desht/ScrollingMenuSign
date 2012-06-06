@@ -14,12 +14,15 @@ Very simple: copy ScrollingMenuSign.jar into your plugins/ folder.  Restart/relo
 If you want to build ScrollingMenuSign yourself, you will need Maven.
 
 1a) Download a copy of Vault.jar (get the latest version) from http://dev.bukkit.org/server-mods/vault/
+
 1b) Run 'mvn install:install-file -DgroupId=net.milkbowl -DartifactId=vault -Dversion=X.Y.Z -Dpackaging=jar -Dfile=Vault.jar' (adjust the version number to match what you downloaded)
 
 2a) Get a copy of dhutils: "git clone https://desht@github.com/desht/dhutils.git"
+
 2b) Build dhutils.  In the dhutils top-level directory, type: "mvn clean install"
 
 3a) Download ScrollingMenuSign: "git clone https://desht@github.com/desht/ScrollingMenuSign.git"
+
 3b) Build ScrollingMenuSign. In the top-level directory, type: "mvn clean install"
 
 This should give you a copy of ScrollingMenuSign.jar under the target/ directory.
