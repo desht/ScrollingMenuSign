@@ -199,6 +199,9 @@ permissions:
   scrollingmenusign.use.sign:
     description: Allows usage of sign views
     default: true
+  scrollingmenusign.use.multisign:
+    description: Allows usage of multisign views
+    default: true
   scrollingmenusign.use.redstone:
     description: Allows usage of redstone views
     default: true
