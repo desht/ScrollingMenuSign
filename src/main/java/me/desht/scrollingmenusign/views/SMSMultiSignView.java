@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Observable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
@@ -396,7 +398,8 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		//		this regexp sadly doesn't work
 		//		String reset = text.matches("\u00a7[mn]") ? "\u00a7r" : "";
 		String reset = "";
-		if (text.contains("\u00a7m") || text.contains("\u00a7n")) {
+		String textL = text.toLowerCase();
+		if (textL.contains("\u00a7m") || textL.contains("\u00a7n")) {
 			reset = "\u00a7r";
 		}
 		switch (just) {
