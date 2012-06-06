@@ -4,11 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import net.milkbowl.vault.economy.EconomyResponse;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.desht.dhutils.ExperienceManager;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.CostType;
 
@@ -179,7 +182,15 @@ public class Cost {
 			switch (c.getType()) {
 			case MONEY:
 				if (ScrollingMenuSign.economy != null) {
-					ScrollingMenuSign.economy.withdrawPlayer(player.getName(), c.getQuantity());
+					EconomyResponse resp;
+					if (c.getQuantity() < 0.0) {
+						resp = ScrollingMenuSign.economy.depositPlayer(player.getName(), -c.getQuantity());
+					} else {
+						resp = ScrollingMenuSign.economy.withdrawPlayer(player.getName(), c.getQuantity());
+					}
+					if (!resp.transactionSuccess()) {
+						throw new SMSException("Economy problem: " + resp.errorMessage);
+					}
 				}
 				break;
 			case ITEM:
