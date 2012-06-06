@@ -15,6 +15,7 @@ import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.enums.RedstoneOutputMode;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.redout.Switch;
@@ -66,6 +67,10 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	public void updateSwitchPower() {
+		SMSMenuItem item = getMenu().getItemAt(getLastScrollPos());
+		if (item == null) {
+			return;
+		}
 		String selectedItem = getMenu().getItemAt(getLastScrollPos()).getLabel();
 
 		for (Switch sw : switches) {

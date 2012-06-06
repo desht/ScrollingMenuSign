@@ -29,6 +29,7 @@ import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PersistableLocation;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -48,13 +49,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	
 	// map view name to view object for registered views
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
-	// map location to view object for registered views
-	private static final Map<Location, SMSView> allViewLocations = new HashMap<Location, SMSView>();
+	// map (persistable - no World reference) location to view object for registered views
+	private static final Map<PersistableLocation, SMSView> allViewLocations = new HashMap<PersistableLocation, SMSView>();
 	// track the number we append to each new view name
 	private static final Map<String,Integer> viewIdx = new HashMap<String, Integer>();
 
 	private final SMSMenu menu;
-	private final Set<Location> locations = new HashSet<Location>();
+	private final Set<PersistableLocation> locations = new HashSet<PersistableLocation>();
 	private final String name;
 	private final AttributeCollection attributes;	// view attributes to be displayed and/or edited by players
 	
@@ -295,9 +296,14 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * several locations...)
 	 * 
 	 * @return	A Set of all locations for this view object
+	 * @throws IllegalStateException if the world for this view has become unloaded
 	 */
-	public Set<Location> getLocations() {	
-		return locations;
+	public Set<Location> getLocations() {
+		Set<Location> res = new HashSet<Location>();
+		for (PersistableLocation l : locations) {
+			res.add(l.getLocation());
+		}
+		return res;
 	}
 
 	/**
@@ -338,9 +344,9 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " already contains view on menu: " + v.getMenu().getName());
 		}
 
-		locations.add(loc);
+		locations.add(new PersistableLocation(loc));
 		if (checkForView(getName())) {
-			allViewLocations.put(loc, this);
+			allViewLocations.put(new PersistableLocation(loc), this);
 		}
 		autosave();
 	}
@@ -351,8 +357,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @param loc	The location to unregister.
 	 */
 	public void removeLocation(Location loc) {
-		locations.remove(loc);
-		allViewLocations.remove(loc);
+		locations.remove(new PersistableLocation(loc));
+		allViewLocations.remove(new PersistableLocation(loc));
 
 		autosave();
 	}
@@ -381,7 +387,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 		allViewNames.put(getName(), this);
 		for (Location l : getLocations()) {
-			allViewLocations.put(l, this);
+			allViewLocations.put(new PersistableLocation(l), this);
 		}
 		
 		autosave();
@@ -391,12 +397,12 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		getMenu().deleteObserver(this);
 		allViewNames.remove(getName());
 		for (Location l : getLocations()) {
-			allViewLocations.remove(l);
+			allViewLocations.remove(new PersistableLocation(l));
 		}
 	}
 
 	/**
-	 * Temporarily delete a view.  The view is deactivated and in-memory objects are dereference,
+	 * Temporarily delete a view.  The view is deactivated and in-memory objects are dereferenced,
 	 * but the saved view data is not removed from disk.
 	 */
 	public void deleteTemporary() {
@@ -467,7 +473,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @return		The SMSView object at that location, or null if there is none
 	 */
 	public static SMSView getViewForLocation(Location loc) {
-		return allViewLocations.get(loc);
+		return allViewLocations.get(new PersistableLocation(loc));
 	}
 
 	/**

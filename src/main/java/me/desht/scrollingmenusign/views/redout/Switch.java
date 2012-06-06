@@ -18,23 +18,24 @@ import org.bukkit.material.Redstone;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 public class Switch {
-	private static final Map<Location,Switch> allSwitchLocs = new HashMap<Location,Switch>();
+	private static final Map<PersistableLocation,Switch> allSwitchLocs = new HashMap<PersistableLocation,Switch>();
 	private static final Map<String, Switch> allSwitches = new HashMap<String,Switch>();
 
 	private static Map<String, Set<ConfigurationSection>> deferred = new HashMap<String, Set<ConfigurationSection>>();
 
 	private final SMSGlobalScrollableView view;
-	private final Location location;
+	private final PersistableLocation location;
 	private final String trigger;
 	private final String name;
 
 	public Switch(SMSGlobalScrollableView view, String trigger, Location location) {
 		this.view = view;
-		this.location = location;
+		this.location = new PersistableLocation(location);
 		this.trigger = trigger;
 		this.name = makeUniqueName(view.getName());
 
@@ -49,7 +50,8 @@ public class Switch {
 			throw new IllegalArgumentException("World not available");
 		} 
 		this.view = view;
-		this.location = new Location(w, conf.getInt("x"), conf.getInt("y"), conf.getInt("z"));
+		Location loc = new Location(w, conf.getInt("x"), conf.getInt("y"), conf.getInt("z"));
+		this.location = new PersistableLocation(loc);
 		this.trigger = conf.getString("trigger");
 		this.name = makeUniqueName(view.getName());
 
@@ -71,7 +73,7 @@ public class Switch {
 	}
 
 	public Location getLocation() {
-		return location;
+		return location.getLocation();
 	}
 
 	public String getTrigger() {
@@ -85,11 +87,11 @@ public class Switch {
 	}
 
 	private Material getSwitchType() {
-		return location.getBlock().getType();
+		return getLocation().getBlock().getType();
 	}
 
 	public boolean getPowered() {
-		Block b = location.getBlock();
+		Block b = getLocation().getBlock();
 		if (getSwitchType() == Material.LEVER) {
 			return ((Redstone)b.getState().getData()).isPowered();
 		} else {
@@ -100,7 +102,7 @@ public class Switch {
 
 	public void setPowered(boolean powered) {
 		if (getSwitchType() == Material.LEVER) {
-			setLeverPowered(location.getBlock(), powered);
+			setLeverPowered(getLocation().getBlock(), powered);
 		} else {
 			LogUtils.warning("Found " + getSwitchType() + " at " + location + " - expecting LEVER!");
 		}
@@ -117,7 +119,7 @@ public class Switch {
 	}
 
 	public static Switch getSwitchAt(Location loc) {
-		return allSwitchLocs.get(loc);
+		return allSwitchLocs.get(new PersistableLocation(loc));
 	}
 
 	public static List<Switch> getSwitches() {
@@ -132,10 +134,10 @@ public class Switch {
 		Map<String, Object> map = new HashMap<String, Object>();
 
 		map.put("trigger", trigger);
-		map.put("world", location.getWorld().getName());
-		map.put("x", location.getBlockX());
-		map.put("y", location.getBlockY());
-		map.put("z", location.getBlockZ());
+		map.put("world", location.getWorldName());
+		map.put("x", location.getX());
+		map.put("y", location.getY());
+		map.put("z", location.getZ());
 
 		return map;
 	}

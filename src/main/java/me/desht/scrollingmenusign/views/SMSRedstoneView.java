@@ -13,6 +13,7 @@ import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PersistableLocation;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -30,7 +31,7 @@ public class SMSRedstoneView extends SMSView {
 	public static final String PLAYERRADIUS = "playerradius";
 	public static final String AFFECTONLYNEAREST = "affectonlynearest";
 
-	private final Map<Location,Boolean> powered = new HashMap<Location, Boolean>();
+	private final Map<PersistableLocation,Boolean> powered = new HashMap<PersistableLocation, Boolean>();
 
 	public SMSRedstoneView(String name, SMSMenu menu) {
 		super(name, menu);
@@ -162,7 +163,7 @@ public class SMSRedstoneView extends SMSView {
 	 */
 	@Override
 	public void addLocation(Location loc) throws SMSException {
-		powered.put(loc, loc.getBlock().isBlockPowered() || loc.getBlock().isBlockIndirectlyPowered());
+		powered.put(new PersistableLocation(loc), loc.getBlock().isBlockPowered() || loc.getBlock().isBlockIndirectlyPowered());
 
 		super.addLocation(loc);
 	}
@@ -172,7 +173,7 @@ public class SMSRedstoneView extends SMSView {
 	 */
 	@Override
 	public void removeLocation(Location loc) {
-		powered.remove(loc);
+		powered.remove(new PersistableLocation(loc));
 
 		super.removeLocation(loc);
 	}
@@ -184,7 +185,7 @@ public class SMSRedstoneView extends SMSView {
 	 * @return		true if the location is considered powered, false otherwise
 	 */
 	public boolean isPowered(Location loc) {
-		return powered.get(loc);
+		return powered.get(new PersistableLocation(loc));
 	}
 
 	/**
@@ -194,7 +195,7 @@ public class SMSRedstoneView extends SMSView {
 	 * @param power		The power level
 	 */
 	public void setPowered(Location loc, boolean power) {
-		powered.put(loc, power);
+		powered.put(new PersistableLocation(loc), power);
 	}
 
 	/**

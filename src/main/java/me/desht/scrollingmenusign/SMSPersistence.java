@@ -104,6 +104,7 @@ public class SMSPersistence {
 	
 		for (File f : DirectoryStructure.getMenusFolder().listFiles(ymlFilter)) {
 			try {
+				LogUtils.finer("loading menu: " + f);
 				YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 				SMSMenu menu = new SMSMenu(conf);
 				SMSMenu.addMenu(menu.getName(), menu, true);
@@ -120,6 +121,7 @@ public class SMSPersistence {
 		}
 
 		for (File f : DirectoryStructure.getViewsFolder().listFiles(ymlFilter)) {
+			LogUtils.finer("loading view: " + f);
 			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 			SMSView view = SMSView.load(conf);
 			if (view != null) {

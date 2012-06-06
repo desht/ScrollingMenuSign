@@ -9,6 +9,7 @@ import java.util.Set;
 
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -23,11 +24,11 @@ import org.bukkit.block.Sign;
 import org.bukkit.util.Vector;
 
 public class RedstoneControlSign {
-	private static final Map<Location, RedstoneControlSign> allSigns = new HashMap<Location, RedstoneControlSign>();
+	private static final Map<PersistableLocation, RedstoneControlSign> allSigns = new HashMap<PersistableLocation, RedstoneControlSign>();
 	
 	private static final Map<String, Set<Vector>> deferred = new HashMap<String, Set<Vector>>();
 	
-	private final Location location;
+	private final PersistableLocation location;
 	private final SMSGlobalScrollableView view;
 	private final List<RedstoneControlSign.Action> actions = new ArrayList<RedstoneControlSign.Action>();
 	
@@ -41,7 +42,7 @@ public class RedstoneControlSign {
 	 * @throws SMSException if the sign text is any way invalid
 	 */
 	private RedstoneControlSign(Sign sign, SMSGlobalScrollableView view) {
-		this.location = sign.getLocation();
+		this.location = new PersistableLocation(sign.getLocation());
 		
 		if (!sign.getLine(0).equals(ChatColor.RED + "[smsred]")) {
 			throw new SMSException("Sign @ " + MiscUtil.formatLocation(sign.getBlock().getLocation()) +
@@ -96,10 +97,11 @@ public class RedstoneControlSign {
 		if (block.getType() != Material.WALL_SIGN && block.getType() != Material.SIGN_POST) {
 			throw new SMSException("Block @ " + MiscUtil.formatLocation(block.getLocation()) + " does not contain a sign");
 		}
-		if (!allSigns.containsKey(loc)) {
-			allSigns.put(loc, new RedstoneControlSign((Sign) block.getState(), view));
+		PersistableLocation pLoc = new PersistableLocation(loc);
+		if (!allSigns.containsKey(pLoc)) {
+			allSigns.put(pLoc, new RedstoneControlSign((Sign) block.getState(), view));
 		}
-		return allSigns.get(loc);
+		return allSigns.get(pLoc);
 	}
 
 	/**
@@ -126,7 +128,7 @@ public class RedstoneControlSign {
 	 * @return	the control sign location
 	 */
 	public Location getlocation() {
-		return location;
+		return location.getLocation();
 	}
 	
 	/**
@@ -172,7 +174,7 @@ public class RedstoneControlSign {
 	 * @return	the Sign object
 	 */
 	private Sign getSignBlock() {
-		Block b = location.getBlock();
+		Block b = location.getLocation().getBlock();
 		if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
 			return (Sign)b.getState();
 		} else {
@@ -250,7 +252,7 @@ public class RedstoneControlSign {
 	 * @return	true if there is a control sign there, false otherwise
 	 */
 	public static boolean checkForSign(Location loc) {
-		return allSigns.containsKey(loc);
+		return allSigns.containsKey(new PersistableLocation(loc));
 	}
 	
 	/**
@@ -260,11 +262,7 @@ public class RedstoneControlSign {
 	 * @return	The control sign object, or null if no control is at the given location.
 	 */
 	public static RedstoneControlSign getSignAt(Location loc) {
-		return allSigns.get(loc);
-	}
-
-	public static void deleteSign(Block b) {
-		allSigns.remove(b);
+		return allSigns.get(new PersistableLocation(loc));
 	}
 
 	/**
@@ -300,7 +298,7 @@ public class RedstoneControlSign {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(MiscUtil.formatLocation(location)).append(": ");
+		StringBuilder sb = new StringBuilder(location.toString()).append(": ");
 		for (Action a : actions) {
 			sb.append(a.toString()).append(" ");
 		}

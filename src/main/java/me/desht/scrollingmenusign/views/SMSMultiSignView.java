@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Observable;
 
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.Str;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -28,8 +29,8 @@ import org.bukkit.material.Sign;
 public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 	private BlockFace facing;
-	private Block topLeft;
-	private Block bottomRight;
+	private PersistableLocation topLeft;
+	private PersistableLocation bottomRight;
 	private int height; // in blocks
 	private int width;  // in blocks
 
@@ -223,29 +224,30 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * @return	the Sign block retrieved
 	 */
 	public org.bukkit.block.Sign getSign(int x, int y) {
-		int y1 = topLeft.getY() - y;
+		Location tl = topLeft.getLocation();
+		int y1 = tl.getBlockY() - y;
 		int x1, z1;
 		switch (facing) {
 		case NORTH:
-			x1 = topLeft.getX();
-			z1 = topLeft.getZ() + x;
+			x1 = tl.getBlockX();
+			z1 = tl.getBlockZ() + x;
 			break;
 		case SOUTH:
-			x1 = topLeft.getX();
-			z1 = topLeft.getZ() - x;
+			x1 = tl.getBlockX();
+			z1 = tl.getBlockZ() - x;
 			break;
 		case EAST:
-			x1 = topLeft.getX() - x;
-			z1 = topLeft.getZ();
+			x1 = tl.getBlockX() - x;
+			z1 = tl.getBlockZ();
 			break;
 		case WEST:
-			x1 = topLeft.getX() + x;
-			z1 = topLeft.getZ();
+			x1 = tl.getBlockX() + x;
+			z1 = tl.getBlockZ();
 			break;
 		default:
 			throw new IllegalStateException("Unexpected facing " + facing + " for " + this);	
 		}
-		Block b = topLeft.getWorld().getBlockAt(x1, y1, z1);
+		Block b = tl.getWorld().getBlockAt(x1, y1, z1);
 		if (b.getType() == Material.WALL_SIGN) {
 			return (org.bukkit.block.Sign) b.getState();
 		} else {
@@ -312,25 +314,28 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private void scan(Block b, BlockFace horizontal) throws SMSException {
-		topLeft = scan(b, horizontal, BlockFace.UP);
-		bottomRight = scan(b, horizontal.getOppositeFace(), BlockFace.DOWN);
+		Location tl = scan(b, horizontal, BlockFace.UP);
+		Location br = scan(b, horizontal.getOppositeFace(), BlockFace.DOWN);
+		
+		topLeft = new PersistableLocation(tl);
+		bottomRight = new PersistableLocation(br);
 
 		validateSignArray();
 
-		height = (topLeft.getY() - bottomRight.getY()) + 1;
+		height = (tl.getBlockY() - br.getBlockY()) + 1;
 		switch (horizontal) {
 		case NORTH: case SOUTH:
-			width = Math.abs(topLeft.getX() - bottomRight.getX()) + 1;
+			width = Math.abs(tl.getBlockX() - br.getBlockX()) + 1;
 			break;
 		case EAST: case WEST:
-			width = Math.abs(topLeft.getZ() - bottomRight.getZ()) + 1;
+			width = Math.abs(tl.getBlockZ() - br.getBlockZ()) + 1;
 			break;
 		}
 		LogUtils.finer("multisign: topleft=" + topLeft + ", bottomright=" + bottomRight);
 		LogUtils.finer("multisign: height=" + height + ", width=" + width);
 	}
 
-	private Block scan(Block b, BlockFace horizontal, BlockFace vertical) {
+	private Location scan(Block b, BlockFace horizontal, BlockFace vertical) {
 		Block b1 = b;
 
 		LogUtils.finer("scan: " + b + " h=" + horizontal + " v=" + vertical);
@@ -338,7 +343,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		b1 = scanOneDir(b, horizontal);
 		b1 = scanOneDir(b1, vertical);
 
-		return b1;
+		return b1.getLocation();
 	}
 
 	private Block scanOneDir(Block b, BlockFace dir) {
@@ -354,15 +359,18 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 	private List<Block> getBlocks() {
 		List<Block> res = new ArrayList<Block>();
+		
+		Block tlb = topLeft.getLocation().getBlock();
+		Block brb = bottomRight.getLocation().getBlock();
 
-		int x1 = Math.min(topLeft.getX(), bottomRight.getX());
-		int x2 = Math.max(topLeft.getX(), bottomRight.getX());
-		int z1 = Math.min(topLeft.getZ(), bottomRight.getZ());
-		int z2 = Math.max(topLeft.getZ(), bottomRight.getZ());
-		int y1 = bottomRight.getY();
-		int y2 = topLeft.getY();
+		int x1 = Math.min(tlb.getX(), brb.getX());
+		int x2 = Math.max(tlb.getX(), brb.getX());
+		int z1 = Math.min(tlb.getZ(), brb.getZ());
+		int z2 = Math.max(tlb.getZ(), brb.getZ());
+		int y1 = brb.getY();
+		int y2 = tlb.getY();
 
-		World w = topLeft.getWorld();
+		World w = tlb.getWorld();
 		for (int x = x1; x <= x2; x++) {
 			for (int y = y1; y <= y2; y++) {
 				for (int z = z1; z <= z2; z++) {
