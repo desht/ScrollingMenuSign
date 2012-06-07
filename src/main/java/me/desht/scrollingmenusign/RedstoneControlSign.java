@@ -298,7 +298,7 @@ public class RedstoneControlSign {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(location.toString()).append(": ");
+		StringBuilder sb = new StringBuilder(MiscUtil.formatLocation(location.getLocation())).append(": ");
 		for (Action a : actions) {
 			sb.append(a.toString()).append(" ");
 		}
