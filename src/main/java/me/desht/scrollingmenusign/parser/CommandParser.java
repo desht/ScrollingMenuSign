@@ -117,12 +117,14 @@ public class CommandParser {
 		ParsedCommand cmd = handleCommandString(player, command, RunMode.CHECK_PERMS);
 		return cmd == null || cmd.getStatus() == ReturnStatus.CMD_OK;
 	}
-
+	
+	private static final Pattern promptPat = Pattern.compile("<\\$:(.+?)>");
+	private static final Pattern varSubPat = Pattern.compile("<\\$.+?>");
+	
 	ParsedCommand handleCommandString(Player player, String command, RunMode mode) throws SMSException {
 		if (player != null) {
 			// see if an interactive substitution is needed
-			Pattern p = Pattern.compile("<\\$:(.+?)>");
-			Matcher m = p.matcher(command);
+			Matcher m = promptPat.matcher(command);
 			if (m.find() && m.groupCount() > 0 && mode == RunMode.EXECUTE) {
 				ScrollingMenuSign.getInstance().responseHandler.expect(player, new ExpectCommandSubstitution(command));
 
@@ -147,8 +149,7 @@ public class CommandParser {
 					command = command.replace("<$" + key + ">", cs.getString(key));	
 				}
 			}
-			p = Pattern.compile("<\\$.+?>");
-			m = p.matcher(command);
+			m = varSubPat.matcher(command);
 			Set<String> missing = new HashSet<String>();
 			while (m.find()) {
 				missing.add(m.group());
