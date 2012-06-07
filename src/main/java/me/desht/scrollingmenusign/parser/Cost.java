@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.parser;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -11,19 +12,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.desht.dhutils.ExperienceManager;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.CostType;
 
 public class Cost {
-	
+
 	private static final int MAX_STACK_SIZE = 64;
-	
+
 	private final CostType type;
 	private final int id;
 	private final Byte data;
 	private final double quantity;
-	
+
 	/**
 	 * Construct a new Cost object, charging 1 of the given item ID
 	 * 
@@ -120,20 +122,39 @@ public class Cost {
 			return;
 		}
 
+		int maxStackSize = player.getInventory().getMaxStackSize();
 		int quantity = (int) -getQuantity();
-
-		while (quantity > MAX_STACK_SIZE) {
-			player.getInventory().addItem(makeStack(64));
-			quantity -= MAX_STACK_SIZE;
+		int dropped = 0;
+		
+		while (quantity > maxStackSize) {
+			dropped += addItems(player, maxStackSize);
+			quantity -= maxStackSize;
 		}
-
-		player.getInventory().addItem(makeStack(quantity));
+		dropped += addItems(player, quantity);
+		
+		if (dropped > 0) {
+			MiscUtil.statusMessage(player, "&6Your inventory is full.  Some items dropped.");
+		}
 	}
 
 	private ItemStack makeStack(int quantity) {
 		return data == null ? new ItemStack(getId(), quantity) : new ItemStack(getId(), quantity, (short)0, getData().byteValue());
 	}
-	
+
+	private int addItems(Player player, int quantity) {
+		Map<Integer, ItemStack> toDrop = player.getInventory().addItem(makeStack(quantity));
+		if (toDrop.size() == 0) {
+			return 0;
+		}
+
+		int dropped = 0;
+		for (ItemStack is : toDrop.values()) {
+			player.getWorld().dropItemNaturally(player.getLocation(), is);
+			dropped += is.getAmount();
+		}
+		return dropped;
+	}
+
 	/**
 	 * Take items from a player's inventory.  Doesn't check to see if there is enough -
 	 * use playerCanAfford() for that.
