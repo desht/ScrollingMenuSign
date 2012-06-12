@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Observable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;

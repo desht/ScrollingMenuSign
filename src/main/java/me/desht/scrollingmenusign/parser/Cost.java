@@ -19,8 +19,6 @@ import me.desht.scrollingmenusign.enums.CostType;
 
 public class Cost {
 
-	private static final int MAX_STACK_SIZE = 64;
-
 	private final CostType type;
 	private final int id;
 	private final Byte data;
