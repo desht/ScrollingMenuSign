@@ -20,6 +20,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.util.Vector;
 
@@ -33,6 +34,27 @@ public class RedstoneControlSign {
 	private final List<RedstoneControlSign.Action> actions = new ArrayList<RedstoneControlSign.Action>();
 	
 	private int lastPowerLevel;
+	
+
+	private static Map<BlockFace,BlockFace> toLeft = new HashMap<BlockFace, BlockFace>();
+	static {
+        toLeft.put(BlockFace.NORTH, BlockFace.WEST);
+        toLeft.put(BlockFace.NORTH_NORTH_EAST, BlockFace.NORTH_WEST);
+        toLeft.put(BlockFace.NORTH_EAST, BlockFace.NORTH_WEST);
+        toLeft.put(BlockFace.EAST_NORTH_EAST, BlockFace.NORTH_WEST);
+        toLeft.put(BlockFace.EAST, BlockFace.NORTH);
+        toLeft.put(BlockFace.EAST_SOUTH_EAST, BlockFace.NORTH_EAST);
+        toLeft.put(BlockFace.SOUTH_EAST, BlockFace.NORTH_EAST);
+        toLeft.put(BlockFace.SOUTH_SOUTH_EAST, BlockFace.NORTH_EAST);
+        toLeft.put(BlockFace.SOUTH, BlockFace.EAST);
+        toLeft.put(BlockFace.SOUTH_SOUTH_WEST, BlockFace.SOUTH_EAST);
+        toLeft.put(BlockFace.SOUTH_WEST, BlockFace.SOUTH_EAST);
+        toLeft.put(BlockFace.WEST_SOUTH_WEST, BlockFace.SOUTH_EAST);
+        toLeft.put(BlockFace.WEST, BlockFace.SOUTH);
+        toLeft.put(BlockFace.WEST_NORTH_WEST, BlockFace.SOUTH_WEST);
+        toLeft.put(BlockFace.NORTH_WEST, BlockFace.SOUTH_WEST);
+        toLeft.put(BlockFace.NORTH_NORTH_WEST, BlockFace.SOUTH_WEST);
+	}
 	
 	/**
 	 * Construct a new RedstoneControlSign for the given Sign and view.  Private constructor - use getControlSign().
@@ -149,6 +171,18 @@ public class RedstoneControlSign {
 		view.autosave();
 	}
 	
+	public boolean isAttached() {
+		Block b = getlocation().getBlock();
+		BlockState bs = b.getState();
+		
+		if (bs instanceof Sign) {
+			org.bukkit.material.Sign s = (org.bukkit.material.Sign) bs.getData();
+			Block attached = b.getRelative(s.getAttachedFace());
+			return attached.getType() != Material.AIR;	
+		}
+		return true;
+	}
+
 	/**
 	 * Process the actions for this control sign.  Iterate through each defined adjacent block, and when one is 
 	 * found that is powered, execute the associated action on the control sign's view.  Stop processing as soon as
@@ -211,10 +245,10 @@ public class RedstoneControlSign {
 			face = signData.getFacing().getOppositeFace();
 			break;
 		case 'l':	// left
-			face = getLeft(signData.getFacing());
+			face = getLeft(signData.getFacing().getOppositeFace());
 			break;
 		case 'r':	// right
-			face = getLeft(signData.getFacing()).getOppositeFace();
+			face = getLeft(signData.getFacing());
 			break;
 		default:
 			throw new SMSException("Invalid redstone control direction '" + action.charAt(0) + "'");	
@@ -236,15 +270,12 @@ public class RedstoneControlSign {
 	}
 
 	private BlockFace getLeft(BlockFace facing) {
-		switch (facing) {
-		case NORTH: return BlockFace.WEST;
-		case WEST: return BlockFace.SOUTH;
-		case SOUTH: return BlockFace.EAST;
-		case EAST: return BlockFace.NORTH;
-		default: throw new IllegalArgumentException("can't pass " + facing + " to getLeft()");
+		if (!toLeft.containsKey(facing)) {
+			throw new IllegalArgumentException("can't pass " + facing + " to getLeft()");
 		}
+		return toLeft.get(facing);
 	}
-	
+
 	/**
 	 * Check if there is a RedstoneControlSign at the given location.
 	 * 
@@ -319,7 +350,7 @@ public class RedstoneControlSign {
 		
 		@Override
 		public String toString() {
-			return face + "=" + action;
+			return face + "=" + action.getShortDesc();
 		}
 	}
 }

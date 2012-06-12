@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -193,9 +194,11 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		for (String key : listAttributeKeys(false)) {
 			map.put(key, attributes.get(key).toString());
 		}
-		List<List<Object>> locs = new ArrayList<List<Object>>();
-		for (Location l: getLocations()) {
-			locs.add(freezeLocation(l));
+		List<PersistableLocation> locs = new ArrayList<PersistableLocation>();
+		for (Location l : getLocations()) {
+			PersistableLocation pl = new PersistableLocation(l);
+			pl.setSavePitchAndYaw(false);
+			locs.add(pl);
 		}
 		map.put("locations", locs);
 		return map;
@@ -205,24 +208,41 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	protected void thaw(ConfigurationSection node) throws SMSException {
 		List<Object> locs = (List<Object>) node.getList("locations");
 		for (Object o : locs) {
-			List<Object> locList = (List<Object>) o;
-			String worldName = (String)locList.get(0);
-			int x = (Integer) locList.get(1);
-			int y = (Integer) locList.get(2);
-			int z = (Integer) locList.get(3);
-			try {
-				World w = MiscUtil.findWorld(worldName);
-				addLocation(new Location(w, x, y, z));
-			} catch (IllegalArgumentException e) {
-				// world not loaded? we'll defer adding this location to the view for now
-				// perhaps the world will get loaded later
-				addDeferredLocation(worldName, new Vector(x, y, z));
+			System.out.println("object is a " + o.getClass().getName());
+			if (o instanceof Collection<?>) {
+				addOldStyleLocation((List<Object>) o);
+			} else if (o instanceof PersistableLocation) {
+				PersistableLocation pl = (PersistableLocation) o;
+				try {
+					addLocation(pl.getLocation());
+				} catch (IllegalStateException e) {
+					// world not loaded? we'll defer adding this location to the view for now
+					// perhaps the world will get loaded later
+					addDeferredLocation(pl.getWorldName(), new Vector(pl.getX(), pl.getY(), pl.getZ()));
+				}
+			} else {
+				throw new SMSException("invalid location in view " + getName() + " (corrupted file?)");
 			}
 		}
 		for (String k : node.getKeys(false)) {
 			if (attributes.hasAttribute(k)) {
 				setAttribute(k, node.getString(k));
 			}
+		}
+	}
+
+	private void addOldStyleLocation(List<Object> locList) {
+		String worldName = (String)locList.get(0);
+		int x = (Integer) locList.get(1);
+		int y = (Integer) locList.get(2);
+		int z = (Integer) locList.get(3);
+		try {
+			World w = MiscUtil.findWorld(worldName);
+			addLocation(new Location(w, x, y, z));
+		} catch (IllegalArgumentException e) {
+			// world not loaded? we'll defer adding this location to the view for now
+			// perhaps the world will get loaded later
+			addDeferredLocation(worldName, new Vector(x, y, z));
 		}
 	}
 

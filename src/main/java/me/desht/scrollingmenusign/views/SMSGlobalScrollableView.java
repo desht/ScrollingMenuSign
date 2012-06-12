@@ -13,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
@@ -150,6 +152,8 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 				} catch (IllegalStateException e) {
 					// world not loaded
 					RedstoneControlSign.deferLoading(pl.getWorldName(), new Vector(pl.getX(), pl.getY(), pl.getZ()));
+				} catch (SMSException e) {
+					LogUtils.warning("can't load redstone control sign at " + MiscUtil.formatLocation(pl.getLocation()) + ": " + e.getMessage());
 				}
 			}
 		}

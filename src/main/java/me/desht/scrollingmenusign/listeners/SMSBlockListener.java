@@ -83,8 +83,10 @@ public class SMSBlockListener implements Listener {
 			                                        MiscUtil.formatLocation(loc),
 			                                        sw.getView().getName(), sw.getTrigger()));
 		} else if (RedstoneControlSign.checkForSign(loc)) {
-			RedstoneControlSign rsCtrl = RedstoneControlSign.getControlSign(loc);
-			rsCtrl.delete();
+			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
+			rcSign.delete();
+			MiscUtil.statusMessage(p, String.format("Redstone control sign @ &f%s&- was removed from view &e%s&-.",
+			                                        MiscUtil.formatLocation(loc), rcSign.getView().getName()));
 		}
 	}
 
@@ -109,10 +111,16 @@ public class SMSBlockListener implements Listener {
 			}
 		} else if (RedstoneControlSign.checkForSign(loc)) {
 			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
+			if (!rcSign.isAttached()) {
+				rcSign.delete();
+				LogUtils.info("Redstone control sign for " + rcSign.getView().getName() + " @ " + loc + " has become detached: deleting");
+				return;
+			}
 			LogUtils.fine("block physics event @ " + b + " power=" + b.getBlockPower() + " prev-power=" + rcSign.getLastPowerLevel());
 			if (b.getBlockPower() > 0 && b.getBlockPower() > rcSign.getLastPowerLevel()) {
 				rcSign.processActions();
 			}
+			rcSign.setLastPowerLevel(b.getBlockPower());
 		}
 	}
 
@@ -134,21 +142,29 @@ public class SMSBlockListener implements Listener {
 	@EventHandler
 	public void onSignChanged(SignChangeEvent event) {
 		if (event.getLine(0).equals("[smsred]")) {
+			final Player player = event.getPlayer();
 			try {
-				PermissionUtils.requirePerms(event.getPlayer(), "scrollingmenusign.create.redstonecontrol");
+				PermissionUtils.requirePerms(player, "scrollingmenusign.create.redstonecontrol");
 				SMSView view = SMSView.getView(event.getLine(1));
 				if (!(view instanceof SMSGlobalScrollableView)) {
 					throw new SMSException(view.getName() + " must be a globally scrollable view");
 				}
 				event.setLine(0, ChatColor.RED + "[smsred]");
 				final Block block = event.getBlock();
+				
 				Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
 					// get the new control sign cached
 					@Override
-					public void run() { RedstoneControlSign.getControlSign(block.getLocation()); }
+					public void run() {
+						try {
+							RedstoneControlSign.getControlSign(block.getLocation());
+						} catch (SMSException e) {
+							MiscUtil.errorMessage(player, e.getMessage());
+						}
+					}
 				});
 			} catch (SMSException e) {
-				MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
+				MiscUtil.errorMessage(player, e.getMessage());
 			}
 		}
 	}

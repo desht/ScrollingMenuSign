@@ -107,12 +107,21 @@ public enum SMSUserAction {
 			break;
 		}
 	}
-	
+
 	public String getPermissionNode() {
 		switch (this) {
 		case EXECUTE: return "scrollingmenusign.execute";
 		case SCROLLDOWN: case SCROLLUP: return "scrollingmenusign.scroll";
 		default: return null;
+		}
+	}
+
+	public String getShortDesc() {
+		switch (this) {
+		case EXECUTE: return "X";
+		case SCROLLUP: return "U";
+		case SCROLLDOWN: return "D";
+		default: return "N";
 		}
 	}
 }
