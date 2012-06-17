@@ -208,7 +208,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	protected void thaw(ConfigurationSection node) throws SMSException {
 		List<Object> locs = (List<Object>) node.getList("locations");
 		for (Object o : locs) {
-			System.out.println("object is a " + o.getClass().getName());
 			if (o instanceof Collection<?>) {
 				addOldStyleLocation((List<Object>) o);
 			} else if (o instanceof PersistableLocation) {
