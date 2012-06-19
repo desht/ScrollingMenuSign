@@ -10,6 +10,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapFont;
@@ -78,6 +79,11 @@ public class SMSMapRenderer extends MapRenderer {
 			String title = menu.getTitle();
 			drawText(canvas, smsMapView.getTitleJustification(), y, smsMapView.getMapFont(), title);
 			y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
+		} else {
+			// using spout - "map_X" title isn't shown since the item name is overriden
+			// so show the id in the top right corner just for reference
+			drawText(canvas, ViewJustification.RIGHT, 0, smsMapView.getMapFont(),
+			         ChatColor.GRAY.toString() + ChatColor.ITALIC.toString() + "#" + Short.toString(smsMapView.getMapView().getId()));
 		}
 
 		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ");

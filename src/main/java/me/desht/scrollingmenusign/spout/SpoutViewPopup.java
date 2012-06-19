@@ -38,7 +38,8 @@ public class SpoutViewPopup extends GenericPopup {
 		Screen mainScreen = sp.getMainScreen();
 
 		title = new GenericLabel(view.getMenu().getTitle());
-		title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(5).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
+		title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(15).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
+		title.setAnchor(WidgetAnchor.TOP_LEFT);
 		title.setAuto(false	);
 		updateTitleJustification();
 

@@ -3,7 +3,7 @@ description: Scrollable command menus with signs/maps/spout/redstone views
 author: desht
 website: http://dev.bukkit.org/server-mods/scrollingmenusign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
-version: 1.3.0
+version: 1.3.1
 softdepend: [ Spout, Vault ]
 commands:
   sms:
