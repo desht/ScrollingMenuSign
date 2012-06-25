@@ -70,11 +70,6 @@
                                       <goal>shade</goal>
                                     </goals>
                                     <configuration>
-                                      <artifactSet>
-                                        <includes>
-                                          <include>me.desht:dhutils</include>
-                                        </includes>
-                                      </artifactSet>
                                       <relocations>
                                         <relocation>
                                           <pattern>me.desht.dhutils</pattern>
@@ -119,7 +114,7 @@
                 <dependency>
                         <groupId>me.desht</groupId>
                         <artifactId>dhutils</artifactId>
-                        <version>0.0.1-SNAPSHOT</version>
+                        <version>[1.0.0,)</version>
                 </dependency>
 
 	</dependencies>

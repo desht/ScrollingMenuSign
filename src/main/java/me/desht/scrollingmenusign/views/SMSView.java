@@ -668,6 +668,11 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		// no validation here, override in subclasses
 	}
 	
+	@Override
+	public void onVersionChanged(int oldVersion, int newVersion) {
+		// do nothing
+	}
+	
 	/**
 	 * Called automatically when the view is used to execute a menu item.  Override and extend this
 	 * in subclasses.

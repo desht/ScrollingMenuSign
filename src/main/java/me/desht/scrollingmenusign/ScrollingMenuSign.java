@@ -98,9 +98,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		DirectoryStructure.setupDirectoryStructure();
 
-		configManager = new ConfigurationManager(this);
+		configManager = new ConfigurationManager(this, this);
 		configManager.setPrefix("sms");
-		configManager.setConfigurationListener(this);
 		
 		LogUtils.setLogLevel(getConfig().getString("sms.log_level", "INFO"));
 		
@@ -384,14 +383,12 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
-		// TODO Auto-generated method stub
-		
+		// do nothing
 	}
 
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, List<?> val) {
-		// TODO Auto-generated method stub
-		
+		// do nothing
 	}
 
 	@Override
@@ -415,6 +412,11 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		}
 	}
 	
+	@Override
+	public void onVersionChanged(int oldVersion, int newVersion) {
+		// nothing for now
+	}
+
 	private void repaintViews(String type) {
 		for (SMSView v : SMSView.listViews()) {
 			if (type == null || v.getType().equals(type)) {
