@@ -55,7 +55,7 @@ public class AddViewCommand extends AbstractCommand {
 			String type = args[1].substring(1);
 			MiscUtil.statusMessage(sender, "Left-click a block to add it as a &9" + type + "&- view on menu &e" + menu.getName() + "&-.");
 			MiscUtil.statusMessage(sender, "Right-click anywhere to cancel.");
-			smsPlugin.responseHandler.expect((Player)sender, new ExpectViewCreation(menu, args[1]));
+			smsPlugin.responseHandler.expect(sender.getName(), new ExpectViewCreation(menu, args[1]));
 			return true;
 		} else if (args.length == 2 && args[1].equalsIgnoreCase("-multi")) { 	// multi-sign view
 			multiSign = true;

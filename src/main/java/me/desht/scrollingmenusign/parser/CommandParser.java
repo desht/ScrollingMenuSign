@@ -126,7 +126,7 @@ public class CommandParser {
 			// see if an interactive substitution is needed
 			Matcher m = promptPat.matcher(command);
 			if (m.find() && m.groupCount() > 0 && mode == RunMode.EXECUTE) {
-				ScrollingMenuSign.getInstance().responseHandler.expect(player, new ExpectCommandSubstitution(command));
+				ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command));
 
 				return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
 			}

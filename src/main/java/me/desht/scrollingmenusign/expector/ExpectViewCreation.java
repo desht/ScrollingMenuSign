@@ -8,6 +8,7 @@ import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class ExpectViewCreation extends ExpectLocation {
@@ -20,9 +21,9 @@ public class ExpectViewCreation extends ExpectLocation {
 	}
 
 	@Override
-	public void doResponse(Player p) {
+	public void doResponse(String playerName) {
 		SMSView view = null;
-		
+
 		try {
 			if (arg.equals("-sign")) {
 				view = SMSSignView.addSignToMenu(menu, getLocation());
@@ -33,8 +34,12 @@ public class ExpectViewCreation extends ExpectLocation {
 			throw new DHUtilsException(e.getMessage());
 		}
 
-		if (view != null) 
-			MiscUtil.statusMessage(p, String.format("Added %s view &e%s&- to menu &e%s&-.",
-					view.getType(), view.getName(), menu.getName()));
+		if (view != null) {
+			Player player = Bukkit.getPlayer(playerName);
+			if (player != null) {
+				MiscUtil.statusMessage(player, String.format("Added %s view &e%s&- to menu &e%s&-.",
+				                                             view.getType(), view.getName(), menu.getName()));
+			}
+		}
 	}
 }

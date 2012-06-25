@@ -60,8 +60,8 @@ public class SMSPlayerListener implements Listener {
 		Player player = event.getPlayer();
 		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		
-		if (plugin.responseHandler.isExpecting(player, ExpectSwitchAddition.class)) {
-			plugin.responseHandler.cancelAction(player, ExpectSwitchAddition.class);
+		if (plugin.responseHandler.isExpecting(player.getName(), ExpectSwitchAddition.class)) {
+			plugin.responseHandler.cancelAction(player.getName(), ExpectSwitchAddition.class);
 			MiscUtil.statusMessage(player, "&6Switch placement cancelled.");
 			return;
 		}
@@ -87,11 +87,11 @@ public class SMSPlayerListener implements Listener {
 	public void onPlayerChat(PlayerChatEvent event) {
 		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		Player player = event.getPlayer();
-		if (plugin.responseHandler.isExpecting(player, ExpectCommandSubstitution.class)) {
+		if (plugin.responseHandler.isExpecting(player.getName(), ExpectCommandSubstitution.class)) {
 			try {
-				ExpectCommandSubstitution cs = (ExpectCommandSubstitution) plugin.responseHandler.getAction(player, ExpectCommandSubstitution.class);
+				ExpectCommandSubstitution cs = plugin.responseHandler.getAction(player.getName(), ExpectCommandSubstitution.class);
 				cs.setSub(event.getMessage());
-				plugin.responseHandler.handleAction(player, cs.getClass());
+				cs.handleAction();
 				event.setCancelled(true);
 			} catch (DHUtilsException e) {
 				MiscUtil.errorMessage(player, e.getMessage());
@@ -136,27 +136,29 @@ public class SMSPlayerListener implements Listener {
 	
 		SMSView locView = block == null ? null : SMSView.getViewForLocation(block.getLocation());
 	
+		String playerName = player.getName();
+		
 		// left or right-clicking cancels any command substitution in progress
-		if (plugin.responseHandler.isExpecting(player, ExpectCommandSubstitution.class)) {
-			plugin.responseHandler.cancelAction(player, ExpectCommandSubstitution.class);
+		if (plugin.responseHandler.isExpecting(playerName, ExpectCommandSubstitution.class)) {
+			plugin.responseHandler.cancelAction(playerName, ExpectCommandSubstitution.class);
 			MiscUtil.alertMessage(player, "&6Command execution cancelled.");
-		} else if (plugin.responseHandler.isExpecting(player, ExpectViewCreation.class) && block != null) {
+		} else if (plugin.responseHandler.isExpecting(playerName, ExpectViewCreation.class) && block != null) {
 			// Handle the case where the player is creating a view interactively: left-click to create,
 			// right-click to cancel.
+			ExpectViewCreation c = plugin.responseHandler.getAction(playerName, ExpectViewCreation.class);
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-				ExpectViewCreation c = (ExpectViewCreation) plugin.responseHandler.getAction(player, ExpectViewCreation.class);
 				c.setLocation(block.getLocation());
-				plugin.responseHandler.handleAction(player, c.getClass());
+				c.handleAction();
 			} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				plugin.responseHandler.cancelAction(player, ExpectViewCreation.class);
+				c.cancelAction();
 				MiscUtil.statusMessage(player, "&6View creation cancelled.");
 			}
-		} else if (plugin.responseHandler.isExpecting(player, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block) ) {
+		} else if (plugin.responseHandler.isExpecting(playerName, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block) ) {
 			Switch sw = Switch.getSwitchAt(block.getLocation());
+			ExpectSwitchAddition swa = plugin.responseHandler.getAction(playerName, ExpectSwitchAddition.class);
 			if (sw == null) {
-				ExpectSwitchAddition swa = (ExpectSwitchAddition) plugin.responseHandler.getAction(player, ExpectSwitchAddition.class);
 				swa.setLocation(event.getClickedBlock().getLocation());
-				plugin.responseHandler.handleAction(player, ExpectSwitchAddition.class);
+				swa.handleAction();
 			} else {
 				MiscUtil.statusMessage(player, String.format("&6Lever is an output switch already (&e%s / %s&-).",
 				                                             sw.getView().getName(), sw.getTrigger()));
@@ -326,7 +328,7 @@ public class SMSPlayerListener implements Listener {
 		                                             locView.getName(), trigger));
 		MiscUtil.statusMessage(player, "Change your held item to cancel.");
 		
-		ScrollingMenuSign.getInstance().responseHandler.expect(player, new ExpectSwitchAddition(locView, trigger));
+		ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectSwitchAddition(locView, trigger));
 	}
 
 	private boolean isHittingViewWithSwitch(Player player, SMSView locView) {

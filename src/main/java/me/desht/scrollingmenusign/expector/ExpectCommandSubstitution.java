@@ -6,6 +6,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.dhutils.LogUtils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class ExpectCommandSubstitution extends ExpectBase {
@@ -33,11 +34,14 @@ public class ExpectCommandSubstitution extends ExpectBase {
 	}
 
 	@Override
-	public void doResponse(Player player) {
+	public void doResponse(String playerName) {
 		String newCommand = command.replaceFirst("<\\$:.+?>", sub);
 		LogUtils.fine("command substitution: sub = [" + sub + "], cmd = [" + newCommand + "]");
 		try {
-			CommandParser.runCommandWrapper(player, newCommand);
+			Player player = Bukkit.getPlayer(playerName);
+			if (player != null) {
+				CommandParser.runCommandWrapper(player, newCommand);
+			}
 		} catch (SMSException e) {
 			throw new DHUtilsException(e.getMessage());
 		}
