@@ -5,9 +5,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import me.desht.dhutils.ConfigurationListener;
+import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.DHUtilsException;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.Metrics.Graph;
@@ -45,25 +50,18 @@ import me.desht.scrollingmenusign.listeners.SMSSpoutScreenListener;
 import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.dhutils.ConfigurationListener;
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.DHUtilsException;
-import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
@@ -104,11 +102,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		LogUtils.setLogLevel(getConfig().getString("sms.log_level", "INFO"));
 		
 		PluginManager pm = getServer().getPluginManager();
-
-		if (!validateVersions(getDescription().getVersion(), getServer().getVersion())) {		
-			pm.disablePlugin(this);
-			return;
-		}
 
 		setupSpout(pm);
 		setupVault(pm);
@@ -301,64 +294,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		SMSPersistence.loadMenusAndViews();
 	}
 
-	private static boolean validateVersions(String pVer, String cbVer) {
-		Pattern pat = Pattern.compile("b([0-9]+)jnks");
-		Matcher m = pat.matcher(cbVer);
-		int pluginBuild = getRelease(pVer);
-		int bukkitBuild;
-		if (m.find()) {
-			bukkitBuild = Integer.parseInt(m.group(1));
-		} else {
-			LogUtils.warning("Can't determine build number for CraftBukkit from " + cbVer);
-			return true;
-		}
-		if (pluginBuild < 7000 && bukkitBuild >= 1093) {
-			notCompatible(pVer, bukkitBuild, "0.7 or later");
-			return false;
-		} else if (pluginBuild >= 7000 && bukkitBuild < 1093) {
-			notCompatible(pVer, bukkitBuild, "0.6.x earlier");
-			return false;
-		} else {
-			return true;
-		}
-	}
-
-	/**
-	 * Get the internal version number for the given string version, which is
-	 * <major> * 1,000,000 + <minor> * 1,000 + <release>.  This assumes minor and
-	 * release each won't go above 999, hopefully a safe assumption!
-	 * 
-	 * @param oldVersion
-	 * @return
-	 */
-	private static int getRelease(String ver) {
-		String[] a = ver.split("\\.");
-		try {
-			int major = Integer.parseInt(a[0]);
-			int minor;
-			int rel;
-			if (a.length < 2) {
-				minor = 0;
-			} else {
-				minor = Integer.parseInt(a[1]);
-			}
-			if (a.length < 3) {
-				rel = 0;
-			} else {
-				rel = Integer.parseInt(a[2]);
-			}
-			return major * 1000000 + minor * 1000 + rel;
-		} catch (NumberFormatException e) {
-			LogUtils.warning("Version string [" + ver + "] doesn't look right!");
-			return 0;
-		}
-	}
-
-	private static void notCompatible(String pVer, int bukkitBuild, String needed) {
-		LogUtils.severe("ScrollingMenuSign v" + pVer + " is not compatible with CraftBukkit " + bukkitBuild + " - plugin disabled");
-		LogUtils.severe("You need to use ScrollingMenuSign v" + needed);
-	}
-
 	public static URL makeImageURL(String path) throws MalformedURLException {
 		if (path == null || path.isEmpty()) {
 			throw new MalformedURLException("file must be non-null and not an empty string");
@@ -410,11 +345,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		} else if (key.startsWith("item_prefix.") || key.endsWith("_justify")) {
 			repaintViews(null);
 		}
-	}
-	
-	@Override
-	public void onVersionChanged(int oldVersion, int newVersion) {
-		// nothing for now
 	}
 
 	private void repaintViews(String type) {
