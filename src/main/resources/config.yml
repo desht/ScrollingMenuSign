@@ -50,3 +50,4 @@ sms:
     command_log_file: ''
     log_level: INFO
     mcstats: true
+    autocreate_views: true

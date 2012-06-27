@@ -70,14 +70,15 @@ public class CreateMenuCommand extends AbstractCommand {
 		String menuTitle = MiscUtil.parseColourSpec(sender, combine(args, 1));
 		SMSMenu menu = handler.createMenu(menuName, menuTitle, owner);
 
-		if (signLoc != null) {
+		boolean autoCreate = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autocreate_views");
+		if (autoCreate && signLoc != null) {
 			SMSSignView.addSignToMenu(menu, signLoc);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with sign view @ &f" + MiscUtil.formatLocation(signLoc));
-		} else if (mapId >= 0) {
+		} else if (autoCreate && mapId >= 0) {
 			SMSMapView.addMapToMenu(menu, mapId);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with map view map_" + mapId);
 		} else {
-			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with no views");
+			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with no initial view");
 		}
 
 		return true;
