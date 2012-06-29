@@ -6,13 +6,14 @@ import me.desht.dhutils.LogUtils;
 
 public class DirectoryStructure {
 	private static File pluginDir;
-	private static File dataDir, menusDir, viewsDir, macrosDir, imgCacheDir;
+	private static File dataDir, menusDir, viewsDir, varsDir, macrosDir, imgCacheDir;
 	private static File commandFile;
 
 	private static final String dataDirName = "data";
 	private static final String menusDirName = "menus";
 	private static final String viewsDirName = "views";
 	private static final String macrosDirName = "macros";
+	private static final String varsDirName = "variables";
 	private static final String imgCacheDirName = "imagecache";
 	private static final String commandFileName = "commands.yml";
 
@@ -23,6 +24,7 @@ public class DirectoryStructure {
 		dataDir = new File(pluginDir, dataDirName);
 		menusDir = new File(dataDir, menusDirName);
 		viewsDir = new File(dataDir, viewsDirName);
+		varsDir = new File(dataDir, varsDirName);
 		macrosDir = new File(dataDir, macrosDirName);
 		imgCacheDir = new File(pluginDir, imgCacheDirName);
 
@@ -30,6 +32,7 @@ public class DirectoryStructure {
 		createDirectory(dataDir);
 		createDirectory(menusDir);
 		createDirectory(viewsDir);
+		createDirectory(varsDir);
 		createDirectory(macrosDir);
 		createDirectory(imgCacheDir);
 	}
@@ -39,7 +42,7 @@ public class DirectoryStructure {
 			return;
 		}
 		if (!dir.mkdir()) {
-			LogUtils.warning("Can't make directory " + dir.getName()); //$NON-NLS-1$
+			LogUtils.severe("Can't create directory " + dir.getName()); //$NON-NLS-1$
 		}
 	}
 
@@ -69,5 +72,9 @@ public class DirectoryStructure {
 
 	public static File getImgCacheFolder() {
 		return imgCacheDir;
+	}
+	
+	public static File getVarsFolder() {
+		return varsDir;
 	}
 }

@@ -30,6 +30,7 @@ import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.PersistableLocation;
 
 import org.bukkit.Location;
@@ -551,18 +552,44 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @param player	The player to check
 	 * @return	True if the player may use this view, false if not
 	 */
-	public boolean allowedToUse(Player player) {
-		if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.ignore_view_ownership"))
-			return true;
-		if (player.hasPermission("scrollingmenusign.ignoreViewOwnership"))
-			return true;
-
-		String owner = getAttributeAsString(OWNER);
-		if (owner == null || owner.isEmpty() || owner.equalsIgnoreCase(player.getName()))
-			return true;
-		return false;
+	public boolean hasOwnerPermission(Player player) {
+		boolean ignore = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.ignore_view_ownership");
+		if (!ignore && !player.hasPermission("scrollingmenusign.ignoreViewOwnership")) {
+			String owner = getAttributeAsString(OWNER);
+			if (owner != null && !owner.isEmpty() && !owner.equalsIgnoreCase(player.getName())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
+	/**
+	 * Check if the given player has owner permission to use this view.
+	 * @param player	The player to check
+	 * @return True if the player may use this view, false if not
+	 * @deprecated Use hasOwnerPermission(player)
+	 */
+	@Deprecated
+	public boolean allowedToUse(Player player) {
+		return hasOwnerPermission(player);
+	}
+	
+	/**
+	 * Require that the given player is allowed to use this view, and throw a SMSException if not.
+	 * 
+	 * @param player	The player to check
+	 */
+	public void ensureAllowedToUse(Player player) {
+		if (!hasOwnerPermission(player)) {
+			throw new SMSException("You do not own that view");
+		}
+		
+		if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use." + getType())) {
+			throw new SMSException("You don't have permission to use this type of view");
+		}
+	}
+	
+	
 	/**
 	 * Instantiate a new view from a saved config file
 	 * 

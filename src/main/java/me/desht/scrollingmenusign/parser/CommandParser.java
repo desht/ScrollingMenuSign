@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
+import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
@@ -143,10 +144,10 @@ public class CommandParser {
 			command = command.replace("<INAME>", stack != null ? stack.getType().toString() : "???");
 
 			// user-defined substitutions...
-			ConfigurationSection cs = ScrollingMenuSign.getInstance().getConfig().getConfigurationSection("uservar." + player.getName());
-			if (cs != null) {
-				for (String key : cs.getKeys(false)) {
-					command = command.replace("<$" + key + ">", cs.getString(key));	
+			SMSVariables vars = SMSVariables.getVariables(player.getName());
+			if (!vars.getVariables().isEmpty()) {
+				for (String var : vars.getVariables()) {
+					command = command.replace("<$" + var + ">", vars.get(var));	
 				}
 			}
 			m = varSubPat.matcher(command);
