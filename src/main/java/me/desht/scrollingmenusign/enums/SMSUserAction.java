@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign.enums;
 
 
+import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -77,9 +78,7 @@ public enum SMSUserAction {
 		}
 
 		if (player != null) {
-			if (!view.allowedToUse(player))
-				throw new SMSException("This " + view.getType() + " belongs to someone else.");
-			PermissionUtils.requirePerms(player, "scrollingmenusign.use." + view.getType());
+			view.ensureAllowedToUse(player);
 			PermissionUtils.requirePerms(player, getPermissionNode());
 		}
 

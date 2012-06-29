@@ -25,8 +25,8 @@ import org.getspout.spoutapi.player.SpoutPlayer;
  * 
  */
 public class SMSMapRenderer extends MapRenderer {
-	private static final String[] NOT_OWNER = { "This map belongs", "to someone else." };
-	private static final String[] NO_PERM = { "You do not have", "permission to use", "map views." };
+	private static final String[] NOT_OWNER = { "&oThis map belongs", "&oto someone else." };
+	private static final String[] NO_PERM = { "&oYou do not have", "&opermission to use", "&omap views." };
 
 	private final SMSMapView smsMapView;
 	
@@ -39,7 +39,7 @@ public class SMSMapRenderer extends MapRenderer {
 	public void render(MapView map, MapCanvas canvas, Player player) {
 		if (smsMapView.isDirty(player.getName())) {
 			drawImage(canvas, smsMapView.getImage());
-			if (!smsMapView.allowedToUse(player)) {
+			if (!smsMapView.hasOwnerPermission(player)) {
 				drawMessage(canvas, NOT_OWNER);
 			} else if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
 				drawMessage(canvas, NO_PERM);
