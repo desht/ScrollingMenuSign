@@ -79,6 +79,17 @@ public class SMSPersistence {
 		LogUtils.fine("Loaded " + SMSMacro.listMacros().size() + " macros from file.");
 	}
 
+	public static void loadVariables() {
+		for (SMSVariables variables : SMSVariables.listVariables()) {
+			variables.deleteTemporary();
+		}
+
+		for (File f : DirectoryStructure.getVarsFolder().listFiles(ymlFilter)) {
+			SMSVariables.load(f);
+		}
+		LogUtils.fine("Loaded " + SMSVariables.listVariables().size() + " variable sets from file.");
+	}
+	
 	public static void saveMenusAndViews() {
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			save(menu);
@@ -97,7 +108,14 @@ public class SMSPersistence {
 		LogUtils.fine("saved " + SMSMacro.listMacros().size() + " macros to file.");
 	}
 
-	private static void loadMenus() {
+	public static void saveVariables() {
+		for (SMSVariables variables : SMSVariables.listVariables()) {
+			save(variables);
+		}
+		LogUtils.fine("saved " + SMSVariables.listVariables().size() + " variable sets to file.");
+	}
+	
+	public static void loadMenus() {
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			menu.deleteTemporary();
 		}
@@ -115,7 +133,7 @@ public class SMSPersistence {
 		LogUtils.fine("Loaded " + SMSMenu.listMenus().size() + " menus from file.");
 	}
 
-	private static void loadViews() {
+	public static void loadViews() {
 		for (SMSView view : SMSView.listViews()) {
 			view.deleteTemporary();
 		}

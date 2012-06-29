@@ -85,6 +85,7 @@ permissions:
       scrollingmenusign.commands.givemap: true
       scrollingmenusign.commands.uses: true
       scrollingmenusign.commands.view: true
+      scrollingmenusign.commands.var: true
       scrollingmenusign.coloursigns: true
       scrollingmenusign.destroy: true
       scrollingmenusign.maps.toSign: true
@@ -94,6 +95,7 @@ permissions:
       scrollingmenusign.create.redstonecontrol: true
       scrollingmenusign.create.switch: true
       scrollingmenusign.ignoreViewOwnership: true
+      scrollingmenusign.vars.other: true
   scrollingmenusign.commands.create:
     description: Allow creation of new menus
     default: op
@@ -162,7 +164,7 @@ permissions:
     default: op
   scrollingmenusign.commands.var:
     description: Allows command substitution variables to be defined
-    default: true
+    default: op
   scrollingmenusign.scroll:
     description: Allows menus to be scrolled
     default: true
@@ -210,4 +212,7 @@ permissions:
     default: op
   scrollingmenusign.create.switch:
     description: Allows creation of redstone output switches
+    default: op
+  scrollingmenusign.vars.other:
+    description: Allows get/set/delete of variables belonging to other users with "/sms var"
     default: op

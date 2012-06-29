@@ -23,16 +23,20 @@ public class ReloadCommand extends AbstractCommand {
 		boolean loadMacros = false;
 		boolean loadConfig = false;
 		boolean loadAll = false;
+		boolean loadVariables = false;
+		
 		if (args.length == 0) {
 			loadAll = true;
 		} else {
 			for (int i = 0 ; i < args.length; i++) {
-				if (args[i].equalsIgnoreCase("menus")) {
+				if (args[i].startsWith("me")) {
 					loadMenus = true;
-				} else if (args[i].equalsIgnoreCase("macros")) {
+				} else if (args[i].startsWith("ma")) {
 					loadMacros = true;
-				} else if (args[i].equalsIgnoreCase("config")) {
+				} else if (args[i].startsWith("c")) {
 					loadConfig = true;
+				} else if (args[i].startsWith("v")) {
+					loadVariables = true;
 				}
 			}
 		}
@@ -41,10 +45,14 @@ public class ReloadCommand extends AbstractCommand {
 			SMSMenu.updateAllMenus();
 		}
 		if (loadAll || loadMenus) {
-			SMSPersistence.loadMenusAndViews();
+			SMSPersistence.loadMenus();
+			SMSPersistence.loadViews();
 		}
 		if (loadAll || loadMacros) {
 			SMSPersistence.loadMacros();
+		}
+		if (loadAll || loadVariables) {
+			SMSPersistence.loadVariables();
 		}
 
 		if (sender != null)

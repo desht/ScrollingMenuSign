@@ -291,7 +291,9 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	private void loadPersistedData() {
 		SMSPersistence.loadMacros();
-		SMSPersistence.loadMenusAndViews();
+		SMSPersistence.loadVariables();
+		SMSPersistence.loadMenus();
+		SMSPersistence.loadViews();
 	}
 
 	public static URL makeImageURL(String path) throws MalformedURLException {
