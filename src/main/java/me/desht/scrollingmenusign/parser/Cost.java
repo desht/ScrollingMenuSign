@@ -86,9 +86,16 @@ public class Cost {
 		} else if (itemType.equalsIgnoreCase("H")) {
 			id = 0;
 			type = CostType.HEALTH;
-		} else {
+		} else if (itemType.matches("[0-9]+")) {
 			id = Integer.parseInt(s2[0]);
 			type = id == 0 ? CostType.MONEY : CostType.ITEM;
+		} else if (itemType.length() > 1) {
+			Material mat = Material.matchMaterial(itemType);
+			if (mat == null) throw new IllegalArgumentException("cost: unknown material '" + itemType + "'");
+			id = mat.getId();
+			type = CostType.ITEM;
+		} else {
+			throw new IllegalArgumentException("cost: unknown item type '" + itemType + "'");
 		}
 		data = s2.length == 2 ? Byte.parseByte(s2[1]) : null;
 		quantity = Double.parseDouble(s1[1]);

@@ -26,6 +26,7 @@ public class CreateMenuCommand extends AbstractCommand {
 				"/sms create <menu> <title>",
 				"/sms create <menu> from <other-menu>",
 		});
+		setQuotedArgs(true);
 	}
 
 	@Override
@@ -64,7 +65,6 @@ public class CreateMenuCommand extends AbstractCommand {
 					mapId = id;
 				}
 			}
-
 		}
 
 		String menuTitle = MiscUtil.parseColourSpec(sender, combine(args, 1));
@@ -76,7 +76,7 @@ public class CreateMenuCommand extends AbstractCommand {
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with sign view @ &f" + MiscUtil.formatLocation(signLoc));
 		} else if (autoCreate && mapId >= 0) {
 			SMSMapView.addMapToMenu(menu, mapId);
-			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with map view map_" + mapId);
+			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with map view &fmap_" + mapId);
 		} else {
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with no initial view");
 		}

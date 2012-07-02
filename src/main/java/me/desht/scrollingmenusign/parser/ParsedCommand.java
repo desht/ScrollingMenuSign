@@ -3,13 +3,19 @@ package me.desht.scrollingmenusign.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PermissionUtils;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class ParsedCommand {
@@ -101,7 +107,8 @@ public class ParsedCommand {
 					affordable = false;
 				}	
 			} else if (token.equals("&&")) {
-				// command separator - start another command
+				// command separator - start another command IF this command is runnable
+				commandStopped = restricted || !affordable;
 				break;
 			} else {
 				// just a plain string
@@ -111,7 +118,7 @@ public class ParsedCommand {
 					args.add(token);
 			}
 		}
-		
+
 		quotedArgs = MiscUtil.splitQuotedString(rawCommand.toString()).toArray(new String[0]);
 
 		if (player == null && command != null && command.startsWith("/")) {
@@ -123,7 +130,7 @@ public class ParsedCommand {
 		status = rs;
 		lastError = message;
 	}
-	
+
 	/**
 	 * Get the name of the command, i.e. the first word of the command string with any special
 	 * leading characters removed.
@@ -230,7 +237,7 @@ public class ParsedCommand {
 	public boolean isMacro() {
 		return macro;
 	}
-	
+
 	/**
 	 * Check if the command sequence was stopped, i.e. $$ or $$$ was encountered following a command that actually ran (and
 	 * was not ignored due to a restriction or cost check)
@@ -286,34 +293,116 @@ public class ParsedCommand {
 	public String arg(int index) {
 		return args.get(index);
 	}
-	
+
 	private boolean restrictionCheck(Player player, String check) {
 		if (player == null) {
-			// no restrictions apply to being run from the console
+			// no restrictions apply when being run from the console
 			return true;
 		}
-		
-		if (check.startsWith("g:")) {
-			if (ScrollingMenuSign.permission != null) {
-				return ScrollingMenuSign.permission.playerInGroup(player, check.substring(2));
-			} else {
-				return false;
-			}
-		} else if (check.startsWith("p:")) {
-			return player.getName().equalsIgnoreCase(check.substring(2));
-		} else if (check.startsWith("w:")) {
-			return player.getWorld().getName().equalsIgnoreCase(check.substring(2));
-		} else if (check.startsWith("n:")) {
-			return ScrollingMenuSign.permission.has(player, check.substring(2));
-		} else if (check.startsWith("i:")) {
-			try {
-				return player.getItemInHand().getTypeId() == Integer.parseInt(check.substring(2));
-			} catch (NumberFormatException e) {
-				LogUtils.warning("bad number format in restriction check: " + check);
-				return false;
-			}
-		} else {
-			return player.getName().equalsIgnoreCase(check);
+
+		String[] parts = check.split(":", 2);
+		if (parts.length == 1) {
+			// legacy check: just see if the player name matches
+			return player.getName().equalsIgnoreCase(parts[0]);
 		}
+
+		String checkType = parts[0];
+		String checkTerm = parts[1];
+
+		switch (checkType.charAt(0)) {
+		case 'g':
+			return ScrollingMenuSign.permission == null ? false : ScrollingMenuSign.permission.playerInGroup(player, checkTerm);
+		case 'p':
+			return player.getName().equalsIgnoreCase(checkTerm);
+		case 'w':
+			return player.getWorld().getName().equalsIgnoreCase(checkTerm);
+		case 'n':
+			return PermissionUtils.isAllowedTo(player, checkTerm);
+		case 'i':
+			return isHoldingObject(player, checkTerm);
+		case 'v':
+			return variableTest(player, checkType, checkTerm);
+		default:
+			LogUtils.warning("Unknown check type: " + check);
+			return false;
+		}
+	}
+
+	private boolean isHoldingObject(Player player, String checkTerm) {
+		if (checkTerm.matches("[0-9]+")) {
+			return player.getItemInHand().getTypeId() == Integer.parseInt(checkTerm);
+		} else {
+			Material mat = Material.matchMaterial(checkTerm);
+			if (mat == null) {
+				LogUtils.warning("Invalid material specification: " + checkTerm);
+				return false;
+			} else {
+				return player.getItemInHand().getType() == mat;
+			}
+		}
+	}
+
+	private static final Pattern exprPattern = Pattern.compile("^([a-zA-Z0-9_]+)(=|<|>|<=|>=)?(.+)?");
+
+	private boolean variableTest(Player player, String checkType, String checkTerm) {
+
+		SMSVariables vars = SMSVariables.getVariables(player.getName());
+		if (vars.getVariables().isEmpty()) return false;
+
+		Matcher m = exprPattern.matcher(checkTerm);
+		if (m.matches()) {
+			if (m.group(1) == null) {
+				return false;
+			} else if (m.group(2) == null) {
+				return vars.isSet(m.group(1));
+			} else {
+				return doComparison(vars, checkType, m.group(1), m.group(2), m.group(3) == null ? "" : m.group(3));
+			}
+		}
+
+		return false;
+	}
+
+	private boolean doComparison(SMSVariables vars, String checkType, String varName, String op, String testValue) {
+		String var = vars.get(varName);
+		if (var == null) return false;
+
+		boolean caseInsensitive = checkType.indexOf('i') > 0;
+		boolean useRegex = checkType.indexOf('r') > 0;
+		boolean forceNumeric = checkType.indexOf('n') > 0;
+
+		LogUtils.fine("doComparison: player=[" + vars.getPlayerName() + "] var=[" + varName + "] val=[" + var + "] op=[" + op + "] test=[" + testValue + "]");
+		LogUtils.fine("doComparison: case-sensitive=" + !caseInsensitive + " regex=" + useRegex + " force-numeric=" + forceNumeric);
+		
+		try {
+			if (op.equals("=")) {
+				if (useRegex) {
+					Pattern p = Pattern.compile(testValue, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
+					return p.matcher(var).matches();
+				} else if (forceNumeric) {
+					return Double.parseDouble(var) == Double.parseDouble(testValue);
+				} else 	if (caseInsensitive) {
+					return var.equalsIgnoreCase(testValue);
+				} else {
+					return var.equals(testValue);
+				}
+			} else if (op.equals(">")) {
+				return Double.parseDouble(var) > Double.parseDouble(testValue);
+			} else if (op.equals("<")) {
+				return Double.parseDouble(var) < Double.parseDouble(testValue);
+			} else if (op.equals(">=")) {
+				return Double.parseDouble(var) >= Double.parseDouble(testValue);
+			} else if (op.equals("<=")) {
+				return Double.parseDouble(var) <= Double.parseDouble(testValue);
+			} else {
+				LogUtils.warning("unexpected comparison op: " + op);
+			}
+		} catch (NumberFormatException e) {
+			LogUtils.warning(e.getMessage() + ": invalid numeric value");
+		} catch (PatternSyntaxException e) {
+			LogUtils.warning("invalid regexp syntax: " + testValue + " " + e.getMessage());
+		}
+
+		return false;
 	}
 }

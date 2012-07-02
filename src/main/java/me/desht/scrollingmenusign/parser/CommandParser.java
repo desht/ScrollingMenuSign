@@ -26,7 +26,6 @@ import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -86,6 +85,7 @@ public class CommandParser {
 		if (pCmd != null) {
 			switch(pCmd.getStatus()) {
 			case CMD_OK:
+			case RESTRICTED:
 			case UNKNOWN:
 				break;
 			case SUBSTITUTION_NEEDED:
@@ -164,9 +164,10 @@ public class CommandParser {
 
 		ParsedCommand cmd = null;
 		while (scanner.hasNext()) {
-			if (cmd != null && cmd.getStatus() != ReturnStatus.CMD_OK) {
-				// not the first command in the sequence - must have been a && separator
-				// if the previous command was not successful, we quit here
+			if (cmd != null && cmd.isCommandStopped()) {
+				// Not the first command in the sequence, and the outcome of the previous command
+				// means we need to stop here, i.e. the last command ended with "&&" but didn't run, or
+				// ended with "$$" but ran OK.
 				break;
 			}
 
@@ -190,11 +191,6 @@ public class CommandParser {
 			default:
 				throw new IllegalArgumentException("unexpected run mode for parseCommandString()");
 			}
-
-			if (cmd.getStatus() == ReturnStatus.CMD_OK && cmd.isCommandStopped()) {
-				// if the last command was stopped (by $$ or $$$), we quit here, but only the command was successful
-				break;
-			}
 		}
 
 		return cmd;
@@ -205,7 +201,7 @@ public class CommandParser {
 			// restriction checks can stop a command from running, but it's not
 			// an error condition
 			cmd.setLastError("Restriction checks prevented command from running");
-			cmd.setStatus(ReturnStatus.CMD_OK);
+			cmd.setStatus(ReturnStatus.RESTRICTED);
 			return;
 		}
 		if (!cmd.isAffordable()) {

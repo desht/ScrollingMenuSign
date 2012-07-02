@@ -1,10 +1,14 @@
 package me.desht.scrollingmenusign;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.io.FilenameUtils;
 import org.bukkit.configuration.Configuration;
@@ -31,6 +35,10 @@ public class SMSVariables implements SMSPersistable {
 		variables = new MemoryConfiguration();
 	}
 	
+	public String getPlayerName() {
+		return playerName;
+	}
+
 	private void autosave() {
 		SMSPersistence.save(this);
 	}
@@ -135,7 +143,20 @@ public class SMSVariables implements SMSPersistable {
 	 * @return	a list of all the known SMSVariables collections
 	 */
 	public static Collection<SMSVariables> listVariables() {
-		return allVariables.values();
+		return listVariables(false);
+	}
+
+	private static Collection<SMSVariables> listVariables(boolean isSorted) {
+		if (isSorted) {
+			SortedSet<String> sorted = new TreeSet<String>(allVariables.keySet());
+			List<SMSVariables> res = new ArrayList<SMSVariables>();
+			for (String name : sorted) {
+				res.add(allVariables.get(name));
+			}
+			return res;
+		} else {
+			return new ArrayList<SMSVariables>(allVariables.values());
+		}
 	}
 
 	static void load(File f) {

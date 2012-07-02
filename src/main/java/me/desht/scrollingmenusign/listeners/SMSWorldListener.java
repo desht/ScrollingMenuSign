@@ -27,7 +27,7 @@ public class SMSWorldListener implements Listener {
 			for (Vector vec : l) {
 				try {
 					view.addLocation(new Location(event.getWorld(), vec.getBlockX(), vec.getBlockY(), vec.getBlockZ()));
-					System.out.println("added loc " + event.getWorld().getName() + ", " + vec + " to view " + view.getName());
+					LogUtils.fine("added loc " + event.getWorld().getName() + ", " + vec + " to view " + view.getName());
 				} catch (SMSException e) {
 					LogUtils.warning("Can't add location " + event.getWorld().getName() + ", " + vec + " to view " + view.getName());
 					LogUtils.warning("  Exception message: " + e.getMessage());

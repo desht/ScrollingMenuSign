@@ -1,7 +1,5 @@
 package me.desht.scrollingmenusign.enums;
 
-
-import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;

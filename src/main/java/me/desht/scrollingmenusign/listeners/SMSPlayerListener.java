@@ -155,8 +155,8 @@ public class SMSPlayerListener implements Listener {
 			}
 		} else if (plugin.responseHandler.isExpecting(playerName, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block) ) {
 			Switch sw = Switch.getSwitchAt(block.getLocation());
-			ExpectSwitchAddition swa = plugin.responseHandler.getAction(playerName, ExpectSwitchAddition.class);
 			if (sw == null) {
+				ExpectSwitchAddition swa = plugin.responseHandler.getAction(playerName, ExpectSwitchAddition.class);
 				swa.setLocation(event.getClickedBlock().getLocation());
 				swa.handleAction();
 			} else {
