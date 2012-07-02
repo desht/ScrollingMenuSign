@@ -85,7 +85,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	@Override
 	public void onLoad() {
-		ConfigurationSerialization.registerClass(PersistableLocation.class, "SMSPersistableLocation");	
+		ConfigurationSerialization.registerClass(PersistableLocation.class);	
 	}
 	
 	@Override
