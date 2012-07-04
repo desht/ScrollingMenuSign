@@ -280,7 +280,8 @@ public class Cost {
 				}
 				break;
 			case EXPERIENCE:
-				if (player.getTotalExperience() < c.getQuantity())
+				ExperienceManager em = new ExperienceManager(player);
+				if (em.getCurrentExp() < c.getQuantity())
 					return false;
 				break;
 			case FOOD:
