@@ -81,6 +81,7 @@ public class VarCommand extends AbstractCommand {
 					int val = Integer.parseInt(vars.get(targetVar));
 					int incr = args.length > n+2 ? Integer.parseInt(args[n+2]) : 1;
 					vars.set(targetVar, Integer.toString(val + incr));
+					if (!quiet) MiscUtil.statusMessage(sender, args[n+1] + " = '&e" + vars.get(targetVar) + "&-'");
 				} catch (NumberFormatException e) {
 					throw new SMSException(e.getMessage() + ": not a number");
 				}
