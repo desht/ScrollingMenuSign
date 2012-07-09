@@ -21,10 +21,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class SMSVariables implements SMSPersistable {
 	private static final Map<String,SMSVariables> allVariables = new HashMap<String, SMSVariables>();
-	
+
 	private final String playerName;
 	private final Configuration variables;
-	
+
 	/**
 	 * Private constructor.
 	 * 
@@ -34,7 +34,7 @@ public class SMSVariables implements SMSPersistable {
 		this.playerName = playerName;
 		variables = new MemoryConfiguration();
 	}
-	
+
 	public String getPlayerName() {
 		return playerName;
 	}
@@ -53,7 +53,7 @@ public class SMSVariables implements SMSPersistable {
 		variables.set(varName, value);
 		autosave();
 	}
-	
+
 	/**
 	 * Get the value of the given variable
 	 * 
@@ -63,7 +63,18 @@ public class SMSVariables implements SMSPersistable {
 	public String get(String varName) {
 		return variables.getString(varName);
 	}
-	
+
+	/**
+	 * Get the value of the given variable
+	 * 
+	 * @param varName	the variable name
+	 * @param def	default value
+	 * @return	the value, or null if the variable does not exist
+	 */
+	public String get(String varName, String def) {
+		return variables.getString(varName, def);
+	}
+
 	/**
 	 * Checks if the given variable exists.
 	 * 
@@ -73,7 +84,7 @@ public class SMSVariables implements SMSPersistable {
 	public boolean isSet(String varName) {
 		return variables.contains(varName);
 	}
-	
+
 	/**
 	 * Get a list of all variables fo
 	 * @return
@@ -94,7 +105,7 @@ public class SMSVariables implements SMSPersistable {
 	void deleteTemporary() {
 		deleteCommon();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.SMSPersistable#getName()
 	 */
@@ -125,16 +136,32 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Get the variable collection for the given player.  If the player has no variables,
-	 * a new empty SMSVariables collection will be created.
+	 * a new empty SMSVariables collection will be created iff autoCreate is true, otherwise
+	 * an exception will be thrown.
 	 * 
 	 * @param playerName	the player's name
 	 * @return	an SMSVariables collection of variables for the player
+	 * @throws SMSException if autoCreate is false and the variables object does not exist
 	 */
-	public static SMSVariables getVariables(String playerName) {
+	public static SMSVariables getVariables(String playerName, boolean autoCreate) {
 		if (!allVariables.containsKey(playerName)) {
-			allVariables.put(playerName, new SMSVariables(playerName));
+			if (autoCreate) {
+				allVariables.put(playerName, new SMSVariables(playerName));
+			} else {
+				throw new SMSException("No variables are defined for player " + playerName);
+			}
 		}
 		return allVariables.get(playerName);
+	}
+	
+	/**
+	 * Check if any variables are defined for the given player.
+	 * 
+	 * @param playerName
+	 * @return
+	 */
+	public static boolean hasVariables(String playerName) {
+		return allVariables.containsKey(playerName);
 	}
 
 	/**
@@ -144,6 +171,50 @@ public class SMSVariables implements SMSPersistable {
 	 */
 	public static Collection<SMSVariables> listVariables() {
 		return listVariables(false);
+	}
+
+	/**
+	 * Get the value of the given variable spec.  The spec may be a simple variable name or
+	 * a player name followed by a period, followed by the variable name.
+	 * 
+	 * @param playerName	Player who is retrieving the variable
+	 * @param varSpec		Variable specification
+	 * @return				The variable value, or null if not set
+	 */
+	public static String getVar(String playerName, String varSpec) {
+		return getVar(playerName, varSpec, null);
+	}
+
+	public static String getVar(String playerName, String varSpec, String def) {
+		VarSpec vs = new VarSpec(playerName, varSpec);
+		if (!hasVariables(vs.playerName)) return def;
+		return getVariables(vs.playerName, false).get(vs.varName, def);
+	}
+	
+	/**
+	 * Set the given variable spec. to the given value.
+	 * 
+	 * @param playerName
+	 * @param varSpec
+	 * @param value
+	 */
+	public static void setVar(String playerName, String varSpec, String value) {
+		VarSpec vs = new VarSpec(playerName, varSpec);
+		getVariables(vs.playerName, true).set(vs.varName, value);
+	}
+	
+	/**
+	 * Check if the given variable spec. exists.
+	 * 
+	 * @param playerName
+	 * @param varSpec
+	 * @return
+	 */
+	public static boolean isVarSet(String playerName, String varSpec) {
+		VarSpec vs = new VarSpec(playerName, varSpec);
+		
+		if (!hasVariables(vs.playerName)) return false;
+		return getVariables(vs.playerName, false).isSet(vs.varName);
 	}
 
 	private static Collection<SMSVariables> listVariables(boolean isSorted) {
@@ -162,10 +233,26 @@ public class SMSVariables implements SMSPersistable {
 	static void load(File f) {
 		YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 		String playerName = FilenameUtils.removeExtension(f.getName());
-		SMSVariables vars = getVariables(playerName);
-		
+		SMSVariables vars = getVariables(playerName, true);
+
 		for (String key : conf.getKeys(false)) {
 			vars.set(key, conf.getString(key));
+		}
+	}
+	
+	private static class VarSpec {
+		public final String playerName;
+		public final String varName;
+
+		public VarSpec(String playerName, String spec) {
+			String[] parts = spec.split("\\.", 2);
+			if (parts.length == 1) {
+				this.playerName = playerName;
+				this.varName = parts[0];
+			} else {
+				this.playerName = parts[0];
+				this.varName = parts[1];
+			}
 		}
 	}
 }

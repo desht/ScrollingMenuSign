@@ -16,6 +16,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
 
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class ParsedCommand {
@@ -35,7 +36,7 @@ public class ParsedCommand {
 	private StringBuilder rawCommand;
 	private String[] quotedArgs;
 
-	ParsedCommand (Player player, Scanner scanner) throws SMSException {
+	ParsedCommand (CommandSender sender, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
 		costs = new ArrayList<Cost>();
 		elevated = restricted = chat = whisper = macro = console = false;
@@ -45,7 +46,7 @@ public class ParsedCommand {
 		status = ReturnStatus.UNKNOWN;
 		lastError = "no error";
 		rawCommand = new StringBuilder();
-
+ 
 		while (scanner.hasNext()) {
 			String token = scanner.next();
 			rawCommand.append(token).append(" ");
@@ -75,12 +76,12 @@ public class ParsedCommand {
 				chat = true;
 			} else if (token.startsWith("@!") && command == null) {
 				// verify NOT player or group name
-				if (restrictionCheck(player, token.substring(2))) {
+				if (restrictionCheck(sender, token.substring(2))) {
 					restricted = true;
 				}
 			} else if (token.startsWith("@") && command == null) {
 				// verify player or group name
-				if (!restrictionCheck(player, token.substring(1))) {
+				if (!restrictionCheck(sender, token.substring(1))) {
 					restricted = true;
 				}
 			} else if (token.equals("$$$") && !restricted && affordable) {
@@ -103,7 +104,7 @@ public class ParsedCommand {
 					}
 				}
 
-				if (!Cost.playerCanAfford(player, getCosts())) {
+				if (!Cost.playerCanAfford(sender, getCosts())) {
 					affordable = false;
 				}	
 			} else if (token.equals("&&")) {
@@ -121,7 +122,7 @@ public class ParsedCommand {
 
 		quotedArgs = MiscUtil.splitQuotedString(rawCommand.toString()).toArray(new String[0]);
 
-		if (player == null && command != null && command.startsWith("/")) {
+		if (sender == null && command != null && command.startsWith("/")) {
 			console = true;
 		}
 	}
@@ -294,11 +295,12 @@ public class ParsedCommand {
 		return args.get(index);
 	}
 
-	private boolean restrictionCheck(Player player, String check) {
-		if (player == null) {
+	private boolean restrictionCheck(CommandSender sender, String check) {
+		if (!(sender instanceof Player)) {
 			// no restrictions apply when being run from the console
 			return true;
 		}
+		Player player = (Player) sender;
 
 		String[] parts = check.split(":", 2);
 		if (parts.length == 1) {
@@ -342,58 +344,54 @@ public class ParsedCommand {
 		}
 	}
 
-	private static final Pattern exprPattern = Pattern.compile("^([a-zA-Z0-9_]+)(=|<|>|<=|>=)?(.+)?");
+	private static final Pattern exprPattern = Pattern.compile("^([a-zA-Z0-9\\._]+)(=|<|>|<=|>=)?(.+)?");
 
 	private boolean variableTest(Player player, String checkType, String checkTerm) {
-
-		SMSVariables vars = SMSVariables.getVariables(player.getName());
-		if (vars.getVariables().isEmpty()) return false;
-
 		Matcher m = exprPattern.matcher(checkTerm);
 		if (m.matches()) {
 			if (m.group(1) == null) {
 				return false;
 			} else if (m.group(2) == null) {
-				return vars.isSet(m.group(1));
+				return SMSVariables.isVarSet(player.getName(), m.group(1));
 			} else {
-				return doComparison(vars, checkType, m.group(1), m.group(2), m.group(3) == null ? "" : m.group(3));
+				return doComparison(player.getName(), checkType, m.group(1), m.group(2), m.group(3) == null ? "" : m.group(3));
 			}
 		}
 
 		return false;
 	}
 
-	private boolean doComparison(SMSVariables vars, String checkType, String varName, String op, String testValue) {
-		String var = vars.get(varName);
-		if (var == null) return false;
+	private boolean doComparison(String playerName, String checkType, String varSpec, String op, String testValue) {
+		String value = SMSVariables.getVar(playerName, varSpec);
+		if (value == null) return false;
 
 		boolean caseInsensitive = checkType.indexOf('i') > 0;
 		boolean useRegex = checkType.indexOf('r') > 0;
 		boolean forceNumeric = checkType.indexOf('n') > 0;
 
-		LogUtils.fine("doComparison: player=[" + vars.getPlayerName() + "] var=[" + varName + "] val=[" + var + "] op=[" + op + "] test=[" + testValue + "]");
+		LogUtils.fine("doComparison: player=[" + playerName + "] var=[" + varSpec + "] val=[" + value + "] op=[" + op + "] test=[" + testValue + "]");
 		LogUtils.fine("doComparison: case-sensitive=" + !caseInsensitive + " regex=" + useRegex + " force-numeric=" + forceNumeric);
 		
 		try {
 			if (op.equals("=")) {
 				if (useRegex) {
 					Pattern p = Pattern.compile(testValue, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
-					return p.matcher(var).matches();
+					return p.matcher(value).matches();
 				} else if (forceNumeric) {
-					return Double.parseDouble(var) == Double.parseDouble(testValue);
+					return Double.parseDouble(value) == Double.parseDouble(testValue);
 				} else 	if (caseInsensitive) {
-					return var.equalsIgnoreCase(testValue);
+					return value.equalsIgnoreCase(testValue);
 				} else {
-					return var.equals(testValue);
+					return value.equals(testValue);
 				}
 			} else if (op.equals(">")) {
-				return Double.parseDouble(var) > Double.parseDouble(testValue);
+				return Double.parseDouble(value) > Double.parseDouble(testValue);
 			} else if (op.equals("<")) {
-				return Double.parseDouble(var) < Double.parseDouble(testValue);
+				return Double.parseDouble(value) < Double.parseDouble(testValue);
 			} else if (op.equals(">=")) {
-				return Double.parseDouble(var) >= Double.parseDouble(testValue);
+				return Double.parseDouble(value) >= Double.parseDouble(testValue);
 			} else if (op.equals("<=")) {
-				return Double.parseDouble(var) <= Double.parseDouble(testValue);
+				return Double.parseDouble(value) <= Double.parseDouble(testValue);
 			} else {
 				LogUtils.warning("unexpected comparison op: " + op);
 			}
@@ -405,4 +403,5 @@ public class ParsedCommand {
 
 		return false;
 	}
+
 }

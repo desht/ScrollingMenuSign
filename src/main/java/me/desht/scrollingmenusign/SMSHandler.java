@@ -6,6 +6,7 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.ParsedCommand;
 
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public interface SMSHandler {
@@ -102,6 +103,19 @@ public interface SMSHandler {
 	 * @param command	The command string to be run
 	 * @return	A ParsedCommand object giving access to detailed information about the outcome of the command
 	 * @throws SMSException if the command string contains syntax errors
+	 * @deprecated use executeCommand()
 	 */
+	@Deprecated
 	public ParsedCommand runCommand(Player player, String command) throws SMSException;
+	
+
+	/**
+	 * Run a command using the ScrollingMenuSign command parser/executor.
+	 * 
+	 * @param player	The player who is running the command
+	 * @param command	The command string to be run
+	 * @return	A ParsedCommand object giving access to detailed information about the outcome of the command
+	 * @throws SMSException if the command string contains syntax errors
+	 */
+	public ParsedCommand executeCommand(CommandSender sender, String command) throws SMSException;
 }

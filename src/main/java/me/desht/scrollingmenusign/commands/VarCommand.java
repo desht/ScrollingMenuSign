@@ -29,29 +29,25 @@ public class VarCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-//		notFromConsole(sender);
 
 		if (args[0].startsWith("-l")) {
 			// list all variables for the player
-			
+
 			if (args.length == 1) notFromConsole(sender);
 
 			String playerName = args.length > 1 ? args[1] : sender.getName();
-			SMSVariables vars = SMSVariables.getVariables(playerName);
 
-			if (vars.getVariables().isEmpty()) {
-				MiscUtil.statusMessage(sender, "Player &e" + playerName + "&- has no variables defined.");
-			} else {
-				MessagePager pager = MessagePager.getPager(sender).clear();
-				for (String key : vars.getVariables()) {
-					pager.add(key + " = '&e" + vars.get(key) + "&-'");	
-				}
-				pager.showPage();
+			SMSVariables vars = SMSVariables.getVariables(playerName, false);
+			MessagePager pager = MessagePager.getPager(sender).clear();
+			for (String key : vars.getVariables()) {
+				pager.add(key + " = '&e" + vars.get(key) + "&-'");	
 			}
+			pager.showPage();
+
 		} else if (args.length == 1) {
 			// show the given variable for the player
 			parseVarSpec(sender, args[0]);
-			SMSVariables vars = SMSVariables.getVariables(targetPlayer);
+			SMSVariables vars = SMSVariables.getVariables(targetPlayer, false);
 
 			if (vars.isSet(targetVar)) {
 				MiscUtil.statusMessage(sender, "&f" + args[0] + " = '&e" + vars.get(targetVar) + "&-'");
@@ -59,25 +55,25 @@ public class VarCommand extends AbstractCommand {
 				throw new SMSException("No such variable '" + args[0] + "' for player " + targetPlayer);
 			}
 		} else if (args.length >= 2) {
-			
+
 			int n = 0;
 			boolean quiet = false;
 			if (args[0].startsWith("-q")) {
 				quiet = true;
 				n = 1;
 			}
-			
+
 			// set or delete the given variable for the player
 			if (args[n].startsWith("-d")) {
 				parseVarSpec(sender, args[n+1]);
-				SMSVariables vars = SMSVariables.getVariables(targetPlayer);
+				SMSVariables vars = SMSVariables.getVariables(targetPlayer, false);
 				vars.set(targetVar, null);
 				if (!quiet) MiscUtil.statusMessage(sender, "Deleted variable &f" + args[n+1] + "&-.");
 			} else if (args[n].startsWith("-i")) {
 				// increment by the given amount (if possible)
 				try {
 					parseVarSpec(sender, args[n+1]);
-					SMSVariables vars = SMSVariables.getVariables(targetPlayer);
+					SMSVariables vars = SMSVariables.getVariables(targetPlayer, false);
 					int val = Integer.parseInt(vars.get(targetVar));
 					int incr = args.length > n+2 ? Integer.parseInt(args[n+2]) : 1;
 					vars.set(targetVar, Integer.toString(val + incr));
@@ -87,7 +83,7 @@ public class VarCommand extends AbstractCommand {
 				}
 			} else {
 				parseVarSpec(sender, args[n]);
-				SMSVariables vars = SMSVariables.getVariables(targetPlayer);
+				SMSVariables vars = SMSVariables.getVariables(targetPlayer, true);
 				vars.set(targetVar, args[n+1]);
 				if (!quiet) MiscUtil.statusMessage(sender, args[n] + " = '&e" + vars.get(targetVar) + "&-'");
 			}

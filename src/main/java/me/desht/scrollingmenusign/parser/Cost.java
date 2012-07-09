@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -197,10 +198,11 @@ public class Cost {
 	 * @param costs		A List of Cost objects
 	 */
 	@SuppressWarnings("deprecation")
-	public static void chargePlayer(Player player, List<Cost> costs) {
-		if (player == null) {
+	public static void chargePlayer(CommandSender sender, List<Cost> costs) {
+		if (!(sender instanceof Player)) {
 			return;
 		}
+		Player player = (Player) sender;
 
 		for (Cost c : costs) {
 			if (c.getQuantity() == 0.0)
@@ -247,10 +249,11 @@ public class Cost {
 	 * @param costs
 	 * @return	True if the costs are affordable, false otherwise
 	 */
-	public static boolean playerCanAfford(Player player, List<Cost> costs) {
-		if (player == null) {
+	public static boolean playerCanAfford(CommandSender sender, List<Cost> costs) {
+		if (!(sender instanceof Player)) {
 			return true;
 		}
+		Player player = (Player) sender;
 
 		for (Cost c : costs) {
 			if (c.getQuantity() <= 0)

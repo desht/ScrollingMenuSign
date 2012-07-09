@@ -8,6 +8,7 @@ import me.desht.scrollingmenusign.parser.ParsedCommand;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class SMSHandlerImpl implements SMSHandler {
@@ -87,7 +88,13 @@ public class SMSHandlerImpl implements SMSHandler {
 	}
 
 	@Override
+	@Deprecated
 	public ParsedCommand runCommand(Player player, String command) throws SMSException {
 		return new CommandParser().runCommand(player, command);
+	}
+
+	@Override
+	public ParsedCommand executeCommand(CommandSender sender, String command) throws SMSException {
+		return new CommandParser().executeCommand(sender, command);
 	}
 }

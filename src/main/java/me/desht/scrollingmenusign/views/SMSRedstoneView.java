@@ -15,6 +15,7 @@ import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PersistableLocation;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -97,13 +98,14 @@ public class SMSRedstoneView extends SMSView {
 					// run the command for each affected player
 					for (Player p : players) {
 						if (PermissionUtils.isAllowedTo(p, "scrollingmenusign.use.redstone")) {
-							item.execute(p);
+							item.executeCommand(p);
 							item.feedbackMessage(p);
 						}
 					}
 				} else {
 					// no affected players - run this as a console command
-					item.execute(null);
+					System.out.println("run console command: " + item.getCommand());
+					item.executeCommand(Bukkit.getConsoleSender());
 				}
 			} else {
 				LogUtils.warning("No such menu item '" + label + "' in menu " + getMenu().getName());

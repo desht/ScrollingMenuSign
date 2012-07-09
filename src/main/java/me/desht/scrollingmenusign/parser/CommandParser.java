@@ -19,7 +19,6 @@ import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
-import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.LogUtils;
@@ -32,6 +31,9 @@ import org.bukkit.inventory.ItemStack;
 import com.google.common.base.Joiner;
 
 public class CommandParser {
+
+	private enum RunMode { CHECK_PERMS, EXECUTE };
+
 	private static Logger cmdLogger = null;
 
 	private Set<String> macroHistory;
@@ -70,34 +72,16 @@ public class CommandParser {
 		}
 	}
 
-	private enum RunMode { CHECK_PERMS, EXECUTE };
 
 	/**
-	 * High-level wrapper to run a command.  Return status is reported to the calling player.
-	 * 
-	 * @param player	Player who is running the command
-	 * @param command	The command to be run
+	 * @param player
+	 * @param command
 	 * @throws SMSException
+	 * @Deprecated use CommandUtils.runCommand()
 	 */
+	@Deprecated
 	public static void runCommandWrapper(Player player, String command) throws SMSException {
-		ParsedCommand pCmd = new CommandParser().runCommand(player, command);
-		// pCmd could be null if this was an empty command
-		if (pCmd != null) {
-			switch(pCmd.getStatus()) {
-			case CMD_OK:
-			case RESTRICTED:
-			case UNKNOWN:
-				break;
-			case SUBSTITUTION_NEEDED:
-				if (!ScrollingMenuSign.getInstance().isSpoutEnabled() || !SpoutUtils.showTextEntryPopup(player, pCmd.getLastError())) {
-					MiscUtil.alertMessage(player, pCmd.getLastError() + " &6(Left or right-click anywhere to cancel)");
-				}
-				break;
-			default:
-				MiscUtil.errorMessage(player, pCmd.getLastError());
-				break;
-			}
-		}
+		CommandUtils.executeCommand(player, command);
 	}
 
 	/**
@@ -107,28 +91,51 @@ public class CommandParser {
 	 * @param command		The command to be run
 	 * @return	The parsed command object, which gives access to details on how the command ran
 	 * @throws SMSException
+	 * @Deprecated use executeCommand()
 	 */
+	@Deprecated
 	public ParsedCommand runCommand(Player player, String command) throws SMSException {
 		ParsedCommand cmd = handleCommandString(player, command, RunMode.EXECUTE);
 
 		return cmd;
 	}
 
+	/**
+	 * Parse and run a command string via the SMS command engine
+	 * 
+	 * @param sender		Player who is running the command
+	 * @param command		The command to be run
+	 * @return	The parsed command object, which gives access to details on how the command ran
+	 * @throws SMSException
+	 */
+	public ParsedCommand executeCommand(CommandSender sender, String command) {
+		ParsedCommand cmd = handleCommandString(sender, command, RunMode.EXECUTE);
+		return cmd;
+	}
+
+	/**
+	 * Check that the given player has permission to create a menu entry with the given command.
+	 * 
+	 * @param player	Player who is creating the menu item
+	 * @param command	The command to be run
+	 * @return	true if the player is allowed to create this item, false otherwise
+	 * @throws SMSException
+	 */
 	public boolean verifyCreationPerms(Player player, String command) throws SMSException {
 		ParsedCommand cmd = handleCommandString(player, command, RunMode.CHECK_PERMS);
 		return cmd == null || cmd.getStatus() == ReturnStatus.CMD_OK;
 	}
-	
+
 	private static final Pattern promptPat = Pattern.compile("<\\$:(.+?)>");
-	private static final Pattern varSubPat = Pattern.compile("<\\$.+?>");
-	
-	ParsedCommand handleCommandString(Player player, String command, RunMode mode) throws SMSException {
-		if (player != null) {
+	private static final Pattern varSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)>");
+
+	ParsedCommand handleCommandString(CommandSender sender, String command, RunMode mode) throws SMSException {
+		if (sender instanceof Player) {
+			Player player = (Player) sender;
 			// see if an interactive substitution is needed
 			Matcher m = promptPat.matcher(command);
 			if (m.find() && m.groupCount() > 0 && mode == RunMode.EXECUTE) {
 				ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command));
-
 				return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
 			}
 
@@ -144,17 +151,20 @@ public class CommandParser {
 			command = command.replace("<INAME>", stack != null ? stack.getType().toString() : "???");
 
 			// user-defined substitutions...
-			SMSVariables vars = SMSVariables.getVariables(player.getName());
-			if (!vars.getVariables().isEmpty()) {
-				for (String var : vars.getVariables()) {
-					command = command.replace("<$" + var + ">", vars.get(var));	
-				}
-			}
 			m = varSubPat.matcher(command);
+			StringBuffer sb = new StringBuffer(command.length());
 			Set<String> missing = new HashSet<String>();
 			while (m.find()) {
-				missing.add(m.group());
+				String repl = SMSVariables.getVar(player.getName(), m.group(1));
+				if (repl == null) {
+					missing.add(m.group(1));
+				} else {
+					m.appendReplacement(sb, repl);
+				}
 			}
+			m.appendTail(sb);
+			command = sb.toString();
+
 			if (!missing.isEmpty() && mode == RunMode.EXECUTE) {
 				return new ParsedCommand(ReturnStatus.BAD_VARIABLE, "Command has uninitialised variables: " + missing.toString());
 			}
@@ -171,19 +181,19 @@ public class CommandParser {
 				break;
 			}
 
-			cmd = new ParsedCommand(player, scanner);
+			cmd = new ParsedCommand(sender, scanner);
 
 			switch (mode) {
 			case EXECUTE:
-				execute(player, cmd);
-				logCommandUsage(player, cmd);
+				execute(sender, cmd);
+				logCommandUsage(sender, cmd);
 				break;
 			case CHECK_PERMS:
 				cmd.setStatus(ReturnStatus.CMD_OK);
-				if ((cmd.isElevated() || cmd.isConsole()) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.create.elevated")) {
+				if ((cmd.isElevated() || cmd.isConsole()) && !PermissionUtils.isAllowedTo(sender, "scrollingmenusign.create.elevated")) {
 					cmd.setStatus(ReturnStatus.NO_PERMS);
 					return cmd;
-				} else if (!cmd.getCosts().isEmpty() && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.create.cost")) {
+				} else if (!cmd.getCosts().isEmpty() && !PermissionUtils.isAllowedTo(sender, "scrollingmenusign.create.cost")) {
 					cmd.setStatus(ReturnStatus.NO_PERMS);
 					return cmd;
 				}
@@ -196,7 +206,18 @@ public class CommandParser {
 		return cmd;
 	}
 
-	private void execute(Player player, ParsedCommand cmd) throws SMSException {
+	private void logCommandUsage(CommandSender sender, ParsedCommand cmd)	 {
+		logCommandUsage(sender, cmd, null);
+	}
+
+	private void logCommandUsage(CommandSender sender, ParsedCommand cmd, String message) {
+		if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.log_commands")) {
+			String outcome = message == null ? cmd.getLastError() : message;
+			cmdLogger.log(Level.INFO, sender.getName() + " ran [" + cmd.getRawCommand() + "], outcome = " + cmd.getStatus() + " (" + outcome + ")");
+		}
+	}
+
+	private void execute(CommandSender sender, ParsedCommand cmd) throws SMSException {
 		if (cmd.isRestricted()) {
 			// restriction checks can stop a command from running, but it's not
 			// an error condition
@@ -211,7 +232,9 @@ public class CommandParser {
 			return;
 		}
 
-		Cost.chargePlayer(player, cmd.getCosts());
+		if (sender instanceof Player) {
+			Cost.chargePlayer(sender, cmd.getCosts());
+		}
 
 		if (cmd.getCommand() == null || cmd.getCommand().isEmpty()) {
 			// this allows for "commands" which only apply a cost and don't have an actual command
@@ -219,24 +242,19 @@ public class CommandParser {
 			return;
 		}
 
-		StringBuilder sb = new StringBuilder(cmd.getCommand()).append(" ");
-		for (String arg : cmd.getArgs()) {
-			sb.append(arg).append(" ");
-		}
-		String command = sb.toString().trim();
-		String playerName = player == null ? "CONSOLE" : player.getName();
-		
+		String command = cmd.getCommand() + " " + Joiner.on(' ').join(cmd.getArgs());
+
 		if (cmd.isMacro()) {
 			// run a macro
-			runMacro(player, cmd);
+			runMacro(sender, cmd);
 		} else if (cmd.isWhisper()) {
 			// private message to the player
-			MiscUtil.alertMessage(player, command);
+			MiscUtil.alertMessage(sender, command);
 			cmd.setStatus(ReturnStatus.CMD_OK);
 		} else if (cmd.isConsole()) {
 			// run this as a console command
 			// only works for commands that may be run via the console, but should always work
-			if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated")) {
+			if (!PermissionUtils.isAllowedTo(sender, "scrollingmenusign.execute.elevated")) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
 				cmd.setLastError("You don't have permission to run this command.");
 				return;
@@ -246,63 +264,59 @@ public class CommandParser {
 		} else if (cmd.isElevated()) {
 			// this is a /@ command, to be run as the real player, but with temporary permissions
 			// (this now also handles the /* fake-player style, which is no longer directly supported)
-			if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.execute.elevated") || ScrollingMenuSign.permission == null) {
+			if (!PermissionUtils.isAllowedTo(sender, "scrollingmenusign.execute.elevated") || ScrollingMenuSign.permission == null) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
 				cmd.setLastError(ScrollingMenuSign.permission == null ? 
 						"Permission elevation is not supported." : 
 						"You don't have permission to run this command.");
 				return;
 			}
-
-			boolean tempOp = false;
-			List<String> nodes = ScrollingMenuSign.getInstance().getConfig().getStringList("sms.elevation.nodes");
-			try {
-				for (String node : nodes) {
-					if (!node.isEmpty()) {
-						ScrollingMenuSign.permission.playerAddTransient(player, node);
-						LogUtils.fine("Added temporary permission node '" + node + "' to " + playerName);
-					}
-				}
-				if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
-					tempOp = true;
-					player.setOp(true);
-					LogUtils.fine("Granted temporary op to " + playerName);
-				}
-				LogUtils.fine("Execute (elevated): " + command);
-				executeLowLevelCommand(player, cmd, command);
-			} finally {
-				// revoke all temporary permissions granted to the user
-				for (String node : nodes) {
-					if (!node.isEmpty()) {
-						ScrollingMenuSign.permission.playerRemoveTransient(player, node);
-						LogUtils.fine("Removed temporary permission node '" + node + "' from " + player.getName());
-					}
-				}
-				if (tempOp) {
-					player.setOp(false);
-					LogUtils.fine("Removed temporary op from " + playerName);
-				}
+			if (sender instanceof Player) {
+				executeElevated((Player)sender, cmd, command);
+			} else {
+				executeLowLevelCommand(sender, cmd, command);
 			}
 		} else {
 			// just an ordinary command (possibly chat), no special privilege elevation
 			LogUtils.fine("Execute (normal): " + command);
+			executeLowLevelCommand(sender, cmd, command);
+		}
+	}
+
+	private void executeElevated(Player player, ParsedCommand cmd, String command) {
+		List<String> nodes = ScrollingMenuSign.getInstance().getConfig().getStringList("sms.elevation.nodes");
+		boolean tempOp = false;
+
+		try {
+			for (String node : nodes) {
+				if (!node.isEmpty()) {
+					ScrollingMenuSign.permission.playerAddTransient(player, node);
+					LogUtils.fine("Added temporary permission node '" + node + "' to " + player.getName());
+				}
+			}
+			if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
+				tempOp = true;
+				player.setOp(true);
+				LogUtils.fine("Granted temporary op to " + player.getName());
+			}
+			LogUtils.fine("Execute (elevated): " + command);
 			executeLowLevelCommand(player, cmd, command);
+		} finally {
+			// revoke all temporary permissions granted to the user
+			for (String node : nodes) {
+				if (!node.isEmpty()) {
+					ScrollingMenuSign.permission.playerRemoveTransient(player, node);
+					LogUtils.fine("Removed temporary permission node '" + node + "' from " + player.getName());
+				}
+			}
+			if (tempOp) {
+				player.setOp(false);
+				LogUtils.fine("Removed temporary op from " + player.getName());
+			}
 		}
 	}
 
-	private void logCommandUsage(Player player, ParsedCommand cmd)	 {
-		logCommandUsage(player, cmd, null);
-	}
-
-	private void logCommandUsage(Player player, ParsedCommand cmd, String message) {
-		if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.log_commands")) {
-			String playerName = player == null ? "CONSOLE" : player.getName();
-			String outcome = message == null ? cmd.getLastError() : message;
-			cmdLogger.log(Level.INFO, playerName + " ran [" + cmd.getRawCommand() + "], outcome = " + cmd.getStatus() + " (" + outcome + ")");
-		}
-	}
-
-	private void runMacro(Player player, ParsedCommand cmd) throws SMSException {
+	private void runMacro(CommandSender sender, ParsedCommand cmd) throws SMSException {
 		String macroName = cmd.getCommand();
 		if (macroHistory.contains(macroName)) {
 			LogUtils.warning("Recursion detected and stopped in macro " + macroName);
@@ -311,23 +325,24 @@ public class CommandParser {
 			return;
 		} else if (SMSMacro.hasMacro(macroName)) {
 			macroHistory.add(macroName);
-			ParsedCommand cmd2 = null;
+			ParsedCommand subCommand = null;
+			String allArgs = Joiner.on(" ").join(cmd.getArgs());
 			for (String c : SMSMacro.getCommands(macroName)) {
 				for (int i = 0; i < cmd.getQuotedArgs().length; i++) {
 					c = c.replace("<" + i + ">", cmd.getQuotedArgs()[i]);
 				}
-				c = c.replace("<*>", Joiner.on(" ").join(cmd.getArgs()));
-				cmd2 = handleCommandString(player, c, RunMode.EXECUTE);
-				if (cmd2.isMacroStopped())
+				c = c.replace("<*>", allArgs);
+				subCommand = handleCommandString(sender, c, RunMode.EXECUTE);
+				if (subCommand.isMacroStopped())
 					break;
 			}
 			// return status of a macro is the return status of the last command that was run
-			if (cmd2 == null) {
+			if (subCommand == null) {
 				cmd.setStatus(ReturnStatus.BAD_MACRO);
 				cmd.setLastError("Empty macro?");					
 			} else {
-				cmd.setStatus(cmd2.getStatus());
-				cmd.setLastError(cmd2.getLastError());
+				cmd.setStatus(subCommand.getStatus());
+				cmd.setLastError(subCommand.getLastError());
 			}
 			return;
 		} else {
@@ -341,10 +356,10 @@ public class CommandParser {
 		cmd.setStatus(ReturnStatus.CMD_OK);
 		if (command.startsWith("/") && !cmd.isChat()) {
 			if (!Bukkit.getServer().dispatchCommand(sender, command.substring(1))) {
-				
+
 				//				cmd.setStatus(ReturnStatus.CMD_FAILED);
 				//				cmd.setLastError("Execution of command '" + cmd.getCommand() + "' failed (unknown command?)");
-				
+
 				// It's possible the command is OK, but some plugins insist on implementing commands by hooking
 				// chat events, and dispatchCommand() does not work for those.  So we'll try running the command
 				// via player.chat().  Sadly, player.chat() doesn't tell us if the command was found or not.

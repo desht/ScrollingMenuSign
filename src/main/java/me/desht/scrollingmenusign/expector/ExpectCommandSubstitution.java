@@ -3,7 +3,7 @@ package me.desht.scrollingmenusign.expector;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.responsehandler.ExpectBase;
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.parser.CommandParser;
+import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
@@ -40,7 +40,7 @@ public class ExpectCommandSubstitution extends ExpectBase {
 		try {
 			Player player = Bukkit.getPlayer(playerName);
 			if (player != null) {
-				CommandParser.runCommandWrapper(player, newCommand);
+				CommandUtils.executeCommand(player, newCommand);
 			}
 		} catch (SMSException e) {
 			throw new DHUtilsException(e.getMessage());
