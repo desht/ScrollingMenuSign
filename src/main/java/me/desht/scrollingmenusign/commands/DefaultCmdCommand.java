@@ -28,7 +28,7 @@ public class DefaultCmdCommand extends AbstractCommand {
 			MiscUtil.statusMessage(sender, "Default command has been set for menu &e" + menuName);
 		}
 		
-		return false;
+		return true;
 	}
 
 }
