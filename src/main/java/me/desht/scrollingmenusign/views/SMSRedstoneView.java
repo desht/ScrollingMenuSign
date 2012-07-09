@@ -104,7 +104,6 @@ public class SMSRedstoneView extends SMSView {
 					}
 				} else {
 					// no affected players - run this as a console command
-					System.out.println("run console command: " + item.getCommand());
 					item.executeCommand(Bukkit.getConsoleSender());
 				}
 			} else {
