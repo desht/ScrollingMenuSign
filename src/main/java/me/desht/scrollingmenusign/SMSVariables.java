@@ -10,10 +10,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import me.desht.dhutils.PermissionUtils;
+
 import org.apache.commons.io.FilenameUtils;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 /**
  * @author desht
@@ -21,6 +25,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class SMSVariables implements SMSPersistable {
 	private static final Map<String,SMSVariables> allVariables = new HashMap<String, SMSVariables>();
+
+	private static final String DEFAULT_MARKER = "*";
 
 	private final String playerName;
 	private final Configuration variables;
@@ -153,7 +159,7 @@ public class SMSVariables implements SMSPersistable {
 		}
 		return allVariables.get(playerName);
 	}
-	
+
 	/**
 	 * Check if any variables are defined for the given player.
 	 * 
@@ -174,49 +180,11 @@ public class SMSVariables implements SMSPersistable {
 	}
 
 	/**
-	 * Get the value of the given variable spec.  The spec may be a simple variable name or
-	 * a player name followed by a period, followed by the variable name.
+	 * Get a (possibly sorted) list of all the known SMSVariables collections
 	 * 
-	 * @param playerName	Player who is retrieving the variable
-	 * @param varSpec		Variable specification
-	 * @return				The variable value, or null if not set
+	 * @param isSorted	true if the result should be sorted by variable name
+	 * @return a list of all the known SMSVariables collections
 	 */
-	public static String getVar(String playerName, String varSpec) {
-		return getVar(playerName, varSpec, null);
-	}
-
-	public static String getVar(String playerName, String varSpec, String def) {
-		VarSpec vs = new VarSpec(playerName, varSpec);
-		if (!hasVariables(vs.playerName)) return def;
-		return getVariables(vs.playerName, false).get(vs.varName, def);
-	}
-	
-	/**
-	 * Set the given variable spec. to the given value.
-	 * 
-	 * @param playerName
-	 * @param varSpec
-	 * @param value
-	 */
-	public static void setVar(String playerName, String varSpec, String value) {
-		VarSpec vs = new VarSpec(playerName, varSpec);
-		getVariables(vs.playerName, true).set(vs.varName, value);
-	}
-	
-	/**
-	 * Check if the given variable spec. exists.
-	 * 
-	 * @param playerName
-	 * @param varSpec
-	 * @return
-	 */
-	public static boolean isVarSet(String playerName, String varSpec) {
-		VarSpec vs = new VarSpec(playerName, varSpec);
-		
-		if (!hasVariables(vs.playerName)) return false;
-		return getVariables(vs.playerName, false).isSet(vs.varName);
-	}
-
 	private static Collection<SMSVariables> listVariables(boolean isSorted) {
 		if (isSorted) {
 			SortedSet<String> sorted = new TreeSet<String>(allVariables.keySet());
@@ -230,6 +198,67 @@ public class SMSVariables implements SMSPersistable {
 		}
 	}
 
+	/**
+	 * Get the value of the given variable spec.  The spec may be a simple variable name or
+	 * a player name followed by a period, followed by the variable name.
+	 * 
+	 * @param playerName	Player who is retrieving the variable
+	 * @param varSpec		Variable specification
+	 * @return				The variable value, or null if not set
+	 */
+	public static String get(CommandSender sender, String varSpec) {
+		return get(sender, varSpec, null);
+	}
+
+	/**
+	 * Get the value of the given variable spec.  The spec may be a simple variable name or
+	 * a player name followed by a period, followed by the variable name.
+	 * 
+	 * @param playerName	Player who is retrieving the variable
+	 * @param varSpec		Variable specification
+	 * @param def			Default value
+	 * @return				The variable value, or the default value if not set
+	 */
+	public static String get(CommandSender sender, String varSpec, String def) {
+		VarSpec vs = new VarSpec(sender, varSpec);
+		
+		if (hasVariables(vs.playerName) && getVariables(vs.playerName, false).isSet(vs.varName)) {
+			return getVariables(vs.playerName, false).get(vs.varName);
+		} else {
+			if (hasVariables(DEFAULT_MARKER)) {
+				return getVariables(DEFAULT_MARKER, false).get(vs.varName, def);
+			} else {
+				return def;
+			}
+		}
+	}
+
+	/**
+	 * Set the given variable spec. to the given value.
+	 * 
+	 * @param playerName
+	 * @param varSpec
+	 * @param value
+	 */
+	public static void set(CommandSender sender, String varSpec, String value) {
+		VarSpec vs = new VarSpec(sender, varSpec);
+		getVariables(vs.playerName, true).set(vs.varName, value);
+	}
+
+	/**
+	 * Check if the given variable spec. exists.
+	 * 
+	 * @param playerName
+	 * @param varSpec
+	 * @return
+	 */
+	public static boolean isSet(CommandSender sender, String varSpec) {
+		VarSpec vs = new VarSpec(sender, varSpec);
+		if (!hasVariables(vs.playerName))
+			return false;
+		return getVariables(vs.playerName, false).isSet(vs.varName);
+	}
+
 	static void load(File f) {
 		YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 		String playerName = FilenameUtils.removeExtension(f.getName());
@@ -239,19 +268,34 @@ public class SMSVariables implements SMSPersistable {
 			vars.set(key, conf.getString(key));
 		}
 	}
-	
-	private static class VarSpec {
-		public final String playerName;
-		public final String varName;
 
-		public VarSpec(String playerName, String spec) {
+	private static class VarSpec {
+		private final String playerName;
+		private final String varName;
+
+		private VarSpec(CommandSender sender, String spec) {
 			String[] parts = spec.split("\\.", 2);
+			
 			if (parts.length == 1) {
-				this.playerName = playerName;
-				this.varName = parts[0];
+				// unqualified variable - <var>
+				if (!(sender instanceof Player)) {
+					throw new SMSException("Unqualified variables can't be referenced from the console");
+				}
+				playerName = sender.getName();
+				varName = parts[0];
 			} else {
-				this.playerName = parts[0];
-				this.varName = parts[1];
+				// qualified variable - <player>.<var>
+				playerName = parts[0].startsWith(DEFAULT_MARKER) ? DEFAULT_MARKER : parts[0];
+				varName = parts[1];
+				if (!this.playerName.equalsIgnoreCase(sender.getName())) {
+					PermissionUtils.requirePerms(sender, "scrollingmenusign.vars.other");
+				}
+				if (!playerName.matches("[a-zA-Z0-9_]+") && !playerName.equals(DEFAULT_MARKER)) {
+					throw new SMSException("Invalid player name: " + spec);
+				}
+			}
+			if (!varName.matches("[a-zA-Z0-9_]+")) {
+				throw new SMSException("Invalid variable name: " + spec + " (must be all alphanumeric)");
 			}
 		}
 	}

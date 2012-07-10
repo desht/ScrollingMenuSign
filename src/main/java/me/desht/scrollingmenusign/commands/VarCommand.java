@@ -2,7 +2,6 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSVariables;
@@ -11,9 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
 public class VarCommand extends AbstractCommand {
-
-	private String targetPlayer;
-	private String targetVar;
 
 	public VarCommand() {
 		super("sms va", 1, 4);
@@ -40,19 +36,19 @@ public class VarCommand extends AbstractCommand {
 			SMSVariables vars = SMSVariables.getVariables(playerName, false);
 			MessagePager pager = MessagePager.getPager(sender).clear();
 			for (String key : vars.getVariables()) {
-				pager.add(key + " = '&e" + vars.get(key) + "&-'");	
+				pager.add(key + " = &e'" + vars.get(key) + "&-'");	
 			}
 			pager.showPage();
 
 		} else if (args.length == 1) {
 			// show the given variable for the player
-			parseVarSpec(sender, args[0]);
-			SMSVariables vars = SMSVariables.getVariables(targetPlayer, false);
-
-			if (vars.isSet(targetVar)) {
-				MiscUtil.statusMessage(sender, "&f" + args[0] + " = '&e" + vars.get(targetVar) + "&-'");
+			String varSpec = args[0];
+			String val = SMSVariables.get(sender, varSpec);
+			if (val != null) {
+				String def = SMSVariables.isSet(sender, varSpec) ? "" : " &6(default)";
+				MiscUtil.statusMessage(sender, varSpec + " = '&e" + val + "&-'" + def);
 			} else {
-				throw new SMSException("No such variable '" + args[0] + "' for player " + targetPlayer);
+				throw new SMSException("No such variable: " + varSpec);
 			}
 		} else if (args.length >= 2) {
 
@@ -63,53 +59,30 @@ public class VarCommand extends AbstractCommand {
 				n = 1;
 			}
 
-			// set or delete the given variable for the player
 			if (args[n].startsWith("-d")) {
-				parseVarSpec(sender, args[n+1]);
-				SMSVariables vars = SMSVariables.getVariables(targetPlayer, false);
-				vars.set(targetVar, null);
-				if (!quiet) MiscUtil.statusMessage(sender, "Deleted variable &f" + args[n+1] + "&-.");
+				// delete the variable
+				SMSVariables.set(sender, args[n+1], null);
+				if (!quiet)
+					MiscUtil.statusMessage(sender, "Deleted variable &f" + args[n+1] + "&-.");
 			} else if (args[n].startsWith("-i")) {
 				// increment by the given amount (if possible)
 				try {
-					parseVarSpec(sender, args[n+1]);
-					SMSVariables vars = SMSVariables.getVariables(targetPlayer, false);
-					int val = Integer.parseInt(vars.get(targetVar));
+					int val = Integer.parseInt(SMSVariables.get(sender, args[n+1]));
 					int incr = args.length > n+2 ? Integer.parseInt(args[n+2]) : 1;
-					vars.set(targetVar, Integer.toString(val + incr));
-					if (!quiet) MiscUtil.statusMessage(sender, args[n+1] + " = '&e" + vars.get(targetVar) + "&-'");
+					SMSVariables.set(sender, args[n+1], Integer.toString(val + incr));
+					if (!quiet)
+						MiscUtil.statusMessage(sender, args[n+1] + " = '&e" + (val+incr) + "&-'");
 				} catch (NumberFormatException e) {
 					throw new SMSException(e.getMessage() + ": not a number");
 				}
 			} else {
-				parseVarSpec(sender, args[n]);
-				SMSVariables vars = SMSVariables.getVariables(targetPlayer, true);
-				vars.set(targetVar, args[n+1]);
-				if (!quiet) MiscUtil.statusMessage(sender, args[n] + " = '&e" + vars.get(targetVar) + "&-'");
+				// just set the variable
+				SMSVariables.set(sender, args[n], args[n+1]);;
+				if (!quiet)
+					MiscUtil.statusMessage(sender, args[n] + " = '&e" + args[n+1] + "&-'");
 			}
 		}
 
 		return true;
-	}
-
-	private void parseVarSpec(CommandSender sender, String spec) {
-		String[] parts = spec.split("\\.", 2);
-		if (parts.length == 1) {
-			notFromConsole(sender);
-			targetPlayer = sender.getName();
-			targetVar = parts[0];
-		} else if (parts.length > 1) {
-			targetPlayer = parts[0];
-			targetVar = parts[1];
-		} else {
-			// shouldn't get here!
-			throw new IllegalArgumentException("bad variable spec " + spec);
-		}
-		if (!targetVar.matches("[a-zA-Z0-9_]+")) {
-			throw new SMSException("Invalid variable name " + spec + " (must be all alphanumeric)");
-		}
-		if (!targetPlayer.equalsIgnoreCase(sender.getName())) {
-			PermissionUtils.requirePerms(sender, "scrollingmenusign.vars.other");
-		}
 	}
 }

@@ -155,7 +155,7 @@ public class CommandParser {
 			StringBuffer sb = new StringBuffer(command.length());
 			Set<String> missing = new HashSet<String>();
 			while (m.find()) {
-				String repl = SMSVariables.getVar(player.getName(), m.group(1));
+				String repl = SMSVariables.get(player, m.group(1));
 				if (repl == null) {
 					missing.add(m.group(1));
 				} else {

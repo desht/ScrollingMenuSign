@@ -352,24 +352,24 @@ public class ParsedCommand {
 			if (m.group(1) == null) {
 				return false;
 			} else if (m.group(2) == null) {
-				return SMSVariables.isVarSet(player.getName(), m.group(1));
+				return SMSVariables.isSet(player, m.group(1));
 			} else {
-				return doComparison(player.getName(), checkType, m.group(1), m.group(2), m.group(3) == null ? "" : m.group(3));
+				return doComparison(player, checkType, m.group(1), m.group(2), m.group(3) == null ? "" : m.group(3));
 			}
 		}
 
 		return false;
 	}
 
-	private boolean doComparison(String playerName, String checkType, String varSpec, String op, String testValue) {
-		String value = SMSVariables.getVar(playerName, varSpec);
+	private boolean doComparison(Player player, String checkType, String varSpec, String op, String testValue) {
+		String value = SMSVariables.get(player, varSpec);
 		if (value == null) return false;
 
 		boolean caseInsensitive = checkType.indexOf('i') > 0;
 		boolean useRegex = checkType.indexOf('r') > 0;
 		boolean forceNumeric = checkType.indexOf('n') > 0;
 
-		LogUtils.fine("doComparison: player=[" + playerName + "] var=[" + varSpec + "] val=[" + value + "] op=[" + op + "] test=[" + testValue + "]");
+		LogUtils.fine("doComparison: player=[" + player.getName() + "] var=[" + varSpec + "] val=[" + value + "] op=[" + op + "] test=[" + testValue + "]");
 		LogUtils.fine("doComparison: case-sensitive=" + !caseInsensitive + " regex=" + useRegex + " force-numeric=" + forceNumeric);
 		
 		try {
