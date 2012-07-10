@@ -48,7 +48,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public static final String OWNER = "owner";
 	public static final String ITEM_JUSTIFY = "item_justify";
 	public static final String TITLE_JUSTIFY = "title_justify";
-	
+
 	// map view name to view object for registered views
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
 	// map (persistable - no World reference) location to view object for registered views
@@ -60,7 +60,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	private final Set<PersistableLocation> locations = new HashSet<PersistableLocation>();
 	private final String name;
 	private final AttributeCollection attributes;	// view attributes to be displayed and/or edited by players
-	
+
 	private boolean autosave;
 	private boolean dirty;
 	private int maxLocations;
@@ -68,7 +68,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	private final Map<String,Boolean> dirtyPlayers = new HashMap<String,Boolean>();
 	// map a world name (which hasn't been loaded yet) to a list of x,y,z positions
 	private final Map<String,List<Vector>> deferredLocations = new HashMap<String, List<Vector>>();
-		
+
 	@Override
 	public abstract void update(Observable menu, Object arg1);
 
@@ -152,7 +152,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public SMSMenu getMenu() {
 		return menu;
 	}
-	
+
 	/**
 	 * Return the justification for menu items in this view
 	 * 
@@ -161,7 +161,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public ViewJustification getItemJustification() {
 		return getJustification("sms.item_justify", ITEM_JUSTIFY, ViewJustification.LEFT);
 	}
-	
+
 	/**
 	 * Return the justification for the menu title in this view
 	 * 
@@ -170,13 +170,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public ViewJustification getTitleJustification() {
 		return getJustification("sms.title_justify", TITLE_JUSTIFY, ViewJustification.CENTER);
 	}
-	
+
 	private ViewJustification getJustification(String configItem, String attrName, ViewJustification fallback) {
 		ViewJustification viewJust = (ViewJustification) getAttribute(attrName);
 		if (viewJust != ViewJustification.DEFAULT) {
 			return viewJust;
 		}
-		
+
 		String j = ScrollingMenuSign.getInstance().getConfig().getString(configItem, fallback.toString());
 		try {
 			return ViewJustification.valueOf(j.toUpperCase());
@@ -253,11 +253,11 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		}
 		l.add(v);
 	}
-	
+
 	public List<Vector> getDeferredLocations(String worldName) {
 		return deferredLocations.get(worldName);
 	}
-	
+
 	protected List<Object> freezeLocation(Location l) {
 		List<Object> list = new ArrayList<Object>();
 		list.add(l.getWorld().getName());
@@ -286,7 +286,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public boolean isDirty(String playerName) {
 		return dirtyPlayers.containsKey(playerName) ? dirtyPlayers.get(playerName) : dirty;
 	}
-	
+
 	/**
 	 * Set the "dirty" status for this view - whether or not a repaint is needed for all players.
 	 * 
@@ -408,7 +408,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		for (Location l : getLocations()) {
 			allViewLocations.put(new PersistableLocation(l), this);
 		}
-		
+
 		autosave();
 	}
 
@@ -504,7 +504,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public static List<SMSView> getViewsForMenu(SMSMenu menu) {
 		return getViewsForMenu(menu, false);
 	}
-	
+
 	/**
 	 *  Find all the views for the given menu, optionally sorting the resulting list.
 	 *  
@@ -545,7 +545,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		}
 		return map;
 	}
-	
+
 	/**
 	 * Check if the given player is allowed to use this view.
 	 * 
@@ -573,7 +573,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public boolean allowedToUse(Player player) {
 		return hasOwnerPermission(player);
 	}
-	
+
 	/**
 	 * Require that the given player is allowed to use this view, and throw a SMSException if not.
 	 * 
@@ -583,13 +583,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		if (!hasOwnerPermission(player)) {
 			throw new SMSException("You do not own that view");
 		}
-		
+
 		if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use." + getType())) {
 			throw new SMSException("You don't have permission to use this type of view");
 		}
 	}
-	
-	
+
+
 	/**
 	 * Instantiate a new view from a saved config file
 	 * 
@@ -602,10 +602,10 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			SMSPersistence.mustHaveField(node, "class");
 			SMSPersistence.mustHaveField(node, "name");
 			SMSPersistence.mustHaveField(node, "menu");
-			
+
 			String className = node.getString("class");
 			viewName = node.getString("name");
-			
+
 			Class<? extends SMSView> c = Class.forName(className).asSubclass(SMSView.class);
 			//			System.out.println("got class " + c.getName());
 			Constructor<? extends SMSView> ctor = c.getDeclaredConstructor(String.class, SMSMenu.class);
@@ -632,7 +632,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		}
 		return null;
 	}
-	
+
 	private static void loadError(String viewName, Exception e) {
 		LogUtils.warning("Caught " + e.getClass().getName() + " while loading view " + viewName);
 		LogUtils.warning("  Exception message: " + e.getMessage());
@@ -654,7 +654,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		Object o = getAttribute(k);
 		return o == null || o.toString().isEmpty() ? def : o.toString();
 	}
-	
+
 	public String getAttributeAsString(String k)  {
 		return getAttributeAsString(k, "");
 	}
@@ -677,7 +677,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		update(getMenu(), SMSMenuAction.REPAINT);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see me.desht.dhutils.ConfigurationListener#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
 	 */
@@ -685,7 +685,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
 		// no validation here, override in subclasses
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see me.desht.dhutils.ConfigurationListener#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.util.List)
 	 */
@@ -703,7 +703,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public void onExecuted(Player player) {
 		// does nothing
 	}
-	
+
 	/**
 	 * Called automatically when the view is scrolled.  Override and extend this
 	 * in subclasses.
@@ -714,7 +714,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public void onScrolled(Player player, SMSUserAction action) {
 		// does nothing
 	}
-	
+
 	/**
 	 * Called automatically when a player logs out.  Call the clearPlayerForView() method on all
 	 * known views.
@@ -726,7 +726,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			v.clearPlayerForView(player);
 		}
 	}
-	
+
 	/**
 	 * Called automatically when a player logs out.  Perform any cleardown work to remove player
 	 * records from the view.  Override and extend this in subclasses.
@@ -734,5 +734,30 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @param player	The player who logged out
 	 */
 	public void clearPlayerForView(Player player) {
+	}
+
+	/**
+	 * Load any deferred locations for the given world.  This is called by the WorldLoadEvent handler.
+	 * 
+	 * @param world	The world that's just been loaded.
+	 */
+	public static void loadDeferred(World world) {
+		for (SMSView view : listViews()) {
+			List<Vector> l = view.getDeferredLocations(world.getName());	
+			if (l == null) {
+				continue;
+			}
+
+			for (Vector vec : l) {
+				try {
+					view.addLocation(new Location(world, vec.getBlockX(), vec.getBlockY(), vec.getBlockZ()));
+					LogUtils.fine("added loc " + world.getName() + ", " + vec + " to view " + view.getName());
+				} catch (SMSException e) {
+					LogUtils.warning("Can't add location " + world.getName() + ", " + vec + " to view " + view.getName());
+					LogUtils.warning("  Exception message: " + e.getMessage());
+				}
+			}
+			l.clear();
+		}
 	}
 }
