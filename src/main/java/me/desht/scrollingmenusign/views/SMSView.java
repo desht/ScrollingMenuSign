@@ -230,6 +230,12 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		}
 	}
 
+	/**
+	 * Legacy method.  Supports loading of pre-1.3 view files.  Replaced by PersistableLocation
+	 * serialization.  Will be removed in a later release.
+	 * 
+	 * @param locList
+	 */
 	private void addOldStyleLocation(List<Object> locList) {
 		String worldName = (String)locList.get(0);
 		int x = (Integer) locList.get(1);
@@ -245,6 +251,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		}
 	}
 
+	/**
+	 * Mark a location (actually a world name and a x,y,z vector) as deferred - the world isn't
+	 * currently available.
+	 * 
+	 * @param worldName
+	 * @param v
+	 */
 	private void addDeferredLocation(String worldName, Vector v) {
 		List<Vector> l = deferredLocations.get(worldName);
 		if (l == null) {
@@ -254,18 +267,14 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		l.add(v);
 	}
 
+	/**
+	 * Get a list of the locations (x,y,z vectors) that have been deferred for the given world name.
+	 * 
+	 * @param worldName
+	 * @return
+	 */
 	public List<Vector> getDeferredLocations(String worldName) {
 		return deferredLocations.get(worldName);
-	}
-
-	protected List<Object> freezeLocation(Location l) {
-		List<Object> list = new ArrayList<Object>();
-		list.add(l.getWorld().getName());
-		list.add(l.getBlockX());
-		list.add(l.getBlockY());
-		list.add(l.getBlockZ());
-
-		return list;
 	}
 
 	/**
@@ -311,8 +320,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 	/**
 	 * Get a set of all locations for this view.  Views may have zero or more locations (e.g. a sign
-	 * view has one location, a map view has zero locations, a hypothetical multi-sign view might have
-	 * several locations...)
+	 * view has one location, a map view has zero locations, a multisign view has several locations...)
 	 * 
 	 * @return	A Set of all locations for this view object
 	 * @throws IllegalStateException if the world for this view has become unloaded
@@ -335,6 +343,12 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return locs.toArray(new Location[locs.size()]);
 	}
 
+	/**
+	 * Set the maximum number of locations which are allowed.  Subclass constructors can call this
+	 * as appropriate.
+	 * 
+	 * @param maxLocations
+	 */
 	protected void setMaxLocations(int maxLocations) {
 		this.maxLocations = maxLocations;
 	}
@@ -393,7 +407,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 	public void screenClosed() {
 		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -437,7 +450,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.Freezable#getSaveFolder()
+	 * @see me.desht.scrollingmenusign.SMSPersistable#getSaveFolder()
 	 */
 	public File getSaveFolder() {
 		return DirectoryStructure.getViewsFolder();
