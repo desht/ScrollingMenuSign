@@ -20,6 +20,7 @@ public class ReloadCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		
 		boolean loadMenus = false;
+		boolean loadViews = false;
 		boolean loadMacros = false;
 		boolean loadConfig = false;
 		boolean loadAll = false;
@@ -35,8 +36,10 @@ public class ReloadCommand extends AbstractCommand {
 					loadMacros = true;
 				} else if (args[i].startsWith("c")) {
 					loadConfig = true;
-				} else if (args[i].startsWith("v")) {
+				} else if (args[i].startsWith("va")) {
 					loadVariables = true;
+				} else if (args[i].startsWith("vi")) {
+					loadViews = true;
 				}
 			}
 		}
@@ -46,6 +49,8 @@ public class ReloadCommand extends AbstractCommand {
 		}
 		if (loadAll || loadMenus) {
 			SMSPersistence.loadMenus();
+		}
+		if (loadAll || loadViews) {
 			SMSPersistence.loadViews();
 		}
 		if (loadAll || loadMacros) {
@@ -55,8 +60,7 @@ public class ReloadCommand extends AbstractCommand {
 			SMSPersistence.loadVariables();
 		}
 
-		if (sender != null)
-			MiscUtil.statusMessage(sender, "Reload complete.");
+		MiscUtil.statusMessage(sender, "Reload complete.");
 
 		return true;
 	}
