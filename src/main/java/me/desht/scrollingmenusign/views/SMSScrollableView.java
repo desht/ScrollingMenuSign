@@ -30,7 +30,9 @@ public abstract class SMSScrollableView extends SMSView {
 	@Override
 	public Map<String, Object> freeze() {
 		Map<String, Object> map = super.freeze();
-		
+		// We only save the global scroll position so per-player views such as maps & spout
+		// scroll positions won't be saved but global views like signs will be.
+		map.put("scrollPos", lastScrollPos);
 		return map;
 	}
 	
@@ -101,25 +103,24 @@ public abstract class SMSScrollableView extends SMSView {
 	 * @param scrollPos		The scroll position
 	 */
 	public void setScrollPos(String playerName, int scrollPos) {
+		lastScrollPos = scrollPos;
 		if (perPlayerScrolling) {
 			playerScrollPos.put(playerName, scrollPos);
-			lastScrollPos = scrollPos;
 			setDirty(playerName, true);
 		} else {
-			lastScrollPos = scrollPos;
 			setDirty(true);
 		}
 	}
 	
 	/**
-	 * Sets the current selected item for the given player to the previous item.
+	 * Sets the current selected item for the given player to the next item.
 	 * 
 	 * @param playerName	The player to scroll the view for
 	 */
 	public void scrollDown(String playerName) {
 		int pos = getScrollPos(playerName) + 1;
-		if (wrap && pos > getMenu().getItemCount())
-			pos = 1;
+		if (pos > getMenu().getItemCount())
+			pos = wrap ? 1 : getMenu().getItemCount();
 		setScrollPos(playerName, pos);
 	}
 	
@@ -133,8 +134,8 @@ public abstract class SMSScrollableView extends SMSView {
 			return;
 		
 		int pos = getScrollPos(playerName) - 1;
-		if (wrap && pos <= 0)
-			pos = getMenu().getItemCount();
+		if (pos <= 0)
+			pos = wrap ? getMenu().getItemCount() : 1;
 		setScrollPos(playerName, pos);
 	}
 	
