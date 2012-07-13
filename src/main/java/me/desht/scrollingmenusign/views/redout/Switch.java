@@ -64,32 +64,65 @@ public class Switch {
 		view.addSwitch(this);
 	}
 
+	/**
+	 * Get the view this output switch belongs to.
+	 * 
+	 * @return	The owning view
+	 */
 	public SMSGlobalScrollableView getView() {
 		return view;
 	}
 
+	/**
+	 * Get the name of this output switch.
+	 * 
+	 * @return	The switch's name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Get this output switch's location.
+	 * 
+	 * @return	The switch's location
+	 */
 	public Location getLocation() {
 		return location.getLocation();
 	}
 
+	/**
+	 * Get the trigger string for this switch.
+	 * 
+	 * @return	The switch's trigger string
+	 */
 	public String getTrigger() {
 		return trigger;
 	}
 
+	/**
+	 * Remove this switch from its owning view.
+	 */
 	public void delete() {
 		allSwitches.remove(name);
 		allSwitchLocs.remove(location);
 		view.removeSwitch(this);
 	}
 
+	/**
+	 * Get the Material for this switch.  (Right now, only Lever is supported).
+	 * 
+	 * @return	The switch's material
+	 */
 	private Material getSwitchType() {
 		return getLocation().getBlock().getType();
 	}
 
+	/**
+	 * Check if this switch is currently powered.
+	 * 
+	 * @return	true if powered, false otherwise
+	 */
 	public boolean getPowered() {
 		Block b = getLocation().getBlock();
 		if (getSwitchType() == Material.LEVER) {
@@ -100,6 +133,11 @@ public class Switch {
 		}
 	}
 
+	/**
+	 * Set the powered status of this switch.
+	 * 
+	 * @param powered	true to switch on, false to switch off
+	 */
 	public void setPowered(boolean powered) {
 		if (getSwitchType() == Material.LEVER) {
 			setLeverPowered(getLocation().getBlock(), powered);
@@ -114,10 +152,22 @@ public class Switch {
 		b.setData(lever.getData(), true);
 	}
 
+	/**
+	 * Retrieve the switch with the given name
+	 * 
+	 * @param name	The desired name
+	 * @return	The Switch object, or null if no switch by this name exists
+	 */
 	public static Switch getSwitch(String name) {
 		return allSwitches.get(name);
 	}
 
+	/**
+	 * Retrieve the switch at the given location
+	 * 
+	 * @param loc	Location to chekc
+	 * @return	The Switch object, or null if no switch at this location
+	 */
 	public static Switch getSwitchAt(Location loc) {
 		return allSwitchLocs.get(new PersistableLocation(loc));
 	}
@@ -126,8 +176,14 @@ public class Switch {
 		return new ArrayList<Switch>(allSwitchLocs.values());
 	}
 
-	public static boolean checkForSwitch(String s) {
-		return allSwitches.containsKey(s);
+	/**
+	 * Check if a switch by the given name exists
+	 * 
+	 * @param name	The name to check
+	 * @return	true if a switch of this name exists, false otherwise
+	 */
+	public static boolean checkForSwitch(String name) {
+		return allSwitches.containsKey(name);
 	}
 
 	public Map<String,Object> freeze() {

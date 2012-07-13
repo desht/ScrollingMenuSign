@@ -1,5 +1,5 @@
 package me.desht.scrollingmenusign.enums;
 
 public enum RedstoneOutputMode {
-	TOGGLE, SELECTED;
+	TOGGLE, SELECTED, PULSE, PULSEANY;
 }

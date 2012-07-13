@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -20,6 +21,7 @@ import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.RedstoneOutputMode;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.redout.Switch;
@@ -35,10 +37,13 @@ import me.desht.scrollingmenusign.views.redout.Switch;
  */
 public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
+	public static final String RS_OUTPUT_MODE = "rsoutputmode";
+	public static final String PULSE_TICKS = "pulseticks";
+
 	private final Set<Switch> switches = new HashSet<Switch>();
 	private final Set<RedstoneControlSign> controlSigns = new HashSet<RedstoneControlSign>();
 
-	public final String RS_OUTPUT_MODE = "rsoutputmode";
+	private int pulseResetTask;
 
 	public SMSGlobalScrollableView(SMSMenu menu) {
 		this(null, menu);
@@ -48,6 +53,8 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		super(name, menu);
 		setPerPlayerScrolling(false);
 		registerAttribute(RS_OUTPUT_MODE, RedstoneOutputMode.SELECTED);
+		registerAttribute(PULSE_TICKS, 1L);
+		pulseResetTask = -1;
 	}
 
 	public void addSwitch(Switch sw) {
@@ -92,6 +99,34 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 			if (sw.getTrigger().equals(selectedItem)) {
 				sw.setPowered(!sw.getPowered());
 			}
+		}
+	}
+
+	public void pulseSwitchPower(boolean pulseAll) {
+		SMSMenuItem item = getMenu().getItemAt(getLastScrollPos());
+		if (item == null) {
+			return;
+		}
+		String selectedItem = ChatColor.stripColor(item.getLabel());
+		final List<Switch> affected = new ArrayList<Switch>();
+		for (Switch sw : switches) {
+			if (pulseAll || sw.getTrigger().equals(selectedItem)) {
+				sw.setPowered(true);
+				affected.add(sw);
+			}
+		}
+
+		if (!affected.isEmpty()) {
+			long delay = (Long) getAttribute(PULSE_TICKS);
+			pulseResetTask = Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
+				@Override
+				public void run() {
+					for (Switch sw : affected) {
+						sw.setPowered(false);
+					}
+					pulseResetTask = -1;
+				}
+			}, delay);
 		}
 	}
 
@@ -174,8 +209,16 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		super.onExecuted(player);
 
 		RedstoneOutputMode mode = (RedstoneOutputMode) getAttribute(RS_OUTPUT_MODE);
-		if (mode == RedstoneOutputMode.TOGGLE) {
+		switch (mode) {
+		case TOGGLE:
 			toggleSwitchPower();
+			break;
+		case PULSE:
+			pulseSwitchPower(false);
+			break;
+		case PULSEANY:
+			pulseSwitchPower(true);
+			break;
 		}
 	}
 
@@ -183,8 +226,20 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		super.onConfigurationChanged(configurationManager, key, oldVal, newVal);
 
-		if (key.equals(RS_OUTPUT_MODE) && (RedstoneOutputMode)newVal == RedstoneOutputMode.SELECTED) {
-			updateSwitchPower();
+		if (key.equals(RS_OUTPUT_MODE)) {
+			switch ((RedstoneOutputMode)newVal) {
+			case SELECTED:
+				updateSwitchPower();
+				break;
+			default:
+				for (Switch sw : getSwitches()) {
+					sw.setPowered(false);
+				}
+			}
+			if (pulseResetTask > 0) {
+				Bukkit.getScheduler().cancelTask(pulseResetTask);
+				pulseResetTask = -1;
+			}
 		}
 	}
 }
