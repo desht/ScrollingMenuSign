@@ -34,11 +34,10 @@ public class RemoveViewCommand extends AbstractCommand {
 		} else if (args.length == 2 && args[0].equals("-loc")) {
 			// detaching a view by location
 			try {
-				view = SMSView.getViewForLocation(MiscUtil.parseLocation(args[0], sender));
+				view = SMSView.getViewForLocation(MiscUtil.parseLocation(args[1], sender));
 			} catch (IllegalArgumentException e) {
 				throw new SMSException(e.getMessage());
 			}
-			view = SMSView.getViewForLocation(MiscUtil.parseLocation(args[0], sender));
 		} else if (sender instanceof Player && (view = SMSMapView.getHeldMapView((Player)sender)) != null) {
 			// detaching a map view - nothing else to check here
 		} else if (args.length == 0) {
