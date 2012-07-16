@@ -46,11 +46,36 @@ public class ParsedCommand {
 		status = ReturnStatus.UNKNOWN;
 		lastError = "no error";
 		rawCommand = new StringBuilder();
- 
+
 		while (scanner.hasNext()) {
 			String token = scanner.next();
-			rawCommand.append(token).append(" ");
 
+			if (token.startsWith("\"") || token.startsWith("'")) {
+				// quoted string (single or double) - swallow all following tokens until a matching
+				// quotation mark is detected
+				String quote = token.substring(0, 1);
+				System.out.println("token: [" + token + "] quote=[" + quote + "]");
+				if (token.endsWith(quote)) {
+					token = token.substring(1, token.length() - 1);
+				} else {
+					token = token.substring(1);
+					Pattern oldDelimiter = scanner.delimiter();
+					scanner.useDelimiter(quote);
+					token = token + scanner.next();
+					scanner.useDelimiter(oldDelimiter);
+					scanner.next(); // swallow the closing quote
+					System.out.println("after scan: [" + token + "]");
+				}
+				rawCommand.append("\"").append(token).append("\" ");
+				if (command == null)
+					command = token;
+				else
+					args.add("\"" + token + "\"");
+				continue;
+			}
+			
+			rawCommand.append(token).append(" ");
+			
 			if (token.startsWith("%")) {
 				// macro
 				command = token.substring(1);
@@ -121,8 +146,14 @@ public class ParsedCommand {
 		}
 
 		quotedArgs = MiscUtil.splitQuotedString(rawCommand.toString()).toArray(new String[0]);
+		for (String a : quotedArgs)  {
+			System.out.println("quotedargs: " + a);
+		}
+		for (String a : args) {
+			System.out.println("args: " + a);
+		}
 
-		if (sender == null && command != null && command.startsWith("/")) {
+		if (!(sender instanceof Player) && command != null && command.startsWith("/")) {
 			console = true;
 		}
 	}
@@ -371,7 +402,7 @@ public class ParsedCommand {
 
 		LogUtils.fine("doComparison: player=[" + player.getName() + "] var=[" + varSpec + "] val=[" + value + "] op=[" + op + "] test=[" + testValue + "]");
 		LogUtils.fine("doComparison: case-sensitive=" + !caseInsensitive + " regex=" + useRegex + " force-numeric=" + forceNumeric);
-		
+
 		try {
 			if (op.equals("=")) {
 				if (useRegex) {

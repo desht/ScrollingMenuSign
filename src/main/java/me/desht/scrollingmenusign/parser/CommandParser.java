@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
@@ -149,6 +150,9 @@ public class CommandParser {
 			command = command.replace("<WORLD>", player.getWorld().getName());
 			command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
 			command = command.replace("<INAME>", stack != null ? stack.getType().toString() : "???");
+			if (ScrollingMenuSign.economy != null) {
+				command = command.replace("<MONEY>", formatStakeStr(ScrollingMenuSign.economy.getBalance(player.getName())));
+			}
 
 			// user-defined substitutions...
 			m = varSubPat.matcher(command);
@@ -371,5 +375,16 @@ public class CommandParser {
 		} else {
 			LogUtils.info("Chat: " + command);
 		}
+	}
+	
+	private static String formatStakeStr(double stake) {
+		try {
+			return ScrollingMenuSign.economy.format(stake);
+		} catch (Exception e) {
+			LogUtils.warning("Caught exception from " + ScrollingMenuSign.economy.getName() + " while trying to format quantity " + stake + ":");
+			e.printStackTrace();
+			LogUtils.warning("ChessCraft will continue but you should verify your economy plugin configuration.");
+		}
+		return new DecimalFormat("#0.00").format(stake) + " ";
 	}
 }
