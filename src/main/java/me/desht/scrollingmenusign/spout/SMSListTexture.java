@@ -25,8 +25,12 @@ public class SMSListTexture extends GenericTexture {
 	public void updateURL() {
 		try {
 			String textureName = popup.getView().getAttributeAsString(SMSSpoutView.TEXTURE);
-			URL textureURL = ScrollingMenuSign.makeImageURL(textureName);
-			setUrl(textureURL.toString());
+			if (textureName != null && !textureName.isEmpty()) {
+				URL textureURL = ScrollingMenuSign.makeImageURL(textureName);
+				setUrl(textureURL.toString());
+			} else {
+				setUrl("");
+			}
 		} catch (MalformedURLException e) {
 			LogUtils.warning("malformed texture URL for spout view " + popup.getView().getName() + ": " + e.getMessage());
 		}
