@@ -5,6 +5,8 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.RedstoneControlSign;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
@@ -48,7 +50,7 @@ public class ViewCommand extends AbstractCommand {
 				view = SMSMapView.getHeldMapView(player);
 			}
 		}
-		
+
 		if (view == null) {
 			// maybe the player's looking at an output switch
 			if (lookingAtSwitch(sender)) {
@@ -60,54 +62,78 @@ public class ViewCommand extends AbstractCommand {
 		}
 
 		if (args.length <= 1) {
-			MessagePager pager = MessagePager.getPager(sender).clear();
-			pager.add(String.format("View &e%s&- (%s) :", view.getName(), view.toString()));
-			for (String k : view.listAttributeKeys(true)) {
-				pager.add(String.format("&5*&- &e%s&- = &e%s&-", k, view.getAttributeAsString(k, "")));
-			}
-			if (view instanceof SMSGlobalScrollableView) {
-				SMSGlobalScrollableView gsv = (SMSGlobalScrollableView) view;
-				int nSwitches = gsv.getSwitches().size();
-				if (nSwitches > 0) {
-					String s = nSwitches > 1 ? "es"	: "";
-					pager.add("&f" + nSwitches + "&- output switch" + s + ":");
-					for (Switch sw: gsv.getSwitches()) {
-						pager.add(String.format("&5*&- &e%s&- @ &e%s",
-						                        sw.getTrigger(), MiscUtil.formatLocation(sw.getLocation())));
-					}
-				}
-				int nCtrlSigns = gsv.getControlSigns().size();
-				if (nCtrlSigns > 0) {
-					String s = nCtrlSigns > 1 ? "s"	: "";
-					pager.add("&f" + nCtrlSigns + "&- redstone control sign" + s + ":");
-					for (RedstoneControlSign sign: gsv.getControlSigns()) {
-						pager.add(String.format("&5*&- &e%s&-", sign));
-					}
-				}
-			}
-			pager.showPage();
-			return true;
-		}
-
-		if (args[1].equals("-popup")) {
+			showViewDetails(sender, view);
+		} else if (args[1].equals("-popup")) {
 			notFromConsole(sender);
 			PermissionUtils.requirePerms(sender, "scrollingmenusign.use.spout");
 			if (view instanceof SMSSpoutView) {
 				SMSSpoutView spv = (SMSSpoutView) view;
 				spv.toggleGUI((Player) sender);
 			}
+		} else if (args[1].startsWith("-d") && args.length >= 3) {
+			// delete user-defined view variable
+			if (args[2].startsWith("$")) {
+				String var = args[2].substring(1);
+				view.setVariable(var, null);
+				view.autosave();
+				view.update(view.getMenu(), SMSMenuAction.REPAINT);
+				MiscUtil.statusMessage(sender, "Deleted view variable: &a" + var + "&-.");
+			}
 		} else {
 			String attr = args[1];
 
-			if (args.length == 3) {
-				view.setAttribute(attr, args[2]);
-				view.autosave();
+			if (attr.startsWith("$")) {
+				String var = attr.substring(1);
+				// user-defined view variable
+				if (args.length == 3) {
+					view.setVariable(var, args[2]);
+					view.autosave();
+					view.update(view.getMenu(), SMSMenuAction.REPAINT);
+				}
+				MiscUtil.statusMessage(sender, String.format("&a%s.$%s&- = &a%s&-", view.getName(), var, view.getVariable(var)));
+			} else {
+				// predefined view attribute
+				if (args.length == 3) {
+					view.setAttribute(attr, args[2]);
+					view.autosave();
+				}
+				MiscUtil.statusMessage(sender, String.format("&e%s.%s&- = &e%s&-", view.getName(), attr, view.getAttributeAsString(attr)));
 			}
-
-			MiscUtil.statusMessage(sender, String.format("&e%s.%s&- = &e%s&-", view.getName(), attr, view.getAttributeAsString(attr)));
 		}
-		
+
 		return true;
+	}
+
+	private void showViewDetails(CommandSender sender, SMSView view) {
+		MessagePager pager = MessagePager.getPager(sender).clear();
+		pager.add(String.format("View &e%s&- (%s) :", view.getName(), view.toString()));
+		for (String k : view.listAttributeKeys(true)) {
+			pager.add(String.format("&5*&- &e%s&- = &e%s&-", k, view.getAttributeAsString(k, "")));
+		}
+		for (String k : MiscUtil.asSortedList(view.listVariables())) {
+			pager.add(String.format("&4* &a$%s&- = &a%s", k, view.getVariable(k)));
+		}
+		if (view instanceof SMSGlobalScrollableView) {
+			SMSGlobalScrollableView gsv = (SMSGlobalScrollableView) view;
+			int nSwitches = gsv.getSwitches().size();
+			if (nSwitches > 0) {
+				String s = nSwitches > 1 ? "es"	: "";
+				pager.add("&f" + nSwitches + "&- output switch" + s + ":");
+				for (Switch sw: gsv.getSwitches()) {
+					pager.add(String.format("&5*&- &e%s&- @ &e%s",
+					                        sw.getTrigger(), MiscUtil.formatLocation(sw.getLocation())));
+				}
+			}
+			int nCtrlSigns = gsv.getControlSigns().size();
+			if (nCtrlSigns > 0) {
+				String s = nCtrlSigns > 1 ? "s"	: "";
+				pager.add("&f" + nCtrlSigns + "&- redstone control sign" + s + ":");
+				for (RedstoneControlSign sign: gsv.getControlSigns()) {
+					pager.add(String.format("&5*&- &e%s&-", sign));
+				}
+			}
+		}
+		pager.showPage();
 	}
 
 	private boolean lookingAtSwitch(CommandSender sender) {

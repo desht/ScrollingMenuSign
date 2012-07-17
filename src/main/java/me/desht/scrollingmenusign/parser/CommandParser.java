@@ -14,6 +14,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.SMSVariables;
@@ -21,14 +24,10 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import com.google.common.base.Joiner;
 
@@ -114,7 +113,7 @@ public class CommandParser {
 		ParsedCommand cmd = handleCommandString(sender, view, command, RunMode.EXECUTE);
 		return cmd;
 	}
-	
+
 	public ParsedCommand executeCommand(CommandSender sender, String command) {
 		ParsedCommand cmd = handleCommandString(sender, null, command, RunMode.EXECUTE);
 		return cmd;
@@ -134,11 +133,81 @@ public class CommandParser {
 	}
 
 	private static final Pattern promptPat = Pattern.compile("<\\$:(.+?)>");
-	private static final Pattern varSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)>");
+	private static final Pattern preDefPat = Pattern.compile("<([A-Z]+)>");
+	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)>");
 
+	/**
+	 * Substitute any user-defined variables (/sms var) in the command
+	 * 
+	 * @param player	The player running the command
+	 * @param command	The command string
+	 * @param missing	(returned) a set of variable names with no definitions
+	 * @return	The substituted command string
+	 */
+	private String userVarSubs(Player player, String command, Set<String> missing) {
+		Matcher m = userVarSubPat.matcher(command);
+		StringBuffer sb = new StringBuffer(command.length());
+		while (m.find()) {
+			String repl = SMSVariables.get(player, m.group(1));
+			if (repl == null) {
+				missing.add(m.group(1));
+			} else {
+				m.appendReplacement(sb, repl);
+			}
+		}
+		m.appendTail(sb);
+		return sb.toString();
+	}
+
+	private String preDefinedSubs(Player player, String command, SMSView view) {
+		Matcher m = preDefPat.matcher(command);
+		StringBuffer sb = new StringBuffer(command.length());
+		while (m.find()) {
+			String key = m.group(1);
+			String repl;
+			if (key.equals("X")) {
+				repl = Integer.toString(player.getLocation().getBlockX());
+			} else if (key.equals("Y")) {
+				repl = Integer.toString(player.getLocation().getBlockY());
+			} else if (key.equals("Z")) {
+				repl = Integer.toString(player.getLocation().getBlockZ());
+			} else if (key.equals("NAME") || key.equals("N")) {
+				repl = player.getName();
+			} else if (key.equals("WORLD")) {
+				repl = player.getWorld().getName();
+			} else if (key.equals("I")) {
+				repl = player.getItemInHand() == null ? "0" : Integer.toString(player.getItemInHand().getTypeId());
+			} else if (key.equals("INAME")) {
+				repl = player.getItemInHand() == null ? "nothing" : player.getItemInHand().getType().toString();
+			} else if (key.equals("MONEY") && ScrollingMenuSign.economy != null) {
+				repl = formatStakeStr(ScrollingMenuSign.economy.getBalance(player.getName()));
+			} else if (key.equals("VIEW")) {
+				repl = view == null ? "" : view.getName();
+			} else {
+				String menuName = view == null ? "???" : view.getMenu().getName();
+				LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
+				repl = "<" + key + ">";
+			}
+			m.appendReplacement(sb, repl);
+		}
+		m.appendTail(sb);
+		return sb.toString();
+	}
+
+	/**
+	 * Handle one command string, which may contain multiple commands (chained with && or $$)
+	 * 
+	 * @param sender
+	 * @param view
+	 * @param command
+	 * @param mode
+	 * @return
+	 * @throws SMSException
+	 */
 	ParsedCommand handleCommandString(CommandSender sender, SMSView view, String command, RunMode mode) throws SMSException {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
+
 			// see if an interactive substitution is needed
 			Matcher m = promptPat.matcher(command);
 			if (m.find() && m.groupCount() > 0 && mode == RunMode.EXECUTE) {
@@ -146,38 +215,12 @@ public class CommandParser {
 				return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
 			}
 
-			// predefined substitutions ...
-			ItemStack stack =  player.getItemInHand();
-			command = command.replace("<X>", "" + player.getLocation().getBlockX());
-			command = command.replace("<Y>", "" + player.getLocation().getBlockY());
-			command = command.replace("<Z>", "" + player.getLocation().getBlockZ());
-			command = command.replace("<NAME>", player.getName());
-			command = command.replace("<N>", player.getName());
-			command = command.replace("<WORLD>", player.getWorld().getName());
-			command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
-			command = command.replace("<INAME>", stack != null ? stack.getType().toString() : "nothing");
-			if (ScrollingMenuSign.economy != null) {
-				command = command.replace("<MONEY>", formatStakeStr(ScrollingMenuSign.economy.getBalance(player.getName())));
-			}
-			if (view != null) {
-				command = command.replace("<VIEW>", view.getName());
-			}
+			// make any predefined substitutions
+			command = preDefinedSubs(player, command, view);
 
-			// user-defined substitutions...
-			m = varSubPat.matcher(command);
-			StringBuffer sb = new StringBuffer(command.length());
+			// make any user-defined substitutions
 			Set<String> missing = new HashSet<String>();
-			while (m.find()) {
-				String repl = SMSVariables.get(player, m.group(1));
-				if (repl == null) {
-					missing.add(m.group(1));
-				} else {
-					m.appendReplacement(sb, repl);
-				}
-			}
-			m.appendTail(sb);
-			command = sb.toString();
-
+			command = userVarSubs(player, command, missing);
 			if (!missing.isEmpty() && mode == RunMode.EXECUTE) {
 				return new ParsedCommand(ReturnStatus.BAD_VARIABLE, "Command has uninitialised variables: " + missing.toString());
 			}
@@ -385,7 +428,7 @@ public class CommandParser {
 			LogUtils.info("Chat: " + command);
 		}
 	}
-	
+
 	private static String formatStakeStr(double stake) {
 		try {
 			return ScrollingMenuSign.economy.format(stake);

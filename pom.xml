@@ -122,5 +122,4 @@
 	<dependencyManagement>
 		<dependencies>
 		</dependencies>
-	</dependencyManagement>
-</project>
+	</dependencyManagement> </project>

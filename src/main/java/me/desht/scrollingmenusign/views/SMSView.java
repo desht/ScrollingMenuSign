@@ -60,6 +60,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	private final Set<PersistableLocation> locations = new HashSet<PersistableLocation>();
 	private final String name;
 	private final AttributeCollection attributes;	// view attributes to be displayed and/or edited by players
+	private final Map<String, String> variables;
 
 	private boolean autosave;
 	private boolean dirty;
@@ -92,6 +93,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		this.dirty = true;
 		this.autosave = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autosave", true);
 		this.attributes = new AttributeCollection(this);
+		this.variables = new HashMap<String, String>();
 		this.maxLocations = 1;
 
 		menu.addObserver(this);
@@ -154,7 +156,44 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
-	 * Return the justification for menu items in this view
+	 * Set an arbitrary string of tagged data on this view
+	 * 
+	 * @param key
+	 * @param val
+	 */
+	public void setVariable(String key, String val) {
+		if (!key.matches("[A-Za-z0-9_]+")) {
+			throw new SMSException("Invalid variable name: " + key);
+		}
+		if (val == null) {
+			variables.remove(key);
+		} else {
+			variables.put(key, val);
+		}
+	}
+
+	/**
+	 * Get an arbitrary string of tagged data from this view
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public String getVariable(String key) {
+		if (!key.matches("[A-Za-z0-9_]+")) {
+			throw new SMSException("Invalid variable name: " + key);
+		}
+		if (!variables.containsKey(key)) {
+			throw new SMSException("View " + getName() + " has no variable: " + key);
+		}
+		return variables.get(key);
+	}
+	
+	public Set<String> listVariables() {
+		return variables.keySet();
+	}
+
+	/**
+	 * Get the justification for menu items in this view
 	 * 
 	 * @return
 	 */
@@ -163,14 +202,14 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
-	 * Return the justification for the menu title in this view
+	 * Get the justification for the menu title in this view
 	 * 
 	 * @return
 	 */
 	public ViewJustification getTitleJustification() {
 		return getJustification("sms.title_justify", TITLE_JUSTIFY, ViewJustification.CENTER);
 	}
-
+	
 	private ViewJustification getJustification(String configItem, String attrName, ViewJustification fallback) {
 		ViewJustification viewJust = (ViewJustification) getAttribute(attrName);
 		if (viewJust != ViewJustification.DEFAULT) {
@@ -187,7 +226,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 	public Map<String, Object> freeze() {
 		Map<String, Object> map = new HashMap<String, Object>();
-
+		Map<String, String> vars = new HashMap<String, String>();
+		
 		map.put("name", name);
 		map.put("menu", menu.getName());
 		map.put("class", getClass().getName());
@@ -201,6 +241,10 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			locs.add(pl);
 		}
 		map.put("locations", locs);
+		for (String key : listVariables()) {
+			vars.put(key, getVariable(key));
+		}
+		map.put("vars", vars);
 		return map;
 	}
 
@@ -224,8 +268,14 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			}
 		}
 		for (String k : node.getKeys(false)) {
-			if (attributes.hasAttribute(k)) {
+			if (!node.isConfigurationSection(k) && attributes.hasAttribute(k)) {
 				setAttribute(k, node.getString(k));
+			}
+		}
+		ConfigurationSection vars = node.getConfigurationSection("vars");
+		if (vars != null) {
+			for (String k : vars.getKeys(false)) {
+				setVariable(k, vars.getString(k));
 			}
 		}
 	}
