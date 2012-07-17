@@ -8,6 +8,7 @@ import java.util.Set;
 
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.parser.CommandUtils;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
 
@@ -100,7 +101,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 * @param sender		Command sender to execute the command for
 	 * @throws SMSException	if the usage limit for this player is exhausted
 	 */
-	public void executeCommand(CommandSender sender) {
+	public void executeCommand(CommandSender sender, SMSView view) {
 		if (sender instanceof Player) {
 			checkRemainingUses(this.getUseLimits(), (Player) sender);
 			checkRemainingUses(menu.getUseLimits(), (Player) sender);
@@ -110,9 +111,13 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			cmd = menu.getDefaultCommand().replace("<LABEL>", ChatColor.stripColor(getLabel())).replace("<RAWLABEL>", getLabel());
 		}
 		
-		CommandUtils.executeCommand(sender, cmd);
+		CommandUtils.executeCommand(sender, cmd, view);
 	}
 
+	public void executeCommand(CommandSender sender) {
+		executeCommand(sender, null);
+	}
+	
 	private void checkRemainingUses(SMSRemainingUses uses, Player player) throws SMSException {
 		String name = player.getName();
 		if (uses.hasLimitedUses(name)) {

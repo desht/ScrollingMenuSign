@@ -87,7 +87,7 @@ public class SMSListWidget extends GenericListWidget {
 			if (item == null) {
 				throw new SMSException("spout list widget onSelected: index " + idx + " out of range for " + view.getMenu().getName() + " ?");
 			}
-			item.executeCommand(player);
+			item.executeCommand(player, view);
 			item.feedbackMessage(player);
 			view.onExecuted(player);
 		} catch (SMSException e) {

@@ -20,6 +20,7 @@ import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.LogUtils;
@@ -96,7 +97,7 @@ public class CommandParser {
 	 */
 	@Deprecated
 	public ParsedCommand runCommand(Player player, String command) throws SMSException {
-		ParsedCommand cmd = handleCommandString(player, command, RunMode.EXECUTE);
+		ParsedCommand cmd = handleCommandString(player, null, command, RunMode.EXECUTE);
 
 		return cmd;
 	}
@@ -109,8 +110,13 @@ public class CommandParser {
 	 * @return	The parsed command object, which gives access to details on how the command ran
 	 * @throws SMSException
 	 */
+	public ParsedCommand executeCommand(CommandSender sender, String command, SMSView view) {
+		ParsedCommand cmd = handleCommandString(sender, view, command, RunMode.EXECUTE);
+		return cmd;
+	}
+	
 	public ParsedCommand executeCommand(CommandSender sender, String command) {
-		ParsedCommand cmd = handleCommandString(sender, command, RunMode.EXECUTE);
+		ParsedCommand cmd = handleCommandString(sender, null, command, RunMode.EXECUTE);
 		return cmd;
 	}
 
@@ -123,24 +129,24 @@ public class CommandParser {
 	 * @throws SMSException
 	 */
 	public boolean verifyCreationPerms(Player player, String command) throws SMSException {
-		ParsedCommand cmd = handleCommandString(player, command, RunMode.CHECK_PERMS);
+		ParsedCommand cmd = handleCommandString(player, null, command, RunMode.CHECK_PERMS);
 		return cmd == null || cmd.getStatus() == ReturnStatus.CMD_OK;
 	}
 
 	private static final Pattern promptPat = Pattern.compile("<\\$:(.+?)>");
 	private static final Pattern varSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)>");
 
-	ParsedCommand handleCommandString(CommandSender sender, String command, RunMode mode) throws SMSException {
+	ParsedCommand handleCommandString(CommandSender sender, SMSView view, String command, RunMode mode) throws SMSException {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			// see if an interactive substitution is needed
 			Matcher m = promptPat.matcher(command);
 			if (m.find() && m.groupCount() > 0 && mode == RunMode.EXECUTE) {
-				ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command));
+				ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command, view));
 				return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
 			}
 
-			// pre-defined substitutions ...
+			// predefined substitutions ...
 			ItemStack stack =  player.getItemInHand();
 			command = command.replace("<X>", "" + player.getLocation().getBlockX());
 			command = command.replace("<Y>", "" + player.getLocation().getBlockY());
@@ -149,9 +155,12 @@ public class CommandParser {
 			command = command.replace("<N>", player.getName());
 			command = command.replace("<WORLD>", player.getWorld().getName());
 			command = command.replace("<I>", stack != null ? "" + stack.getTypeId() : "0");
-			command = command.replace("<INAME>", stack != null ? stack.getType().toString() : "???");
+			command = command.replace("<INAME>", stack != null ? stack.getType().toString() : "nothing");
 			if (ScrollingMenuSign.economy != null) {
 				command = command.replace("<MONEY>", formatStakeStr(ScrollingMenuSign.economy.getBalance(player.getName())));
+			}
+			if (view != null) {
+				command = command.replace("<VIEW>", view.getName());
 			}
 
 			// user-defined substitutions...
@@ -189,7 +198,7 @@ public class CommandParser {
 
 			switch (mode) {
 			case EXECUTE:
-				execute(sender, cmd);
+				execute(sender, view, cmd);
 				logCommandUsage(sender, cmd);
 				break;
 			case CHECK_PERMS:
@@ -221,7 +230,7 @@ public class CommandParser {
 		}
 	}
 
-	private void execute(CommandSender sender, ParsedCommand cmd) throws SMSException {
+	private void execute(CommandSender sender, SMSView view, ParsedCommand cmd) throws SMSException {
 		if (cmd.isRestricted()) {
 			// restriction checks can stop a command from running, but it's not
 			// an error condition
@@ -250,7 +259,7 @@ public class CommandParser {
 
 		if (cmd.isMacro()) {
 			// run a macro
-			runMacro(sender, cmd);
+			runMacro(sender, view, cmd);
 		} else if (cmd.isWhisper()) {
 			// private message to the player
 			MiscUtil.alertMessage(sender, command);
@@ -320,7 +329,7 @@ public class CommandParser {
 		}
 	}
 
-	private void runMacro(CommandSender sender, ParsedCommand cmd) throws SMSException {
+	private void runMacro(CommandSender sender, SMSView view, ParsedCommand cmd) throws SMSException {
 		String macroName = cmd.getCommand();
 		if (macroHistory.contains(macroName)) {
 			LogUtils.warning("Recursion detected and stopped in macro " + macroName);
@@ -336,7 +345,7 @@ public class CommandParser {
 					c = c.replace("<" + i + ">", cmd.getQuotedArgs()[i]);
 				}
 				c = c.replace("<*>", allArgs);
-				subCommand = handleCommandString(sender, c, RunMode.EXECUTE);
+				subCommand = handleCommandString(sender, view, c, RunMode.EXECUTE);
 				if (subCommand.isMacroStopped())
 					break;
 			}

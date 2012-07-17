@@ -54,7 +54,6 @@ public class ParsedCommand {
 				// quoted string (single or double) - swallow all following tokens until a matching
 				// quotation mark is detected
 				String quote = token.substring(0, 1);
-				System.out.println("token: [" + token + "] quote=[" + quote + "]");
 				if (token.endsWith(quote)) {
 					token = token.substring(1, token.length() - 1);
 				} else {
@@ -64,7 +63,6 @@ public class ParsedCommand {
 					token = token + scanner.next();
 					scanner.useDelimiter(oldDelimiter);
 					scanner.next(); // swallow the closing quote
-					System.out.println("after scan: [" + token + "]");
 				}
 				rawCommand.append("\"").append(token).append("\" ");
 				if (command == null)
@@ -146,12 +144,6 @@ public class ParsedCommand {
 		}
 
 		quotedArgs = MiscUtil.splitQuotedString(rawCommand.toString()).toArray(new String[0]);
-		for (String a : quotedArgs)  {
-			System.out.println("quotedargs: " + a);
-		}
-		for (String a : args) {
-			System.out.println("args: " + a);
-		}
 
 		if (!(sender instanceof Player) && command != null && command.startsWith("/")) {
 			console = true;

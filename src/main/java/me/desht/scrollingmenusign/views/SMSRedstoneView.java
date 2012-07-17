@@ -98,7 +98,7 @@ public class SMSRedstoneView extends SMSView {
 					// run the command for each affected player
 					for (Player p : players) {
 						if (PermissionUtils.isAllowedTo(p, "scrollingmenusign.use.redstone")) {
-							item.executeCommand(p);
+							item.executeCommand(p, this);
 							item.feedbackMessage(p);
 						}
 					}

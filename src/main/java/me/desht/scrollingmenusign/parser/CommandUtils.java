@@ -4,6 +4,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,7 +18,11 @@ public class CommandUtils {
 	 * @throws SMSException
 	 */
 	public static void executeCommand(CommandSender sender, String command) {
-		ParsedCommand pCmd = new CommandParser().executeCommand(sender, command);
+		executeCommand(sender, command, null);
+	}
+
+	public static void executeCommand(CommandSender sender, String command, SMSView view) {
+		ParsedCommand pCmd = new CommandParser().executeCommand(sender, command, view);
 		// pCmd could be null if this was an empty command
 		if (pCmd != null) {
 			switch(pCmd.getStatus()) {
@@ -40,5 +45,6 @@ public class CommandUtils {
 				break;
 			}
 		}
+		
 	}
 }
