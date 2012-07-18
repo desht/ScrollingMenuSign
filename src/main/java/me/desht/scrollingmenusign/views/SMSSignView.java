@@ -95,7 +95,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		String[] res = new String[4];
 
 		// first line of the sign is the menu title
-		res[0] = String.format(makePrefix("", getTitleJustification()), getMenu().getTitle());
+		res[0] = String.format(makePrefix("", getTitleJustification()), variableSubs(getMenu().getTitle()));
 		
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
@@ -118,14 +118,14 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		if (prevPos < 1) {
 			prevPos = getMenu().getItemCount();
 		}
-		return getMenu().getItemAt(prevPos).getLabel();
+		return getItemLabel(prevPos);
 	}
 	
 	private String getLine3Item(int pos) {
 		if (getMenu().getItemCount() < 1) {
 			return "";
 		}
-		return getMenu().getItemAt(pos).getLabel();
+		return getItemLabel(pos);
 	}
 
 	private String getLine4Item(int pos) {
@@ -136,7 +136,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		if (nextPos > getMenu().getItemCount()) {
 			nextPos = 1;
 		}
-		return getMenu().getItemAt(nextPos).getLabel();
+		return getItemLabel(nextPos);
 	}
 	
 	private String makePrefix(String prefix, ViewJustification just) {

@@ -122,7 +122,7 @@ public class ParsedCommand {
 						try {
 							costs.add(new Cost(c));
 						} catch (IllegalArgumentException e) {
-							throw new SMSException(e.getMessage());
+							throw new SMSException(e.getMessage() + ": bad cost");
 						}
 					}
 				}

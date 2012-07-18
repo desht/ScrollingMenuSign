@@ -74,7 +74,7 @@ public class SMSMapRenderer extends MapRenderer {
 				         ChatColor.GRAY.toString() + ChatColor.ITALIC.toString() + "#" + Short.toString(smsMapView.getMapView().getId()));
 			} else {
 				// no spoutcraft - draw title as normal
-				String title = menu.getTitle();
+				String title = smsMapView.variableSubs(menu.getTitle());
 				drawText(canvas, smsMapView.getTitleJustification(), y, smsMapView.getMapFont(), title);
 				y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
 			}
@@ -89,8 +89,8 @@ public class SMSMapRenderer extends MapRenderer {
 			int current = smsMapView.getScrollPos(player.getName());
 			ViewJustification itemJust = smsMapView.getItemJustification();
 			for (int n = 0; n < nDisplayable; n++) {
-				SMSMenuItem item = menu.getItemAt(current);
-				String lineText = item == null ? "???" : item.getLabel();
+				String lineText = smsMapView.getItemLabel(current);
+				if (lineText == null) lineText = "???";
 				if (n == 0) {
 					lineText = prefix2 + lineText;
 				} else {

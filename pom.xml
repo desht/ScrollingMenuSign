@@ -112,14 +112,14 @@
 			<version>[1.1.1,)</version>
 			<scope>provided</scope>
 		</dependency>
-                <dependency>
-                        <groupId>me.desht</groupId>
-                        <artifactId>dhutils</artifactId>
-                        <version>[1.1.0,)</version>
-                </dependency>
-
+        <dependency>
+            <groupId>me.desht</groupId>
+            <artifactId>dhutils</artifactId>
+            <version>[1.1.0,)</version>
+        </dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 		</dependencies>
-	</dependencyManagement> </project>
+	</dependencyManagement>
+</project>

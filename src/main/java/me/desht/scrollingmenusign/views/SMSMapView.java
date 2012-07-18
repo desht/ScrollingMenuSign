@@ -174,7 +174,7 @@ public class SMSMapView extends SMSScrollableView {
 		allMapViews.put(mapView.getId(), this);
 
 		if (ScrollingMenuSign.getInstance().isSpoutEnabled()) {
-			SpoutUtils.setSpoutMapName(mapView.getId(), getMenu().getTitle());
+			SpoutUtils.setSpoutMapName(mapView.getId(), variableSubs(getMenu().getTitle()));
 		}
 
 		loadBackgroundImage();

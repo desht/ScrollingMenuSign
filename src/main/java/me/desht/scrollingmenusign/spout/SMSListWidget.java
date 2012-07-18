@@ -102,9 +102,13 @@ public class SMSListWidget extends GenericListWidget {
 
 	private void populateMenu() {
 		clear();
-		boolean showCommand = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.show_command_text") && PermissionUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
+		
+		boolean showCommand =
+				ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.show_command_text")
+				&& PermissionUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
+		
 		for (SMSMenuItem item : view.getMenu().getItems()) {
-			addItem(new ListWidgetItem(defaultTextColor + item.getLabel(), showCommand ? item.getCommand() : ""));
+			addItem(new ListWidgetItem(defaultTextColor + view.variableSubs(item.getLabel()), showCommand ? item.getCommand() : ""));
 		}
 	}
 	

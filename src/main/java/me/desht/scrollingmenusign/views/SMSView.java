@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
@@ -237,6 +239,35 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			return fallback;
 		}
 	}
+	
+	/**
+	 * Get the label text at the given scroll position, substituting any view variables.
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public String getItemLabel(int pos) {
+		String label =  getMenu().getItemAt(pos).getLabel();
+		
+		if (label == null)
+			return null;
+		
+		return variableSubs(label);
+	}
+	
+	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
+	
+	public String variableSubs(String text) {
+		Matcher m = viewVarSubPat.matcher(text);
+		StringBuffer sb = new StringBuffer(text.length());
+		while (m.find()) {
+			String repl = checkVariable(m.group(1)) ? getVariable(m.group(1)) : m.group(2);
+			m.appendReplacement(sb, Matcher.quoteReplacement(repl));
+		}
+		m.appendTail(sb);
+		return sb.toString();
+	}
+
 
 	public Map<String, Object> freeze() {
 		Map<String, Object> map = new HashMap<String, Object>();

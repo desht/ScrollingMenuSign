@@ -99,8 +99,8 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		if (!(menu instanceof SMSMenu))
 			return;
 
-		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ");
-		String prefix2 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ");
+		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
+		String prefix2 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
 
 		int current = getLastScrollPos();
 		int nDisplayable = height * 4 - 1;
@@ -391,6 +391,8 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private String formatLine(String prefix, String text, ViewJustification just) {
+		text = variableSubs(text);
+		
 		int l = 15 * width - prefix.length();
 		String s = "";
 		//		this regexp sadly doesn't work

@@ -134,8 +134,8 @@ public class CommandParser {
 
 	private static final Pattern promptPat = Pattern.compile("<\\$:(.+?)>");
 	private static final Pattern preDefPat = Pattern.compile("<([A-Z]+)>");
-	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)(:.*?)?>");
-	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+):(.*?)>");
+	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)(=.*?)?>");
+	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
 
 	/**
 	 * Substitute any user-defined variables (/sms var) in the command
@@ -162,6 +162,13 @@ public class CommandParser {
 		return sb.toString();
 	}
 
+	/**
+	 * Substitute any view-specific variable in the command
+	 * 
+	 * @param view
+	 * @param command
+	 * @return
+	 */
 	private String viewVarSubs(SMSView view, String command) {
 		Matcher m = viewVarSubPat.matcher(command);
 		StringBuffer sb = new StringBuffer(command.length());
@@ -173,6 +180,14 @@ public class CommandParser {
 		return sb.toString();
 	}
 
+	/**
+	 * Carry out all the predefined substitutions
+	 * 
+	 * @param player
+	 * @param view
+	 * @param command
+	 * @return
+	 */
 	private String preDefinedSubs(Player player, SMSView view, String command) {
 		Matcher m = preDefPat.matcher(command);
 		StringBuffer sb = new StringBuffer(command.length());
@@ -429,10 +444,6 @@ public class CommandParser {
 		cmd.setStatus(ReturnStatus.CMD_OK);
 		if (command.startsWith("/") && !cmd.isChat()) {
 			if (!Bukkit.getServer().dispatchCommand(sender, command.substring(1))) {
-
-				//				cmd.setStatus(ReturnStatus.CMD_FAILED);
-				//				cmd.setLastError("Execution of command '" + cmd.getCommand() + "' failed (unknown command?)");
-
 				// It's possible the command is OK, but some plugins insist on implementing commands by hooking
 				// chat events, and dispatchCommand() does not work for those.  So we'll try running the command
 				// via player.chat().  Sadly, player.chat() doesn't tell us if the command was found or not.
@@ -452,7 +463,7 @@ public class CommandParser {
 		} catch (Exception e) {
 			LogUtils.warning("Caught exception from " + ScrollingMenuSign.economy.getName() + " while trying to format quantity " + stake + ":");
 			e.printStackTrace();
-			LogUtils.warning("ChessCraft will continue but you should verify your economy plugin configuration.");
+			LogUtils.warning("ScrollingMenuSign will continue but you should verify your economy plugin configuration.");
 		}
 		return new DecimalFormat("#0.00").format(stake) + " ";
 	}
