@@ -134,7 +134,8 @@ public class CommandParser {
 
 	private static final Pattern promptPat = Pattern.compile("<\\$:(.+?)>");
 	private static final Pattern preDefPat = Pattern.compile("<([A-Z]+)>");
-	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)>");
+	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)(:.*?)?>");
+	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+):(.*?)>");
 
 	/**
 	 * Substitute any user-defined variables (/sms var) in the command
@@ -149,17 +150,30 @@ public class CommandParser {
 		StringBuffer sb = new StringBuffer(command.length());
 		while (m.find()) {
 			String repl = SMSVariables.get(player, m.group(1));
+			if (repl == null)
+				repl = m.group(2).substring(1);
 			if (repl == null) {
 				missing.add(m.group(1));
 			} else {
-				m.appendReplacement(sb, repl);
+				m.appendReplacement(sb, Matcher.quoteReplacement(repl));
 			}
 		}
 		m.appendTail(sb);
 		return sb.toString();
 	}
 
-	private String preDefinedSubs(Player player, String command, SMSView view) {
+	private String viewVarSubs(SMSView view, String command) {
+		Matcher m = viewVarSubPat.matcher(command);
+		StringBuffer sb = new StringBuffer(command.length());
+		while (m.find()) {
+			String repl = view != null && view.checkVariable(m.group(1)) ? view.getVariable(m.group(1)) : m.group(2);
+			m.appendReplacement(sb, Matcher.quoteReplacement(repl));
+		}
+		m.appendTail(sb);
+		return sb.toString();
+	}
+
+	private String preDefinedSubs(Player player, SMSView view, String command) {
 		Matcher m = preDefPat.matcher(command);
 		StringBuffer sb = new StringBuffer(command.length());
 		while (m.find()) {
@@ -216,7 +230,7 @@ public class CommandParser {
 			}
 
 			// make any predefined substitutions
-			command = preDefinedSubs(player, command, view);
+			command = preDefinedSubs(player, view, command);
 
 			// make any user-defined substitutions
 			Set<String> missing = new HashSet<String>();
@@ -226,6 +240,9 @@ public class CommandParser {
 			}
 		}
 
+		// make any view-specific substitutions
+		command = viewVarSubs(view, command);
+		
 		Scanner scanner = new Scanner(command);
 
 		ParsedCommand cmd = null;

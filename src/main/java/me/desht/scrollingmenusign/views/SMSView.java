@@ -188,6 +188,20 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return variables.get(key);
 	}
 	
+	/**
+	 * Check if the given view variable exists in this view.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean checkVariable(String key) {
+		return variables.containsKey(key);
+	}
+	
+	/**
+	 * Get a list of all variable names for this view.
+	 * @return
+	 */
 	public Set<String> listVariables() {
 		return variables.keySet();
 	}
