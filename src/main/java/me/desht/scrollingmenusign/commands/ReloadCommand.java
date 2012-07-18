@@ -49,6 +49,7 @@ public class ReloadCommand extends AbstractCommand {
 		}
 		if (loadAll || loadMenus) {
 			SMSPersistence.loadMenus();
+			SMSPersistence.loadViews();
 		}
 		if (loadAll || loadViews) {
 			SMSPersistence.loadViews();
