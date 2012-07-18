@@ -6,6 +6,8 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.material.Material;
+import org.getspout.spoutapi.material.MaterialData;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -21,8 +23,13 @@ public class SpoutUtils {
 	private static final Map<String, SMSSpoutKeyMap> wantedKeys = new HashMap<String, SMSSpoutKeyMap>();
 
 	public static void setSpoutMapName(short mapID, String name) {
-		new SMSSpoutMapItem(mapID).setName(name);
-//		MaterialData.getOrCreateMaterial(358, mapID).setName(name);
+//		new SMSSpoutMapItem(mapID).setName(name);
+		Material mat = MaterialData.getOrCreateMaterial(358, mapID);
+		if (mat == null) {
+			LogUtils.warning("can't get Spout material for 358:" + mapID + " (item tooltip will be missing)");
+		} else {
+			mat.setName(name);
+		}
 	}
 
 	public static void loadKeyDefinitions() {

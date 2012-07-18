@@ -617,7 +617,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 */
 	public boolean hasOwnerPermission(Player player) {
 		boolean ignore = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.ignore_view_ownership");
-		if (!ignore && !player.hasPermission("scrollingmenusign.ignoreViewOwnership")) {
+		if (!ignore && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.ignoreViewOwnership")) {
 			String owner = getAttributeAsString(OWNER);
 			if (owner != null && !owner.isEmpty() && !owner.equalsIgnoreCase(player.getName())) {
 				return false;

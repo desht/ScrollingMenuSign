@@ -326,6 +326,8 @@ public class SMSSpoutView extends SMSScrollableView {
 					if (v instanceof SMSSpoutView) {
 						if (!PermissionUtils.isAllowedTo(sp, "scrollingmenusign.use.spout"))
 							return false;
+						if (!v.hasOwnerPermission(sp))
+							return false;
 						((SMSSpoutView) v).toggleGUI(sp);
 						return true;
 					} else {

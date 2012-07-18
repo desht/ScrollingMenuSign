@@ -25,8 +25,8 @@ import org.getspout.spoutapi.player.SpoutPlayer;
  * 
  */
 public class SMSMapRenderer extends MapRenderer {
-	private static final String[] NOT_OWNER = { "&oThis map belongs", "&oto someone else." };
-	private static final String[] NO_PERM = { "&oYou do not have", "&opermission to use", "&omap views." };
+	private static final String[] NOT_OWNER = { "\u00a7oThis map belongs", "\u00a7to someone else." };
+	private static final String[] NO_PERM = { "\u00a7oYou do not have", "\u00a7permission to use", "\u00a7map menus." };
 
 	private final SMSMapView smsMapView;
 	
@@ -59,31 +59,25 @@ public class SMSMapRenderer extends MapRenderer {
 	}
 
 	private void drawMenu(MapCanvas canvas, Player player) {
-		// System.out.println("rendering " + smsMapView.getMenu().getName() + " on map_" + map.getId());
 		int y = smsMapView.getY();
 
 		SMSMenu menu = smsMapView.getMenu();
 
-		boolean drawTitle = true;
 		if (ScrollingMenuSign.getInstance().isSpoutEnabled()) {
 			// If the player is using Spoutcraft, then the menu title is already there,
 			// as the name of the map item (renamed in the SMSMapView setup phase), so we
 			// don't need to draw it again.
 			SpoutPlayer sPlayer = (SpoutPlayer) player;
 			if (sPlayer.isSpoutCraftEnabled()) { 
-				drawTitle = false;
+				// using spoutcraft
+				drawText(canvas, ViewJustification.RIGHT, 0, smsMapView.getMapFont(),
+				         ChatColor.GRAY.toString() + ChatColor.ITALIC.toString() + "#" + Short.toString(smsMapView.getMapView().getId()));
+			} else {
+				// no spoutcraft - draw title as normal
+				String title = menu.getTitle();
+				drawText(canvas, smsMapView.getTitleJustification(), y, smsMapView.getMapFont(), title);
+				y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
 			}
-		}
-
-		if (drawTitle) {
-			String title = menu.getTitle();
-			drawText(canvas, smsMapView.getTitleJustification(), y, smsMapView.getMapFont(), title);
-			y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
-		} else {
-			// using spout - "map_X" title isn't shown since the item name is overriden
-			// so show the id in the top right corner just for reference
-			drawText(canvas, ViewJustification.RIGHT, 0, smsMapView.getMapFont(),
-			         ChatColor.GRAY.toString() + ChatColor.ITALIC.toString() + "#" + Short.toString(smsMapView.getMapView().getId()));
 		}
 
 		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ");
