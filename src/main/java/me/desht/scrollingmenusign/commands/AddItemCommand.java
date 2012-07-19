@@ -59,10 +59,16 @@ public class AddItemCommand extends AbstractCommand {
 			throw new SMSException("You do not have permission to add that kind of command.");
 		}
 
-		menu.addItem(label, cmd, msg);
+//		if (menu.getItem(label) != null) {
+//			// item exists - replace it
+//			menu.replaceItem(label, cmd, msg);
+//			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- replaced in: &e" + menuName);
+//		} else {
+			menu.addItem(label, cmd, msg);
+			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- added to: &e" + menuName);	
+//		}
 		menu.notifyObservers(SMSMenuAction.REPAINT);
 
-		MiscUtil.statusMessage(sender, "Menu entry &f" + label + "&- added to: &e" + menuName);
 
 		return true;
 	}

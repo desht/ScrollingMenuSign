@@ -10,15 +10,13 @@ import java.util.Observable;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
-import me.desht.scrollingmenusign.views.SMSSignView;
+import me.desht.dhutils.MiscUtil;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -34,6 +32,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	private String title;
 	private String owner;
 	private List<SMSMenuItem> items;
+	private Map<String,Integer> itemMap;
 	private boolean autosave;
 	private boolean autosort;
 	private SMSRemainingUses uses;
@@ -95,59 +94,22 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
 		defaultCommand = node.getString("defaultCommand", "");
 
-		loadLegacyLocations(node);	
-
 		List<Map<String,Object>> items = (List<Map<String,Object>>) node.getList("items");
 		for (Map<String,Object> item : items) {
 			MemoryConfiguration itemNode = new MemoryConfiguration();
 			// need to expand here because the item may contain a usesRemaining object - item could contain a nested map
 			SMSPersistence.expandMapIntoConfig(itemNode, item);
 			SMSMenuItem menuItem = new SMSMenuItem(this, itemNode);
-			addItem(menuItem);
-		}
-	}
-
-
-	/**
-	 * In v0.5 and older, locations were in the menu object.  Now they are in the view
-	 * object.
-	 * 
-	 * @param node
-	 * @throws SMSException
-	 */
-	@SuppressWarnings("unchecked")
-	private void loadLegacyLocations(ConfigurationSection node) throws SMSException {
-		List<Object> locs = (List<Object>) node.getList("locations");
-		if (locs != null) {
-			// v0.3 or newer format - multiple locations per menu
-			for (Object o : locs) {
-				List<Object> locList = (List<Object>) o;
-				World w = MiscUtil.findWorld((String) locList.get(0));
-				Location loc = new Location(w, (Integer)locList.get(1), (Integer)locList.get(2), (Integer)locList.get(3));
-				try {
-					SMSView v = SMSSignView.addSignToMenu(this, loc);
-					SMSPersistence.save(v);
-				} catch (SMSException e) {
-					LogUtils.warning("Could not add sign to menu " + name + ": " + e.getMessage());
-				}
-				SMSPersistence.save(this);
-			}
-
-		} else {
-			// v0.2 or older
-			String worldName = node.getString("world");
-			if (worldName != null) {
-				World w = MiscUtil.findWorld(worldName);
-				List<Integer>locList = (List<Integer>) node.getList("location", null);
-				SMSView v = SMSSignView.addSignToMenu(this, new Location(w, locList.get(0), locList.get(1), locList.get(2)));
-				SMSPersistence.save(v);
-				SMSPersistence.save(this);
-			}
+			SMSMenuItem actual = menuItem.uniqueItem();
+			if (!actual.getLabel().equals(menuItem.getLabel()))
+				LogUtils.warning("Menu '" + getName() + "': duplicate item '" + menuItem.getLabelStripped() + "' renamed to '" + actual.getLabelStripped() + "'");
+			addItem(actual);
 		}
 	}
 
 	private void initCommon(String n, String t, String o) {
 		items = new ArrayList<SMSMenuItem>();
+		itemMap = new HashMap<String, Integer>();
 		name = n;
 		title = t;
 		owner = o;
@@ -327,48 +289,35 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * Get the menu item matching the given label
 	 * 
 	 * @param wanted	The label to match (case-insensitive)
-	 * @return			The menu item matching that index
+	 * @return			The menu item with that label, or null if no matching item
 	 */
 	public SMSMenuItem getItem(String wanted) {
-		if (wanted == null || wanted.isEmpty()) {
+		Integer idx = itemMap.get(ChatColor.stripColor(wanted));
+		if (idx == null)
 			return null;
-		}
-
-		try {
-			return items.get(indexOfItem(wanted) - 1);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return null;
-		}
+		return getItemAt(idx);
 	}
 
 	/**
 	 * Get the index of the item matching the given label
 	 * 
-	 * @param wanted	Label to match
-	 * @return			1-based item index
+	 * @param wanted	The label to match (case-insensitive)
+	 * @return			1-based item index, or -1 if no matching item
 	 */
 	public int indexOfItem(String wanted) {
 		int index = -1;
 		try {
 			index = Integer.parseInt(wanted);
 		} catch (NumberFormatException e) {
-			// not an integer - try to find it by label
-			String wantedClean = ChatColor.stripColor(wanted);
-			for (int i = 0; i < items.size(); i++) {
-				String label = ChatColor.stripColor(items.get(i).getLabel());
-				if (wantedClean.equalsIgnoreCase(label)) {
-					index = i + 1;
-					break;
-				}
-			};
+			String l = ChatColor.stripColor(wanted);
+			if (itemMap.containsKey(l))
+				index = itemMap.get(ChatColor.stripColor(wanted));
 		}
 		return index;
 	}
 
-
-
 	/**
-	 * Add a new item to the menu
+	 * Append a new item to the menu
 	 * 
 	 * @param label	Label of the item to add
 	 * @param command Command to be run when the item is selected
@@ -379,21 +328,102 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	/**
-	 * Add a new item to the menu
+	 * Append a new item to the menu
 	 * 
 	 * @param item	The item to be added
 	 */
 	void addItem(SMSMenuItem item) {
 		if (item == null)
 			throw new NullPointerException();
+		String l = item.getLabelStripped();
+		if (itemMap.containsKey(l)) {
+			throw new SMSException("Duplicate label '" + l + "' not allowed.");
+		}
 
 		items.add(item);
-		if (autosort)
+		itemMap.put(l, items.size());
+		if (autosort) {
 			Collections.sort(items);
-
+			rebuildItemMap();
+		}
+		
 		setChanged();
-
 		autosave();
+	}
+	
+	/**
+	 * Replace the existing menu item.  The label must already be present in the menu, 
+	 * or an exception will be thrown.
+	 * 
+	 * @param label	Label of the menu item
+	 * @param command	The command to be run
+	 * @param message	The feedback message
+	 * @throws SMSException if the label isn't present in the menu
+	 */
+	public void replaceItem(String label, String command, String message) {
+		replaceItem(new SMSMenuItem(this, label, command, message));
+	}
+	
+	/**
+	 * Replace the existing menu item
+	 * 
+	 * @param item	The menu item to replace
+	 * @throws SMSException if the label isn't present in the menu
+	 */
+	public void replaceItem(SMSMenuItem item) {
+		String l = item.getLabelStripped();
+		if (!itemMap.containsKey(l)) {
+			throw new SMSException("Label '" + l + "' is not in the menu.");
+		}
+		int idx = itemMap.get(l);
+		items.set(idx - 1, item);
+		itemMap.put(l, idx);
+		
+		setChanged();
+		autosave();
+	}
+	
+	/**
+	 * Replace the menu item at the given 1-based index.  The new label must not already be
+	 * present in the menu or an exception will be thrown.
+	 * 
+	 * @param idx
+	 * @param label
+	 * @param command
+	 * @param message
+	 */
+	public void replaceItem(int idx, String label, String command, String message) {
+		replaceItem(idx, new SMSMenuItem(this, label, command, message));
+	}
+	
+	/**
+	 * Replace the menu item at the given 1-based index.  The new label must not already be
+	 * present in the menu or an exception will be thrown.
+	 * 
+	 * @param idx
+	 * @param item
+	 */
+	public void replaceItem(int idx, SMSMenuItem item) {
+		String l = item.getLabelStripped();
+		if (itemMap.containsKey(l) && idx != itemMap.get(l)) {
+			throw new SMSException("Menu already contains an entry '" + l + ";");
+		}
+		items.set(idx - 1, item);
+		itemMap.put(l, idx);
+		
+		setChanged();
+		autosave();
+	}
+
+	/**
+	 * Rebuild the label->index mapping for the menu.  Needed if an item gets removed or
+	 * the menu order changes (sorting...)
+	 */
+	private void rebuildItemMap() {
+		itemMap.clear();
+		for (int i = 0; i < items.size(); i++) {
+			itemMap.put(items.get(i).getLabelStripped(), i+1);
+		}
 	}
 
 	/**
@@ -401,6 +431,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public void sortItems() {
 		Collections.sort(items);
+		rebuildItemMap();
 		setChanged();
 		autosave();
 	}
@@ -413,19 +444,12 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @throws IllegalArgumentException if the label does not exist in the menu
 	 */
 	public void removeItem(String indexStr) {
-		int index = -1;
+		Integer index = null;
 		try {
 			index = Integer.parseInt(indexStr);
 		} catch (NumberFormatException e) {
-			// not an integer - try to remove by label
-			for (int i = 0; i < items.size(); i++) {
-				String label = ChatColor.stripColor(items.get(i).getLabel());
-				if (indexStr.equalsIgnoreCase(label)) {
-					index = i + 1;
-					break;
-				}
-			}
-			if (index == -1)
+			index = itemMap.get(ChatColor.stripColor(indexStr));
+			if (index == null)
 				throw new IllegalArgumentException("No such label '" + indexStr + "'.");
 		}
 		removeItem(index);
@@ -439,8 +463,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	public void removeItem(int index) {
 		// Java lists are 0-indexed, our signs are 1-indexed
 		items.remove(index - 1);
+		rebuildItemMap();
 		setChanged();
-
 		autosave();
 	}
 
@@ -449,8 +473,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public void removeAllItems() {
 		items.clear();
+		itemMap.clear();
 		setChanged();
-
 		autosave();
 	}
 

@@ -56,6 +56,15 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	}
 
 	/**
+	 * Get the label for this menu item with all colour codes removed
+	 * 
+	 * @return	The label
+	 */
+	public String getLabelStripped() {
+		return ChatColor.stripColor(label);
+	}
+	
+	/**
 	 * Get the command for this menu item
 	 * 
 	 * @return	The command
@@ -259,10 +268,12 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/* (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 * 
+	 * Two menu items are equal if their labels are the same.  Colour codes do not count, only the text.
 	 */
 	@Override
 	public int compareTo(SMSMenuItem other) {
-		return ChatColor.stripColor(label).compareToIgnoreCase(ChatColor.stripColor(other.label));
+		return getLabelStripped().compareToIgnoreCase(other.getLabelStripped());
 	}
 
 	Map<String, Object> freeze() {
@@ -284,5 +295,20 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	@Override
 	public String getDescription() {
 		return "menu item";
+	}
+
+	SMSMenuItem uniqueItem() {
+		if (menu.getItem(getLabelStripped()) == null) {
+			return this;
+		}
+		// the label already exists in this menu - try to get a unique one
+		int n = 0;
+		String ls;
+		do {
+			n++;
+			ls = getLabelStripped() + "-" + n;
+		} while (menu.getItem(ls) != null);
+		
+		return new SMSMenuItem(menu, getLabel() + "-" + n, getCommand(), getMessage());
 	}
 }
