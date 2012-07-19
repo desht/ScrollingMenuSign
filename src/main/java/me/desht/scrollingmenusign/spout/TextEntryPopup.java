@@ -6,14 +6,13 @@ import java.util.Map;
 import java.util.Set;
 
 import me.desht.dhutils.DHUtilsException;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
-import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.getspout.spoutapi.gui.GenericLabel;
-import org.getspout.spoutapi.gui.GenericPopup;
 import org.getspout.spoutapi.gui.GenericTextField;
 import org.getspout.spoutapi.gui.Label;
 import org.getspout.spoutapi.gui.Screen;
@@ -21,7 +20,7 @@ import org.getspout.spoutapi.gui.TextField;
 import org.getspout.spoutapi.keyboard.Keyboard;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
-public class TextEntryPopup extends GenericPopup {
+public class TextEntryPopup extends SMSGenericPopup {
 	private static Map<String,TextEntryPopup> allPopups = new HashMap<String, TextEntryPopup>();
 	private static Set<String> visiblePopups = new HashSet<String>();
 	

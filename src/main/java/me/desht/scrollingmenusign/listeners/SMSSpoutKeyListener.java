@@ -3,13 +3,14 @@ package me.desht.scrollingmenusign.listeners;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
+import me.desht.scrollingmenusign.spout.SMSGenericPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.spout.TextEntryPopup;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -21,6 +22,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.getspout.spoutapi.event.input.KeyPressedEvent;
 import org.getspout.spoutapi.event.input.KeyReleasedEvent;
+import org.getspout.spoutapi.gui.PopupScreen;
 import org.getspout.spoutapi.gui.ScreenType;
 import org.getspout.spoutapi.keyboard.Keyboard;
 import org.getspout.spoutapi.player.SpoutPlayer;
@@ -47,7 +49,11 @@ public class SMSSpoutKeyListener implements Listener {
 		// only interested in keypresses on the main screen or one of our custom popups
 		if (event.getScreenType() != ScreenType.GAME_SCREEN && event.getScreenType() != ScreenType.CUSTOM_SCREEN)
 			return;
-
+		// and if there's a custom screen up belonging to another plugin, we stop here too
+		PopupScreen s  = player.getMainScreen().getActivePopup();
+		if (s != null && !(s instanceof SMSGenericPopup))
+			return;
+			
 		try {
 			// is there substitution textfield up?
 			if (TextEntryPopup.isPoppedUp(player)) {

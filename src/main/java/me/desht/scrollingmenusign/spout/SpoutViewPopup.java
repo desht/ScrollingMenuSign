@@ -5,13 +5,12 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
 import org.getspout.spoutapi.gui.GenericLabel;
-import org.getspout.spoutapi.gui.GenericPopup;
 import org.getspout.spoutapi.gui.Label;
 import org.getspout.spoutapi.gui.Screen;
 import org.getspout.spoutapi.gui.WidgetAnchor;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
-public class SpoutViewPopup extends GenericPopup {
+public class SpoutViewPopup extends SMSGenericPopup {
 	private static final int LIST_WIDTH = 200;
 	private static final int TITLE_HEIGHT = 15;
 	private static final int TITLE_WIDTH = 100;
