@@ -65,7 +65,7 @@ public class ViewCommand extends AbstractCommand {
 			showViewDetails(sender, view);
 		} else if (args[1].equals("-popup")) {
 			notFromConsole(sender);
-			PermissionUtils.requirePerms(sender, "scrollingmenusign.use.spout");
+			view.ensureAllowedToUse((Player) sender);
 			if (view instanceof SMSSpoutView) {
 				SMSSpoutView spv = (SMSSpoutView) view;
 				spv.toggleGUI((Player) sender);
