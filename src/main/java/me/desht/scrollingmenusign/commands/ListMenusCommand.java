@@ -51,7 +51,7 @@ public class ListMenusCommand extends AbstractCommand {
 	private void listMenu(MessagePager pager, SMSMenu menu, boolean listViews) {
 		List<SMSView> views = SMSView.getViewsForMenu(menu, true);
 
-		ChatColor itemCol = menu.getItemCount() > 0 ? ChatColor.YELLOW : ChatColor.RED;
+		ChatColor itemCol = menu.getItemCount() > 0 ? ChatColor.YELLOW : ChatColor.GOLD;
 		ChatColor viewCol = views.size() > 0 ? ChatColor.YELLOW : ChatColor.GOLD;
 		String ms = menu.getItemCount() == 1 ? "" : "s";
 		String vs = views.size() == 1 ? "" : "s";
