@@ -53,7 +53,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		super(name, menu);
 		setPerPlayerScrolling(false);
 		registerAttribute(RS_OUTPUT_MODE, RedstoneOutputMode.SELECTED);
-		registerAttribute(PULSE_TICKS, 20L);
+		registerAttribute(PULSE_TICKS, ScrollingMenuSign.getInstance().getConfig().getLong("sms.redstoneoutput.pulseticks", 20));
 		pulseResetTask = -1;
 	}
 
