@@ -23,6 +23,7 @@ public class ShowMenuCommand extends AbstractCommand {
 		super("sms sh", 0, 1);
 		setPermissionNode("scrollingmenusign.commands.show");
 		setUsage("/sms show <menu-name>");
+		setQuotedArgs(true);
 	}
 
 	@Override
