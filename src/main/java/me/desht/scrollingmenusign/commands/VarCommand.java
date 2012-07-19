@@ -36,7 +36,7 @@ public class VarCommand extends AbstractCommand {
 			SMSVariables vars = SMSVariables.getVariables(playerName, false);
 			MessagePager pager = MessagePager.getPager(sender).clear();
 			for (String key : vars.getVariables()) {
-				pager.add(key + " = &e'" + vars.get(key) + "&-'");	
+				pager.add(key + " = '&e" + vars.get(key) + "&-'");	
 			}
 			pager.showPage();
 

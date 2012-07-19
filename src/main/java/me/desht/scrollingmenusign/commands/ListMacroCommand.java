@@ -28,7 +28,7 @@ public class ListMacroCommand extends AbstractCommand {
 			SMSMacro m = SMSMacro.getMacro(args[0], false);
 			pager.add("&fMacro &e" + m.getName() + "&f [" + m.getLines().size() + " lines]:");
 			for (String l : m.getLines()) {
-				pager.add(" &e" + i++ + ") &f" + l);
+				pager.add(" &e" + i++ + ") &f" + l.replace(" && ", " &&&& "));
 			}
 		}
 		pager.showPage();

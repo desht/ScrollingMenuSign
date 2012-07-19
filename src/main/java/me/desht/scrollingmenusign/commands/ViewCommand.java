@@ -117,8 +117,8 @@ public class ViewCommand extends AbstractCommand {
 			SMSGlobalScrollableView gsv = (SMSGlobalScrollableView) view;
 			int nSwitches = gsv.getSwitches().size();
 			if (nSwitches > 0) {
-				String s = nSwitches > 1 ? "es"	: "";
-				pager.add("&f" + nSwitches + "&- output switch" + s + ":");
+				String s = nSwitches > 1 ? "s"	: "";
+				pager.add("&f" + nSwitches + "&- redstone output" + s + ":");
 				for (Switch sw: gsv.getSwitches()) {
 					pager.add(String.format("&5*&- &e%s&- @ &e%s",
 					                        sw.getTrigger(), MiscUtil.formatLocation(sw.getLocation())));

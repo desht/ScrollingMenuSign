@@ -71,8 +71,10 @@ public class ShowMenuCommand extends AbstractCommand {
 		List<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
-			String s = String.format("&e%2d) &f%s " + "&f[%s] \"%s\"&f &c%s",
-					n, item.getLabel(), item.getCommand(), item.getMessage(), item.formatUses(sender));
+			String message = item.getMessage().isEmpty() ? "" : "\"" + item.getMessage() + "\" ";
+			String command = item.getCommand().replace(" && ", " &&&& ");
+			String s = String.format("&e%2d) &f%s &7[%s] &e%s&c%s",
+					n, item.getLabel(), command, message, item.formatUses(sender));
 			n++;
 			pager.add(s);
 		}

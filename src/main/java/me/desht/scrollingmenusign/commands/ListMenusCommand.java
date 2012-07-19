@@ -52,7 +52,7 @@ public class ListMenusCommand extends AbstractCommand {
 		List<SMSView> views = SMSView.getViewsForMenu(menu, true);
 
 		ChatColor itemCol = menu.getItemCount() > 0 ? ChatColor.YELLOW : ChatColor.RED;
-		ChatColor viewCol = views.size() > 0 ? ChatColor.YELLOW : ChatColor.RED;
+		ChatColor viewCol = views.size() > 0 ? ChatColor.YELLOW : ChatColor.GOLD;
 		String ms = menu.getItemCount() == 1 ? "" : "s";
 		String vs = views.size() == 1 ? "" : "s";
 		String message = String.format("&4* &f%s \"%s&f\" %s[%d item%s] %s[%d view%s]",
