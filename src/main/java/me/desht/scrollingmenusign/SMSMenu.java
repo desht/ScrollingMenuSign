@@ -313,6 +313,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @throws SMSException if no matching item and mustExist is true
 	 */
 	public SMSMenuItem getItem(String wanted, boolean mustExist) {
+		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
+		
 		Integer idx = itemMap.get(ChatColor.stripColor(wanted));
 		if (idx == null) {
 			if (mustExist) {
@@ -331,6 +333,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @return			1-based item index, or -1 if no matching item
 	 */
 	public int indexOfItem(String wanted) {
+		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
+		
 		int index = -1;
 		try {
 			index = Integer.parseInt(wanted);
@@ -381,11 +385,13 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param pos	The position to insert (1-based index)
 	 */
 	public void insertItem(int pos, SMSMenuItem item) {
+		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
+	
 		if (item == null)
 			throw new NullPointerException();
 		String l = item.getLabelStripped();
 		if (itemMap.containsKey(l)) {
-			throw new SMSException("Duplicate label '" + l + "' not allowed.");
+			throw new SMSException("Duplicate label '" + l + "' not allowed in menu '" + getName() + "'.");
 		}
 
 		if (pos > items.size()) {
@@ -426,6 +432,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @throws SMSException if the label isn't present in the menu
 	 */
 	public void replaceItem(SMSMenuItem item) {
+		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
+		
 		String l = item.getLabelStripped();
 		if (!itemMap.containsKey(l)) {
 			throw new SMSException("Label '" + l + "' is not in the menu.");
@@ -459,6 +467,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param item
 	 */
 	public void replaceItem(int idx, SMSMenuItem item) {
+		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
+		
 		String l = item.getLabelStripped();
 		if (idx < 1 || idx > items.size()) {
 			throw new SMSException("Index " + idx + " out of range.");

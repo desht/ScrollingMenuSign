@@ -21,6 +21,7 @@ public class ListMenusCommand extends AbstractCommand {
 		super("sms l", 0, 1);
 		setPermissionNode("scrollingmenusign.commands.list");
 		setUsage("/sms list [<menu-name>]");
+		setQuotedArgs(true);
 	}
 
 	@Override

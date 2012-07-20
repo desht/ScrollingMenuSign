@@ -24,7 +24,14 @@ public class SpoutUtils {
 
 	public static void setSpoutMapName(short mapID, String name) {
 //		new SMSSpoutMapItem(mapID).setName(name);
-		Material mat = MaterialData.getOrCreateMaterial(358, mapID);
+		Material mat;
+		try {
+			mat = MaterialData.getOrCreateMaterial(358, mapID);
+		} catch (Exception e) {
+			LogUtils.warning("Spout problem: MaterialData.getOrCreateMaterial(358," + mapID +") threw Exception: " + e);
+			e.printStackTrace();
+			mat = null;
+		}
 		if (mat == null) {
 			LogUtils.warning("can't get Spout material for 358:" + mapID + " (item tooltip will be missing)");
 		} else {
