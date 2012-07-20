@@ -10,7 +10,6 @@ import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.spout.SMSGenericPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.spout.TextEntryPopup;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -55,12 +54,13 @@ public class SMSSpoutKeyListener implements Listener {
 			return;
 			
 		try {
-			// is there substitution textfield up?
-			if (TextEntryPopup.isPoppedUp(player)) {
-				TextEntryPopup.handleKeypress(player, event.getKey());
-				return;
-			}
-			// first see if any existing spout view has a mapping for the pressed keys
+			// is there a substitution textfield up for the player?
+//			if (TextEntryPopup.isPoppedUp(player)) {
+//				TextEntryPopup.handleKeypress(player, event.getKey());
+//				return;
+//			}
+			
+			// see if any existing spout view has a mapping for the pressed keys
 			if (SMSSpoutView.handleKeypress(player, pressed)) {
 				return;
 			}

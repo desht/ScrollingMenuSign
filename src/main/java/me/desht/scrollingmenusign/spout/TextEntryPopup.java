@@ -12,6 +12,8 @@ import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.getspout.spoutapi.event.screen.ButtonClickEvent;
+import org.getspout.spoutapi.gui.GenericButton;
 import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.GenericTextField;
 import org.getspout.spoutapi.gui.Label;
@@ -24,11 +26,13 @@ public class TextEntryPopup extends SMSGenericPopup {
 	private static Map<String,TextEntryPopup> allPopups = new HashMap<String, TextEntryPopup>();
 	private static Set<String> visiblePopups = new HashSet<String>();
 	
-	private static final String labelColour = ChatColor.YELLOW.toString();
+	private static final String LABEL_COLOUR = ChatColor.YELLOW.toString();
+	private static final int BUTTON_HEIGHT = 20;
 	
 	private final SpoutPlayer sp;
 	private final Label label;
 	private final TextField textField;
+	private final TextEntryButton okButton, cancelButton;
 	
 	public TextEntryPopup(SpoutPlayer sp, String prompt) {
 		this.sp = sp;
@@ -38,24 +42,30 @@ public class TextEntryPopup extends SMSGenericPopup {
 		int x = (mainScreen.getWidth() - width) / 2;
 		int y = mainScreen.getHeight() / 2 - 20;
 		
-		label = new GenericLabel(labelColour + prompt);
+		label = new GenericLabel(LABEL_COLOUR + prompt);
 		label.setX(x).setY(y).setWidth(width).setHeight(10);
+		y += label.getHeight() + 2;
 		
 		textField = new GenericTextField();
-		textField.setX(x).setY(y + label.getHeight() + 2).setWidth(width).setHeight(20);
+		textField.setX(x).setY(y).setWidth(width).setHeight(20);
 		textField.setFocus(true	);
 		textField.setMaximumCharacters(0);
+		y+= textField.getHeight() + 5;
 		
-		Label label2 = new GenericLabel(ChatColor.GRAY + "Press Return to confirm, or Escape to cancel");
-		label2.setX(x).setY(mainScreen.getHeight() - 50).setHeight(10);
+		okButton = new TextEntryButton("OK");
+		okButton.setX(x).setY(y).setHeight(BUTTON_HEIGHT);
+		cancelButton = new TextEntryButton("Cancel");
+		cancelButton.setX(x + okButton.getWidth() + 5).setY(y).setHeight(BUTTON_HEIGHT);
 		
-		this.attachWidget(ScrollingMenuSign.getInstance(), label);
-		this.attachWidget(ScrollingMenuSign.getInstance(), textField);
-		this.attachWidget(ScrollingMenuSign.getInstance(), label2);
+		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
+		this.attachWidget(plugin, label);
+		this.attachWidget(plugin, textField);
+		this.attachWidget(plugin, okButton);
+		this.attachWidget(plugin, cancelButton);
 	}
 	
 	private void setPrompt(String prompt) {
-		label.setText(labelColour + prompt);
+		label.setText(LABEL_COLOUR + prompt);
 		textField.setText("");
 	}
 
@@ -81,8 +91,6 @@ public class TextEntryPopup extends SMSGenericPopup {
 		
 		close();
 		visiblePopups.remove(sp.getName());
-		
-		sp.sendNotification("Command cancelled", "Escape pressed", Material.SIGN_POST);
 	}
 
 	public static void show(SpoutPlayer sp, String prompt) {
@@ -99,18 +107,18 @@ public class TextEntryPopup extends SMSGenericPopup {
 		visiblePopups.add(name);
 	}
 	
-	public static boolean isPoppedUp(SpoutPlayer sp) {
-		return visiblePopups.contains(sp.getName());
-	}
-
-	public static void handleKeypress(SpoutPlayer sp, Keyboard key) {
-		switch (key) {
-		case KEY_RETURN:
-			allPopups.get(sp.getName()).confirm();
-			break;
-		case KEY_ESCAPE:
-			allPopups.get(sp.getName()).cancel();
-			break;
+	private class TextEntryButton extends GenericButton {
+		TextEntryButton(String text) {
+			super(text);
+		}
+		
+		@Override
+		public void onButtonClick(ButtonClickEvent event) {
+			if (event.getButton() == okButton) {
+				confirm();
+			} else if (event.getButton() == cancelButton) {
+				cancel();
+			}
 		}
 	}
 }
