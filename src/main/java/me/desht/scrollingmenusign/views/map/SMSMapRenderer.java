@@ -2,22 +2,21 @@ package me.desht.scrollingmenusign.views.map;
 
 import java.awt.image.BufferedImage;
 
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.scrollingmenusign.views.SMSMapView;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapFont;
+import org.bukkit.map.MapFont.CharacterSprite;
 import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
-import org.bukkit.map.MapFont.CharacterSprite;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 /**

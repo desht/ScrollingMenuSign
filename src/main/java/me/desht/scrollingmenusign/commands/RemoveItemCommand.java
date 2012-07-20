@@ -13,7 +13,10 @@ public class RemoveItemCommand extends AbstractCommand {
 	public RemoveItemCommand() {
 		super("sms rem", 2, 2);
 		setPermissionNode("scrollingmenusign.commands.remove");
-		setUsage("/sms remove <menu-name> <item-index|item-label>");
+		setUsage(new String[] {
+			"/sms remove <menu-name> @<pos>",
+			"/sms remove <menu-name> <item-label>"
+		});
 		setQuotedArgs(true);
 	}
 
@@ -22,7 +25,13 @@ public class RemoveItemCommand extends AbstractCommand {
 
 		String menuName = args[0];
 		String item = args[1];
-
+		
+		if (item.matches("@[0-9]+")) {
+			// backwards compatibility - numeric indices should be prefixed with a '@'
+			// but we'll allow raw numbers to be used 
+			item = item.substring(1);
+		}
+		
 		try {
 			SMSMenu menu = SMSMenu.getMenu(menuName);
 			menu.removeItem(item);

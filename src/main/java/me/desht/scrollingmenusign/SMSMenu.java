@@ -275,16 +275,25 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * Get the item at the given numeric index
 	 * 
 	 * @param 	index	1-based numeric index
-	 * @return		The menu item at that index, or null if the index is out of range
+	 * @return		The menu item at that index or null if out of range and mustExist is false
+	 * @throws SMSException if the index is out of range and mustExist is true
 	 */
-	public SMSMenuItem getItemAt(int index) {
+	public SMSMenuItem getItemAt(int index, boolean mustExist) {
 		if (index < 1 || index > items.size()) {
-			return null;
+			if (mustExist) {
+				throw new SMSException("Index " + index + " out of range.");
+			} else {
+				return null;
+			}
 		} else {
 			return items.get(index - 1);
 		}
 	}
 
+	public SMSMenuItem getItemAt(int index) {
+		return getItemAt(index, false);
+	}
+	
 	/**
 	 * Get the menu item matching the given label
 	 * 
@@ -292,12 +301,29 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @return			The menu item with that label, or null if no matching item
 	 */
 	public SMSMenuItem getItem(String wanted) {
-		Integer idx = itemMap.get(ChatColor.stripColor(wanted));
-		if (idx == null)
-			return null;
-		return getItemAt(idx);
+		return getItem(wanted, false);
 	}
 
+	/**
+	 * Get the menu item matching the given label
+	 * 
+	 * @param wanted	The label to match (case-insensitive)
+	 * @param mustExist	If true and the label is not in the menu, throw an exception
+	 * @return			The menu item with that label, or null if no matching item and mustExist is false
+	 * @throws SMSException if no matching item and mustExist is true
+	 */
+	public SMSMenuItem getItem(String wanted, boolean mustExist) {
+		Integer idx = itemMap.get(ChatColor.stripColor(wanted));
+		if (idx == null) {
+			if (mustExist) {
+				throw new SMSException("No such item '" + wanted + "' in menu " + getName());
+			} else {
+				return null;
+			}
+		}
+		return getItemAt(idx);
+	}
+	
 	/**
 	 * Get the index of the item matching the given label
 	 * 
@@ -311,7 +337,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		} catch (NumberFormatException e) {
 			String l = ChatColor.stripColor(wanted);
 			if (itemMap.containsKey(l))
-				index = itemMap.get(ChatColor.stripColor(wanted));
+				index = itemMap.get(l);
 		}
 		return index;
 	}
@@ -333,6 +359,28 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param item	The item to be added
 	 */
 	void addItem(SMSMenuItem item) {
+		insertItem(items.size() + 1, item);
+	}
+	
+	/**
+	 * Insert new item in the menu, at the given position.
+	 * 
+	 * @param pos
+	 * @param label
+	 * @param command
+	 * @param message
+	 */
+	public void insertItem(int pos, String label, String command, String message) {
+		insertItem(pos, new SMSMenuItem(this, label, command, message));
+	}
+
+	/**
+	 * Insert a new item in the menu, at the given position.
+	 * 
+	 * @param item	The item to insert
+	 * @param pos	The position to insert (1-based index)
+	 */
+	public void insertItem(int pos, SMSMenuItem item) {
 		if (item == null)
 			throw new NullPointerException();
 		String l = item.getLabelStripped();
@@ -340,11 +388,17 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 			throw new SMSException("Duplicate label '" + l + "' not allowed.");
 		}
 
-		items.add(item);
-		itemMap.put(l, items.size());
+		if (pos > items.size()) {
+			items.add(item);
+			itemMap.put(l, items.size());
+		} else {
+			items.add(pos - 1, item);
+			rebuildItemMap();
+		}
+		
 		if (autosort) {
 			Collections.sort(items);
-			rebuildItemMap();
+			if (pos <= items.size()) rebuildItemMap();
 		}
 		
 		setChanged();
@@ -352,7 +406,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 	
 	/**
-	 * Replace the existing menu item.  The label must already be present in the menu, 
+	 * Replace an existing menu item.  The label must already be present in the menu, 
 	 * or an exception will be thrown.
 	 * 
 	 * @param label	Label of the menu item
@@ -365,7 +419,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 	
 	/**
-	 * Replace the existing menu item
+	 * Replace an existing menu item.  The label must already be present in the menu, 
+	 * or an exception will be thrown.
 	 * 
 	 * @param item	The menu item to replace
 	 * @throws SMSException if the label isn't present in the menu
@@ -385,7 +440,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	
 	/**
 	 * Replace the menu item at the given 1-based index.  The new label must not already be
-	 * present in the menu or an exception will be thrown.
+	 * present in the menu or an exception will be thrown - duplicates are not allowed.
 	 * 
 	 * @param idx
 	 * @param label
@@ -398,16 +453,20 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	
 	/**
 	 * Replace the menu item at the given 1-based index.  The new label must not already be
-	 * present in the menu or an exception will be thrown.
+	 * present in the menu or an exception will be thrown - duplicates are not allowed.
 	 * 
 	 * @param idx
 	 * @param item
 	 */
 	public void replaceItem(int idx, SMSMenuItem item) {
 		String l = item.getLabelStripped();
-		if (itemMap.containsKey(l) && idx != itemMap.get(l)) {
-			throw new SMSException("Menu already contains an entry '" + l + ";");
+		if (idx < 1 || idx > items.size()) {
+			throw new SMSException("Index " + idx + " out of range.");
 		}
+		if (itemMap.containsKey(l) && idx != itemMap.get(l)) {
+			throw new SMSException("Duplicate label '" + l + "' not allowed.");
+		}
+		itemMap.remove(items.get(idx - 1).getLabelStripped());
 		items.set(idx - 1, item);
 		itemMap.put(l, idx);
 		
@@ -416,8 +475,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	/**
-	 * Rebuild the label->index mapping for the menu.  Needed if an item gets removed or
-	 * the menu order changes (sorting...)
+	 * Rebuild the label->index mapping for the menu.  Needed if the menu order changes
+	 * (insertion, removal, sorting...)
 	 */
 	private void rebuildItemMap() {
 		itemMap.clear();
@@ -454,7 +513,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		}
 		removeItem(index);
 	}
-
+	
 	/**
 	 * Remove an item from the menu by numeric index
 	 * 
