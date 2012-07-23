@@ -192,18 +192,26 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		try {
 			Metrics metrics = new Metrics(this);
 
-			metrics.createGraph("Menu count").addPlotter(new Plotter() {
+			Graph graphM = metrics.createGraph("Menu/View/Macro count");
+			graphM.addPlotter(new Plotter("Menus") {
 				@Override
 				public int getValue() {
 					return SMSMenu.listMenus().size();
 				}
 			});
-			metrics.createGraph("Macro count").addPlotter(new Plotter() {
+			graphM.addPlotter(new Plotter("Views") {
+				@Override
+				public int getValue() {
+					return SMSView.listViews().size();
+				}
+			});
+			graphM.addPlotter(new Plotter("Macros") {
 				@Override
 				public int getValue() {
 					return SMSMacro.listMacros().size();
 				}
 			});
+			
 			Graph graphV = metrics.createGraph("View Types");
 			for (final Entry<String,Integer> e : SMSView.getViewCounts().entrySet()) {
 				graphV.addPlotter(new Plotter(e.getKey()) {
