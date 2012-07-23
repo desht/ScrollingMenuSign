@@ -55,7 +55,7 @@ public class ShowMenuCommand extends AbstractCommand {
 		}
 		
 		MessagePager pager = MessagePager.getPager(sender).clear();
-		String mo = menu.getOwner().isEmpty() ? "(no one)" : menu.getOwner();
+		String mo = menu.getOwner().isEmpty() ? "(no one)" : menu.getOwner().replace("&", "&&");
 		pager.add(String.format("Menu &e%s&-, Title \"&f%s&-\", Owner &e%s&-",
 		                                       menu.getName(),  menu.getTitle(), mo));
 		if (!menu.formatUses(sender).isEmpty()) {
