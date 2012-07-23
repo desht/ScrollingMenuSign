@@ -4,6 +4,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 
@@ -28,7 +29,9 @@ public class DeleteMenuCommand extends AbstractCommand {
 			menu = handler.getMenu(args[0]);
 		} else {
 			notFromConsole(sender);
-			menu = handler.getMenu(SMSMenu.getTargetedMenuSign((Player)sender, true));
+			SMSView v = SMSView.getTargetedView((Player) sender, true);
+			menu = v.getMenu();
+//			menu = handler.getMenu(SMSMenu.getTargetedMenuSign((Player)sender, true));
 		}
 		handler.deleteMenu(menu.getName());
 		MiscUtil.statusMessage(sender, "Deleted menu &e" + menu.getName());

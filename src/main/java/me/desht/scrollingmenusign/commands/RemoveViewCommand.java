@@ -1,13 +1,12 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.commands.AbstractCommand;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
-import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -43,12 +42,7 @@ public class RemoveViewCommand extends AbstractCommand {
 		} else if (args.length == 0) {
 			// detaching a view that the player is looking at?
 			notFromConsole(sender);
-			try {
-				Block b = ((Player)sender).getTargetBlock(null, 3);
-				view = SMSView.getViewForLocation(b.getLocation());
-			} catch (IllegalStateException e) {
-				// ignore
-			}
+			view = SMSView.getTargetedView((Player) sender);
 		}
 
 		if (view == null) {

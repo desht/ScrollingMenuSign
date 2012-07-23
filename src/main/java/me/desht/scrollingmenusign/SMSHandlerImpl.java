@@ -73,6 +73,7 @@ public class SMSHandlerImpl implements SMSHandler {
 	}
 
 	@Override
+	@Deprecated
 	public String getTargetedMenuSign(Player player, boolean complain) throws SMSException {
 		return SMSMenu.getTargetedMenuSign(player, complain);
 	}

@@ -66,6 +66,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
+	public static final int BLOCK_TARGET_DIST = 4;
+	
 	private final SMSPlayerListener playerListener = new SMSPlayerListener();
 	private final SMSBlockListener blockListener = new SMSBlockListener();
 	private final SMSEntityListener entityListener = new SMSEntityListener();

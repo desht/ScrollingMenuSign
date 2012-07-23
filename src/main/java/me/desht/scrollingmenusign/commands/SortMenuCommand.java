@@ -4,6 +4,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,7 +26,9 @@ public class SortMenuCommand extends AbstractCommand {
 			menu = SMSMenu.getMenu(args[0]);
 		} else {
 			notFromConsole(sender);
-			menu = SMSMenu.getMenu(SMSMenu.getTargetedMenuSign((Player)sender, true));
+			SMSView view = SMSView.getTargetedView((Player)sender, true);
+			menu = view.getMenu();
+//			menu = SMSMenu.getMenu(SMSMenu.getTargetedMenuSign((Player)sender, true));
 		}
 		
 		if (args.length >=2 && args[1].startsWith("a")) {	// autosort

@@ -717,11 +717,13 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param complain	Whether or not to throw an exception if there is no menu
 	 * @return	The menu name, or null if there is no menu and <b>complain</b> is false
 	 * @throws SMSException	if there is not menu and <b>complain</b> is true
+	 * @deprecated use SMSView.getTargetedView()
 	 */
+	@Deprecated
 	public static String getTargetedMenuSign(Player player, boolean complain) throws SMSException {
 		String name;
 		try {
-			Block b = player.getTargetBlock(null, 3);
+			Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
 			name = SMSMenu.getMenuNameAt(b.getLocation());
 			return name;
 		} catch (IllegalStateException e) {

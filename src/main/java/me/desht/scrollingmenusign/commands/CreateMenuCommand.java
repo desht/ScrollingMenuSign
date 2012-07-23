@@ -49,7 +49,7 @@ public class CreateMenuCommand extends AbstractCommand {
 			owner = sender.getName();
 			Block b = null;
 			try {
-				b = player.getTargetBlock(null, 3);
+				b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
 			} catch (IllegalStateException e) {
 				// ignore
 			}				

@@ -75,13 +75,13 @@ public class AddViewCommand extends AbstractCommand {
 			// see if we can get a view from what the player is looking at or holding
 			notFromConsole(sender);
 			Player player = (Player) sender;
-			if (player.getItemInHand().getType() == Material.MAP) {				// map view
+			if (player.getItemInHand().getType() == Material.MAP) {		// map view?
 				PermissionUtils.requirePerms(sender, "scrollingmenusign.use.map");
 				short mapId = player.getItemInHand().getDurability();
 				view = SMSMapView.addMapToMenu(menu, mapId);
 			} else {
 				try {
-					Block b = player.getTargetBlock(null, 3);						// sign view ?
+					Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);		// sign view ?
 					if (multiSign && b.getType() == Material.WALL_SIGN) {
 						view = SMSMultiSignView.addSignToMenu(menu, b.getLocation());
 					} else if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
@@ -96,7 +96,6 @@ public class AddViewCommand extends AbstractCommand {
 		if (view != null) {
 			MiscUtil.statusMessage(sender, String.format("Added &9%s&- view &e%s&- to menu &e%s&-.",
 			                                             view.getType(), view.getName(), menu.getName()));
-//			view.autosave();
 		} else {
 			throw new SMSException("Found nothing suitable to add as a menu view");
 		}

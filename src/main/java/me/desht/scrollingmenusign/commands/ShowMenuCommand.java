@@ -37,11 +37,7 @@ public class ShowMenuCommand extends AbstractCommand {
 		} else {
 			notFromConsole(sender);
 			Player player = (Player) sender;
-			try {
-				view = SMSView.getViewForLocation(player.getTargetBlock(null, 3).getLocation());
-			} catch (IllegalStateException e) {
-				// ignore - view remains null
-			}
+			view = SMSView.getTargetedView(player);
 			if (view == null) {
 				if (player.getItemInHand().getType() == Material.MAP) {		// map
 					short mapId = player.getItemInHand().getDurability();

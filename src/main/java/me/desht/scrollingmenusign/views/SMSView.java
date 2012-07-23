@@ -37,6 +37,7 @@ import me.desht.dhutils.PersistableLocation;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -654,6 +655,30 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return map;
 	}
 
+	/**
+	 * Get the view the player is currently looking at, if any.
+	 * 
+	 * @param player	The player
+	 * @return	The view being looked at, or null if no view.
+	 */
+	public static SMSView getTargetedView(Player player, boolean complain) {
+		SMSView v = null;
+		try {
+			Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
+			v =  getViewForLocation(b.getLocation());
+		} catch (IllegalStateException e) {
+			// the block iterator can throw this sometimes - we can ignore it
+		}
+		if (v == null && complain) {
+			throw new SMSException("You are not looking at a menu view.");
+		}
+		return v;
+	}
+	
+	public static SMSView getTargetedView(Player player) {
+		return getTargetedView(player, false);
+	}
+	
 	/**
 	 * Check if the given player is allowed to use this view.
 	 * 

@@ -104,7 +104,7 @@ public class SMSRedstoneView extends SMSView {
 					}
 				} else {
 					// no affected players - run this as a console command
-					item.executeCommand(Bukkit.getConsoleSender());
+					item.executeCommand(Bukkit.getConsoleSender(), this);
 				}
 			} else {
 				LogUtils.warning("No such menu item '" + label + "' in menu " + getMenu().getName());

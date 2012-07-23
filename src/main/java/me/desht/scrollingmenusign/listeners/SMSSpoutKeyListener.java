@@ -15,7 +15,6 @@ import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -101,12 +100,7 @@ public class SMSSpoutKeyListener implements Listener {
 		}
 		// check if user is looking at a sign view...
 		if (view == null) {
-			try {
-				Block block = player.getTargetBlock(null, 3);
-				view = SMSView.getViewForLocation(block.getLocation());
-			} catch (IllegalStateException e) {
-				// ignore - view remains null
-			}
+			view = SMSView.getTargetedView(player);
 		}
 		
 		return view;

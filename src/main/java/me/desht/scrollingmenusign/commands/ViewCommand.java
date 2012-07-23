@@ -4,6 +4,7 @@ import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.RedstoneControlSign;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
@@ -38,12 +39,7 @@ public class ViewCommand extends AbstractCommand {
 		} else {
 			notFromConsole(sender);
 			Player player = (Player)sender;
-			try {
-				Block b = player.getTargetBlock(null, 3);
-				view = SMSView.getViewForLocation(b.getLocation());
-			} catch (IllegalStateException e) {
-				view = null;
-			}
+			view = SMSView.getTargetedView(player);
 			if (view == null) {
 				view = SMSMapView.getHeldMapView(player);
 			}
@@ -139,7 +135,7 @@ public class ViewCommand extends AbstractCommand {
 			return false;
 		}
 		try {
-			Block b = ((Player) sender).getTargetBlock(null, 3);
+			Block b = ((Player) sender).getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
 			Switch sw = Switch.getSwitchAt(b.getLocation());
 			if (sw != null) {
 				MiscUtil.statusMessage(sender, String.format("Output switch @ &e%s&- for view &e%s&- / &e%s&-",
