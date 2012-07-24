@@ -52,6 +52,8 @@ public class SMSPlayerListener implements Listener {
 			event.setCancelled(cancelEvent);
 		} catch (SMSException e) {
 			MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
+		} catch (DHUtilsException e) {
+			MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
 		}
 	}
 
