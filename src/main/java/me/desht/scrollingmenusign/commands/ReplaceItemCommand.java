@@ -4,6 +4,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 
 import org.bukkit.command.CommandSender;
@@ -62,6 +63,8 @@ public class ReplaceItemCommand extends AbstractCommand {
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- replaced in &e" + menuName + "&-");
 		}
 		
+		menu.notifyObservers(SMSMenuAction.REPAINT);
+
 		return true;
 	}
 	
