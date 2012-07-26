@@ -13,12 +13,18 @@ import org.bukkit.entity.Player;
 public class ExpectCommandSubstitution extends ExpectBase {
 	private final String command;
 	private final SMSView view;
+	private final boolean isPassword;
 
 	private String sub;
 	
-	public ExpectCommandSubstitution(String command, SMSView view) {
+	public ExpectCommandSubstitution(String command, SMSView view, boolean isPassword) {
 		this.command = command;
 		this.view = view;
+		this.isPassword = isPassword;
+	}
+	
+	public ExpectCommandSubstitution(String command, SMSView view) {
+		this(command, view, false);
 	}
 
 	public String getCommand() {
@@ -33,9 +39,19 @@ public class ExpectCommandSubstitution extends ExpectBase {
 		this.sub = sub;
 	}
 
+	public boolean isPassword() {
+		return isPassword;
+	}
+
 	@Override
 	public void doResponse(String playerName) {
-		String newCommand = command.replaceFirst("<\\$:.+?>", sub);
+		String newCommand;
+		if (isPassword) {
+			newCommand = command.replaceFirst("<\\$p:.+?>", sub);
+		} else {
+			newCommand = command.replaceFirst("<\\$:.+?>", sub);	
+		}
+		
 		LogUtils.fine("command substitution: sub = [" + sub + "], cmd = [" + newCommand + "]");
 		try {
 			Player player = Bukkit.getPlayer(playerName);

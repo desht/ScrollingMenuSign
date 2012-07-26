@@ -11,7 +11,6 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.getspout.spoutapi.event.screen.ButtonClickEvent;
 import org.getspout.spoutapi.gui.GenericButton;
 import org.getspout.spoutapi.gui.GenericLabel;
@@ -19,7 +18,6 @@ import org.getspout.spoutapi.gui.GenericTextField;
 import org.getspout.spoutapi.gui.Label;
 import org.getspout.spoutapi.gui.Screen;
 import org.getspout.spoutapi.gui.TextField;
-import org.getspout.spoutapi.keyboard.Keyboard;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class TextEntryPopup extends SMSGenericPopup {
@@ -64,6 +62,10 @@ public class TextEntryPopup extends SMSGenericPopup {
 		this.attachWidget(plugin, cancelButton);
 	}
 	
+	public void setPasswordField(boolean isPassword) {
+		textField.setPasswordField(isPassword);
+	}
+	
 	private void setPrompt(String prompt) {
 		label.setText(LABEL_COLOUR + prompt);
 		textField.setText("");
@@ -103,6 +105,13 @@ public class TextEntryPopup extends SMSGenericPopup {
 			popup = allPopups.get(name);
 			popup.setPrompt(prompt);
 		}
+		
+		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
+		if (plugin.responseHandler.isExpecting(sp.getName(), ExpectCommandSubstitution.class)) {
+			ExpectCommandSubstitution cs = plugin.responseHandler.getAction(sp.getName(), ExpectCommandSubstitution.class);
+			popup.setPasswordField(cs.isPassword());
+		}
+		
 		sp.getMainScreen().attachPopupScreen(popup);
 		visiblePopups.add(name);
 	}

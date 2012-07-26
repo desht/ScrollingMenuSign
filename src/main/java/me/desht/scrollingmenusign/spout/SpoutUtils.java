@@ -10,8 +10,10 @@ import org.getspout.spoutapi.material.Material;
 import org.getspout.spoutapi.material.MaterialData;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.LogUtils;
+import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -88,5 +90,13 @@ public class SpoutUtils {
 			}
 		});
 		return true;
+	}
+
+	public static void setupPasswordPrompt(Player player, String command, SMSView view) {
+		SpoutPlayer sp = (SpoutPlayer)player;
+		if (!sp.isSpoutCraftEnabled()) {
+			throw new SMSException("Password prompting is only supported when using Spoutcraft.");
+		}
+		ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command, view, true));
 	}
 }

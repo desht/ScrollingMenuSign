@@ -23,6 +23,7 @@ import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
+import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Bukkit;
@@ -33,6 +34,12 @@ import com.google.common.base.Joiner;
 
 public class CommandParser {
 
+	private static final Pattern promptPat = Pattern.compile("<\\$:(.+?)>");
+	private static final Pattern passwordPat = Pattern.compile("<\\$p:(.+?)>");
+	private static final Pattern preDefPat = Pattern.compile("<([A-Z]+)>");
+	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)(=.*?)?>");
+	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
+	
 	private enum RunMode { CHECK_PERMS, EXECUTE };
 
 	private static Logger cmdLogger = null;
@@ -132,10 +139,6 @@ public class CommandParser {
 		return cmd == null || cmd.getStatus() == ReturnStatus.CMD_OK;
 	}
 
-	private static final Pattern promptPat = Pattern.compile("<\\$:(.+?)>");
-	private static final Pattern preDefPat = Pattern.compile("<([A-Z]+)>");
-	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)(=.*?)?>");
-	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
 
 	/**
 	 * Substitute any user-defined variables (/sms var) in the command
@@ -238,10 +241,18 @@ public class CommandParser {
 			Player player = (Player) sender;
 
 			// see if an interactive substitution is needed
-			Matcher m = promptPat.matcher(command);
-			if (m.find() && m.groupCount() > 0 && mode == RunMode.EXECUTE) {
-				ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command, view));
-				return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
+			if (mode == RunMode.EXECUTE) {
+				Matcher m = promptPat.matcher(command);
+				if (m.find() && m.groupCount() > 0) {
+					ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command, view));
+					return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
+				} else {
+					m = passwordPat.matcher(command);
+					if (m.find() && m.groupCount() > 0 && ScrollingMenuSign.getInstance().isSpoutEnabled()) {
+						SpoutUtils.setupPasswordPrompt(player, command, view);
+						return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
+					}
+				}
 			}
 
 			// make any predefined substitutions
@@ -257,7 +268,7 @@ public class CommandParser {
 
 		// make any view-specific substitutions
 		command = viewVarSubs(view, command);
-		
+
 		Scanner scanner = new Scanner(command);
 
 		ParsedCommand cmd = null;
