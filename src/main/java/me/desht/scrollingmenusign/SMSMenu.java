@@ -474,7 +474,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 			throw new SMSException("Index " + idx + " out of range.");
 		}
 		if (itemMap.containsKey(l) && idx != itemMap.get(l)) {
-			throw new SMSException("Duplicate label '" + l + "' not allowed.");
+			throw new SMSException("Duplicate label '" + l + "' not allowed in menu '" + getName() + "'.");
 		}
 		itemMap.remove(items.get(idx - 1).getLabelStripped());
 		items.set(idx - 1, item);
@@ -519,7 +519,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		} catch (NumberFormatException e) {
 			index = itemMap.get(ChatColor.stripColor(indexStr));
 			if (index == null)
-				throw new IllegalArgumentException("No such label '" + indexStr + "'.");
+				throw new SMSException("No such label '" + indexStr + "' in menu '" + getName() + "'.");
 		}
 		removeItem(index);
 	}
