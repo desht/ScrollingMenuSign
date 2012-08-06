@@ -9,6 +9,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
@@ -20,6 +21,7 @@ import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -197,6 +199,10 @@ public class SMSPlayerListener implements Listener {
 				SMSUserAction action = SMSUserAction.getAction(event);
 				if (action != null) {
 					action.execute(player, locView);
+				}
+				if (event.getAction() == Action.LEFT_CLICK_BLOCK && player.getGameMode() == GameMode.CREATIVE) {
+					// left clicking a sign in creative mode even once will blank the sign
+					locView.update(locView.getMenu(), SMSMenuAction.REPAINT);
 				}
 			} else {
 				return false;
