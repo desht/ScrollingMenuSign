@@ -12,7 +12,6 @@ import java.util.TreeSet;
 
 import me.desht.dhutils.PermissionUtils;
 
-import org.apache.commons.io.FilenameUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -261,7 +260,8 @@ public class SMSVariables implements SMSPersistable {
 
 	static void load(File f) {
 		YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
-		String playerName = FilenameUtils.removeExtension(f.getName());
+//		String playerName = FilenameUtils.removeExtension(f.getName());
+		String playerName = f.getName().replaceAll("\\.yml$", "");
 		SMSVariables vars = getVariables(playerName, true);
 
 		for (String key : conf.getKeys(false)) {

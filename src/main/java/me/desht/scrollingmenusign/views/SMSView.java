@@ -761,12 +761,12 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		} catch (IllegalArgumentException e) {
 			loadError(viewName, e);
 		} catch (InvocationTargetException e) {
-			loadError(viewName, e);
+			loadError(viewName, e.getCause());
 		}
 		return null;
 	}
 
-	private static void loadError(String viewName, Exception e) {
+	private static void loadError(String viewName, Throwable e) {
 		LogUtils.warning("Caught " + e.getClass().getName() + " while loading view " + viewName);
 		LogUtils.warning("  Exception message: " + e.getMessage());
 	}
