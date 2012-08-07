@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.expector;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.responsehandler.ExpectBase;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.dhutils.LogUtils;
@@ -45,7 +46,7 @@ public class ExpectCommandSubstitution extends ExpectBase {
 
 	@Override
 	public void doResponse(String playerName) {
-		String newCommand;
+		final String newCommand;
 		if (isPassword) {
 			newCommand = command.replaceFirst("<\\$p:.+?>", sub);
 		} else {
@@ -54,9 +55,14 @@ public class ExpectCommandSubstitution extends ExpectBase {
 		
 		LogUtils.fine("command substitution: sub = [" + sub + "], cmd = [" + newCommand + "]");
 		try {
-			Player player = Bukkit.getPlayer(playerName);
+			final Player player = Bukkit.getPlayer(playerName);
 			if (player != null) {
-				CommandUtils.executeCommand(player, newCommand, view);
+				// Using the scheduler here because this response handler is called by the AsyncPlayerChatEvent
+				// event handler, which runs in a different thread.
+				Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
+					@Override
+					public void run() { CommandUtils.executeCommand(player, newCommand, view);	}
+				});
 			}
 		} catch (SMSException e) {
 			throw new DHUtilsException(e.getMessage());
