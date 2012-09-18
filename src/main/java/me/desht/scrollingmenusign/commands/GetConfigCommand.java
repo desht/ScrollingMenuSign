@@ -2,7 +2,9 @@ package me.desht.scrollingmenusign.commands;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MessagePager;
@@ -11,6 +13,7 @@ import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
 public class GetConfigCommand extends AbstractCommand {
@@ -22,30 +25,50 @@ public class GetConfigCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {	
-		MessagePager pager = MessagePager.getPager(sender).clear();
-
-		if (args.length == 0) {
-			for (String line : getPluginConfiguration()) {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
+		List<String> lines = getPluginConfiguration(args.length >= 1 ? args[0] : null);
+		if (lines.size() > 1) {
+			MessagePager pager = MessagePager.getPager(sender).clear();
+			for (String line : lines) {
 				pager.add(line);
 			}
-			pager.showPage();
+			pager.showPage();		
+		} else if (lines.size() == 1) {
+			MiscUtil.statusMessage(sender, lines.get(0));
 		} else {
-			String key = args[0];
-			Object res = ((ScrollingMenuSign) plugin).getConfigManager().get(key);
-			MiscUtil.statusMessage(sender, "&f" + key + " = '&e" + res + "&-'");
+			MiscUtil.errorMessage(sender, "No such config key: " + args[0]); //$NON-NLS-1$	
 		}
-
 		return true;
 	}
 
-	private static List<String> getPluginConfiguration() {
+	public List<String> getPluginConfiguration() {
+		return getPluginConfiguration(null);
+	}
+
+	public List<String> getPluginConfiguration(String section) {
 		ArrayList<String> res = new ArrayList<String>();
 		Configuration config = ScrollingMenuSign.getInstance().getConfig();
-		for (String k : config.getDefaults().getKeys(true)) {
-			if (config.isConfigurationSection(k))
+		ConfigurationSection cs = config.getRoot();
+
+		Set<String> items;
+		if (section == null) {
+			items = config.getDefaults().getKeys(true);
+		} else {
+			section = "sms." + section;
+			if (config.getDefaults().isConfigurationSection(section)) {
+				cs = config.getConfigurationSection(section);
+				items = config.getDefaults().getConfigurationSection(section).getKeys(true);
+			} else {
+				items = new HashSet<String>();
+				if (config.getDefaults().contains(section))
+					items.add(section);
+			}
+		}
+
+		for (String k : items) {
+			if (cs.isConfigurationSection(k))
 				continue;
-			res.add("&f" + k.replaceAll("^sms\\.", "") + "&- = '&e" + config.get(k) + "&-'");
+			res.add("&f" + k.replaceAll("^sms\\.", "") + "&- = '&e" + cs.get(k) + "&-'");
 		}
 		Collections.sort(res);
 		return res;
