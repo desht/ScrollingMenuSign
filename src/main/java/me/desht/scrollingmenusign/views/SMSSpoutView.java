@@ -76,6 +76,8 @@ public class SMSSpoutView extends SMSScrollableView {
 		if (!sp.isSpoutCraftEnabled())
 			return;
 
+		LogUtils.fine("showing Spout GUI for " + getName());
+
 		if (!popups.containsKey(sp.getName())) {
 			// create a new gui for this player
 			popups.put(sp.getName(), new SpoutViewPopup(sp, this));
@@ -96,10 +98,11 @@ public class SMSSpoutView extends SMSScrollableView {
 		if (!sp.isSpoutCraftEnabled())
 			return;
 
-		if (!popups.containsKey(sp.getName())) {
+		if (!popups.containsKey(sp.getName()) || !activePopups.containsKey(sp.getName())) {
 			return;
 		}
 
+		LogUtils.fine("hiding Spout GUI for " + getName());
 		activePopups.remove(sp.getName());
 		popups.get(sp.getName()).popdown();
 
@@ -130,7 +133,7 @@ public class SMSSpoutView extends SMSScrollableView {
 					public void run() {
 						showGUI(sp);	
 					}
-				});
+				}, 3L);
 			} else {
 				hideGUI(sp);
 			}

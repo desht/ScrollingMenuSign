@@ -73,7 +73,7 @@ public class SpoutViewPopup extends SMSGenericPopup {
 		LogUtils.fine("scroll to " + scrollPos + " = " + listWidget.getSelectedItem().getTitle());
 	}
 
-	public void popup() {	
+	public void popup() {
 		poppedUp = true;
 		sp.getMainScreen().attachPopupScreen(this);
 	}
