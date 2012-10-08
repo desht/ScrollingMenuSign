@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.Cost;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
@@ -258,6 +259,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 		if (economyProvider != null) {
 			economy = economyProvider.getProvider();
+			Cost.setEconomy(economy);
 		}
 
 		return (economy != null);

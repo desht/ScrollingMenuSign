@@ -11,6 +11,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
+import me.desht.dhutils.Cost;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
