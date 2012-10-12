@@ -163,9 +163,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		} catch (DHUtilsException e) {
 			MiscUtil.errorMessage(sender, e.getMessage());
 			return true;
-		} catch (SMSException e) {
-			MiscUtil.errorMessage(sender, e.getMessage());
-			return true;
 		}
 	}
 

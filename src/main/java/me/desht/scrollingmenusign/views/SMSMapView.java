@@ -379,16 +379,19 @@ public class SMSMapView extends SMSScrollableView {
 	 * @return	The SMSMapView object that was just created
 	 * @throws SMSException if the given mapId is already a view
 	 */	
-	public static SMSMapView addMapToMenu(SMSMenu menu, short mapId) throws SMSException {
+	public static SMSMapView addMapToMenu(String viewName, SMSMenu menu, short mapId) throws SMSException {
 		if (SMSMapView.checkForMapId(mapId)) {
 			throw new SMSException("This map already has a menu view associated with it");
 		}
-		SMSMapView mapView = new SMSMapView(menu);
+		SMSMapView mapView = new SMSMapView(viewName, menu);
 		mapView.register();
 		mapView.setMapId(mapId);
 		mapView.update(menu, SMSMenuAction.REPAINT);
 
 		return mapView;		
+	}
+	public static SMSMapView addMapToMenu(SMSMenu menu, short mapId) throws SMSException {
+		return addMapToMenu(null, menu, mapId);
 	}
 
 	/**

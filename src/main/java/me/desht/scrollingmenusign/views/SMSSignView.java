@@ -208,11 +208,14 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	 * @return		The newly-created view
 	 * @throws SMSException	if the given location is not a suitable location for a new view
 	 */
-	public static SMSView addSignToMenu(SMSMenu menu, Location loc) throws SMSException {
-		SMSView view = new SMSSignView(menu, loc);
+	public static SMSView addSignToMenu(String viewName, SMSMenu menu, Location loc) throws SMSException {
+		SMSView view = new SMSSignView(viewName, menu, loc);
 		view.register();
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
+	}
+	public static SMSView addSignToMenu(SMSMenu menu, Location loc) throws SMSException {
+		return addSignToMenu(null, menu, loc);
 	}
 	
 	/* (non-Javadoc)

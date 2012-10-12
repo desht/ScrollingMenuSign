@@ -302,7 +302,10 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * @throws SMSException 
 	 */
 	public static SMSView addSpoutViewToMenu(SMSMenu menu) throws SMSException {
-		SMSView view = new SMSSpoutView(menu);
+		return addSpoutViewToMenu(null, menu);
+	}
+	public static SMSView addSpoutViewToMenu(String viewName, SMSMenu menu) throws SMSException {
+		SMSView view = new SMSSpoutView(viewName, menu);
 		view.register();
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;

@@ -24,9 +24,10 @@ import org.bukkit.plugin.Plugin;
 public class AddViewCommand extends AbstractCommand {
 
 	public AddViewCommand() {
-		super("sms sy", 1, 3);
+		super("sms sy", 1);
 		setPermissionNode("scrollingmenusign.commands.sync");
 		setUsage("/sms sync <menu-name> [-map <id>|-sign <loc>|-spout]");
+		setOptions("map:i,sign,spout,redstone,multi,viewname:s,loc:s");	
 	}
 
 	@Override
@@ -35,40 +36,39 @@ public class AddViewCommand extends AbstractCommand {
 		
 		SMSView view = null;
 		SMSMenu menu = SMSMenu.getMenu(args[0]);
+		String viewName = getStringOption("viewname");
+		Location loc = hasOption("loc") ? MiscUtil.parseLocation(getStringOption("loc")) : null;
 
-		boolean multiSign = false;
-		
-		if (args.length == 2 && args[1].equalsIgnoreCase("-spout")) {		// spout view
+		if (hasOption("spout")) {		// spout view
 			if (smsPlugin.isSpoutEnabled())
-				view = SMSSpoutView.addSpoutViewToMenu(menu);
+				view = SMSSpoutView.addSpoutViewToMenu(viewName, menu);
 			else
 				throw new SMSException("Server is not Spout-enabled");
-		} else if (args.length == 3 && args[1].equalsIgnoreCase("-sign")) {			// sign view
-			Location loc = MiscUtil.parseLocation(args[2], sender);
-			view = SMSSignView.addSignToMenu(menu, loc);
-		}  else if (args.length == 3 && args[1].equalsIgnoreCase("-redstone")) {	// redstone view
-			Location loc = MiscUtil.parseLocation(args[2], sender);
-			view = SMSRedstoneView.addRedstoneViewToMenu(menu, loc);
-		} else if (args.length == 2 && (args[1].equalsIgnoreCase("-sign") || args[1].equalsIgnoreCase("-redstone"))) {
-			// create a new view interactively
-			notFromConsole(sender);
-			String type = args[1].substring(1);
-			MiscUtil.statusMessage(sender, "Left-click a block to add it as a &9" + type + "&- view on menu &e" + menu.getName() + "&-.");
-			MiscUtil.statusMessage(sender, "Right-click anywhere to cancel.");
-			smsPlugin.responseHandler.expect(sender.getName(), new ExpectViewCreation(menu, args[1]));
-			return true;
-		} else if (args.length == 2 && args[1].equalsIgnoreCase("-multi")) { 	// multi-sign view
-			multiSign = true;
-		} else if (args.length == 3 && args[1].equalsIgnoreCase("-map")) {	// map view
+		} else if (hasOption("sign")) {			// sign view
+			if (loc == null) {
+				interactiveCreation(sender, viewName, menu, "sign");
+				return true;
+			} else {
+				view = SMSSignView.addSignToMenu(viewName, menu, loc);
+			}
+		} else if (hasOption("redstone")) {	
+			if (loc == null) {
+				interactiveCreation(sender, viewName, menu, "redstone");
+				return true;
+			} else {
+				view = SMSRedstoneView.addRedstoneViewToMenu(viewName, menu, loc);
+			}
+		} else if (hasOption("multi") && loc != null) { 	// multi-sign view
+			view = SMSMultiSignView.addSignToMenu(viewName, menu, loc);
+		} else if (hasOption("map")) {	// map view
 			try {
-				short mapId = Short.parseShort(args[2]);
-				view = SMSMapView.addMapToMenu(menu, mapId);
+				short mapId = (short) getIntOption("map");
+				view = SMSMapView.addMapToMenu(viewName, menu, mapId);
 			} catch (NumberFormatException e) {
 				throw new SMSException(e.getMessage());
 			}
 		} else if (args.length > 1) {
-			MiscUtil.errorMessage(sender, "Unknown view type: " + args[1]);
-			return false;
+			throw new SMSException("Unknown view type: " + args[1]);
 		}
 
 		if (view == null) {
@@ -78,14 +78,14 @@ public class AddViewCommand extends AbstractCommand {
 			if (player.getItemInHand().getType() == Material.MAP) {		// map view?
 				PermissionUtils.requirePerms(sender, "scrollingmenusign.use.map");
 				short mapId = player.getItemInHand().getDurability();
-				view = SMSMapView.addMapToMenu(menu, mapId);
+				view = SMSMapView.addMapToMenu(viewName, menu, mapId);
 			} else {
 				try {
 					Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);		// sign view ?
-					if (multiSign && b.getType() == Material.WALL_SIGN) {
-						view = SMSMultiSignView.addSignToMenu(menu, b.getLocation());
+					if (hasOption("multi") && b.getType() == Material.WALL_SIGN) {
+						view = SMSMultiSignView.addSignToMenu(viewName, menu, b.getLocation());
 					} else if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
-						view = SMSSignView.addSignToMenu(menu, b.getLocation());
+						view = SMSSignView.addSignToMenu(viewName, menu, b.getLocation());
 					}
 				} catch (IllegalStateException e) {
 					// ignore
@@ -103,4 +103,10 @@ public class AddViewCommand extends AbstractCommand {
 		return true;
 	}
 
+	private void interactiveCreation(CommandSender sender, String viewName, SMSMenu menu, String viewType) {
+		notFromConsole(sender);
+		MiscUtil.statusMessage(sender, "Left-click a block to add it as a &9" + viewType + "&- view on menu &e" + menu.getName() + "&-.");
+		MiscUtil.statusMessage(sender, "Right-click anywhere to cancel.");
+		ScrollingMenuSign.getInstance().responseHandler.expect(sender.getName(), new ExpectViewCreation(viewName, menu, viewType));
+	}
 }

@@ -1,6 +1,8 @@
 package me.desht.scrollingmenusign;
 
-public class SMSException extends RuntimeException {
+import me.desht.dhutils.DHUtilsException;
+
+public class SMSException extends DHUtilsException {
 
 	/**
 	 * 

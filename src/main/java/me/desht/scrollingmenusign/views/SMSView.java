@@ -90,6 +90,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	public SMSView(String name, SMSMenu menu) {
 		if (name == null) {
 			name = makeUniqueName(menu.getName());
+		} else if (checkForView(name)) {
+			throw new SMSException("A view named '" + name + "' already exists.");
 		}
 		this.name = name;
 		this.menu = menu;
@@ -98,8 +100,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		this.attributes = new AttributeCollection(this);
 		this.variables = new HashMap<String, String>();
 		this.maxLocations = 1;
-
-		menu.addObserver(this);
 
 		registerAttribute(OWNER, "");
 		registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT);
@@ -506,22 +506,20 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
-	 * Register this view in the global view list.
+	 * Register this view in the global view list and get it saved to disk.
 	 */
 	public void register() {
-		if (checkForView(getName())) {
-			throw new IllegalArgumentException("duplicate name: " + getName());
-		}
-
 		allViewNames.put(getName(), this);
 		for (Location l : getLocations()) {
 			allViewLocations.put(new PersistableLocation(l), this);
 		}
 
+		getMenu().addObserver(this);
+
 		autosave();
 	}
 
-	private void deleteCommon() {
+	private void unregister() {
 		getMenu().deleteObserver(this);
 		allViewNames.remove(getName());
 		for (Location l : getLocations()) {
@@ -534,14 +532,14 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * but the saved view data is not removed from disk.
 	 */
 	public void deleteTemporary() {
-		deleteCommon();
+		unregister();
 	}
 
 	/**
 	 * Permanently delete a view.  The view is deactivated and purged from persisted storage on disk.
 	 */
 	public void deletePermanent() {
-		deleteCommon();
+		unregister();
 		SMSPersistence.unPersist(this);
 	}
 

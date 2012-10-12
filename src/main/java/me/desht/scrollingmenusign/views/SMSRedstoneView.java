@@ -221,10 +221,14 @@ public class SMSRedstoneView extends SMSView {
 	 * @param loc	The location for the view.
 	 * @throws SMSException if the location is not suitable for this view
 	 */
-	public static SMSView addRedstoneViewToMenu(SMSMenu menu, Location loc) throws SMSException {
-		SMSView view = new SMSRedstoneView(menu, loc);
+	public static SMSView addRedstoneViewToMenu(String viewName, SMSMenu menu, Location loc) throws SMSException {
+		SMSView view = new SMSRedstoneView(viewName, menu);
+		view.addLocation(loc);
 		view.register();
 		return view;
+	}
+	public static SMSView addRedstoneViewToMenu(SMSMenu menu, Location loc) throws SMSException {
+		return addRedstoneViewToMenu(null, menu, loc);
 	}
 
 	/**
