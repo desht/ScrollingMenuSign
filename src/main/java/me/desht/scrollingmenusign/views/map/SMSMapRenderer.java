@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign.views.map;
 
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
@@ -62,20 +63,25 @@ public class SMSMapRenderer extends MapRenderer {
 
 		SMSMenu menu = smsMapView.getMenu();
 
+		boolean drawTitle = true;
 		if (ScrollingMenuSign.getInstance().isSpoutEnabled()) {
 			// If the player is using Spoutcraft, then the menu title is already there,
 			// as the name of the map item (renamed in the SMSMapView setup phase), so we
 			// don't need to draw it again.
 			SpoutPlayer sPlayer = (SpoutPlayer) player;
 			if (sPlayer.isSpoutCraftEnabled()) { 
-				// using spoutcraft
+				// using spoutcraft - use the item tooltip as the title
 				drawText(canvas, ViewJustification.RIGHT, 0, smsMapView.getMapFont(),
 				         ChatColor.GRAY.toString() + ChatColor.ITALIC.toString() + "#" + Short.toString(smsMapView.getMapView().getId()));
-			} else {
-				// no spoutcraft - draw title as normal
-				String title = smsMapView.variableSubs(menu.getTitle());
-				drawText(canvas, smsMapView.getTitleJustification(), y, smsMapView.getMapFont(), title);
-				y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();
+				drawTitle = false;
+			}
+		}
+		if (drawTitle) {
+			List<String> titleLines = smsMapView.splitTitle();
+//			String title = smsMapView.variableSubs(menu.getTitle());
+			for (String line : titleLines) {
+				drawText(canvas, smsMapView.getTitleJustification(), y, smsMapView.getMapFont(), line);
+				y += smsMapView.getMapFont().getHeight() + smsMapView.getLineSpacing();	
 			}
 		}
 

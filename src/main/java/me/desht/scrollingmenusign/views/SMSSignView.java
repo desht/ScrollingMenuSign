@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.views;
 
+import java.util.List;
 import java.util.Observable;
 
 import me.desht.scrollingmenusign.SMSException;
@@ -94,18 +95,24 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	private String[] buildSignText(int scrollPos) {
 		String[] res = new String[4];
 
+		List<String> title = splitTitle();
+		
 		// first line of the sign is the menu title
-		res[0] = String.format(makePrefix("", getTitleJustification()), variableSubs(getMenu().getTitle()));
+		for (int i = 0; i < title.size(); i++) {
+			res[i] = String.format(makePrefix("", getTitleJustification()), title.get(i));
+		}
 		
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
-		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
-		String prefix2 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
+		String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
+		String prefixSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
 		
 		ViewJustification ij = getItemJustification();
-		res[1] = String.format(makePrefix(prefix1, ij), getLine2Item(scrollPos));
-		res[2] = String.format(makePrefix(prefix2, ij), getLine3Item(scrollPos));
-		res[3] = String.format(makePrefix(prefix1, ij), getLine4Item(scrollPos));
+		if (title.size() < 2) {
+			res[1] = String.format(makePrefix(prefixNotSel, ij), getLine2Item(scrollPos));
+		}
+		res[2] = String.format(makePrefix(prefixSel, ij), getLine3Item(scrollPos));
+		res[3] = String.format(makePrefix(prefixNotSel, ij), getLine4Item(scrollPos));
 		
 		return res;
 	}
@@ -217,13 +224,30 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		super.deletePermanent();
 	}
 	
+	@Override
 	public String toString() {
 		Location[] locs = getLocationsArray();
 		return "sign @ " + (locs.length == 0 ? "NONE" : MiscUtil.formatLocation(getLocationsArray()[0]));
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#getType()
+	 */
 	@Override
 	public String getType() {
 		return "sign";
+	}
+	
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#getLineLength()
+	 */
+	@Override
+	protected int getLineLength() {
+		return 15;
+	}
+	
+	@Override
+	protected int getHardMaxTitleLines() {
+		return 2;
 	}
 }

@@ -358,7 +358,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			CommandParser.setLogFile(newVal.toString());
 		} else if (key.equalsIgnoreCase("log_level")) {
 			LogUtils.setLogLevel(newVal.toString());
-		} else if (key.startsWith("item_prefix.") || key.endsWith("_justify")) {
+		} else if (key.startsWith("item_prefix.") || key.endsWith("_justify") || key.equals("max_title_lines")) {
 			repaintViews(null);
 		}
 	}

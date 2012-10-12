@@ -99,15 +99,18 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		if (!(menu instanceof SMSMenu))
 			return;
 
-		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
-		String prefix2 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
+		String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
+		String prefixSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
+
+		List<String> titleLines = formatTitle();
+		int nTitleLines = titleLines.size();
+		for (int i = 0; i < nTitleLines; i++) {
+			drawText(i, titleLines.get(i));
+		}
 
 		int current = getLastScrollPos();
-		int nDisplayable = height * 4 - 1;
 		int nItems = getMenu().getItemCount();
-
-		drawText(0, formatTitle());
-
+		int nDisplayable = height * 4 - nTitleLines;
 		if (nItems > 0) {
 			for (int n = 0; n < nDisplayable; n++) {
 				SMSMenuItem item = getMenu().getItemAt(current);
@@ -119,7 +122,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 					lineText = "";
 				}
 				LogUtils.finer("SMSMultiSignView: update: current=" + current + " line=" + n + " text=[" + lineText + "]");
-				drawText(n + 1, formatItem(n == 0 ? prefix2 : prefix1, lineText));
+				drawText(n + nTitleLines, formatItem(n == 0 ? prefixSel : prefixNotSel, lineText));
 				current++;
 				if (current > nItems)
 					current = 1;
@@ -391,7 +394,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private String formatLine(String prefix, String text, ViewJustification just) {
-		text = variableSubs(text);
+//		text = variableSubs(text);
 		
 		int l = 15 * width - prefix.length();
 		String s = "";
@@ -416,12 +419,17 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		return MiscUtil.parseColourSpec(s);
 	}
 
-	private String formatTitle() {
-		return formatLine("", getMenu().getTitle(), getTitleJustification());
+	private List<String> formatTitle() {
+		List<String> lines = splitTitle();
+		for (int i = 0; i < lines.size(); i++) {
+			lines.set(i, formatLine("", lines.get(i), getTitleJustification()));
+		}
+//		return formatLine("", getMenu().getTitle(), getTitleJustification());
+		return lines;
 	}
 
 	private String formatItem(String prefix, String text) {
-		return formatLine(prefix, text, getItemJustification());
+		return formatLine(prefix, variableSubs(text), getItemJustification());
 	}
 
 	/**
@@ -460,4 +468,13 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		return view;
 	}
 
+	@Override
+	protected int getLineLength() {
+		return 15 * width;
+	}
+	
+	@Override
+	protected int getHardMaxTitleLines() {
+		return 4;
+	}
 }

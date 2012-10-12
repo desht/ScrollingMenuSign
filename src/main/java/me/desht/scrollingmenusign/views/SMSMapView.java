@@ -437,4 +437,14 @@ public class SMSMapView extends SMSScrollableView {
 		// Courier uses a magic X value to indicate the map it uses
 		return mapView.getCenterX() == COURIER_MAP_X;
 	}
+	
+	@Override
+	protected int getHardMaxTitleLines() {
+		return 4;
+	}
+	
+	@Override
+	protected int getLineLength() {
+		return 30;	// estimate
+	}
 }

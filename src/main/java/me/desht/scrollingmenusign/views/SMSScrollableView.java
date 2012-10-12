@@ -1,16 +1,23 @@
 package me.desht.scrollingmenusign.views;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Scanner;
 
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 public abstract class SMSScrollableView extends SMSView {
+	public static final String MAX_TITLE_LINES = "max_title_lines";
+
 	private boolean perPlayerScrolling;
 	private boolean wrap;
 	private int lastScrollPos;
@@ -25,6 +32,8 @@ public abstract class SMSScrollableView extends SMSView {
 		lastScrollPos = 1;
 		wrap = true;
 		perPlayerScrolling = true;
+		
+		registerAttribute(MAX_TITLE_LINES, 0);
 	}
 
 	@Override
@@ -149,5 +158,121 @@ public abstract class SMSScrollableView extends SMSView {
 	public void clearPlayerForView(Player player) {
 		super.clearPlayerForView(player);
 		playerScrollPos.remove(player.getName());
+	}
+	
+	/**
+	 * Get the suggested line length in characters.  Default is 0 - subclasses should override this
+	 * as appropriate.  Line length of 0 will disable any splitting.
+	 * 
+	 * @return
+	 */
+	protected int getLineLength() {
+		return 0;
+	}
+
+	
+	/**
+	 * Get the desired maximum number of title lines for this view.
+	 * @return
+	 */
+	protected int getMaxTitleLines() {
+		int max = (Integer) getAttribute(MAX_TITLE_LINES);
+		return max > 0 ? max :  ScrollingMenuSign.getInstance().getConfig().getInt("sms.max_title_lines", 1);
+	}
+	
+	/**
+	 * Get the hard maximum on the number of title lines this view supports.  Override in subclasses.
+	 * @return
+	 */
+	protected int getHardMaxTitleLines() {
+		return 1;
+	}
+	
+	/**
+	 * Split the menu's title in the view's maximum line count, based on the view's suggested line length.
+	 * 
+	 * @return
+	 */
+	public List<String> splitTitle() {
+		String title = variableSubs(getMenu().getTitle());
+		int lineLength = getLineLength();
+		List<String> result = new ArrayList<String>();
+		
+		if (lineLength == 0) {
+			result.add(title);
+			return result;
+		}
+		
+		int maxLines = Math.min(getMaxTitleLines(), getHardMaxTitleLines());
+		
+		Scanner s = new Scanner(title);
+		StringBuilder sb = new StringBuilder();
+		MarkupTracker markup = new MarkupTracker();
+		while (s.hasNext()) {
+			String word = s.next();
+			markup.update(MarkupTracker.findMarkup(word));
+//			LogUtils.finer(getName() + ": buflen = " + sb.length() + " wordlen = " + word.length() + " line length = " + lineLength);
+			if (sb.length() + word.length() + 1 <= lineLength || result.size() >= maxLines - 1) {
+				// continue appending
+				if (sb.length() > 0) sb.append(" ");
+				sb.append(word);
+			} else {
+				// start a new line
+				result.add(sb.toString()); 	
+				sb = new StringBuilder(markup + word);
+				lineLength = getLineLength() - markup.toString().length();
+			}
+		}
+		result.add(sb.toString());
+		
+		return result;
+	}
+	
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationChanged(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.Object, java.lang.Object)
+	 */
+	@Override
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
+		super.onConfigurationChanged(configurationManager, attribute, oldVal, newVal);
+
+		if (attribute.equals(MAX_TITLE_LINES)) {
+			setDirty(true);
+		}
+	}
+	
+	private static class MarkupTracker {
+		private char colour = 0;
+		private char text = 0;
+		
+		public void update(MarkupTracker other) {
+			if (other.colour != 0) this.colour = other.colour;
+			if (other.text != 0) this.text = other.text;
+		}
+		
+		@Override
+		public String toString() {
+			String s = colour == 0 ? "" : "\u00a7" + colour;
+			if (text != 0) {
+				s += "\u00a7" + text;
+			}
+			return s;
+		}
+		
+		public static MarkupTracker findMarkup(String s) {
+			MarkupTracker m = new MarkupTracker();
+			for (int i = 0; i < s.length() - 1; i++	) {
+				if (s.charAt(i) == 0x00a7) {
+					char c = Character.toUpperCase(s.charAt(i + 1));
+					if (c >= '0' && c <= '9' || c >= 'A' && c <= 'F') {
+						m.colour = c;
+					} else if (c == 'R') {
+						m.text = m.colour = 0;
+					} else {
+						m.text = c;
+					}
+				}
+			}
+			return m;
+		}
 	}
 }

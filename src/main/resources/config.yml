@@ -26,6 +26,7 @@ sms:
         not_selected: '  '
     item_justify: left
     title_justify: center
+    max_title_lines: 1
     ignore_view_ownership: true
     elevation:
         nodes: []
