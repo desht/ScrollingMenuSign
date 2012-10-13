@@ -82,13 +82,15 @@ public class SpoutUtils {
 			return false;
 		}
 		
+		LogUtils.fine("show spout text entry popup for " + player.getName() + ", prompt = " + prompt);
+		
 		// delaying this makes it play nicely with any spout view that might currently be showing
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
 			@Override
 			public void run() {
 				TextEntryPopup.show(sp, prompt);
 			}
-		});
+		}, 5L);
 		return true;
 	}
 

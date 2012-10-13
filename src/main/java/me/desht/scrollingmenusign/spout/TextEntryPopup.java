@@ -116,6 +116,10 @@ public class TextEntryPopup extends SMSGenericPopup {
 		visiblePopups.add(name);
 	}
 	
+	public static boolean hasActivePopup(String playerName) {
+		return visiblePopups.contains(playerName);
+	}
+	
 	private class TextEntryButton extends GenericButton {
 		TextEntryButton(String text) {
 			super(text);

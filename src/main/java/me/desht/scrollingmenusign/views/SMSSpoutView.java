@@ -17,6 +17,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.SpoutViewPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
+import me.desht.scrollingmenusign.spout.TextEntryPopup;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
@@ -322,6 +323,10 @@ public class SMSSpoutView extends SMSScrollableView {
 		if (pressed.keysPressed() == 0)
 			return false;
 
+		if (TextEntryPopup.hasActivePopup(sp.getName())) {
+			return false;
+		}
+		
 		String s = pressed.toString();
 
 		String viewName = keyMap.get(s);
