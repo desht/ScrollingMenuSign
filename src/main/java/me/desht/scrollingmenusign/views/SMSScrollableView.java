@@ -197,16 +197,15 @@ public abstract class SMSScrollableView extends SMSView {
 		String title = variableSubs(getMenu().getTitle());
 		int lineLength = getLineLength();
 		List<String> result = new ArrayList<String>();
+		int maxLines = Math.min(getMaxTitleLines(), getHardMaxTitleLines());
 		
-		if (lineLength == 0) {
+		if (lineLength == 0 || maxLines == 1) {
 			result.add(title);
 			return result;
 		}
 		
-		int maxLines = Math.min(getMaxTitleLines(), getHardMaxTitleLines());
-		
 		Scanner s = new Scanner(title);
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(title.length());
 		MarkupTracker markup = new MarkupTracker();
 		while (s.hasNext()) {
 			String word = s.next();
@@ -241,20 +240,20 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 	
 	private static class MarkupTracker {
-		private char colour = 0;
-		private char text = 0;
+		// null indicates value never set, 0 indicates a reset (&R)
+		private Character colour = null;
+		private Character text = null;
 		
 		public void update(MarkupTracker other) {
-			if (other.colour != 0) this.colour = other.colour;
-			if (other.text != 0) this.text = other.text;
+			if (other.colour != null) this.colour = other.colour;
+			if (other.text != null) this.text = other.text;
 		}
 		
 		@Override
 		public String toString() {
-			String s = colour == 0 ? "" : "\u00a7" + colour;
-			if (text != 0) {
-				s += "\u00a7" + text;
-			}
+			String s = "";
+			if (colour != null && colour != 0) s += "\u00a7" + colour;
+			if (text != null && text != 0) s += "\u00a7" + text;
 			return s;
 		}
 		
