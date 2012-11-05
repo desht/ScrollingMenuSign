@@ -79,6 +79,7 @@ public class AddViewCommand extends AbstractCommand {
 				PermissionUtils.requirePerms(sender, "scrollingmenusign.use.map");
 				short mapId = player.getItemInHand().getDurability();
 				view = SMSMapView.addMapToMenu(viewName, menu, mapId);
+				((SMSMapView) view).setMapItemName(player.getItemInHand());
 			} else {
 				try {
 					Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);		// sign view ?

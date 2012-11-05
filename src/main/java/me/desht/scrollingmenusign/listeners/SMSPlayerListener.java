@@ -181,6 +181,7 @@ public class SMSPlayerListener implements Listener {
 				if (action != null) {
 					action.execute(player, mapView);
 				}
+				mapView.setMapItemName(player.getItemInHand());
 			}
 		} else if (block != null) {
 			if (locView == null && block.getState() instanceof Sign && player.getItemInHand().getTypeId() == 0) {
@@ -288,6 +289,7 @@ public class SMSPlayerListener implements Listener {
 		short mapId = player.getItemInHand().getDurability();
 		SMSMapView mapView = SMSMapView.getViewForId(mapId);
 		if (mapView != null) {
+			mapView.removeMapItemName(player.getItemInHand());
 			mapView.deletePermanent();
 			MiscUtil.statusMessage(player, String.format("Removed map view &e%s&- from menu &e%s&-.",
 			                                             mapView.getName(), mapView.getMenu().getName()));
@@ -315,6 +317,7 @@ public class SMSPlayerListener implements Listener {
 
 		short mapId = player.getItemInHand().getDurability();
 		SMSMapView mapView = SMSMapView.addMapToMenu(clickedView.getMenu(), mapId);
+		mapView.setMapItemName(player.getItemInHand());
 
 		MiscUtil.statusMessage(player, String.format("Added new map view &e%s&- to menu &e%s&-.",
 		                                             mapView.getName(), mapView.getMenu().getName()));

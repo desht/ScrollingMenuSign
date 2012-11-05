@@ -13,9 +13,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+
 import javax.imageio.ImageIO;
 
+import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.scrollingmenusign.DirectoryStructure;
+import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
+
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -25,16 +37,6 @@ import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.map.MinecraftFont;
-
-import me.desht.scrollingmenusign.DirectoryStructure;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.LogUtils;
-import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
 
 /**
  * @author des
@@ -173,10 +175,6 @@ public class SMSMapView extends SMSScrollableView {
 
 		allMapViews.put(mapView.getId(), this);
 
-		if (ScrollingMenuSign.getInstance().isSpoutEnabled()) {
-			SpoutUtils.setSpoutMapName(mapView.getId(), variableSubs(getMenu().getTitle()));
-		}
-
 		loadBackgroundImage();
 
 		autosave();
@@ -188,8 +186,6 @@ public class SMSMapView extends SMSScrollableView {
 	@Override
 	public void deletePermanent() {
 		if (mapView != null) {
-			if (ScrollingMenuSign.getInstance().isSpoutEnabled())
-				SpoutUtils.setSpoutMapName(mapView.getId(), "map_" + mapView.getId());
 			allMapViews.remove(mapView.getId());
 			mapView.removeRenderer(getMapRenderer());
 			for (MapRenderer r : previousRenderers) {
@@ -329,6 +325,17 @@ public class SMSMapView extends SMSScrollableView {
 		return image;
 	}
 
+	public void setMapItemName(ItemStack item) {
+		int nItems = getMenu().getItemCount();
+		String lore = nItems + (nItems == 1 ? " item" : " items");
+		lore = ChatColor.GRAY.toString() + ChatColor.ITALIC.toString() + lore;
+		MiscUtil.setItemNameAndLore(item, ChatColor.RESET + variableSubs(getMenu().getTitle()), new String[] { lore });
+	}
+	
+	public void removeMapItemName(ItemStack item) {
+		MiscUtil.removeItemName(item);
+	}
+	
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
 	 */
@@ -436,7 +443,7 @@ public class SMSMapView extends SMSScrollableView {
 	public static boolean usedByOtherPlugin(ItemStack item) {
 		short mapId = item.getDurability();
 		MapView mapView = Bukkit.getServer().getMap(mapId);
-		
+			
 		// Courier uses a magic X value to indicate the map it uses
 		return mapView.getCenterX() == COURIER_MAP_X;
 	}

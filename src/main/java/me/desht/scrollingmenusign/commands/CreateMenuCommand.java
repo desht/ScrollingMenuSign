@@ -1,21 +1,21 @@
 package me.desht.scrollingmenusign.commands;
 
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.commands.AbstractCommand;
+import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSHandler;
+import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSMapView;
+import me.desht.scrollingmenusign.views.SMSSignView;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSHandler;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.commands.AbstractCommand;
-import me.desht.scrollingmenusign.views.SMSMapView;
-import me.desht.scrollingmenusign.views.SMSSignView;
 
 public class CreateMenuCommand extends AbstractCommand {
 
@@ -75,8 +75,10 @@ public class CreateMenuCommand extends AbstractCommand {
 			SMSSignView.addSignToMenu(menu, signLoc);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with sign view @ &f" + MiscUtil.formatLocation(signLoc));
 		} else if (autoCreate && mapId >= 0) {
-			SMSMapView.addMapToMenu(menu, mapId);
+			SMSMapView mapView = SMSMapView.addMapToMenu(menu, mapId);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with map view &fmap_" + mapId);
+			Player player = (Player) sender;
+			mapView.setMapItemName(player.getItemInHand());
 		} else {
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with no initial view");
 		}

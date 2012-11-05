@@ -39,6 +39,8 @@ public class RemoveViewCommand extends AbstractCommand {
 			}
 		} else if (sender instanceof Player && (view = SMSMapView.getHeldMapView((Player)sender)) != null) {
 			// detaching a map view - nothing else to check here
+			Player player = (Player)sender;
+			((SMSMapView)view).removeMapItemName(player.getItemInHand());
 		} else if (args.length == 0) {
 			// detaching a view that the player is looking at?
 			notFromConsole(sender);

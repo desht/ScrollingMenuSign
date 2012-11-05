@@ -3,19 +3,17 @@ package me.desht.scrollingmenusign.spout;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.material.Material;
-import org.getspout.spoutapi.material.MaterialData;
-import org.getspout.spoutapi.player.SpoutPlayer;
-
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 /**
  * @author des
@@ -23,23 +21,6 @@ import me.desht.scrollingmenusign.views.SMSView;
  */
 public class SpoutUtils {
 	private static final Map<String, SMSSpoutKeyMap> wantedKeys = new HashMap<String, SMSSpoutKeyMap>();
-
-	public static void setSpoutMapName(short mapID, String name) {
-//		new SMSSpoutMapItem(mapID).setName(name);
-		Material mat;
-		try {
-			mat = MaterialData.getOrCreateMaterial(358, mapID);
-		} catch (Exception e) {
-			LogUtils.warning("Spout problem: MaterialData.getOrCreateMaterial(358," + mapID +") threw Exception: " + e);
-			e.printStackTrace();
-			mat = null;
-		}
-		if (mat == null) {
-			LogUtils.warning("can't get Spout material for 358:" + mapID + " (item tooltip will be missing)");
-		} else {
-			mat.setName(name);
-		}
-	}
 
 	public static void loadKeyDefinitions() {
 		addKeyDefinition("sms.actions.spout.up");
