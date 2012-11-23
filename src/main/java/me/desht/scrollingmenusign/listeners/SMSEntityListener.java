@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.listeners;
 
+import java.util.Iterator;
+
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
@@ -18,8 +20,9 @@ public class SMSEntityListener implements Listener {
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
 		boolean noExplode = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.no_explosions", false);
-		for (Block b : event.blockList()) {
-			Location loc = b.getLocation();
+		Iterator<Block>	iter = event.blockList().iterator();
+		while (iter.hasNext()) {
+			Location loc = iter.next().getLocation();
 			SMSView view = SMSView.getViewForLocation(loc);
 			if (view == null)
 				continue;
@@ -27,9 +30,8 @@ public class SMSEntityListener implements Listener {
 			SMSMenu menu = view.getMenu();
 			LogUtils.fine("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
 			if (noExplode) {
-				LogUtils.info("stopped an explosion to protect view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ")");
-				event.setCancelled(true);
-				break;
+				LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was protected from an explosion.");
+				iter.remove();
 			} else {
 				LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
 				view.deletePermanent();
