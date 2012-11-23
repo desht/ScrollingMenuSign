@@ -8,6 +8,7 @@ import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
@@ -56,17 +57,20 @@ public class SMSBlockListener implements Listener {
 		Player p = event.getPlayer();
 		Location loc = b.getLocation();
 
+		SMSView view = SMSView.getViewForLocation(loc);
+		
 		if (SMSMapView.getHeldMapView(p) != null) {
 			// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
 			event.setCancelled(true);
+			if (view != null) view.update(view.getMenu(), SMSMenuAction.REPAINT);
 			return;
 		}
 
-		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
 			LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
 			if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.no_destroy_signs", false)) {
 				event.setCancelled(true);
+				view.update(view.getMenu(), SMSMenuAction.REPAINT);
 			} else {
 				view.removeLocation(loc);
 				if (view.getLocations().size() == 0) {
