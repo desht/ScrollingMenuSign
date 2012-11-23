@@ -125,6 +125,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		registerCommands();
 
 		MessagePager.setPageCmd("/sms page [#|n|p]");
+		MessagePager.setDefaultPageSize(getConfig().getInt("sms.pager.lines", 0));
 
 		loadPersistedData();
 
