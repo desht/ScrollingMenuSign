@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.desht.dhutils.Cost;
+import me.desht.dhutils.ExperienceManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
@@ -216,6 +217,8 @@ public class CommandParser {
 				repl = formatStakeStr(ScrollingMenuSign.economy.getBalance(player.getName()));
 			} else if (key.equals("VIEW")) {
 				repl = view == null ? "" : view.getName();
+			} else if (key.equals("EXP")) {
+				repl = Integer.toString(new ExperienceManager(player).getCurrentExp());
 			} else {
 				String menuName = view == null ? "???" : view.getMenu().getName();
 				LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
