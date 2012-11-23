@@ -12,7 +12,7 @@ public class SMSSpoutScreenListener implements Listener {
 	@EventHandler
 	public void onScreenClose(ScreenCloseEvent event) {		
 		if (event.getScreenType() == ScreenType.CUSTOM_SCREEN) {
-			if (SMSSpoutView.hasActiveGUI(event.getPlayer())) {
+			if (SMSSpoutView.getAnyActiveGUI(event.getPlayer()) != null) {
 				SMSSpoutView.screenClosed(event.getPlayer());
 			}
 //			else if (TextEntryPopup.isPoppedUp(event.getPlayer())) {

@@ -6,9 +6,9 @@ import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.views.Poppable;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
-import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
@@ -60,9 +60,9 @@ public class ViewCommand extends AbstractCommand {
 		} else if (args[1].equals("-popup")) {
 			notFromConsole(sender);
 			view.ensureAllowedToUse((Player) sender);
-			if (view instanceof SMSSpoutView) {
-				SMSSpoutView spv = (SMSSpoutView) view;
-				spv.toggleGUI((Player) sender);
+			if (view instanceof Poppable) {
+				Poppable pop = (Poppable) view;
+				pop.toggleGUI((Player) sender);
 			}
 		} else if (args[1].startsWith("-d") && args.length >= 3) {
 			// delete user-defined view variable

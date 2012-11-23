@@ -11,6 +11,7 @@ import me.desht.scrollingmenusign.spout.SMSGenericPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.views.SMSMapView;
+import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -88,10 +89,11 @@ public class SMSSpoutKeyListener implements Listener {
 	private SMSView findViewForPlayer(SpoutPlayer player) {
 		SMSView view = null;
 		
-		// is there an open spout view?
-		if (SMSSpoutView.hasActiveGUI(player)) {
-			view = SMSSpoutView.getActiveGUI(player).getView();
-		}
+		// is there an open spout view for this player?
+		SMSPopup pop = SMSSpoutView.getAnyActiveGUI(player);
+		if (pop != null)
+			view = pop.getView();
+		
 		// check for a map view...
 		if (view == null) {
 			if (player.getItemInHand().getType() == Material.MAP) {

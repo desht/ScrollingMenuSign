@@ -22,7 +22,7 @@ import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
 
-public class SMSSpoutView extends SMSScrollableView {
+public class SMSSpoutView extends SMSScrollableView implements Poppable {
 
 	// attributes
 	public static final String AUTOPOPDOWN = "autopopdown";
@@ -30,7 +30,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	public static final String BACKGROUND = "background";
 	public static final String ALPHA = "alpha";
 	public static final String TEXTURE = "texture";
-	
+
 	// list of all popups which are active at this time, keyed by player name
 	private static final Map<String, SpoutViewPopup> activePopups = new HashMap<String, SpoutViewPopup>();
 
@@ -39,7 +39,7 @@ public class SMSSpoutView extends SMSScrollableView {
 
 	// map a set of keypresses to the view which handles them
 	private static final Map<String, String> keyMap = new HashMap<String, String>();
-	
+
 	/**
 	 * Construct a new SMSSPoutView object
 	 * 
@@ -72,6 +72,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * 
 	 * @param p		The player object
 	 */
+	@Override
 	public void showGUI(Player p) {
 		SpoutPlayer sp = SpoutManager.getPlayer(p);
 		if (!sp.isSpoutCraftEnabled())
@@ -94,6 +95,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * 
 	 * @param p		The player object
 	 */
+	@Override
 	public void hideGUI(Player p) {
 		SpoutPlayer sp = SpoutManager.getPlayer(p);
 		if (!sp.isSpoutCraftEnabled())
@@ -117,17 +119,19 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * 
 	 * @param p		The player object
 	 */
+	@Override
 	public void toggleGUI(Player p) {
 		final SpoutPlayer sp = SpoutManager.getPlayer(p);
 		if (!sp.isSpoutCraftEnabled())
 			return;
 
 		if (hasActiveGUI(sp)) {
-			SpoutViewPopup gui = getActiveGUI(sp);
-			if (gui.getView() != this) {
+			SMSPopup gui = getActiveGUI(sp);
+			SMSSpoutView otherView = (SMSSpoutView)gui.getView();
+			if (otherView != this) {
 				// the active GUI for the player belongs to a different view, so we pop down that one and 
 				// pop up the player's GUI for this view
-				gui.getView().hideGUI(sp);
+				otherView.hideGUI(sp);
 				// just popping the GUI up immediately doesn't work - we need to defer it
 				Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
 					@Override
@@ -153,7 +157,7 @@ public class SMSSpoutView extends SMSScrollableView {
 			if (act == SMSMenuAction.SCROLLED)
 				return;		// spout view will have repainted itself if it was scrolled
 		}
-		for (SpoutViewPopup gui : popups.values()) {
+		for (SMSPopup gui : popups.values()) {
 			gui.repaint();
 		}
 	}
@@ -193,7 +197,7 @@ public class SMSSpoutView extends SMSScrollableView {
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String attribute, String newVal) {
 		super.onConfigurationValidate(configurationManager, attribute, newVal);
-		
+
 		String err = null;
 		if (attribute.equals(SPOUTKEYS) && !newVal.isEmpty()) {
 			try {
@@ -207,7 +211,7 @@ public class SMSSpoutView extends SMSScrollableView {
 			} catch (IllegalArgumentException e) {
 				throw new SMSException("Invalid key binding: " + newVal);
 			}
-			
+
 		} else if (attribute.equals(ALPHA) && !newVal.isEmpty()) {
 			try {
 				double d = Double.parseDouble(newVal);
@@ -250,7 +254,7 @@ public class SMSSpoutView extends SMSScrollableView {
 			update(getMenu(), SMSMenuAction.REPAINT);
 		}
 	}
-	
+
 	@Override
 	public void onExecuted(Player player) {
 		super.onExecuted(player);
@@ -270,19 +274,20 @@ public class SMSSpoutView extends SMSScrollableView {
 	}
 
 	public void rejustify() {
-		for (SpoutViewPopup popup: popups.values()) {
+		for (SMSPopup popup: popups.values()) {
 			popup.updateTitleJustification();
 		}
 	}
-	
+
 	/**
 	 * Check if the given player has an active GUI
 	 * 
 	 * @param sp	The Spout player to check for
 	 * @return		True if a GUI is currently popped up, false otherwise
 	 */
-	public static boolean hasActiveGUI(SpoutPlayer sp) {
-		return activePopups.containsKey(sp.getName());
+	@Override
+	public boolean hasActiveGUI(Player p) {
+		return activePopups.containsKey(p.getName());
 	}
 
 	/**
@@ -291,8 +296,9 @@ public class SMSSpoutView extends SMSScrollableView {
 	 * @param sp	The Spout player to check for
 	 * @return		The GUI object if one is currently popped up, null otherwise
 	 */
-	public static SpoutViewPopup getActiveGUI(SpoutPlayer sp) {
-		return activePopups.get(sp.getName());
+	@Override
+	public SMSPopup getActiveGUI(Player p) {
+		return activePopups.get(p.getName());
 	}
 
 	/**
@@ -326,7 +332,7 @@ public class SMSSpoutView extends SMSScrollableView {
 		if (TextEntryPopup.hasActivePopup(sp.getName())) {
 			return false;
 		}
-		
+
 		String s = pressed.toString();
 
 		String viewName = keyMap.get(s);
@@ -378,5 +384,14 @@ public class SMSSpoutView extends SMSScrollableView {
 
 		// a little ugly, since this gets called once for every spout view when it only needs to be called once...
 		activePopups.remove(player.getName());
+	}
+
+	public static SMSPopup getAnyActiveGUI(Player p) {
+		for (SMSView v : listViews()) {
+			if (v instanceof SMSSpoutView && ((SMSSpoutView) v).hasActiveGUI(p)) {
+				return ((SMSSpoutView) v).getActiveGUI(p);
+			}
+		}
+		return null;
 	}
 }

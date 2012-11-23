@@ -5,15 +5,16 @@ import java.net.URL;
 
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
 import org.getspout.spoutapi.gui.GenericTexture;
 import org.getspout.spoutapi.gui.RenderPriority;
 
 public class SMSListTexture extends GenericTexture {
-	private final SpoutViewPopup popup;
+	private final SMSPopup popup;
 
-	public SMSListTexture(SpoutViewPopup popup) {
+	public SMSListTexture(SMSPopup popup) {
 		this.popup = popup;
 		
 		setDrawAlphaChannel(true);

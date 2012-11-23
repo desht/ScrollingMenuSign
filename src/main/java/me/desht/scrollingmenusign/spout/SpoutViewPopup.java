@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.spout;
 
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
 import org.getspout.spoutapi.gui.GenericLabel;
@@ -10,7 +11,7 @@ import org.getspout.spoutapi.gui.Screen;
 import org.getspout.spoutapi.gui.WidgetAnchor;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
-public class SpoutViewPopup extends SMSGenericPopup {
+public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	private static final int LIST_WIDTH = 200;
 	private static final int TITLE_HEIGHT = 15;
 	private static final int TITLE_WIDTH = 100;
@@ -52,37 +53,54 @@ public class SpoutViewPopup extends SMSGenericPopup {
 		this.attachWidget(ScrollingMenuSign.getInstance(), listWidget);
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.spout.SMSPopup#getView()
+	 */
+	@Override
 	public SMSSpoutView getView() {
 		return view;
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.spout.SMSPopup#isPoppedUp()
+	 */
+	@Override
 	public boolean isPoppedUp() {
 		return poppedUp;
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.spout.SMSPopup#repaint()
+	 */
+	@Override
 	public void repaint() {
 		title.setText(view.variableSubs(view.getMenu().getTitle()));
 		texture.updateURL();
 		listWidget.repaint();
 	}
 
-	public void scrollTo(int scrollPos) {
-		listWidget.ignoreNextSelection(true);
-		listWidget.setSelection(scrollPos - 1);
-		
-		LogUtils.fine("scroll to " + scrollPos + " = " + listWidget.getSelectedItem().getTitle());
-	}
-
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.spout.SMSPopup#popup()
+	 */
+	@Override
 	public void popup() {
 		poppedUp = true;
 		sp.getMainScreen().attachPopupScreen(this);
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.spout.SMSPopup#popdown()
+	 */
+	@Override
 	public void popdown() {
 		poppedUp = false;
 		sp.getMainScreen().closePopup();
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.spout.SMSPopup#updateTitleJustification()
+	 */
+	@Override
 	public void updateTitleJustification() {
 		switch (getView().getTitleJustification()) {
 		case LEFT:
@@ -93,5 +111,15 @@ public class SpoutViewPopup extends SMSGenericPopup {
 		default:
 			title.setAlign(WidgetAnchor.CENTER_LEFT); break;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.spout.SMSPopup#scrollTo(int)
+	 */
+	public void scrollTo(int scrollPos) {
+		listWidget.ignoreNextSelection(true);
+		listWidget.setSelection(scrollPos - 1);
+		
+		LogUtils.fine("scroll to " + scrollPos + " = " + listWidget.getSelectedItem().getTitle());
 	}
 }
