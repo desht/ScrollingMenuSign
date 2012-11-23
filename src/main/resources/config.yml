@@ -54,3 +54,5 @@ sms:
     log_level: INFO
     mcstats: true
     autocreate_views: true
+    pager:
+        lines: 0
