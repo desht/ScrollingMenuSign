@@ -26,7 +26,7 @@ import me.desht.scrollingmenusign.commands.DebugCommand;
 import me.desht.scrollingmenusign.commands.DefaultCmdCommand;
 import me.desht.scrollingmenusign.commands.DeleteMenuCommand;
 import me.desht.scrollingmenusign.commands.GetConfigCommand;
-import me.desht.scrollingmenusign.commands.GiveMapCommand;
+import me.desht.scrollingmenusign.commands.GiveCommand;
 import me.desht.scrollingmenusign.commands.ItemUseCommand;
 import me.desht.scrollingmenusign.commands.ListMacroCommand;
 import me.desht.scrollingmenusign.commands.ListMenusCommand;
@@ -277,7 +277,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		cmds.registerCommand(new DefaultCmdCommand());
 		cmds.registerCommand(new DeleteMenuCommand());
 		cmds.registerCommand(new GetConfigCommand());
-		cmds.registerCommand(new GiveMapCommand());
+		cmds.registerCommand(new GiveCommand());
 		cmds.registerCommand(new ItemUseCommand());
 		cmds.registerCommand(new ListMacroCommand());
 		cmds.registerCommand(new ListMenusCommand());

@@ -1,10 +1,12 @@
 package me.desht.scrollingmenusign.listeners;
 
+import me.desht.dhutils.BookItem;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -14,6 +16,7 @@ import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
+import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
@@ -21,6 +24,7 @@ import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
+import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -35,6 +39,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class SMSPlayerListener implements Listener {
 	@EventHandler
@@ -43,7 +48,7 @@ public class SMSPlayerListener implements Listener {
 			// We're not interested in physical actions (pressure plate) here
 			return;
 		}
-		if (event.isCancelled() && SMSMapView.getHeldMapView(event.getPlayer()) == null) {
+		if (event.isCancelled() && SMSMapView.getHeldMapView(event.getPlayer()) == null && !PopupBook.holding(event.getPlayer())) {
 			// Work around weird Bukkit behaviour where all air-click events
 			// arrive cancelled by default.
 			return;
@@ -129,9 +134,16 @@ public class SMSPlayerListener implements Listener {
 		Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
 		SMSMapView mapView = SMSMapView.getHeldMapView(player);
+		PopupBook popup;
+		try {
+			popup = PopupBook.get(player);
+		} catch (SMSException e) {
+			PopupBook.destroy(player);
+			return true;
+		}
 	
 		// If there is no mapView and no selected block, there's nothing for us to do
-		if (block == null && mapView == null) {
+		if (block == null && mapView == null && popup == null) {
 			return false;
 		}
 	
@@ -166,6 +178,10 @@ public class SMSPlayerListener implements Listener {
 				MiscUtil.statusMessage(player, String.format("&6Lever is an output switch already (&e%s / %s&-).",
 				                                             sw.getView().getName(), sw.getTrigger()));
 			}
+		} else if (popup != null) {
+			System.out.println("popup book");
+			popup.toggle();
+			return true;
 		} else if (mapView != null) {
 			// Holding an active map view
 			LogUtils.fine("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
@@ -210,6 +226,12 @@ public class SMSPlayerListener implements Listener {
 			}
 		}
 		return true;
+	}
+	
+	private void destroyHeldItem(Player player) {
+		player.setItemInHand(new ItemStack(0));
+		MiscUtil.statusMessage(player, "Your book suddenly vanishes in a puff of smoke!");
+		player.playEffect(player.getLocation(), Effect.SMOKE, 4);
 	}
 
 	/**
