@@ -806,7 +806,11 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 */
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-		update(getMenu(), SMSMenuAction.REPAINT);
+		// avoid calling updates on views that haven't been registered yet (which will be the case
+		// when restoring saved views from disk)
+		if (allViewNames.containsKey(getName())) {
+			update(getMenu(), SMSMenuAction.REPAINT);
+		}
 	}
 
 	/* (non-Javadoc)

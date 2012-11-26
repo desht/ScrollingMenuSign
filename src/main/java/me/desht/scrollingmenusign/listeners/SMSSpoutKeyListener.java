@@ -10,8 +10,8 @@ import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.spout.SMSGenericPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.scrollingmenusign.spout.SpoutViewPopup;
 import me.desht.scrollingmenusign.views.SMSMapView;
-import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -54,12 +54,6 @@ public class SMSSpoutKeyListener implements Listener {
 			return;
 			
 		try {
-			// is there a substitution textfield up for the player?
-//			if (TextEntryPopup.isPoppedUp(player)) {
-//				TextEntryPopup.handleKeypress(player, event.getKey());
-//				return;
-//			}
-			
 			// see if any existing spout view has a mapping for the pressed keys
 			if (SMSSpoutView.handleKeypress(player, pressed)) {
 				return;
@@ -90,12 +84,14 @@ public class SMSSpoutKeyListener implements Listener {
 		SMSView view = null;
 		
 		// is there an open spout view for this player?
-		SMSPopup pop = SMSSpoutView.getAnyActiveGUI(player);
-		if (pop != null)
-			view = pop.getView();
-		
+		PopupScreen popup = player.getMainScreen().getActivePopup();
+		if (popup != null && popup instanceof SpoutViewPopup) {
+			view = ((SpoutViewPopup) popup).getView();
+		}
+
 		// check for a map view...
 		if (view == null) {
+			// check for a map view...
 			if (player.getItemInHand().getType() == Material.MAP) {
 				view = SMSMapView.getViewForId(player.getItemInHand().getDurability());	
 			}

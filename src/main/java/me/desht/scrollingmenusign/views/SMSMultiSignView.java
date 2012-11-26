@@ -350,7 +350,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private Block scanOneDir(Block b, BlockFace dir) {
-		while (b.getType() == Material.WALL_SIGN) {
+		while (b.getType() == Material.WALL_SIGN && SMSView.getViewForLocation(b.getLocation()) == null) {
 			Sign s = (Sign) b.getState().getData();
 			if (s.getFacing() != facing) {
 				break;

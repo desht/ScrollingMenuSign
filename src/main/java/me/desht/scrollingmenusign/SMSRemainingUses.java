@@ -120,9 +120,9 @@ public class SMSRemainingUses {
 	@Override
 	public String toString() {
 		if (uses.containsKey(globalMax)) {
-			return String.format("Uses: %d/%d (global)", uses.get(global), uses.get(globalMax));
+			return String.format("%d/%d (global)", uses.get(global), uses.get(globalMax));
 		} else if (uses.containsKey(perPlayerMax)) {
-			return String.format("Uses: %d (per-player)", uses.get(perPlayerMax));
+			return String.format("%d (per-player)", uses.get(perPlayerMax));
 		} else {
 			return "";
 		}
@@ -136,9 +136,9 @@ public class SMSRemainingUses {
 	 */
 	public String toString(String player) {
 		if (uses.containsKey(globalMax)) {
-			return String.format("Uses: %d/%d (global)", uses.get(global), uses.get(globalMax));
+			return String.format("%d/%d (global)", uses.get(global), uses.get(globalMax));
 		} else if (uses.containsKey(perPlayerMax)) {
-			return String.format("Uses: %d/%d (per-player)", getRemainingUses(player), uses.get(perPlayerMax));
+			return String.format("%d/%d (per-player)", getRemainingUses(player), uses.get(perPlayerMax));
 		} else {
 			return "";
 		}

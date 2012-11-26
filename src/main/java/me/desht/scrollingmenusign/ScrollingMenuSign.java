@@ -48,11 +48,9 @@ import me.desht.scrollingmenusign.listeners.SMSBlockListener;
 import me.desht.scrollingmenusign.listeners.SMSEntityListener;
 import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
 import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
-import me.desht.scrollingmenusign.listeners.SMSSpoutScreenListener;
 import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -77,7 +75,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	private final CommandManager cmds = new CommandManager(this);
 	
 	private SMSSpoutKeyListener spoutKeyListener;
-	private SMSSpoutScreenListener spoutScreenListener;
 	private boolean spoutEnabled = false;
 	private static ScrollingMenuSign instance = null;
 	private ConfigurationManager configManager;
@@ -95,7 +92,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	@Override
 	public void onEnable() {
 		setInstance(this);
-		
+
 		LogUtils.init(this);
 
 		DirectoryStructure.setupDirectoryStructure();
@@ -117,9 +114,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		if (spoutEnabled) {
 			spoutKeyListener = new SMSSpoutKeyListener();
-			spoutScreenListener = new SMSSpoutScreenListener();
 			pm.registerEvents(spoutKeyListener, this);
-			pm.registerEvents(spoutScreenListener, this);
 		}
 
 		registerCommands();
@@ -365,9 +360,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		for (SMSView v : SMSView.listViews()) {
 			if (type == null || v.getType().equals(type)) {
 				v.update(v.getMenu(), SMSMenuAction.REPAINT);
-				if (v instanceof SMSSpoutView) {
-					((SMSSpoutView) v).rejustify();
-				}
 			}
 		}
 	}

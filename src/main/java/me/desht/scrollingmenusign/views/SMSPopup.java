@@ -1,18 +1,20 @@
 package me.desht.scrollingmenusign.views;
 
+import org.bukkit.entity.Player;
+
 
 public interface SMSPopup {
 
 	public abstract SMSView getView();
 
-	public abstract boolean isPoppedUp();
-
 	public abstract void repaint();
 
-	public abstract void popup();
+//	public abstract void rejustify();
 
-	public abstract void popdown();
+	public abstract boolean isPoppedUp(Player p);
 
-	public abstract void updateTitleJustification();
+	public abstract void popup(Player p);
+
+	public abstract void popdown(Player p);
 
 }

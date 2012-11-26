@@ -1,12 +1,12 @@
 package me.desht.scrollingmenusign.commands;
 
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.views.SMSInventoryView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSMultiSignView;
@@ -28,7 +28,7 @@ public class AddViewCommand extends AbstractCommand {
 		super("sms sy", 1);
 		setPermissionNode("scrollingmenusign.commands.sync");
 		setUsage("/sms sync <menu-name> [-map <id>|-sign <loc>|-spout]");
-		setOptions("map:i,sign,spout,redstone,multi,inventory,viewname:s,loc:s");	
+		setOptions("map:i,sign,spout,redstone,multi,inventory,inv,viewname:s,loc:s");	
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class AddViewCommand extends AbstractCommand {
 			} else {
 				view = SMSRedstoneView.addRedstoneViewToMenu(viewName, menu, loc);
 			}
-		} else if (hasOption("inventory")) {
+		} else if (hasOption("inventory") || hasOption("inv")) {
 			view = SMSInventoryView.addInventoryViewToMenu(viewName, menu);
 		} else if (hasOption("multi") && loc != null) { 	// multi-sign view
 			view = SMSMultiSignView.addSignToMenu(viewName, menu, loc);

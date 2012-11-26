@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.commands;
 import java.util.List;
 
 import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
@@ -55,7 +56,7 @@ public class ShowMenuCommand extends AbstractCommand {
 		pager.add(String.format("Menu &e%s&-, Title \"&f%s&-\", Owner &e%s&-",
 		                                       menu.getName(),  menu.getTitle(), mo));
 		if (!menu.formatUses(sender).isEmpty()) {
-			pager.add("&c" + menu.formatUses(sender));
+			pager.add("Uses: &c" + menu.formatUses(sender));
 		}
 		if (!menu.getDefaultCommand().isEmpty()) {
 			pager.add(" Default command: &f" + menu.getDefaultCommand());
@@ -65,15 +66,21 @@ public class ShowMenuCommand extends AbstractCommand {
 			pager.add(String.format("View &e%s&-, Owner &e%s&-", view.getName(), owner));
 		}
 		
+		String defIcon = MaterialWithData.get(plugin.getConfig().getString("sms.inv_view.default_icon", "stone")).toString();
+		
 		List<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
-			String message = item.getMessage().isEmpty() ? "" : "\"" + item.getMessage() + "\" ";
+			String message = item.getMessage();
 			String command = item.getCommand().replace(" && ", " &&&& ");
-			String s = String.format("&e%2d) &f%s &7[%s] &e%s&c%s",
-					n, item.getLabel(), command, message, item.formatUses(sender));
-			n++;
+			String uses = item.formatUses(sender);
+			String icon = item.getIconMaterial().toString();
+			String s = String.format("&e%2d) &f%s &7[%s]", // &e%s&c%s",
+					n++, item.getLabel(), command); //, message, item.formatUses(sender));
 			pager.add(s);
+			if (!message.isEmpty()) pager.add("    &9Feedback: &e" + message);
+			if (!uses.isEmpty()) pager.add("    &9Uses: &e" + uses);
+			if (!icon.equalsIgnoreCase(defIcon)) pager.add("    &9Icon: &e" + icon);
 		}
 		
 		pager.showPage();

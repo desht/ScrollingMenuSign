@@ -56,7 +56,7 @@ public class ListMenusCommand extends AbstractCommand {
 		ChatColor viewCol = views.size() > 0 ? ChatColor.YELLOW : ChatColor.GOLD;
 		String ms = menu.getItemCount() == 1 ? "" : "s";
 		String vs = views.size() == 1 ? "" : "s";
-		String message = String.format("&4* &f%s \"%s&f\" %s[%d item%s] %s[%d view%s]",
+		String message = String.format(MessagePager.BULLET + " &f%s \"%s&f\" %s[%d item%s] %s[%d view%s]",
 		                               menu.getName(), menu.getTitle(), itemCol, 
 		                               menu.getItemCount(), ms,
 		                               viewCol.toString(), views.size(), vs);
@@ -64,7 +64,7 @@ public class ListMenusCommand extends AbstractCommand {
 		lines.add(message);
 		if (listViews) {
 			for (SMSView v : views) {
-				lines.add(String.format("  &5*&- &f%s&-: &e%s", v.getName(), v.toString()));
+				lines.add(String.format("  " + MessagePager.BULLET + " &f%s&-: &e%s", v.getName(), v.toString()));
 			}
 		}
 		pager.add(lines);

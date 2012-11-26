@@ -362,7 +362,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * 
 	 * @param item	The item to be added
 	 */
-	void addItem(SMSMenuItem item) {
+	public void addItem(SMSMenuItem item) {
 		insertItem(items.size() + 1, item);
 	}
 	
@@ -786,6 +786,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param player	Player to retrieve the usage information for
 	 * @return			Formatted usage information
 	 */
+	@Override
 	public String formatUses(CommandSender sender) {
 		if (sender instanceof Player) {
 			return uses.toString(sender.getName());

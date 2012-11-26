@@ -19,20 +19,24 @@ import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SMSListWidget extends GenericListWidget {
 	private static final float THRESHOLD = 129;
-	
+
 	private final SMSSpoutView view;
 	private final SpoutPlayer sp;
-	
+
 	private String defaultTextColor = ChatColor.BLACK.toString();
 	private boolean ignoreNextSelection;
 
 	public SMSListWidget(SpoutPlayer sp, SMSSpoutView view) {
 		this.view = view;
 		this.sp = sp;
-		
+
 		repaint();
 	}
 
+	public SMSSpoutView getView() {
+		return view;
+	}
+	
 	public void ignoreNextSelection(boolean ignore) {
 		this.ignoreNextSelection = ignore;
 	}
@@ -51,7 +55,7 @@ public class SMSListWidget extends GenericListWidget {
 			c.setAlpha((float) cfg.getDefaults().getDouble("sms.spout.list_alpha"));
 		}
 		LogUtils.finer("updateBackground: view = " + view.getName() + " background = " + c.toString());
-		
+
 		// choose a contrasting text colour - black for a pale background, white for a dark background
 		int luminance = (int) Math.sqrt(c.getRedI() * c.getRedI() * 0.241 + c.getGreenI() * c.getGreenI() * 0.691 + c.getBlueI() * c.getBlueI() * 0.068);
 		if (luminance > THRESHOLD) {
@@ -61,7 +65,7 @@ public class SMSListWidget extends GenericListWidget {
 		}
 		return setBackgroundColor(c);
 	}
-	
+
 	@Override
 	public void onSelected(int idx, boolean doubleClicked) {
 		if (idx < 0) {
@@ -73,14 +77,14 @@ public class SMSListWidget extends GenericListWidget {
 			ignoreNextSelection = false;
 			return;
 		}
-		
+
 		// bit of a hack - cast to SMSScrollableView to avoid an unnecessary call to SpoutViewPopup.scrollTo()
 		((SMSScrollableView)view).setScrollPos(getScreen().getPlayer().getName(), idx + 1);
 
 		if (!doubleClicked && ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.double_click")) {
 			return;
 		}
-		
+
 		SMSMenuItem item = view.getMenu().getItemAt(idx + 1);
 		SpoutPlayer player = getScreen().getPlayer();
 		try {
@@ -94,7 +98,7 @@ public class SMSListWidget extends GenericListWidget {
 			MiscUtil.errorMessage(player, e.getMessage());
 		}
 	}
-	
+
 	public void repaint() {
 		updateBackground();
 		populateMenu();
@@ -102,14 +106,14 @@ public class SMSListWidget extends GenericListWidget {
 
 	private void populateMenu() {
 		clear();
-		
+
 		boolean showCommand =
 				ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.show_command_text")
 				&& PermissionUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
-		
+
 		for (SMSMenuItem item : view.getMenu().getItems()) {
 			addItem(new ListWidgetItem(defaultTextColor + view.variableSubs(item.getLabel()), showCommand ? item.getCommand() : ""));
 		}
 	}
-	
+
 }

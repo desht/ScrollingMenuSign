@@ -4,6 +4,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 
@@ -17,10 +18,11 @@ public class ReplaceItemCommand extends AbstractCommand {
 		super("sms rep", 3);
 		setPermissionNode("scrollingmenusign.commands.replace");
 		setUsage(new String[] {
-				"/sms replace <menu-name> @<pos> \"label\" [\"command\"] [\"message\"]",
-				"/sms replace <menu-name> \"label\" [\"command\"] [\"message\"]",
+				"/sms replace <menu-name> @<pos> <label> [<command>] [-feedback <text>] [-icon <material>]",
+				"/sms replace <menu-name> <label> [<command>] [-feedback <text>] [-icon <material>]",
 		});
 		setQuotedArgs(true);
+		setOptions(new String[] { "feedback:s", "icon:s" });
 	}
 
 	@Override
@@ -44,7 +46,8 @@ public class ReplaceItemCommand extends AbstractCommand {
 		
 		String label = args[argPos];
 		String command = args.length >= argPos+2 ? args[argPos+1] : "";
-		String message = args.length >= argPos+3 ? args[argPos+2] : "";
+		String message = hasOption("feedback") ? getStringOption("feedback") : "";
+		String iconMat = hasOption("icon") ? getStringOption("icon") : "";
 		
 		if (sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, command)) {
 			throw new SMSException("You do not have permission to add that kind of command.");
@@ -54,12 +57,14 @@ public class ReplaceItemCommand extends AbstractCommand {
 			if (label.isEmpty()) label = menu.getItemAt(pos, true).getLabel();
 			if (command.isEmpty()) command = menu.getItemAt(pos, true).getCommand();
 			if (message.isEmpty()) message = menu.getItemAt(pos, true).getMessage();
-			menu.replaceItem(pos, label, command, message);
+			if (iconMat.isEmpty()) iconMat = menu.getItemAt(pos, true).getIconMaterial().toString();
+			menu.replaceItem(pos, new SMSMenuItem(menu, label, command, message, iconMat));
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- replaced in &e" + menuName + "&-, position &e" + pos);
 		} else {
 			if (command.isEmpty()) command = menu.getItem(label, true).getCommand();
 			if (message.isEmpty()) message = menu.getItem(label, true).getMessage();
-			menu.replaceItem(label, command, message);
+			if (iconMat.isEmpty()) iconMat = menu.getItem(label, true).getIconMaterial().toString();
+			menu.replaceItem(new SMSMenuItem(menu, label, command, message, iconMat));
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- replaced in &e" + menuName + "&-");
 		}
 		

@@ -31,6 +31,8 @@ sms:
     elevation:
         nodes: []
         grant_op: false
+    inv_view:
+        default_icon: stone
     maps:
         break_block_id: 0
         transfer:

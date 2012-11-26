@@ -6,7 +6,7 @@ import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.scrollingmenusign.views.Poppable;
+import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -60,8 +60,8 @@ public class ViewCommand extends AbstractCommand {
 		} else if (args[1].equals("-popup")) {
 			notFromConsole(sender);
 			view.ensureAllowedToUse((Player) sender);
-			if (view instanceof Poppable) {
-				Poppable pop = (Poppable) view;
+			if (view instanceof PoppableView) {
+				PoppableView pop = (PoppableView) view;
 				pop.toggleGUI((Player) sender);
 			}
 		} else if (args[1].startsWith("-d") && args.length >= 3) {

@@ -11,6 +11,7 @@ import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.block.MaterialWithData;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -21,20 +22,32 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	private final String label;
 	private final String command;
 	private final String message;
+	private final MaterialWithData iconMaterial;
 	private final SMSRemainingUses uses;
 	private final SMSMenu menu;
 
-	SMSMenuItem(SMSMenu menu, String l, String c, String m) {
-		if (l == null || c == null || m == null)
-			throw new NullPointerException();
-		this.menu = menu;
-		this.label = l;
-		this.command = c;
-		this.message = m;
-		this.uses = new SMSRemainingUses(this);
+	public SMSMenuItem(SMSMenu menu, String label, String command, String message) {
+		this(menu, label, command, message, null);
 	}
 
-	SMSMenuItem(SMSMenu menu, ConfigurationSection node) throws SMSException {
+	public SMSMenuItem(SMSMenu menu, String label, String command, String message, String iconMaterialName) {
+		if (label == null || command == null || message == null)
+			throw new NullPointerException();
+		this.menu = menu;
+		this.label = label;
+		this.command = command;
+		this.message = message;
+		try {
+			if (iconMaterialName == null || iconMaterialName.isEmpty())
+				iconMaterialName = ScrollingMenuSign.getInstance().getConfig().getString("sms.inv_view.default_icon", "stone");
+			this.iconMaterial = MaterialWithData.get(iconMaterialName);
+		} catch (IllegalArgumentException e) {
+			throw new SMSException("invalid material '" + iconMaterialName + "'");
+		}
+		this.uses = new SMSRemainingUses(this);
+	}
+	
+	public SMSMenuItem(SMSMenu menu, ConfigurationSection node) throws SMSException {
 		SMSPersistence.mustHaveField(node, "label");
 		SMSPersistence.mustHaveField(node, "command");
 		SMSPersistence.mustHaveField(node, "message");
@@ -43,6 +56,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		this.label = MiscUtil.parseColourSpec(node.getString("label"));
 		this.command = node.getString("command");
 		this.message = MiscUtil.parseColourSpec(node.getString("message"));
+		String defMat = ScrollingMenuSign.getInstance().getConfig().getString("sms.inv_view.default_icon", "stone");
+		String iconMat = node.getString("icon", defMat);
+		this.iconMaterial = MaterialWithData.get(iconMat);
 		this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
 	}
 
@@ -82,6 +98,16 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		return message;
 	}
 
+	/**
+	 * Return the material used for this menu item's icon, in those views which
+	 * support icons.
+	 * 
+	 * @return
+	 */
+	public MaterialWithData getIconMaterial() {
+		return iconMaterial;
+	}
+	
 	/**
 	 * Executes the command for this item
 	 * 
@@ -188,7 +214,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 */
 	@Override
 	public String toString() {
-		return "SMSMenuItem [label=" + label + ", command=" + command + ", message=" + message + "]";
+		return "SMSMenuItem [label=" + label + ", command=" + command + ", message=" + message + ", icon=" + iconMaterial + "]";
 	}
 
 	/**
@@ -215,6 +241,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 * @param sender	Player to retrieve the usage information for
 	 * @return			Formatted usage information
 	 */
+	@Override
 	public String formatUses(CommandSender sender) {
 		if (sender instanceof Player) {
 			return uses.toString(sender.getName());
@@ -282,6 +309,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		map.put("label", MiscUtil.unParseColourSpec(label));
 		map.put("command", command);
 		map.put("message", MiscUtil.unParseColourSpec(message));
+		map.put("icon", iconMaterial.toString());
 		map.put("usesRemaining", uses.freeze());
 
 		return map;

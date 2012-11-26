@@ -5,6 +5,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
+import org.bukkit.entity.Player;
 import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.Label;
 import org.getspout.spoutapi.gui.Screen;
@@ -16,7 +17,6 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	private static final int TITLE_HEIGHT = 15;
 	private static final int TITLE_WIDTH = 100;
 
-	private final SpoutPlayer sp;
 	private final Label title;
 	private final SMSSpoutView view;
 	private final SMSListWidget listWidget;
@@ -25,7 +25,6 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	private boolean poppedUp;
 
 	public SpoutViewPopup(SpoutPlayer sp, SMSSpoutView view) {
-		this.sp = sp;
 		this.view = view;
 		this.poppedUp = false;
 
@@ -35,7 +34,7 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 		title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(15).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
 		title.setAnchor(WidgetAnchor.TOP_LEFT);
 		title.setAuto(false	);
-		updateTitleJustification();
+		rejustify();
 
 		int listX = (mainScreen.getWidth() - LIST_WIDTH) / 2;
 		int listY = 5 + 2 + TITLE_HEIGHT;
@@ -65,7 +64,7 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	 * @see me.desht.scrollingmenusign.spout.SMSPopup#isPoppedUp()
 	 */
 	@Override
-	public boolean isPoppedUp() {
+	public boolean isPoppedUp(Player p) {
 		return poppedUp;
 	}
 
@@ -75,6 +74,7 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	@Override
 	public void repaint() {
 		title.setText(view.variableSubs(view.getMenu().getTitle()));
+		rejustify();
 		texture.updateURL();
 		listWidget.repaint();
 	}
@@ -83,25 +83,21 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	 * @see me.desht.scrollingmenusign.spout.SMSPopup#popup()
 	 */
 	@Override
-	public void popup() {
+	public void popup(Player p) {
 		poppedUp = true;
-		sp.getMainScreen().attachPopupScreen(this);
+		((SpoutPlayer) p).getMainScreen().attachPopupScreen(this);
 	}
 
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.spout.SMSPopup#popdown()
 	 */
 	@Override
-	public void popdown() {
+	public void popdown(Player p) {
 		poppedUp = false;
-		sp.getMainScreen().closePopup();
+		((SpoutPlayer) p).getMainScreen().closePopup();
 	}
 
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.spout.SMSPopup#updateTitleJustification()
-	 */
-	@Override
-	public void updateTitleJustification() {
+	private void rejustify() {
 		switch (getView().getTitleJustification()) {
 		case LEFT:
 			title.setAlign(WidgetAnchor.CENTER_LEFT); break;
