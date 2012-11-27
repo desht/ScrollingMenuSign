@@ -81,35 +81,7 @@ public class CommandParser {
 			cmdLogger.setUseParentHandlers(true);
 		}
 	}
-
-
-	/**
-	 * @param player
-	 * @param command
-	 * @throws SMSException
-	 * @Deprecated use CommandUtils.runCommand()
-	 */
-	@Deprecated
-	public static void runCommandWrapper(Player player, String command) throws SMSException {
-		CommandUtils.executeCommand(player, command);
-	}
-
-	/**
-	 * Parse and run a command string via the SMS command engine
-	 * 
-	 * @param player		Player who is running the command
-	 * @param command		The command to be run
-	 * @return	The parsed command object, which gives access to details on how the command ran
-	 * @throws SMSException
-	 * @Deprecated use executeCommand()
-	 */
-	@Deprecated
-	public ParsedCommand runCommand(Player player, String command) throws SMSException {
-		ParsedCommand cmd = handleCommandString(player, null, command, RunMode.EXECUTE);
-
-		return cmd;
-	}
-
+	
 	/**
 	 * Parse and run a command string via the SMS command engine
 	 * 

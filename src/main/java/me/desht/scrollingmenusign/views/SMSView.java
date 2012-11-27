@@ -708,17 +708,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
-	 * Check if the given player has owner permission to use this view.
-	 * @param player	The player to check
-	 * @return True if the player may use this view, false if not
-	 * @deprecated Use hasOwnerPermission(player)
-	 */
-	@Deprecated
-	public boolean allowedToUse(Player player) {
-		return hasOwnerPermission(player);
-	}
-
-	/**
 	 * Require that the given player is allowed to use this view, and throw a SMSException if not.
 	 * 
 	 * @param player	The player to check

@@ -7,7 +7,6 @@ import me.desht.scrollingmenusign.parser.ParsedCommand;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public interface SMSHandler {
 	/**
@@ -71,17 +70,7 @@ public interface SMSHandler {
 	 * @throws SMSException	if there is no menu sign at <b>loc</b>
 	 */
 	public SMSMenu getMenuAt(Location loc) throws SMSException;
-	
-	/**
-	 * Get the name of the menu which owns the sign that the player is looking at
-	 * 
-	 * @param player		The player to check
-	 * @param complain		If true, throw an exception if there is no menu.  If false, return null if there is no menu.
-	 * @return				The menu, or null if <b>complain</b> is false.
-	 * @throws SMSException	if there is no menu and <b>complain</b> is true.
-	 */
-	public String getTargetedMenuSign(Player player, boolean complain) throws SMSException;
-	
+
 	/**
 	 * Get a list of all known menu objects.
 	 * 
@@ -95,19 +84,6 @@ public interface SMSHandler {
 	 * @return	A list of SMSMenu objects.
 	 */
 	public List<SMSMenu> listMenus(boolean isSorted);
-	
-	/**
-	 * Run a command using the ScrollingMenuSign command parser/executor.
-	 * 
-	 * @param player	The player who is running the command
-	 * @param command	The command string to be run
-	 * @return	A ParsedCommand object giving access to detailed information about the outcome of the command
-	 * @throws SMSException if the command string contains syntax errors
-	 * @deprecated use executeCommand()
-	 */
-	@Deprecated
-	public ParsedCommand runCommand(Player player, String command) throws SMSException;
-	
 
 	/**
 	 * Run a command using the ScrollingMenuSign command parser/executor.

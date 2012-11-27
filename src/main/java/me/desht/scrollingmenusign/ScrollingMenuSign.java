@@ -66,21 +66,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
 	public static final int BLOCK_TARGET_DIST = 4;
-	
-//	private final SMSPlayerListener playerListener = new SMSPlayerListener(this);
-//	private final SMSBlockListener blockListener = new SMSBlockListener(this);
-//	private final SMSEntityListener entityListener = new SMSEntityListener(this);
-//	private final SMSWorldListener worldListener = new SMSWorldListener(this);
-	private final SMSHandlerImpl handler = new SMSHandlerImpl();
-	private final CommandManager cmds = new CommandManager(this);
-	
-//	private SMSSpoutKeyListener spoutKeyListener;
-	private boolean spoutEnabled = false;
+
 	private static ScrollingMenuSign instance = null;
-	private ConfigurationManager configManager;
 	
 	public static Economy economy = null;
 	public static Permission permission = null;
+	
+	private final SMSHandlerImpl handler = new SMSHandlerImpl();
+	private final CommandManager cmds = new CommandManager(this);
+	
+	private boolean spoutEnabled = false;
+	private ConfigurationManager configManager;
 
 	public final ResponseHandler responseHandler = new ResponseHandler();
 
@@ -110,15 +106,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		new SMSBlockListener(this);
 		new SMSEntityListener(this);
 		new SMSWorldListener(this);
-//		pm.registerEvents(playerListener, this);
-//		pm.registerEvents(blockListener, this);
-//		pm.registerEvents(entityListener, this);
-//		pm.registerEvents(worldListener, this);
-
 		if (spoutEnabled) {
 			new SMSSpoutKeyListener(this);
-//			spoutKeyListener = new SMSSpoutKeyListener(this);
-//			pm.registerEvents(spoutKeyListener, this);
 		}
 
 		registerCommands();

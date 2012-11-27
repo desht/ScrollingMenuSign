@@ -6,12 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.desht.scrollingmenusign.parser.CommandParser;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.block.MaterialWithData;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -107,29 +106,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	public MaterialWithData getIconMaterial() {
 		return iconMaterial;
 	}
-	
-	/**
-	 * Executes the command for this item
-	 * 
-	 * @param player		Player to execute the command for
-	 * @throws SMSException	if the usage limit for this player is exhausted
-	 * @deprecated use executeCommand()
-	 */
-	@Deprecated
-	public void execute(Player player) throws SMSException {
-		if (player != null) {
-			checkRemainingUses(this.getUseLimits(), player);
-			checkRemainingUses(menu.getUseLimits(), player);
-		}
 
-		String cmd = getCommand();
-		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty() ) {
-			cmd = menu.getDefaultCommand().replace("<LABEL>", getLabel());
-		}
-		
-		CommandParser.runCommandWrapper(player, cmd);
-	}
-	
 	/**
 	 * Executes the command for this item
 	 * 

@@ -17,7 +17,6 @@ import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -709,31 +708,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	static boolean checkForMenu(String menuName) {
 		return menus.containsKey(menuName);
 	}
-
-	/**
-	 * Return the name of the menu sign that the player is looking at, if any
-	 * 
-	 * @param player	The Bukkit player object
-	 * @param complain	Whether or not to throw an exception if there is no menu
-	 * @return	The menu name, or null if there is no menu and <b>complain</b> is false
-	 * @throws SMSException	if there is not menu and <b>complain</b> is true
-	 * @deprecated use SMSView.getTargetedView()
-	 */
-	@Deprecated
-	public static String getTargetedMenuSign(Player player, boolean complain) throws SMSException {
-		String name;
-		try {
-			Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
-			name = SMSMenu.getMenuNameAt(b.getLocation());
-			return name;
-		} catch (IllegalStateException e) {
-			name = null;
-		}
-		if (name == null && complain)
-			throw new SMSException("You are not looking at a menu.");
-		return name;
-	}
-
+	
 	/**
 	 * Return an unsorted list of all the known menus
 	 * Equivalent to calling <b>listMenus(false)</b>

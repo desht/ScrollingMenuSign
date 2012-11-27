@@ -2,14 +2,13 @@ package me.desht.scrollingmenusign;
 
 import java.util.List;
 
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.parser.ParsedCommand;
-import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class SMSHandlerImpl implements SMSHandler {
 	
@@ -73,12 +72,6 @@ public class SMSHandlerImpl implements SMSHandler {
 	}
 
 	@Override
-	@Deprecated
-	public String getTargetedMenuSign(Player player, boolean complain) throws SMSException {
-		return SMSMenu.getTargetedMenuSign(player, complain);
-	}
-
-	@Override
 	public List<SMSMenu> listMenus() {
 		return SMSMenu.listMenus();
 	}
@@ -86,12 +79,6 @@ public class SMSHandlerImpl implements SMSHandler {
 	@Override
 	public List<SMSMenu> listMenus(boolean isSorted) {
 		return SMSMenu.listMenus(isSorted);
-	}
-
-	@Override
-	@Deprecated
-	public ParsedCommand runCommand(Player player, String command) throws SMSException {
-		return new CommandParser().runCommand(player, command);
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.dhutils.BookItem;
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.views.PoppableView;
