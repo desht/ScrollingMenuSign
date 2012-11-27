@@ -26,6 +26,7 @@ public class ParsedCommand {
 	private boolean elevated;
 	private boolean restricted;
 	private boolean affordable;
+	private boolean applicable;
 	private List<Cost> costs;
 	private ReturnStatus status;
 	private boolean whisper;
@@ -42,7 +43,7 @@ public class ParsedCommand {
 		costs = new ArrayList<Cost>();
 		elevated = restricted = chat = whisper = macro = console = false;
 		commandStopped = macroStopped = false;
-		affordable = true;
+		affordable = applicable = true;
 		command = null;
 		status = ReturnStatus.UNKNOWN;
 		lastError = "no error";
@@ -130,7 +131,10 @@ public class ParsedCommand {
 
 				if (!Cost.playerCanAfford(sender, getCosts())) {
 					affordable = false;
-				}	
+				}
+				if (!Cost.isApplicable(sender, getCosts())) {
+					applicable = false;
+				}
 			} else if (token.equals("&&")) {
 				// command separator - start another command IF this command is runnable
 				commandStopped = restricted || !affordable;
@@ -212,6 +216,16 @@ public class ParsedCommand {
 	 */
 	public boolean isAffordable() {
 		return affordable;
+	}
+	
+	/**
+	 * Get the applicable status, i.e. whether the command costs actually make sense.  E.g. repairing an
+	 * item which doesn't have durability would not be applicable.
+	 * 
+	 * @return
+	 */
+	public boolean isApplicable() {
+		return applicable;
 	}
 
 	/**

@@ -334,6 +334,12 @@ public class CommandParser {
 			cmd.setStatus(ReturnStatus.CANT_AFFORD);
 			return;
 		}
+		if (!cmd.isApplicable()) {
+			// an inapplicable cost is an error condition that we report to the player
+			cmd.setLastError("Doing this would not make sense...");
+			cmd.setStatus(ReturnStatus.INAPPLICABLE);
+			return;
+		}
 
 		if (sender instanceof Player) {
 			Cost.chargePlayer(sender, cmd.getCosts());
