@@ -22,7 +22,6 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -31,7 +30,11 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.material.Attachable;
 
-public class SMSBlockListener implements Listener {
+public class SMSBlockListener extends SMSListenerBase {
+
+	public SMSBlockListener(ScrollingMenuSign plugin) {
+		super(plugin);
+	}
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockDamage(BlockDamageEvent event) {
@@ -68,7 +71,7 @@ public class SMSBlockListener implements Listener {
 
 		if (view != null) {
 			LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
-			if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.no_destroy_signs", false)) {
+			if (plugin.getConfig().getBoolean("sms.no_destroy_signs", false)) {
 				event.setCancelled(true);
 				view.update(view.getMenu(), SMSMenuAction.REPAINT);
 			} else {
@@ -102,7 +105,7 @@ public class SMSBlockListener implements Listener {
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
 			LogUtils.fine("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
-			if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.no_physics", false)) {
+			if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
 				event.setCancelled(true);
 			} else if (b.getState().getData() instanceof Attachable) {
 				Attachable a = (Attachable)	b.getState().getData();
@@ -131,7 +134,6 @@ public class SMSBlockListener implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Player p = event.getPlayer();
-		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		if (plugin.responseHandler.isExpecting(p.getName(), ExpectSwitchAddition.class)) {
 			ExpectSwitchAddition swa = plugin.responseHandler.getAction(p.getName(), ExpectSwitchAddition.class);
 			swa.setLocation(event.getBlock().getLocation());
@@ -156,7 +158,7 @@ public class SMSBlockListener implements Listener {
 				event.setLine(0, ChatColor.RED + "[smsred]");
 				final Block block = event.getBlock();
 				
-				Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
+				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 					// get the new control sign cached
 					@Override
 					public void run() {

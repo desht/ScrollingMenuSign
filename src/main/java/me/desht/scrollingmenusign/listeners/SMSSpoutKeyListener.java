@@ -6,6 +6,7 @@ import java.util.Map;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.spout.SMSGenericPopup;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
@@ -18,7 +19,6 @@ import me.desht.scrollingmenusign.views.SMSView;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.getspout.spoutapi.event.input.KeyPressedEvent;
 import org.getspout.spoutapi.event.input.KeyReleasedEvent;
 import org.getspout.spoutapi.gui.PopupScreen;
@@ -26,10 +26,12 @@ import org.getspout.spoutapi.gui.ScreenType;
 import org.getspout.spoutapi.keyboard.Keyboard;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
-public class SMSSpoutKeyListener implements Listener {
+public class SMSSpoutKeyListener extends SMSListenerBase {
 	private static final Map<String, SMSSpoutKeyMap> pressedKeys = new HashMap<String, SMSSpoutKeyMap>();
 
-	public SMSSpoutKeyListener() {
+	public SMSSpoutKeyListener(ScrollingMenuSign plugin) {
+		super(plugin);
+		
 		SpoutUtils.loadKeyDefinitions();
 	}
 

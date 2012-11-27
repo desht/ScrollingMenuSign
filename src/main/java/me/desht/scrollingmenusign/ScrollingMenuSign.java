@@ -67,14 +67,14 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	public static final int BLOCK_TARGET_DIST = 4;
 	
-	private final SMSPlayerListener playerListener = new SMSPlayerListener();
-	private final SMSBlockListener blockListener = new SMSBlockListener();
-	private final SMSEntityListener entityListener = new SMSEntityListener();
-	private final SMSWorldListener worldListener = new SMSWorldListener();
+//	private final SMSPlayerListener playerListener = new SMSPlayerListener(this);
+//	private final SMSBlockListener blockListener = new SMSBlockListener(this);
+//	private final SMSEntityListener entityListener = new SMSEntityListener(this);
+//	private final SMSWorldListener worldListener = new SMSWorldListener(this);
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
 	private final CommandManager cmds = new CommandManager(this);
 	
-	private SMSSpoutKeyListener spoutKeyListener;
+//	private SMSSpoutKeyListener spoutKeyListener;
 	private boolean spoutEnabled = false;
 	private static ScrollingMenuSign instance = null;
 	private ConfigurationManager configManager;
@@ -103,18 +103,22 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		LogUtils.setLogLevel(getConfig().getString("sms.log_level", "INFO"));
 		
 		PluginManager pm = getServer().getPluginManager();
-
 		setupSpout(pm);
 		setupVault(pm);
 
-		pm.registerEvents(playerListener, this);
-		pm.registerEvents(blockListener, this);
-		pm.registerEvents(entityListener, this);
-		pm.registerEvents(worldListener, this);
+		new SMSPlayerListener(this);
+		new SMSBlockListener(this);
+		new SMSEntityListener(this);
+		new SMSWorldListener(this);
+//		pm.registerEvents(playerListener, this);
+//		pm.registerEvents(blockListener, this);
+//		pm.registerEvents(entityListener, this);
+//		pm.registerEvents(worldListener, this);
 
 		if (spoutEnabled) {
-			spoutKeyListener = new SMSSpoutKeyListener();
-			pm.registerEvents(spoutKeyListener, this);
+			new SMSSpoutKeyListener(this);
+//			spoutKeyListener = new SMSSpoutKeyListener(this);
+//			pm.registerEvents(spoutKeyListener, this);
 		}
 
 		registerCommands();

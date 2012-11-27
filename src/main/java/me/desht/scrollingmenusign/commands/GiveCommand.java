@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.BookItem;
+import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -67,17 +68,13 @@ public class GiveCommand extends AbstractCommand {
 	
 	@SuppressWarnings("deprecation")
 	private void giveBook(CommandSender sender, Player targetPlayer, String viewName, int amount) {
-		BookItem bi = new BookItem(new ItemStack(387,1));
 		SMSView view = SMSView.getView(viewName);
 		if (!(view instanceof PoppableView)) {
 			throw new SMSException("View '" + viewName + "' isn't a poppable view.");
 		}
-		bi.setTitle(view.getMenu().getTitle());
-		bi.setAuthor(sender.getName());
-		String[] pages = new String[] { "Left Click to Use!", view.getType() + " view", viewName, view.getMenu().getName() };
-		bi.setPages(pages);
 		
-		ItemStack writtenbook = bi.getItemStack();
+		PopupBook book = new PopupBook(targetPlayer, view);
+		ItemStack writtenbook = book.toItemStack();
 		targetPlayer.getInventory().addItem(writtenbook);
 		targetPlayer.updateInventory();
 		

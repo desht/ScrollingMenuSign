@@ -21,12 +21,19 @@ import org.bukkit.inventory.ItemStack;
  */
 public class PopupBook {
 	
-	private final WeakReference<PoppableView> view;
+	private final WeakReference<SMSView> view;
 	private final WeakReference<Player> player;
 
+	/**
+	 * Private constructor (use PopupBook.get()).  Create a popup book object from a
+	 * written book item.
+	 * 
+	 * @param p	 the player
+	 * @param bi  the book item
+	 */
 	private PopupBook(Player p, BookItem bi) {
 		String[] pages = bi.getPages();
-		String viewType = pages[1].split(" ")[0];
+		String viewType = pages[1].split(" ")[1];
 		String viewName = pages[2];
 		String menuName = pages[3];
 		
@@ -55,26 +62,75 @@ public class PopupBook {
 		
 		if (wantedView == null || !(wantedView instanceof PoppableView)) {
 			// couldn't get a suitable view for this book - destroy it
-			throw new SMSException("Missing view " + viewName);
+			throw new SMSException("Invalid view: " + viewName);
 		}
 		
 		this.player = new WeakReference<Player>(p);
-		this.view = new WeakReference<PoppableView>((PoppableView) wantedView);
+		this.view = new WeakReference<SMSView>((SMSView) wantedView);
 	}
 	
+	/**
+	 * Create a popup book object for the given player and view.
+	 * 
+	 * @param p
+	 * @param view
+	 */
+	public PopupBook(Player p, SMSView view) {
+		this.player = new WeakReference<Player>(p);
+		if (!(view instanceof PoppableView)) {
+			throw new SMSException("Invalid view: " + view.getName());
+		}
+		this.view = new WeakReference<SMSView>(view);
+	}
+
+	public SMSView getView() {
+		return view.get();	
+	}
+	
+	/**
+	 * Toggle the popped state of the view this book refers to.
+	 */
 	public void toggle() {
 		Player p = this.player.get();
-		PoppableView v = this.view.get();
+		SMSView v = getView();
+		v.ensureAllowedToUse(p);
 		if (p != null && v != null) {
-			v.toggleGUI(p);
+			((PoppableView)v).toggleGUI(p);
 		}
+	}
+	
+	/**
+	 * Get the book item corresponding to this popup book.
+	 * 
+	 * @return	an ItemStack of 1 written book with the title and pages filled in
+	 */
+	public ItemStack toItemStack() {
+		Player p = this.player.get();
+		SMSView v = getView();
+		if (v == null || p == null) {
+			return null;
+		}
+		ItemStack item = new ItemStack(Material.WRITTEN_BOOK, 1);
+		BookItem bi = new BookItem(item);
+		bi.setTitle(v.variableSubs(v.getMenu().getTitle()));
+		bi.setAuthor(p.getName());
+		String[] pages = new String[] {
+			"Left Click to Use!",
+			"sms " + v.getType() + " view",
+			v.getName(),
+			v.getMenu().getName(),
+		};
+		bi.setPages(pages);
+		
+		return bi.getItemStack();
 	}
 	
 	/**
 	 * Get the popup book that the player is holding, if any.
 	 * 
-	 * @param p the book, or null if the player is not holding one
-	 * @return
+	 * @param p the player
+	 * @return the book, or null if the player is not holding one
+	 * @throws SMSException if the player is holding a popup book, but it's not valid
 	 */
 	public static PopupBook get(Player p) {
 		if (!holding(p))
@@ -86,8 +142,8 @@ public class PopupBook {
 	/**
 	 * Check if the player is holding a popup book.
 	 * 
-	 * @param p
-	 * @return
+	 * @param p the player
+	 * @return	true if the player is holding a popup book
 	 */
 	public static boolean holding(Player p) {
 		if (p.getItemInHand().getType() != Material.WRITTEN_BOOK) {
@@ -95,7 +151,7 @@ public class PopupBook {
 		}
 		BookItem bi = new BookItem(p.getItemInHand());
 		String[] pages = bi.getPages();
-		return pages.length >= 4 || pages[1].endsWith(" view"); 
+		return pages != null && pages.length >= 4 && pages[1].matches("^sms \\w+ view$");
 	}
 
 	public static void destroy(Player p) {

@@ -677,6 +677,19 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return getTargetedView(player, false);
 	}
 	
+	public static SMSView findView(SMSMenu menu) {
+		return findView(menu, null);
+	}
+	
+	public static SMSView findView(SMSMenu menu, Class<?> c) {
+		for (SMSView view : listViews()) {
+			if (view.getMenu() == menu && (c == null || c.isAssignableFrom(view.getClass()))) {
+				return view;
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * Check if the given player is allowed to use this view.
 	 * 

@@ -1,6 +1,5 @@
 package me.desht.scrollingmenusign.listeners;
 
-import me.desht.dhutils.BookItem;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
@@ -18,13 +17,13 @@ import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
+import me.desht.scrollingmenusign.views.SMSInventoryView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
-import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -33,15 +32,18 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 
-public class SMSPlayerListener implements Listener {
+public class SMSPlayerListener extends SMSListenerBase {
+	
+	public SMSPlayerListener(ScrollingMenuSign plugin) {
+		super(plugin);
+	}
+
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() == Action.PHYSICAL) {
@@ -67,7 +69,6 @@ public class SMSPlayerListener implements Listener {
 	@EventHandler
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
 		Player player = event.getPlayer();
-		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		
 		if (plugin.responseHandler.isExpecting(player.getName(), ExpectSwitchAddition.class)) {
 			plugin.responseHandler.cancelAction(player.getName(), ExpectSwitchAddition.class);
@@ -93,7 +94,6 @@ public class SMSPlayerListener implements Listener {
 
 	@EventHandler(priority=EventPriority.HIGH)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
-		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		Player player = event.getPlayer();
 		if (plugin.responseHandler.isExpecting(player.getName(), ExpectCommandSubstitution.class)) {
 			try {
@@ -112,10 +112,10 @@ public class SMSPlayerListener implements Listener {
 		Player player = event.getPlayer();
 
 		// clear out user variables if not persistent
-		Configuration cfg = ScrollingMenuSign.getInstance().getConfig();
+		Configuration cfg = plugin.getConfig();
 		if (!cfg.getBoolean("sms.persistent_user_vars") && cfg.contains("uservar." + player.getName())) {
 			cfg.set("uservar." + player.getName(), null);
-			ScrollingMenuSign.getInstance().saveConfig();
+			plugin.saveConfig();
 		}
 
 		MessagePager.deletePager(player);
@@ -138,16 +138,15 @@ public class SMSPlayerListener implements Listener {
 		try {
 			popup = PopupBook.get(player);
 		} catch (SMSException e) {
+			// this means the player is holding a book, but it's no longer a valid one
 			PopupBook.destroy(player);
 			return true;
 		}
 	
-		// If there is no mapView and no selected block, there's nothing for us to do
+		// If there is no mapView, book or selected block, there's nothing for us to do
 		if (block == null && mapView == null && popup == null) {
 			return false;
 		}
-	
-		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 	
 		SMSView locView = block == null ? null : SMSView.getViewForLocation(block.getLocation());
 	
@@ -179,13 +178,13 @@ public class SMSPlayerListener implements Listener {
 				                                             sw.getView().getName(), sw.getTrigger()));
 			}
 		} else if (popup != null) {
-			System.out.println("popup book");
+			// A popup written book - toggle the book's associated poppable view
 			popup.toggle();
-			return true;
+			player.setItemInHand(popup.toItemStack());
 		} else if (mapView != null) {
 			// Holding an active map view
 			LogUtils.fine("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
-			Configuration cfg = ScrollingMenuSign.getInstance().getConfig();
+			Configuration cfg = plugin.getConfig();
 			if (block != null && block.getTypeId() == cfg.getInt("sms.maps.break_block_id")) {
 				// Hit the "break block" with active map - deactivate the map if it has a view on it
 				tryToDeactivateMap(block, player);
@@ -207,6 +206,10 @@ public class SMSPlayerListener implements Listener {
 			} else if (locView != null && player.getItemInHand().getType() == Material.MAP && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
 				// Hit an existing view with a map - the map now becomes a view on the same menu
 				tryToActivateMap(block, player);
+			} else if (locView != null && player.getItemInHand().getType() == Material.BOOK_AND_QUILL) {
+				// Hit an existing view with a book & quill - try to associate a written book with
+				// an inventory view on the view's menu
+				tryToAddInventoryView((SMSGlobalScrollableView) locView, player);
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK && isHittingViewWithSwitch(player, locView)) {
 				// Hit a globally scrollable view with a button or lever - adding it as a redstone output
 				tryToAddRedstoneOutput((SMSGlobalScrollableView) locView, player);
@@ -227,11 +230,34 @@ public class SMSPlayerListener implements Listener {
 		}
 		return true;
 	}
-	
-	private void destroyHeldItem(Player player) {
-		player.setItemInHand(new ItemStack(0));
-		MiscUtil.statusMessage(player, "Your book suddenly vanishes in a puff of smoke!");
-		player.playEffect(player.getLocation(), Effect.SMOKE, 4);
+
+	/**
+	 * Player has hit an existing view with a book & quill.  Add an inventory view to that view's menu
+	 * if it doesn't already have one, then convert the book & quill into a written popup book for the
+	 * inventory view.
+	 * 
+	 * @param view	the view that's been hit
+	 * @param player the player
+	 */
+	private void tryToAddInventoryView(SMSGlobalScrollableView view, Player player) {
+		PermissionUtils.requirePerms(player, "scrollingmenusign.use.inventory");
+		
+		boolean newView = false;
+		SMSMenu menu = view.getMenu();
+		SMSView popView = SMSView.findView(menu, PoppableView.class);
+		if (popView == null) {
+			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
+			popView = SMSInventoryView.addInventoryViewToMenu(menu);
+			newView = true;
+		}
+		PopupBook popup = new PopupBook(player, popView);
+		player.setItemInHand(popup.toItemStack());
+		
+		if (newView) {
+			MiscUtil.statusMessage(player, String.format("Associated book with new %s view &e%s&-", popView.getType(), popView.getName()));
+		} else {
+			MiscUtil.statusMessage(player, String.format("Associated book with existing %s view &e%s&-", popView.getType(), popView.getName()));
+		}
 	}
 
 	/**
@@ -254,7 +280,6 @@ public class SMSPlayerListener implements Listener {
 		if (menuName.isEmpty())
 			return false;
 
-		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 		SMSHandler handler = plugin.getHandler();
 		if (handler.checkMenu(menuName)) {
 			if (title.isEmpty()) {
@@ -286,7 +311,7 @@ public class SMSPlayerListener implements Listener {
 	 * @throws SMSException
 	 */
 	private void tryToActivateSign(Block block, Player player, SMSMapView mapView) throws SMSException {
-		if (!ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.maps.transfer.to_sign")) {
+		if (!plugin.getConfig().getBoolean("sms.maps.transfer.to_sign")) {
 			return;
 		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
@@ -326,7 +351,7 @@ public class SMSPlayerListener implements Listener {
 	 * @throws SMSException
 	 */
 	private void tryToActivateMap(Block block, Player player) throws SMSException {
-		if (!ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.maps.transfer.from_sign")) {
+		if (!plugin.getConfig().getBoolean("sms.maps.transfer.from_sign")) {
 			return;
 		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
@@ -360,7 +385,7 @@ public class SMSPlayerListener implements Listener {
 		                                             locView.getName(), trigger));
 		MiscUtil.statusMessage(player, "Change your held item to cancel.");
 		
-		ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectSwitchAddition(locView, trigger));
+		plugin.responseHandler.expect(player.getName(), new ExpectSwitchAddition(locView, trigger));
 	}
 
 	private boolean isHittingViewWithSwitch(Player player, SMSView locView) {
