@@ -10,6 +10,7 @@ import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -91,7 +92,8 @@ public class IconMenu implements Listener, SMSPopup {
 			int pos = row * INVENTORY_WIDTH + xOff + i % width;
 			SMSMenuItem menuItem = menu.getItemAt(i + 1);
 			ItemStack icon = menuItem.getIconMaterial().makeItemStack();
-			optionIcons[pos] = MiscUtil.setItemNameAndLore(icon, getView().variableSubs(menuItem.getLabel()), null);
+			String label = getView().variableSubs(menuItem.getLabel());
+			optionIcons[pos] = MiscUtil.setItemNameAndLore(icon, ChatColor.RESET + label, null);
 			optionNames[pos] = menuItem.getLabel();
 		}
 	}
