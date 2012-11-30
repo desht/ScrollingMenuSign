@@ -212,7 +212,7 @@ public class CommandParser {
 	 * @return
 	 * @throws SMSException
 	 */
-	ParsedCommand handleCommandString(CommandSender sender, SMSView view, String command, RunMode mode) throws SMSException {
+	private ParsedCommand handleCommandString(CommandSender sender, SMSView view, String command, RunMode mode) throws SMSException {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 

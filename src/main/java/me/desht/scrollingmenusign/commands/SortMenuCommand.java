@@ -15,7 +15,8 @@ public class SortMenuCommand extends AbstractCommand {
 	public SortMenuCommand() {
 		super("sms so", 0, 2);
 		setPermissionNode("scrollingmenusign.commands.sort");
-		setUsage("sms sort [<menu-name>] [<auto>]");
+		setUsage("sms sort [<menu-name>] [-auto]");
+		setOptions("auto");
 	}
 
 	@Override
@@ -28,19 +29,14 @@ public class SortMenuCommand extends AbstractCommand {
 			notFromConsole(sender);
 			SMSView view = SMSView.getTargetedView((Player)sender, true);
 			menu = view.getMenu();
-//			menu = SMSMenu.getMenu(SMSMenu.getTargetedMenuSign((Player)sender, true));
 		}
 		
-		if (args.length >=2 && args[1].startsWith("a")) {	// autosort
-			menu.setAutosort(true);
-			menu.sortItems();
-			MiscUtil.statusMessage(sender, "Menu &e" + menu.getName() + "&- has been sorted (autosort enabled)");
-		} else {
-			menu.setAutosort(false);
-			menu.sortItems();
-			MiscUtil.statusMessage(sender, "Menu &e" + menu.getName() + "&- has been sorted (autosort disabled)");
-		}
+		boolean autoSort = getBooleanOption("auto");
+		String s = autoSort ? "enabled" : "disabled";
+		menu.setAutosort(autoSort);
+		menu.sortItems();
 		menu.notifyObservers(SMSMenuAction.REPAINT);
+		MiscUtil.statusMessage(sender, "Menu &e" + menu.getName() + "&- has been sorted (autosort " + s + ")");
 		
 		return true;
 	}

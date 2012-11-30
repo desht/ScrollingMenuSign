@@ -7,7 +7,6 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSView;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -94,8 +93,8 @@ public class PopupBook {
 	public void toggle() {
 		Player p = this.player.get();
 		SMSView v = getView();
-		v.ensureAllowedToUse(p);
 		if (p != null && v != null) {
+			v.ensureAllowedToUse(p);
 			((PoppableView)v).toggleGUI(p);
 		}
 	}
@@ -155,9 +154,15 @@ public class PopupBook {
 		return pages != null && pages.length >= 4 && pages[1].matches("^sms \\w+ view$");
 	}
 
+	/**
+	 * Destroys the item in the player's hand.  Doesn't check first to see if it's a
+	 * popup book - would usually be called if PopupBook.get() throws a SMSException.
+	 * 
+	 * @param p
+	 */
 	public static void destroy(Player p) {
 		p.setItemInHand(new ItemStack(0));
 		MiscUtil.statusMessage(p, "Your book suddenly vanishes in a puff of smoke!");
-		p.playEffect(p.getLocation(), Effect.SMOKE, 4);
+		p.playEffect(p.getLocation().add(p.getLocation().getDirection()), Effect.SMOKE, 4);
 	}
 }

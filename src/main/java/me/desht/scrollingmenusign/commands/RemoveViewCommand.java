@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.commands;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.commands.AbstractCommand;
+import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -21,19 +22,20 @@ public class RemoveViewCommand extends AbstractCommand {
 				"/sms break -loc <x,y,z,world>",
 				"/sms break -view <view-name>"
 		});
+		setOptions(new String[] { "loc:s", "view:s"});
 	}
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		SMSView view = null;
 
-		if (args.length == 2 && args[0].equals("-view")) {
+		if (hasOption("view")) {
 			// detaching a view by view name
-			view = SMSView.getView(args[1]);
-		} else if (args.length == 2 && args[0].equals("-loc")) {
+			view = SMSView.getView(getStringOption("view"));
+		} else if (hasOption("-loc")) {
 			// detaching a view by location
 			try {
-				view = SMSView.getViewForLocation(MiscUtil.parseLocation(args[1], sender));
+				view = SMSView.getViewForLocation(MiscUtil.parseLocation(getStringOption("loc"), sender));
 			} catch (IllegalArgumentException e) {
 				throw new SMSException(e.getMessage());
 			}
@@ -41,6 +43,8 @@ public class RemoveViewCommand extends AbstractCommand {
 			// detaching a map view - nothing else to check here
 			Player player = (Player)sender;
 			((SMSMapView)view).removeMapItemName(player.getItemInHand());
+		} else if (sender instanceof Player && PopupBook.holding((Player)sender)) {
+			view = PopupBook.get((Player) sender).getView();
 		} else if (args.length == 0) {
 			// detaching a view that the player is looking at?
 			notFromConsole(sender);

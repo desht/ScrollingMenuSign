@@ -27,7 +27,7 @@ import org.getspout.spoutapi.keyboard.Keyboard;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SMSSpoutKeyListener extends SMSListenerBase {
-	private static final Map<String, SMSSpoutKeyMap> pressedKeys = new HashMap<String, SMSSpoutKeyMap>();
+	private final Map<String, SMSSpoutKeyMap> pressedKeys = new HashMap<String, SMSSpoutKeyMap>();
 
 	public SMSSpoutKeyListener(ScrollingMenuSign plugin) {
 		super(plugin);
@@ -114,7 +114,7 @@ public class SMSSpoutKeyListener extends SMSListenerBase {
 		return pressedKeys.get(player.getName());
 	}
 
-	private static SMSUserAction getAction(SMSSpoutKeyMap pressed) {
+	private SMSUserAction getAction(SMSSpoutKeyMap pressed) {
 		if (SpoutUtils.tryKeyboardMatch("sms.actions.spout.up", pressed)) {
 			return SMSUserAction.SCROLLUP;
 		} else if (SpoutUtils.tryKeyboardMatch("sms.actions.spout.down", pressed)) {

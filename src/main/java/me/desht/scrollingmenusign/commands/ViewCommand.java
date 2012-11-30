@@ -4,6 +4,7 @@ import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.RedstoneControlSign;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.PoppableView;
@@ -24,11 +25,12 @@ public class ViewCommand extends AbstractCommand {
 		setPermissionNode("scrollingmenusign.commands.view");
 		setUsage(new String[] {
 				"sms view",
-				"sms view <view-name>",
-				"sms view <view-name> <attribute>",
-				"sms view <view-name> <attribute> <new-value>",		
+				"sms view <view-name> [<attribute|$var>] [<new-value>]",
+				"sms view <view-name> -d [<$var>]",
+				"sms view <view-name> -popup"
 		});
 		setQuotedArgs(true);
+		setOptions(new String[] { "popup", "d:s" });
 	}
 
 	@Override
@@ -54,37 +56,38 @@ public class ViewCommand extends AbstractCommand {
 				return true;
 			}
 		}
-
-		if (args.length <= 1) {
-			showViewDetails(sender, view);
-		} else if (args[1].equals("-popup")) {
+		
+		if (getBooleanOption("popup")) {
 			notFromConsole(sender);
 			view.ensureAllowedToUse((Player) sender);
 			if (view instanceof PoppableView) {
 				PoppableView pop = (PoppableView) view;
 				pop.toggleGUI((Player) sender);
+			} else {
+				throw new SMSException("This view type can't be popped up");
 			}
-		} else if (args[1].startsWith("-d") && args.length >= 3) {
-			// delete user-defined view variable
-			if (args[2].startsWith("$")) {
-				String var = args[2].substring(1);
-				view.setVariable(var, null);
+		} else if (hasOption("d")) {
+			String varName = getStringOption("d");
+			if (varName.startsWith("$")) {
+				varName = varName.substring(1);
+				view.setVariable(varName, null);
 				view.autosave();
 				view.update(view.getMenu(), SMSMenuAction.REPAINT);
-				MiscUtil.statusMessage(sender, "Deleted view variable: &a" + var + "&-.");
+				MiscUtil.statusMessage(sender, "Deleted view variable: &a" + varName + "&-.");
 			}
+		} else if (args.length <= 1) {
+			showViewDetails(sender, view);
 		} else {
 			String attr = args[1];
-
 			if (attr.startsWith("$")) {
-				String var = attr.substring(1);
+				String varName = attr.substring(1);
 				// user-defined view variable
 				if (args.length == 3) {
-					view.setVariable(var, args[2]);
+					view.setVariable(varName, args[2]);
 					view.autosave();
 					view.update(view.getMenu(), SMSMenuAction.REPAINT);
 				}
-				MiscUtil.statusMessage(sender, String.format("&a%s.$%s&- = &a%s&-", view.getName(), var, view.getVariable(var)));
+				MiscUtil.statusMessage(sender, String.format("&a%s.$%s&- = &a%s&-", view.getName(), varName, view.getVariable(varName)));
 			} else {
 				// predefined view attribute
 				if (args.length == 3) {
@@ -102,10 +105,10 @@ public class ViewCommand extends AbstractCommand {
 		MessagePager pager = MessagePager.getPager(sender).clear();
 		pager.add(String.format("View &e%s&- (%s) :", view.getName(), view.toString()));
 		for (String k : view.listAttributeKeys(true)) {
-			pager.add(String.format("&5*&- &e%s&- = &e%s&-", k, view.getAttributeAsString(k, "")));
+			pager.add(String.format(MessagePager.BULLET + "&e%s&- = &e%s&-", k, view.getAttributeAsString(k, "")));
 		}
 		for (String k : MiscUtil.asSortedList(view.listVariables())) {
-			pager.add(String.format("&4* &a$%s&- = &a%s", k, view.getVariable(k)));
+			pager.add(String.format("&4\u2022 &a$%s&- = &a%s", k, view.getVariable(k)));
 		}
 		if (view instanceof SMSGlobalScrollableView) {
 			SMSGlobalScrollableView gsv = (SMSGlobalScrollableView) view;
@@ -114,7 +117,7 @@ public class ViewCommand extends AbstractCommand {
 				String s = nSwitches > 1 ? "s"	: "";
 				pager.add("&f" + nSwitches + "&- redstone output" + s + ":");
 				for (Switch sw: gsv.getSwitches()) {
-					pager.add(String.format("&5*&- &e%s&- @ &e%s",
+					pager.add(String.format(MessagePager.BULLET + "&e%s&- @ &e%s",
 					                        sw.getTrigger(), MiscUtil.formatLocation(sw.getLocation())));
 				}
 			}
@@ -123,7 +126,7 @@ public class ViewCommand extends AbstractCommand {
 				String s = nCtrlSigns > 1 ? "s"	: "";
 				pager.add("&f" + nCtrlSigns + "&- redstone control sign" + s + ":");
 				for (RedstoneControlSign sign: gsv.getControlSigns()) {
-					pager.add(String.format("&5*&- &e%s&-", sign));
+					pager.add(String.format(MessagePager.BULLET + "&e%s&-", sign));
 				}
 			}
 		}

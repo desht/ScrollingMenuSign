@@ -27,7 +27,16 @@ public class AddViewCommand extends AbstractCommand {
 	public AddViewCommand() {
 		super("sms sy", 1);
 		setPermissionNode("scrollingmenusign.commands.sync");
-		setUsage("/sms sync <menu-name> [-map <id>|-sign <loc>|-spout]");
+		setUsage(new String[] {
+				"/sms sync <menu-name>",
+				"/sms sync <menu-name> -sign [-loc <x,y,z,world>]",
+				"/sms sync <menu-name> -multi [-loc <x,y,z,world>]",
+				"/sms sync <menu-name> -redstone [-loc <x,y,z,world>]",
+				"/sms sync <menu-name> -map <map-id>",
+				"/sms sync <menu-name> -spout",
+				"/sms sync <menu-name> -inv",
+				"  -viewname <name>  Choose a non-default view name"
+		});
 		setOptions("map:i,sign,spout,redstone,multi,inventory,inv,viewname:s,loc:s");	
 	}
 

@@ -76,7 +76,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 		if (!sp.isSpoutCraftEnabled())
 			return;
 
-		LogUtils.fine("showing Spout GUI for " + getName());
+		LogUtils.fine("showing Spout GUI for " + getName() + " to " + sp.getName());
 
 		if (!popups.containsKey(sp.getName())) {
 			// create a new gui for this player
@@ -102,7 +102,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 			return;
 		}
 
-		LogUtils.fine("hiding Spout GUI for " + getName());
+		LogUtils.fine("hiding Spout GUI for " + getName() + " from " + sp.getName());
 		popups.get(sp.getName()).popdown(p);
 
 		// decision: destroy the gui object or not?
@@ -110,7 +110,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	}
 
 	/**
-	 * Check if the given player has an active GUI
+	 * Check if the given player has an active GUI (for any Spout view, not
+	 * necessarily this one).
 	 * 
 	 * @param sp	The Spout player to check for
 	 * @return		True if a GUI is currently popped up, false otherwise
@@ -125,7 +126,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	}
 
 	/**
-	 * Get the active GUI for the given player, if any.
+	 * Get the active GUI for the given player, if any (for any Spout view, not
+	 * necessarily this one).
 	 * 
 	 * @param sp	The Spout player to check for
 	 * @return		The GUI object if one is currently popped up, null otherwise
@@ -153,21 +155,21 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 
 		if (hasActiveGUI(sp)) {
 			SMSPopup gui = getActiveGUI(sp);
-			SMSSpoutView otherView = (SMSSpoutView)gui.getView();
-			if (otherView != this) {
+			SMSSpoutView poppedUpView = (SMSSpoutView)gui.getView();
+			if (poppedUpView == this) {
+				// the player has an active GUI from this view - just pop it down
+				hideGUI(sp);
+			} else {
 				// the player has an active GUI, but it belongs to a different spout view, so pop down
 				// that one and pop up the GUI for this view
-				otherView.hideGUI(sp);
-				// just popping the GUI up immediately doesn't appear to work - we need to defer it
+				poppedUpView.hideGUI(sp);
+				// just popping the GUI up immediately doesn't appear to work - we need to defer it by a few ticks
 				Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
 					@Override
 					public void run() {
 						showGUI(sp);	
 					}
 				}, 3L);
-			} else {
-				// the player has an active from this view - just pop it down
-				hideGUI(sp);
 			}
 		} else {
 			// no GUI shown right now - just pop this one up
@@ -181,9 +183,10 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	@Override
 	public void update(Observable menu, Object arg) {
 		if (arg instanceof SMSMenuAction) {
+			// the GUI will have repainted itself if it was scrolled so we don't need to do another repaint now
 			SMSMenuAction act = (SMSMenuAction)arg;
 			if (act == SMSMenuAction.SCROLLED)
-				return;		// spout view will have repainted itself if it was scrolled
+				return;	
 		}
 		for (SMSPopup gui : popups.values()) {
 			gui.repaint();

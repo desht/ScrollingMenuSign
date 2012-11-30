@@ -44,7 +44,9 @@ public class CreateMenuCommand extends AbstractCommand {
 		short mapId = -1;
 		String owner = "&console";	// dummy owner if menu created from console
 
-		if (sender instanceof Player) {
+		boolean autoCreate = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autocreate_views");
+		
+		if (autoCreate && sender instanceof Player) {
 			Player player = (Player) sender;
 			owner = sender.getName();
 			Block b = null;
@@ -70,11 +72,10 @@ public class CreateMenuCommand extends AbstractCommand {
 		String menuTitle = MiscUtil.parseColourSpec(sender, combine(args, 1));
 		SMSMenu menu = handler.createMenu(menuName, menuTitle, owner);
 
-		boolean autoCreate = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autocreate_views");
-		if (autoCreate && signLoc != null) {
+		if (signLoc != null) {
 			SMSSignView.addSignToMenu(menu, signLoc);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with sign view @ &f" + MiscUtil.formatLocation(signLoc));
-		} else if (autoCreate && mapId >= 0) {
+		} else if (mapId >= 0) {
 			SMSMapView mapView = SMSMapView.addMapToMenu(menu, mapId);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with map view &fmap_" + mapId);
 			Player player = (Player) sender;

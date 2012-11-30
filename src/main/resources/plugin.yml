@@ -9,26 +9,29 @@ commands:
   sms:
     description: Scrolling menu sign control
     usage: |
-      /sms create <name> <title>
-      /sms delete [<name>]
-      /sms sync <name>
-      /sms break
-      /sms list [<name>]
-      /sms show [<name>]
-      /sms title <name> <new-title>
-      /sms add <name> <label|command|message>
-      /sms remove <name> <index|label>
-      /sms sort <name> [auto]
-      /sms uses <name> <item> <count>|clear [global]
+      /sms create <menu-name> <title>
+      /sms delete [<menu-name>]
+      /sms list [<menu-name>]
+      /sms show [<menu-name>]
+      /sms title <menu-name> <new-title>
+      /sms add <menu-name> label command <options...>
+      /sms remove <menu-name> <@index|label>
+      /sms edit <menu-name> <@index|label> <options...>
+      /sms sort <menu-name> [-auto]
+      /sms uses <menu-name> [<item>] <count>|clear [-global]
+      /sms defcmd <menu-name> <command>
+      /sms sync <menu-name> <options...>
+      /sms break <options...>
+      /sms view <view-name> <options...>
       /sms page [<page-number|n|p>]
       /sms getcfg [<key>]
       /sms setcfg <key> <value>
       /sms macro <list|add|remove> <macro-name> ...
       /sms save [<all|menus|macros|config>]
       /sms reload [<all|menus|macros|config>]
-      /sms defcmd <menu> <command>
-      /sms givemap <map-id> <quantity> [<player>]
-      /sms var [<name>] [<value>]
+      /sms give map <map-id> <quantity> [<player>]
+      /sms give book <view-name> <quantity> [<player>]
+      /sms var [<var-name>] [<value>]
 permissions:
   scrollingmenusign.guest:
     description: Gives access to very basic SMS functionality (no permission elevation)
@@ -55,6 +58,7 @@ permissions:
       scrollingmenusign.commands.list: true
       scrollingmenusign.commands.show: true
       scrollingmenusign.use.map: true
+      scrollingmenusign.use.inventory: true
       scrollingmenusign.use.spout: true
   scrollingmenusign.admin:
     description: Gives complete access to all SMS features
@@ -64,6 +68,7 @@ permissions:
       scrollingmenusign.execute: true
       scrollingmenusign.execute.elevated: true
       scrollingmenusign.use.map: true
+      scrollingmenusign.use.inventory: true
       scrollingmenusign.use.spout: true
       scrollingmenusign.commands.create: true
       scrollingmenusign.commands.title: true
@@ -86,6 +91,7 @@ permissions:
       scrollingmenusign.commands.uses: true
       scrollingmenusign.commands.view: true
       scrollingmenusign.commands.var: true
+      scrollingmenusign.commands.edit: true
       scrollingmenusign.coloursigns: true
       scrollingmenusign.destroy: true
       scrollingmenusign.maps.toSign: true
@@ -106,13 +112,13 @@ permissions:
     description: Allow deletion of menus
     default: op
   scrollingmenusign.commands.break:
-    description: Allows signs to be removed from menus
+    description: Allows views to be removed from menus
     default: op
   scrollingmenusign.commands.sync:
-    description: Allows signs to be added to (synchronised with) menus
+    description: Allows views to be added to (synchronised with) menus
     default: op
   scrollingmenusign.commands.add:
-    description: Allows menu items to be added to a menu
+    description: Allows new menu items to be added to a menu
     default: op
   scrollingmenusign.commands.remove:
     description: Allows menu items to be removed from a menu
@@ -154,7 +160,7 @@ permissions:
     description: Synonym for scrollingmenusign.coloursigns
     default: op
   scrollingmenusign.commands.list:
-    description: Allows menus to be listed
+    description: Allows menus, and the views for a menu, to be listed
     default: op
   scrollingmenusign.commands.show:
     description: Allows menu contents to be shown
@@ -164,6 +170,9 @@ permissions:
     default: op
   scrollingmenusign.commands.var:
     description: Allows command substitution variables to be defined
+    default: op
+  scrollingmenusign.commands.edit:
+    description: Allows menu items to be edited in existing menus
     default: op
   scrollingmenusign.scroll:
     description: Allows menus to be scrolled
@@ -207,6 +216,9 @@ permissions:
   scrollingmenusign.use.redstone:
     description: Allows usage of redstone views
     default: true
+  scrollingmenusign.use.inventory:
+    description: Allows usage of inventory views
+    default: op
   scrollingmenusign.create.redstonecontrol:
     description: Allows creation of redstone control signs
     default: op
