@@ -19,7 +19,7 @@ public class AddItemCommand extends AbstractCommand {
 		setPermissionNode("scrollingmenusign.commands.add");
 		setUsage("/sms add <menu-name> <label> [<command>] [-at <pos>] [-feedback <text>] [-icon <material>]");
 		setQuotedArgs(true);
-		setOptions(new String[] { "feedback:s", "icon:s" });
+		setOptions(new String[] { "at:i", "feedback:s", "icon:s" });
 	}
 
 	@Override
