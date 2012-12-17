@@ -1,8 +1,9 @@
 package me.desht.scrollingmenusign;
 
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.List;
 
-import me.desht.dhutils.BookItem;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -11,6 +12,7 @@ import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 
 /**
@@ -31,11 +33,13 @@ public class PopupBook {
 	 * @param p	 the player
 	 * @param bi  the book item
 	 */
-	private PopupBook(Player p, BookItem bi) {
-		String[] pages = bi.getPages();
-		String viewType = pages[1].split(" ")[1];
-		String viewName = pages[2];
-		String menuName = pages[3];
+	private PopupBook(Player p, ItemStack bi) {
+		BookMeta bm = (BookMeta)bi.getItemMeta();
+		
+		List<String> pages = bm.getPages();
+		String viewType = pages.get(1).split(" ")[1];
+		String viewName = pages.get(2);
+		String menuName = pages.get(3);
 		
 		if (!ScrollingMenuSign.getInstance().getHandler().checkMenu(menuName)) {
 			// the menu's been deleted? the book's of no use anymore
@@ -53,8 +57,8 @@ public class PopupBook {
 			}
 			if (wantedView != null) {
 				// update the book to refer to the new view we found
-				pages[2] = wantedView.getName();
-				bi.setPages(pages);
+				pages.set(2, wantedView.getName());
+				bm.setPages(pages);
 			}
 		} else {
 			wantedView = SMSView.getView(viewName);
@@ -111,18 +115,21 @@ public class PopupBook {
 			return null;
 		}
 		ItemStack item = new ItemStack(Material.WRITTEN_BOOK, 1);
-		BookItem bi = new BookItem(item);
-		bi.setTitle(v.variableSubs(v.getMenu().getTitle()));
-		bi.setAuthor(p.getName());
+		
+		BookMeta bm = (BookMeta) item.getItemMeta();
+		
+		bm.setTitle(v.variableSubs(v.getMenu().getTitle()));
+		bm.setAuthor(p.getName());
 		String[] pages = new String[] {
 			"Left Click to Use!",
 			"sms " + v.getType() + " view",
 			v.getName(),
 			v.getMenu().getName(),
 		};
-		bi.setPages(pages);
+		bm.setPages(Arrays.asList(pages));
+		item.setItemMeta(bm);
 		
-		return bi.getItemStack();
+		return item;
 	}
 	
 	/**
@@ -135,8 +142,7 @@ public class PopupBook {
 	public static PopupBook get(Player p) {
 		if (!holding(p))
 			return null;
-		BookItem bi = new BookItem(p.getItemInHand());
-		return new PopupBook(p, bi);
+		return new PopupBook(p, p.getItemInHand());
 	}
 	
 	/**
@@ -149,9 +155,9 @@ public class PopupBook {
 		if (p.getItemInHand().getType() != Material.WRITTEN_BOOK) {
 			return false;
 		}
-		BookItem bi = new BookItem(p.getItemInHand());
-		String[] pages = bi.getPages();
-		return pages != null && pages.length >= 4 && pages[1].matches("^sms \\w+ view$");
+		BookMeta bm = (BookMeta) p.getItemInHand().getItemMeta();
+		List<String> pages = bm.getPages();
+		return pages != null && pages.size() >= 4 && pages.get(1).matches("^sms \\w+ view$");
 	}
 
 	/**

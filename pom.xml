@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.desht</groupId>
-    <version>1.7.1</version>
+    <version>1.8.0</version>
     <artifactId>scrollingmenusign</artifactId>
     <packaging>jar</packaging>
     <name>ScrollingMenuSign</name>
@@ -19,6 +19,10 @@
             <id>spout-repo</id>
             <name>Spout API</name>
             <url>http://repo.spout.org</url>
+        </repository>
+        <repository>
+            <id>Plugin Metrics</id>
+            <url>http://repo.mcstats.org/content/repositories/public</url>
         </repository>
     </repositories>
     <build>
@@ -76,6 +80,10 @@
                                     <pattern>me.desht.dhutils</pattern>
                                     <shadedPattern>me.desht.scrollingmenusign.dhutils</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.mcstats</pattern>
+                                    <shadedPattern>me.desht.mcstats</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
@@ -97,7 +105,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>RELEASE</version>
+            <version>LATEST</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -117,6 +125,12 @@
             <groupId>me.desht</groupId>
             <artifactId>dhutils</artifactId>
             <version>[1.6.0,)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mcstats</groupId>
+            <artifactId>metrics</artifactId>
+            <version>R6</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>

@@ -1,6 +1,6 @@
 package me.desht.scrollingmenusign.views.icon;
 
-import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -19,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class IconMenu implements Listener, SMSPopup {
 	private static final int INVENTORY_WIDTH = 9;
@@ -93,7 +94,10 @@ public class IconMenu implements Listener, SMSPopup {
 			SMSMenuItem menuItem = menu.getItemAt(i + 1);
 			ItemStack icon = menuItem.getIconMaterial().makeItemStack();
 			String label = getView().variableSubs(menuItem.getLabel());
-			optionIcons[pos] = MiscUtil.setItemNameAndLore(icon, ChatColor.RESET + label, null);
+			ItemMeta im = icon.getItemMeta();
+			im.setDisplayName(ChatColor.RESET + label);
+			icon.setItemMeta(im);
+			optionIcons[pos] = icon;
 			optionNames[pos] = menuItem.getLabel();
 		}
 	}
@@ -119,8 +123,12 @@ public class IconMenu implements Listener, SMSPopup {
 	@EventHandler(priority=EventPriority.MONITOR)
 	void onInventoryClick(InventoryClickEvent event) {
 		String name = getView().variableSubs(getView().getMenu().getTitle());
-
+		
 		if (event.getInventory().getTitle().equals(name)) {
+
+			LogUtils.fine("InventoryClickEvent: player = " + event.getWhoClicked().getName() + ", view = " + getView().getName() +
+			              ", inventory name = " + event.getInventory().getTitle());
+
 			event.setCancelled(true);
 			int slot = event.getRawSlot();
 			if (slot >= 0 && slot < size && optionNames[slot] != null) {

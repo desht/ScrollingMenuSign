@@ -18,7 +18,6 @@ import javax.imageio.ImageIO;
 
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -32,6 +31,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
@@ -327,13 +327,21 @@ public class SMSMapView extends SMSScrollableView {
 
 	public void setMapItemName(ItemStack item) {
 		int nItems = getMenu().getItemCount();
-		String lore = nItems + (nItems == 1 ? " item" : " items");
-		lore = ChatColor.GRAY.toString() + ChatColor.ITALIC.toString() + lore;
-		MiscUtil.setItemNameAndLore(item, ChatColor.RESET + variableSubs(getMenu().getTitle()), new String[] { lore });
+		String loreStr = nItems + (nItems == 1 ? " item" : " items");
+		loreStr = ChatColor.GRAY.toString() + ChatColor.ITALIC.toString() + loreStr;
+		List<String> lore = new ArrayList<String>(1);
+		lore.add(loreStr);
+		ItemMeta im = item.getItemMeta();
+		im.setDisplayName(ChatColor.RESET + variableSubs(getMenu().getTitle()));
+		im.setLore(lore);
+		item.setItemMeta(im);
 	}
 	
 	public void removeMapItemName(ItemStack item) {
-		MiscUtil.removeItemName(item);
+		ItemMeta im = item.getItemMeta();
+		im.setDisplayName(null);
+		im.setLore(null);
+		item.setItemMeta(im);
 	}
 	
 	/* (non-Javadoc)

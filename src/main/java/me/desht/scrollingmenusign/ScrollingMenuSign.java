@@ -16,8 +16,6 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.responsehandler.ResponseHandler;
-import me.desht.scrollingmenusign.Metrics.Graph;
-import me.desht.scrollingmenusign.Metrics.Plotter;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
 import me.desht.scrollingmenusign.commands.AddViewCommand;
@@ -62,6 +60,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.Metrics;
+import org.mcstats.Metrics.Graph;
+import org.mcstats.Metrics.Plotter;
 
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
