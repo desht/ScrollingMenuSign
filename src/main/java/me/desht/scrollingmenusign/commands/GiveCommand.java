@@ -2,7 +2,10 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.views.PoppableView;
+import me.desht.scrollingmenusign.views.SMSInventoryView;
+import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -49,38 +52,73 @@ public class GiveCommand extends AbstractCommand {
 		}
 
 		if (args[0].startsWith("m")) {
-			short mapId;
-			try {
-				mapId = Short.parseShort(args[0]);
-				giveMap(sender, targetPlayer, mapId, amount);
-			} catch (NumberFormatException e) {
-				throw new SMSException("Invalid map ID '" + args[0] + "'.");
-			}
+			short mapId = getMapId(targetPlayer, args[1]);
+			giveMap(sender, targetPlayer, mapId, amount);
 		} else if (args[0].startsWith("b")) {
 			giveBook(sender, targetPlayer, args[1], amount);
 		} else {
 			showUsage(sender);
 		}
 		return true;
-		
 	}
-	
-	@SuppressWarnings("deprecation")
-	private void giveBook(CommandSender sender, Player targetPlayer, String viewName, int amount) {
-		SMSView view = SMSView.getView(viewName);
-		if (!(view instanceof PoppableView)) {
-			throw new SMSException("View '" + viewName + "' isn't a poppable view.");
+
+	private short getMapId(Player target, String argStr) {
+		short mapId;
+		try {
+			// first, see if it's a map ID
+			mapId = Short.parseShort(argStr);
+		} catch (NumberFormatException e) {
+			// maybe it's a view name?
+			if (SMSView.checkForView(argStr)) {
+				SMSView v = SMSView.getView(argStr);
+				if (!(v instanceof SMSMapView)) {
+					throw new SMSException("View " + v.getName() + " is not a map view");
+				}
+				mapId = ((SMSMapView) v).getMapView().getId();
+			} else {
+				// or perhaps a menu name?
+				SMSMenu menu = SMSMenu.getMenu(argStr);
+				SMSView v = SMSView.findView(menu, SMSMapView.class);
+				if (v == null) {
+					// this menu doesn't have a map view - make one!
+					mapId = Bukkit.createMap(target.getWorld()).getId();
+					v = SMSMapView.addMapToMenu(menu, mapId);
+				} else {
+					// menu has a map view already - use that map ID
+					mapId = ((SMSMapView) v).getMapView().getId();
+				}
+			}
 		}
-		
+
+		return mapId;
+	}
+
+	@SuppressWarnings("deprecation")
+	private void giveBook(CommandSender sender, Player targetPlayer, String argStr, int amount) {
+		SMSView view;
+
+		if (SMSView.checkForView(argStr)) {
+			view = SMSView.getView(argStr);
+			if (!(view instanceof PoppableView)) {
+				throw new SMSException("View '" + argStr + "' isn't a poppable view.");
+			}
+		} else {
+			SMSMenu menu = SMSMenu.getMenu(argStr);
+			view = SMSView.findView(menu, PoppableView.class);
+			if (view == null) {
+				view = SMSInventoryView.addInventoryViewToMenu(menu);
+			}
+		}
+
 		PopupBook book = new PopupBook(targetPlayer, view);
 		ItemStack writtenbook = book.toItemStack();
 		targetPlayer.getInventory().addItem(writtenbook);
 		targetPlayer.updateInventory();
-		
+
 		String s = amount == 1 ? "" : "s";
-		MiscUtil.statusMessage(sender, String.format("Gave %d book%s (%s) to %s", amount, s, viewName, targetPlayer.getName()));
+		MiscUtil.statusMessage(sender, String.format("Gave %d book%s (&6%s&-) to &6%s", amount, s, argStr, targetPlayer.getName()));
 		if (sender != targetPlayer) {
-			MiscUtil.statusMessage(targetPlayer, String.format("You received %d books%s for menu %s", amount, s, view.getMenu().getTitle()));
+			MiscUtil.statusMessage(targetPlayer, String.format("You received %d books%s for menu &6%s", amount, s, view.getMenu().getTitle()));
 		}
 	}
 
@@ -91,14 +129,14 @@ public class GiveCommand extends AbstractCommand {
 			MapView mv = Bukkit.getServer().createMap(world);
 			mapId = mv.getId();
 		}
-		
+
 		ItemStack stack = new ItemStack(Material.MAP, amount);
 		stack.setDurability(mapId);
 		targetPlayer.getInventory().addItem(stack);
 		targetPlayer.updateInventory();
-		
+
 		String s = amount == 1 ? "" : "s";
-		MiscUtil.statusMessage(sender, String.format("Gave %d map%s (map_%d) to %s", amount, s, mapId, targetPlayer.getName()));
+		MiscUtil.statusMessage(sender, String.format("Gave %d map%s (&6map_%d&-) to &6%s", amount, s, mapId, targetPlayer.getName()));
 		if (sender != targetPlayer) {
 			MiscUtil.statusMessage(targetPlayer, String.format("You received %d map%s of type &6map_%d&-", amount, s, mapId));	
 		}
