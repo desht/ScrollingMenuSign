@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,8 +58,10 @@ public class PopupBook {
 			}
 			if (wantedView != null) {
 				// update the book to refer to the new view we found
-				pages.set(2, wantedView.getName());
-				bm.setPages(pages);
+				// copying the pages here - the returned pages list is immutable
+				List<String> newPages = new ArrayList<String>(pages);
+				newPages.set(2, wantedView.getName());
+				bm.setPages(newPages);
 			}
 		} else {
 			wantedView = SMSView.getView(viewName);

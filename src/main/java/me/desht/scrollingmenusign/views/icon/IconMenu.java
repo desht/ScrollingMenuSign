@@ -149,7 +149,7 @@ public class IconMenu implements Listener, SMSPopup {
 		}
 	}
 
-	private void destroy() {
+	public void destroy() {
 		HandlerList.unregisterAll(this);
 	}
 

@@ -78,6 +78,18 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 		onExecuted(event.getPlayer());
 		event.setWillClose((Boolean)getAttribute(AUTOPOPDOWN));
 	}
+	
+	@Override
+	public void deleteTemporary() {
+		iconMenu.destroy();
+		super.deleteTemporary();
+	}
+	
+	@Override
+	public void deletePermanent() {
+		iconMenu.destroy();
+		super.deletePermanent();
+	}
 
 	/**
 	 * Convenience method.
