@@ -101,7 +101,7 @@ public class SMSMapView extends SMSScrollableView {
 		if (file.isEmpty()) {
 			return;
 		}
-		
+
 		// Load the file from the given URL, and write a cached copy (PNG, 128x128) to our local
 		// directory structure.  The cached file can be used for subsequent loads to improve performance.
 		try {
@@ -336,14 +336,14 @@ public class SMSMapView extends SMSScrollableView {
 		im.setLore(lore);
 		item.setItemMeta(im);
 	}
-	
+
 	public void removeMapItemName(ItemStack item) {
 		ItemMeta im = item.getItemMeta();
 		im.setDisplayName(null);
 		im.setLore(null);
 		item.setItemMeta(im);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
 	 */
@@ -422,7 +422,7 @@ public class SMSMapView extends SMSScrollableView {
 			return null;
 		}
 	}
-	
+
 	@Override
 	public String getType() {
 		return "map";
@@ -440,27 +440,35 @@ public class SMSMapView extends SMSScrollableView {
 			setDirty(true);
 		}
 	}
-	
+
 	/**
 	 * Check to see if this map ID is used by another plugin, to avoid toe-stepping-upon...
-	 * Right now, only Courier is checked for.
+	 * The check is for any renderers on the map of a class outside the org.bukkit namespace.
 	 * 
 	 * @param item	The map item to check
 	 * @return	True if it's used by someone else, false otherwise
+	 * @throws IllegalArgumentException if the given item is not a map
 	 */
 	public static boolean usedByOtherPlugin(ItemStack item) {
-		short mapId = item.getDurability();
-		MapView mapView = Bukkit.getServer().getMap(mapId);
-			
-		// Courier uses a magic X value to indicate the map it uses
-		return mapView.getCenterX() == COURIER_MAP_X;
+		if (item.getType() != Material.MAP)
+			throw new IllegalArgumentException("Item is not a map: " + item.getType());
+		
+		MapView mapView = Bukkit.getServer().getMap(item.getDurability());
+
+		for (MapRenderer r : mapView.getRenderers()) {
+			if (!r.getClass().getPackage().getName().startsWith("org.bukkit")) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
-	
+
 	@Override
 	protected int getHardMaxTitleLines() {
 		return 4;
 	}
-	
+
 	@Override
 	protected int getLineLength() {
 		return 30;	// estimate

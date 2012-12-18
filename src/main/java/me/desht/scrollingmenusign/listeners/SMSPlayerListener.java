@@ -37,6 +37,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class SMSPlayerListener extends SMSListenerBase {
 	
@@ -134,9 +135,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 		Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
 		SMSMapView mapView = SMSMapView.getHeldMapView(player);
-		PopupBook popup;
+		PopupBook popupBook;
 		try {
-			popup = PopupBook.get(player);
+			popupBook = PopupBook.get(player);
 		} catch (SMSException e) {
 			// this means the player is holding a book, but it's no longer a valid one
 			PopupBook.destroy(player);
@@ -144,7 +145,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 		}
 	
 		// If there is no mapView, book or selected block, there's nothing for us to do
-		if (block == null && mapView == null && popup == null) {
+		if (block == null && mapView == null && popupBook == null) {
 			return false;
 		}
 	
@@ -177,10 +178,10 @@ public class SMSPlayerListener extends SMSListenerBase {
 				MiscUtil.statusMessage(player, String.format("&6Lever is an output switch already (&e%s / %s&-).",
 				                                             sw.getView().getName(), sw.getTrigger()));
 			}
-		} else if (popup != null) {
+		} else if (popupBook != null) {
 			// A popup written book - toggle the book's associated poppable view
-			popup.toggle();
-			player.setItemInHand(popup.toItemStack());
+			popupBook.toggle();
+			player.setItemInHand(popupBook.toItemStack());
 		} else if (mapView != null) {
 			// Holding an active map view
 			LogUtils.fine("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() + ", menu=" + mapView.getMenu().getName());
@@ -199,14 +200,15 @@ public class SMSPlayerListener extends SMSListenerBase {
 				mapView.setMapItemName(player.getItemInHand());
 			}
 		} else if (block != null) {
-			if (locView == null && block.getState() instanceof Sign && player.getItemInHand().getTypeId() == 0) {
+			ItemStack heldItem = player.getItemInHand();
+			if (locView == null && block.getState() instanceof Sign && (heldItem == null || heldItem.getType() == Material.AIR)) {
 				// No view present at this location, but a left-click could create a new sign view if the sign's
 				// text is in the right format...
 				return tryToActivateSign(block, player);
-			} else if (locView != null && player.getItemInHand().getType() == Material.MAP && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
+			} else if (locView != null && heldItem.getType() == Material.MAP && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
 				// Hit an existing view with a map - the map now becomes a view on the same menu
 				tryToActivateMap(block, player);
-			} else if (locView != null && player.getItemInHand().getType() == Material.BOOK_AND_QUILL) {
+			} else if (locView != null && heldItem.getType() == Material.BOOK_AND_QUILL) {
 				// Hit an existing view with a book & quill - try to associate a written book with
 				// an inventory view on the view's menu
 				tryToAddInventoryView((SMSGlobalScrollableView) locView, player);
