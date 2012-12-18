@@ -1,7 +1,6 @@
 package me.desht.scrollingmenusign;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,6 +22,9 @@ import org.bukkit.inventory.meta.BookMeta;
  * 
  */
 public class PopupBook {
+	private static final int VIEW_TYPE = 1;
+	private static final int VIEW_NAME = 2;
+	private static final int MENU_NAME = 3;
 	
 	private final WeakReference<SMSView> view;
 	private final WeakReference<Player> player;
@@ -37,10 +39,9 @@ public class PopupBook {
 	private PopupBook(Player p, ItemStack bi) {
 		BookMeta bm = (BookMeta)bi.getItemMeta();
 		
-		List<String> pages = bm.getPages();
-		String viewType = pages.get(1).split(" ")[1];
-		String viewName = pages.get(2);
-		String menuName = pages.get(3);
+		String viewType = bm.getPage(VIEW_TYPE).split(" ")[1];
+		String viewName = bm.getPage(VIEW_NAME);
+		String menuName = bm.getPage(MENU_NAME);
 		
 		if (!ScrollingMenuSign.getInstance().getHandler().checkMenu(menuName)) {
 			// the menu's been deleted? the book's of no use anymore
@@ -58,17 +59,14 @@ public class PopupBook {
 			}
 			if (wantedView != null) {
 				// update the book to refer to the new view we found
-				// copying the pages here - the returned pages list is immutable
-				List<String> newPages = new ArrayList<String>(pages);
-				newPages.set(2, wantedView.getName());
-				bm.setPages(newPages);
+				bm.setPage(VIEW_NAME, wantedView.getName());
 			}
 		} else {
 			wantedView = SMSView.getView(viewName);
 		}
 		
 		if (wantedView == null || !(wantedView instanceof PoppableView)) {
-			// couldn't get a suitable view for this book - destroy it
+			// couldn't get a suitable view for this book
 			throw new SMSException("Invalid view: " + viewName);
 		}
 		
@@ -160,7 +158,7 @@ public class PopupBook {
 		}
 		BookMeta bm = (BookMeta) p.getItemInHand().getItemMeta();
 		List<String> pages = bm.getPages();
-		return pages != null && pages.size() >= 4 && pages.get(1).matches("^sms \\w+ view$");
+		return pages != null && pages.size() >= 4 && pages.get(VIEW_TYPE).matches("^sms \\w+ view$");
 	}
 
 	/**
