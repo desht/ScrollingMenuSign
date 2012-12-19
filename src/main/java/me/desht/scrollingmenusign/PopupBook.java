@@ -121,13 +121,10 @@ public class PopupBook {
 		
 		bm.setTitle(v.variableSubs(v.getMenu().getTitle()));
 		bm.setAuthor(p.getName());
-		String[] pages = new String[] {
-			"Left Click to Use!",
-			"sms " + v.getType() + " view",
-			v.getName(),
-			v.getMenu().getName(),
-		};
-		bm.setPages(Arrays.asList(pages));
+		bm.setPages("Left Click to Use!",
+					"sms " + v.getType() + " view",
+					v.getName(),
+					v.getMenu().getName());
 		item.setItemMeta(bm);
 		
 		return item;
