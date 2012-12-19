@@ -22,9 +22,9 @@ import org.bukkit.inventory.meta.BookMeta;
  * 
  */
 public class PopupBook {
-	private static final int VIEW_TYPE = 1;
-	private static final int VIEW_NAME = 2;
-	private static final int MENU_NAME = 3;
+	private static final int VIEW_TYPE = 2;
+	private static final int VIEW_NAME = 3;
+	private static final int MENU_NAME = 4;
 	
 	private final WeakReference<SMSView> view;
 	private final WeakReference<Player> player;
@@ -157,8 +157,7 @@ public class PopupBook {
 			return false;
 		}
 		BookMeta bm = (BookMeta) p.getItemInHand().getItemMeta();
-		List<String> pages = bm.getPages();
-		return pages != null && pages.size() >= 4 && pages.get(VIEW_TYPE).matches("^sms \\w+ view$");
+		return bm.getPageCount() >= 4 && bm.getPage(VIEW_TYPE).matches("^sms \\w+ view$");
 	}
 
 	/**
