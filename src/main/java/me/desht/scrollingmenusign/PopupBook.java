@@ -1,8 +1,6 @@
 package me.desht.scrollingmenusign;
 
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.List;
 
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.views.PoppableView;
