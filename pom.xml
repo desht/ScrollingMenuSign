@@ -123,8 +123,8 @@
         </dependency>
         <dependency>
             <groupId>me.desht</groupId>
-            <artifactId>dhutils</artifactId>
-            <version>[1.6.0,)</version>
+            <artifactId>dhutils-lib</artifactId>
+            <version>[2.0.0,)</version>
         </dependency>
         <dependency>
             <groupId>org.mcstats</groupId>
