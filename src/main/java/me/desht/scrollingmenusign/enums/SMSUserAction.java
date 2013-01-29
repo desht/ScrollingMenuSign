@@ -81,7 +81,7 @@ public enum SMSUserAction {
 		}
 
 		SMSScrollableView sview = (SMSScrollableView) view;
-		SMSMenu menu = sview.getMenu();
+		SMSMenu menu = sview.getActiveMenu();
 		String playerName = player == null ? "CONSOLE" : player.getName();
 		switch (this) {
 		case EXECUTE:
@@ -101,6 +101,8 @@ public enum SMSUserAction {
 			sview.scrollUp(playerName);
 			sview.update(menu, SMSMenuAction.SCROLLED);
 			sview.onScrolled(player, SCROLLUP);
+			break;
+		default:
 			break;
 		}
 	}

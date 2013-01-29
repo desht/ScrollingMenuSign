@@ -30,7 +30,7 @@ public class DeleteMenuCommand extends AbstractCommand {
 		} else {
 			notFromConsole(sender);
 			SMSView view = SMSView.getTargetedView((Player) sender, true);
-			menu = view.getMenu();
+			menu = view.getActiveMenu();
 		}
 		handler.deleteMenu(menu.getName());
 		MiscUtil.statusMessage(sender, "Deleted menu &e" + menu.getName());

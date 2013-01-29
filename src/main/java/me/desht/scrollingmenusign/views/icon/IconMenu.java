@@ -48,7 +48,7 @@ public class IconMenu implements Listener, SMSPopup {
 
 	@Override
 	public boolean isPoppedUp(Player p) {
-		return p.getOpenInventory().getTitle().equals(getView().getMenu().getTitle());		
+		return p.getOpenInventory().getTitle().equals(getView().getActiveMenu().getTitle());		
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class IconMenu implements Listener, SMSPopup {
 	@Override
 	public void popup(Player p) {
 		if (!isPoppedUp(p)) {
-			String title = getView().variableSubs(getView().getMenu().getTitle());
+			String title = getView().variableSubs(getView().getActiveMenu().getTitle());
 			Inventory inventory = Bukkit.createInventory(p, size, title);
 			for (int i = 0; i < size; i++) {
 				inventory.setItem(i, optionIcons[i]);
@@ -76,7 +76,7 @@ public class IconMenu implements Listener, SMSPopup {
 	}
 
 	private void buildMenu() {
-		SMSMenu menu = getView().getMenu();
+		SMSMenu menu = getView().getActiveMenu();
 	
 		int width = (Integer) getView().getAttribute(SMSInventoryView.WIDTH);
 		int nItems = menu.getItemCount();
@@ -122,7 +122,7 @@ public class IconMenu implements Listener, SMSPopup {
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	void onInventoryClick(InventoryClickEvent event) {
-		String name = getView().variableSubs(getView().getMenu().getTitle());
+		String name = getView().variableSubs(getView().getActiveMenu().getTitle());
 		
 		if (event.getInventory().getTitle().equals(name)) {
 

@@ -44,7 +44,7 @@ public class SMSBlockListener extends SMSListenerBase {
 		if (view == null)
 			return;
 
-		SMSMenu menu = view.getMenu();
+		SMSMenu menu = view.getNativeMenu();
 		LogUtils.fine("block damage event @ " + MiscUtil.formatLocation(loc) + ", view = " + view.getName() + ", menu=" + menu.getName());
 		Player p = event.getPlayer();
 		if (p.getName().equalsIgnoreCase(menu.getOwner()) || PermissionUtils.isAllowedTo(p, "scrollingmenusign.destroy")) 
@@ -65,15 +65,15 @@ public class SMSBlockListener extends SMSListenerBase {
 		if (SMSMapView.getHeldMapView(p) != null) {
 			// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
 			event.setCancelled(true);
-			if (view != null) view.update(view.getMenu(), SMSMenuAction.REPAINT);
+			if (view != null) view.update(view.getActiveMenu(), SMSMenuAction.REPAINT);
 			return;
 		}
 
 		if (view != null) {
-			LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
+			LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getNativeMenu().getName());
 			if (plugin.getConfig().getBoolean("sms.no_destroy_signs", false)) {
 				event.setCancelled(true);
-				view.update(view.getMenu(), SMSMenuAction.REPAINT);
+				view.update(view.getActiveMenu(), SMSMenuAction.REPAINT);
 			} else {
 				view.removeLocation(loc);
 				if (view.getLocations().size() == 0) {
@@ -81,7 +81,7 @@ public class SMSBlockListener extends SMSListenerBase {
 				}
 				MiscUtil.statusMessage(p, String.format("%s block @ &f%s&- was removed from view &e%s&- (menu &e%s&-).", 
 				                                        b.getType().toString(), MiscUtil.formatLocation(loc),
-				                                        view.getName(), view.getMenu().getName()));
+				                                        view.getName(), view.getNativeMenu().getName()));
 			}
 		} else if (Switch.getSwitchAt(loc) != null) {
 			Switch sw = Switch.getSwitchAt(loc);
@@ -104,7 +104,7 @@ public class SMSBlockListener extends SMSListenerBase {
 
 		SMSView view = SMSView.getViewForLocation(loc);
 		if (view != null) {
-			LogUtils.fine("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getMenu().getName());
+			LogUtils.fine("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getNativeMenu().getName());
 			if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
 				event.setCancelled(true);
 			} else if (b.getState().getData() instanceof Attachable) {

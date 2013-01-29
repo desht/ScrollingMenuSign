@@ -52,7 +52,7 @@ public class ShowMenuCommand extends AbstractCommand {
 			if (view == null) {
 				throw new SMSException("No suitable view found.");
 			}
-			menu = view.getMenu();
+			menu = view.getActiveMenu();
 		}
 		
 		MessagePager pager = MessagePager.getPager(sender).clear();

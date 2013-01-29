@@ -61,7 +61,7 @@ public class SMSMapRenderer extends MapRenderer {
 	private void drawMenu(MapCanvas canvas, Player player) {
 		int y = smsMapView.getY();
 
-		SMSMenu menu = smsMapView.getMenu();
+		SMSMenu menu = smsMapView.getActiveMenu();
 
 		boolean drawTitle = true;
 		if (ScrollingMenuSign.getInstance().isSpoutEnabled()) {

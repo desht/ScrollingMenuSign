@@ -192,7 +192,7 @@ public class CommandParser {
 			} else if (key.equals("EXP")) {
 				repl = Integer.toString(new ExperienceManager(player).getCurrentExp());
 			} else {
-				String menuName = view == null ? "???" : view.getMenu().getName();
+				String menuName = view == null ? "???" : view.getActiveMenu().getName();
 				LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
 				repl = "<" + key + ">";
 			}

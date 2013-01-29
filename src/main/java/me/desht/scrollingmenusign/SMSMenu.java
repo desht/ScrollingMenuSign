@@ -547,56 +547,13 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	/**
-	 * Permanently delete a menu, blanking all its signs
-	 */
-	void delete() {
-		deletePermanent();
-	}
-
-	/**
-	 * Permanently delete a menu
-	 * @param action	Action to take on the menu's signs
-	 */
-	void delete(SMSMenuAction action) {
-		deletePermanent(action);
-	}
-
-	private void deleteCommon(SMSMenuAction action) throws SMSException {
-		SMSMenu.removeMenu(getName(), action);	
-	}
-
-	private void deleteAllViews(boolean permanent) {
-		List<SMSView> toDelete = new ArrayList<SMSView>();
-		for (SMSView view : SMSView.listViews()) {
-			if (view.getMenu() == this)	{
-				toDelete.add(view);
-			}
-		}
-		for (SMSView view : toDelete) {
-			if (permanent) {
-				view.deletePermanent();	
-			} else {
-				view.deleteTemporary();
-			}
-		}
-	}
-
-	/**
 	 * Permanently delete a menu, dereferencing the object and removing saved data from disk.
 	 */
 	void deletePermanent() {
-		deletePermanent(SMSMenuAction.BLANK_SIGN);
-	}
-
-	/**
-	 * Permanently delete a menu, dereferencing the object and removing saved data from disk.
-	 * 
-	 * @param action	The action to carry out on the menu's views
-	 */
-	void deletePermanent(SMSMenuAction action) {
 		try {
-			deleteCommon(action);
-			deleteAllViews(true);
+			setChanged();
+			notifyObservers(SMSMenuAction.DELETE_PERM);
+			SMSMenu.unregisterMenu(getName());
 			SMSPersistence.unPersist(this);
 		} catch (SMSException e) {
 			// Should not get here
@@ -610,8 +567,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	void deleteTemporary() {
 		try {
-			deleteCommon(SMSMenuAction.DO_NOTHING);
-			deleteAllViews(false);
+			SMSMenu.unregisterMenu(getName());
+			notifyObservers(SMSMenuAction.DELETE_TEMP);
 		} catch (SMSException e) {
 			// Should not get here
 			LogUtils.warning("Impossible: deleteTemporary got SMSException?");
@@ -633,7 +590,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param menu		The menu object
 	 * @param updateSign	Whether or not to update the menu's signs now
 	 */
-	static void addMenu(String menuName, SMSMenu menu, boolean updateSign) {
+	static void registerMenu(String menuName, SMSMenu menu, boolean updateSign) {
 		menus.put(menuName, menu);
 
 		if (updateSign) {
@@ -650,9 +607,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param action	Action to take on removal
 	 * @throws SMSException
 	 */
-	static void removeMenu(String menuName, SMSMenuAction action) throws SMSException {
-		SMSMenu menu = getMenu(menuName);
-		menu.notifyObservers(action);
+	static void unregisterMenu(String menuName) throws SMSException {
 		menus.remove(menuName);
 	}
 
@@ -685,7 +640,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	static String getMenuNameAt(Location loc) {
 		SMSView v = SMSView.getViewForLocation(loc);
-		return v == null ? null : v.getMenu().getName();
+		return v == null ? null : v.getNativeMenu().getName();
 	}
 
 	/**

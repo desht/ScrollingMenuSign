@@ -125,7 +125,7 @@ public class SMSPersistence {
 				LogUtils.finer("loading menu: " + f);
 				YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 				SMSMenu menu = new SMSMenu(conf);
-				SMSMenu.addMenu(menu.getName(), menu, true);
+				SMSMenu.registerMenu(menu.getName(), menu, true);
 			} catch (SMSException e) {
 				LogUtils.severe("Can't load menu data from " + f + ": " + e.getMessage());
 			}
@@ -143,8 +143,8 @@ public class SMSPersistence {
 			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 			SMSView view = SMSView.load(conf);
 			if (view != null) {
-				view.getMenu().addObserver(view);
-				view.update(view.getMenu(), SMSMenuAction.REPAINT);
+				view.getNativeMenu().addObserver(view);
+				view.update(view.getNativeMenu(), SMSMenuAction.REPAINT);
 			}
 		}
 

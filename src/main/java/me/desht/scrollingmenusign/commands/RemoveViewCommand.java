@@ -57,7 +57,7 @@ public class RemoveViewCommand extends AbstractCommand {
 			PermissionUtils.requirePerms(sender, "scrollingmenusign.use." + view.getType());
 			view.deletePermanent();
 			MiscUtil.statusMessage(sender, String.format("Removed &9%s&- view &e%s&- from menu &e%s&-.",
-			                                             view.getType(), view.getName(), view.getMenu().getName()));
+			                                             view.getType(), view.getName(), view.getNativeMenu().getName()));
 		}
 
 		return true;

@@ -85,11 +85,11 @@ public class SMSListWidget extends GenericListWidget {
 			return;
 		}
 
-		SMSMenuItem item = view.getMenu().getItemAt(idx + 1);
+		SMSMenuItem item = view.getActiveMenu().getItemAt(idx + 1);
 		SpoutPlayer player = getScreen().getPlayer();
 		try {
 			if (item == null) {
-				throw new SMSException("spout list widget onSelected: index " + idx + " out of range for " + view.getMenu().getName() + " ?");
+				throw new SMSException("spout list widget onSelected: index " + idx + " out of range for " + view.getActiveMenu().getName() + " ?");
 			}
 			item.executeCommand(player, view);
 			item.feedbackMessage(player);
@@ -111,7 +111,7 @@ public class SMSListWidget extends GenericListWidget {
 				ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.show_command_text")
 				&& PermissionUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
 
-		for (SMSMenuItem item : view.getMenu().getItems()) {
+		for (SMSMenuItem item : view.getActiveMenu().getItems()) {
 			addItem(new ListWidgetItem(defaultTextColor + view.variableSubs(item.getLabel()), showCommand ? item.getCommand() : ""));
 		}
 	}

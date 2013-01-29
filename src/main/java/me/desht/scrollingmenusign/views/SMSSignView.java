@@ -77,19 +77,36 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	 */
 	@Override
 	public void update(Observable menu, Object arg1) {
+		super.update(menu, arg1);
+		
 		Sign sign = getSign();
 		if (sign == null)
 			return;
 		if (!(menu instanceof SMSMenu))
 			return;
 
-		String[] lines = buildSignText(getLastScrollPos());
-		for (int i = 0; i < lines.length; i++) {
-			sign.setLine(i, lines[i]);
+		SMSMenuAction action = (SMSMenuAction) arg1;
+		switch (action) {
+		case REPAINT: case SCROLLED:
+			// redraw the sign at the current scroll position
+			String[] lines = buildSignText(getLastScrollPos());
+			for (int i = 0; i < lines.length; i++) {
+				sign.setLine(i, lines[i]);
+			}
+			sign.update();
+			setDirty(false);
+			break;
+		case DELETE_PERM:
+			// blank the sign
+			for (int i = 0; i < 4; i++) {
+				sign.setLine(i, "");
+			}
+			sign.update();
+			setDirty(false);
+			break;
+		default:
+			break;
 		}
-		
-		sign.update();
-		setDirty(false);
 	}
 
 	private String[] buildSignText(int scrollPos) {
@@ -118,29 +135,29 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	}
 
 	private String getLine2Item(int pos) {
-		if (getMenu().getItemCount() < 3)
+		if (getActiveMenu().getItemCount() < 3)
 			return "";
 			
 		int prevPos = pos - 1;
 		if (prevPos < 1) {
-			prevPos = getMenu().getItemCount();
+			prevPos = getActiveMenu().getItemCount();
 		}
 		return getItemLabel(prevPos);
 	}
 	
 	private String getLine3Item(int pos) {
-		if (getMenu().getItemCount() < 1) {
+		if (getActiveMenu().getItemCount() < 1) {
 			return "";
 		}
 		return getItemLabel(pos);
 	}
 
 	private String getLine4Item(int pos) {
-		if (getMenu().getItemCount() < 2) 
+		if (getActiveMenu().getItemCount() < 2) 
 			return "";
 			
 		int nextPos = pos + 1;
-		if (nextPos > getMenu().getItemCount()) {
+		if (nextPos > getActiveMenu().getItemCount()) {
 			nextPos = 1;
 		}
 		return getItemLabel(nextPos);
@@ -156,6 +173,8 @@ public class SMSSignView extends SMSGlobalScrollableView {
 			s = prefix + "%1$s"; break;
 		case RIGHT:
 			s = prefix + "%1$" + l + "s"; break;
+		default:
+			break;
 		}
 		return MiscUtil.parseColourSpec(s);
 	}

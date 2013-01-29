@@ -109,11 +109,11 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		}
 
 		int current = getLastScrollPos();
-		int nItems = getMenu().getItemCount();
+		int nItems = getActiveMenu().getItemCount();
 		int nDisplayable = height * 4 - nTitleLines;
 		if (nItems > 0) {
 			for (int n = 0; n < nDisplayable; n++) {
-				SMSMenuItem item = getMenu().getItemAt(current);
+				SMSMenuItem item = getActiveMenu().getItemAt(current);
 				String lineText;
 				if (n < nItems) {
 					lineText = item == null ? "???" : item.getLabel();
@@ -333,6 +333,8 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		case EAST: case WEST:
 			width = Math.abs(tl.getBlockZ() - br.getBlockZ()) + 1;
 			break;
+		default:
+			break;
 		}
 		LogUtils.finer("multisign: topleft=" + topLeft + ", bottomright=" + bottomRight);
 		LogUtils.finer("multisign: height=" + height + ", width=" + width);
@@ -414,7 +416,9 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 			break;
 		case RIGHT:
 			s = prefix + Str.padLeft(text + reset, l);
-			break;		
+			break;
+		default:
+			break;
 		}
 		return MiscUtil.parseColourSpec(s);
 	}

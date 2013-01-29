@@ -50,7 +50,7 @@ public class PopupBook {
 		if (!SMSView.checkForView(viewName)) {
 			// the view could have been deleted - see if the menu has any other views of the same type
 			for (SMSView view : SMSView.listViews()) {
-				if (view.getMenu().getName().equals(menuName) && view.getType().equals(viewType)) {
+				if (view.getNativeMenu().getName().equals(menuName) && view.getType().equals(viewType)) {
 					wantedView = view;
 					break;
 				}
@@ -117,12 +117,12 @@ public class PopupBook {
 		
 		BookMeta bm = (BookMeta) item.getItemMeta();
 		
-		bm.setTitle(v.variableSubs(v.getMenu().getTitle()));
+		bm.setTitle(v.variableSubs(v.getNativeMenu().getTitle()));
 		bm.setAuthor(p.getName());
 		bm.setPages("Left Click to Use!",
 					"sms " + v.getType() + " view",
 					v.getName(),
-					v.getMenu().getName());
+					v.getNativeMenu().getName());
 		item.setItemMeta(bm);
 		
 		return item;

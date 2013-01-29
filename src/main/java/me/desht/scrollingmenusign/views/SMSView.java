@@ -1,10 +1,13 @@
 package me.desht.scrollingmenusign.views;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,6 +67,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	private final String name;
 	private final AttributeCollection attributes;	// view attributes to be displayed and/or edited by players
 	private final Map<String, String> variables;
+	private final Deque<WeakReference<SMSMenu>> menuStack;
 
 	private boolean autosave;
 	private boolean dirty;
@@ -73,8 +77,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	// map a world name (which hasn't been loaded yet) to a list of x,y,z positions
 	private final Map<String,List<Vector>> deferredLocations = new HashMap<String, List<Vector>>();
 
-	@Override
-	public abstract void update(Observable menu, Object arg1);
+//	@Override
+//	public abstract void update(Observable menu, Object arg1);
 
 	/**
 	 * Get a user-friendly string representing the type of this view.
@@ -100,6 +104,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		this.attributes = new AttributeCollection(this);
 		this.variables = new HashMap<String, String>();
 		this.maxLocations = 1;
+		this.menuStack = new ArrayDeque<WeakReference<SMSMenu>>();
 
 		registerAttribute(OWNER, "");
 		registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT);
@@ -143,6 +148,23 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/* (non-Javadoc)
+	 * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		SMSMenu m = (SMSMenu) o;
+		SMSMenuAction action = (SMSMenuAction) arg;
+		LogUtils.fine("update: view=" + getName() + " action=" + action + " menu=" + m.getName() + ", nativemenu=" + getNativeMenu().getName());
+		if (m == getNativeMenu()) {
+			if (action == SMSMenuAction.DELETE_PERM) {
+				deletePermanent();
+			} else if (action == SMSMenuAction.DELETE_TEMP) {
+				deleteTemporary();
+			}
+		}
+	}
+
+	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.Freezable#getName()
 	 */
 	public String getName() {
@@ -152,17 +174,64 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Get the menu associated with this view.
 	 * 
+	 * @deprecated Use {@link getNativeMenu()}
 	 * @return	The SMSMenu object that this view is a view for.
 	 */
+	@Deprecated
 	public SMSMenu getMenu() {
+		return menu;
+	}
+	
+	/**
+	 * Get the native menu associated with the view.  The native menu is the menu that
+	 * the view was originally created for.
+	 * 
+	 * @return The native SMSMenu object for this view.
+	 */
+	public SMSMenu getNativeMenu() {
 		return menu;
 	}
 
 	/**
+	 * Get the active menu for this view.  This is not necessarily the same as the view's
+	 * native menu.
+	 * 
+	 * @return the active SMSMenu object for this view
+	 */
+	public SMSMenu getActiveMenu() {
+		SMSMenu m = null;
+		while (m == null && !menuStack.isEmpty()) {
+			m = menuStack.peek().get();
+		}
+		return m == null ? getNativeMenu() : m;
+	}
+	
+	/**
+	 * Push the given menu onto the view, making it the active menu as returned by {@link getActiveMenu()}
+	 * 
+	 * @param m the menu to make active
+	 */
+	public void pushMenu(SMSMenu m) {
+		menuStack.push(new WeakReference<SMSMenu>(m));
+		m.addObserver(this);
+	}
+	
+	/**
+	 * Pop the active menu off the view, making the previously active menu the new active menu.
+	 * 
+	 * @return	the active menu that has just been popped off
+	 */
+	public SMSMenu popMenu() {
+		SMSMenu m = menuStack.pop().get();
+		m.deleteObserver(this);
+		return m;
+	}
+	
+	/**
 	 * Set an arbitrary string of tagged data on this view
 	 * 
-	 * @param key
-	 * @param val
+	 * @param key	the variable name (must contain only alphanumeric or underscore)
+	 * @param val	the variable value (may contain any character)
 	 */
 	public void setVariable(String key, String val) {
 		if (!key.matches("[A-Za-z0-9_]+")) {
@@ -178,8 +247,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Get an arbitrary string of tagged data from this view
 	 * 
-	 * @param key
-	 * @return
+	 * @param key	the variable name (must contain only alphanumeric or underscore)
+	 * @return	the variable value
 	 */
 	public String getVariable(String key) {
 		if (!key.matches("[A-Za-z0-9_]+")) {
@@ -194,8 +263,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Check if the given view variable exists in this view.
 	 * 
-	 * @param key
-	 * @return
+	 * @param key the variable name (must contain only alphanumeric or underscore)
+	 * @return true if the variable exists, false otherwise
 	 */
 	public boolean checkVariable(String key) {
 		return variables.containsKey(key);
@@ -514,13 +583,18 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			allViewLocations.put(new PersistableLocation(l), this);
 		}
 
-		getMenu().addObserver(this);
+		getNativeMenu().addObserver(this);
 
 		autosave();
 	}
 
 	private void unregister() {
-		getMenu().deleteObserver(this);
+		getNativeMenu().deleteObserver(this);
+		for (WeakReference<SMSMenu> ref : menuStack) {
+			SMSMenu m = ref.get();
+			if (m != null) m.deleteObserver(this);
+		}
+		menuStack.clear();
 		allViewNames.remove(getName());
 		for (Location l : getLocations()) {
 			allViewLocations.remove(new PersistableLocation(l));
@@ -811,7 +885,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		// avoid calling updates on views that haven't been registered yet (which will be the case
 		// when restoring saved views from disk)
 		if (allViewNames.containsKey(getName())) {
-			update(getMenu(), SMSMenuAction.REPAINT);
+			update(getActiveMenu(), SMSMenuAction.REPAINT);
 		}
 	}
 

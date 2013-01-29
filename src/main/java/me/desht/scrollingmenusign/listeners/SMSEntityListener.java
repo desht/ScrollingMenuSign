@@ -30,7 +30,7 @@ public class SMSEntityListener extends SMSListenerBase {
 			if (view == null)
 				continue;
 			
-			SMSMenu menu = view.getMenu();
+			SMSMenu menu = view.getNativeMenu();
 			LogUtils.fine("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
 			if (noExplode) {
 				LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was protected from an explosion.");

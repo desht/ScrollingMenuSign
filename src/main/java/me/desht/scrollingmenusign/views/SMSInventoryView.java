@@ -69,9 +69,9 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
 	@Override
 	public void onOptionClick(OptionClickEvent event) {
-		SMSMenuItem item = getMenu().getItemAt(event.getIndex());
+		SMSMenuItem item = getActiveMenu().getItemAt(event.getIndex());
 		if (item == null) {
-			throw new SMSException("icon menu: index " + event.getIndex() + " out of range for " + getMenu().getName() + " ?");
+			throw new SMSException("icon menu: index " + event.getIndex() + " out of range for " + getActiveMenu().getName() + " ?");
 		}
 		item.executeCommand(event.getPlayer(), this);
 		item.feedbackMessage(event.getPlayer());
@@ -104,7 +104,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	public static SMSInventoryView addInventoryViewToMenu(String viewName, SMSMenu menu) {
 		SMSInventoryView view = new SMSInventoryView(viewName, menu);
 		view.register();
-		view.update(view.getMenu(), SMSMenuAction.REPAINT);
+		view.update(view.getNativeMenu(), SMSMenuAction.REPAINT);
 		return view;
 	}
 	

@@ -326,13 +326,13 @@ public class SMSMapView extends SMSScrollableView {
 	}
 
 	public void setMapItemName(ItemStack item) {
-		int nItems = getMenu().getItemCount();
+		int nItems = getNativeMenu().getItemCount();
 		String loreStr = nItems + (nItems == 1 ? " item" : " items");
 		loreStr = ChatColor.GRAY.toString() + ChatColor.ITALIC.toString() + loreStr;
 		List<String> lore = new ArrayList<String>(1);
 		lore.add(loreStr);
 		ItemMeta im = item.getItemMeta();
-		im.setDisplayName(ChatColor.RESET + variableSubs(getMenu().getTitle()));
+		im.setDisplayName(ChatColor.RESET + variableSubs(getNativeMenu().getTitle()));
 		im.setLore(lore);
 		item.setItemMeta(im);
 	}

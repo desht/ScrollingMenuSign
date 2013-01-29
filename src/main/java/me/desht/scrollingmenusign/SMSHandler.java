@@ -40,7 +40,9 @@ public interface SMSHandler {
 	 * @param menuName	Name of the menu to delete
 	 * @param action	One of DO_NOTHING, BLANK_SIGNS, DESTROY_SIGNS
 	 * @throws SMSException	if the menu does not exist
+	 * @deprecated use {@link deleteMenu()}
 	 */
+	@Deprecated
 	public void deleteMenu(String menuName, SMSMenuAction action) throws SMSException;
 
 	/**
