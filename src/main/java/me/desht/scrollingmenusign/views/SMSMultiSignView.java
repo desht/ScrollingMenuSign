@@ -95,10 +95,38 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
 	 */
 	@Override
-	public void update(Observable menu, Object arg1) {
-		if (!(menu instanceof SMSMenu))
-			return;
+	public void update(Observable obj, Object arg1) {
+		super.update(obj, arg1);
+		
+		SMSMenuAction action = (SMSMenuAction) arg1;		
+		switch (action) {
+		case REPAINT: case SCROLLED:
+			repaintAll();
+			break;
+		case DELETE_PERM:
+			erase();
+			break;
+		default:
+			break;
+		}
+	}
 
+	@Override
+	public void erase() {
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				org.bukkit.block.Sign s = getSign(x, y);
+				if (s != null) {
+					for (int i = 0; i < 4; i++) {
+						s.setLine(i, "");
+					}
+					s.update();
+				}
+			}
+		}
+	}
+
+	private void repaintAll() {
 		String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
 		String prefixSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
 
@@ -209,15 +237,6 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		super.addLocation(loc);
 	}
 
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.views.SMSView#deletePermanent()
-	 */
-	@Override
-	public void deletePermanent() {
-		blankSigns();
-		super.deletePermanent();
-	}
-
 	/**
 	 * Get the Sign at position (x,y) in the view.  (x, y) = (0, 0) is the top left sign.
 	 * x increases to the right, y increases downward.  This works regardless of sign orientation.
@@ -228,28 +247,32 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 */
 	public org.bukkit.block.Sign getSign(int x, int y) {
 		Location tl = topLeft.getLocation();
+		
+		int x1 = tl.getBlockX() + facing.getModX() * x;
 		int y1 = tl.getBlockY() - y;
-		int x1, z1;
-		switch (facing) {
-		case NORTH:
-			x1 = tl.getBlockX();
-			z1 = tl.getBlockZ() + x;
-			break;
-		case SOUTH:
-			x1 = tl.getBlockX();
-			z1 = tl.getBlockZ() - x;
-			break;
-		case EAST:
-			x1 = tl.getBlockX() - x;
-			z1 = tl.getBlockZ();
-			break;
-		case WEST:
-			x1 = tl.getBlockX() + x;
-			z1 = tl.getBlockZ();
-			break;
-		default:
-			throw new IllegalStateException("Unexpected facing " + facing + " for " + this);	
-		}
+		int z1 = tl.getBlockZ() + facing.getModZ() * x;
+		
+//		int x1, z1;
+//		switch (facing) {
+//		case NORTH:
+//			x1 = tl.getBlockX();
+//			z1 = tl.getBlockZ() + x;
+//			break;
+//		case SOUTH:
+//			x1 = tl.getBlockX();
+//			z1 = tl.getBlockZ() - x;
+//			break;
+//		case EAST:
+//			x1 = tl.getBlockX() - x;
+//			z1 = tl.getBlockZ();
+//			break;
+//		case WEST:
+//			x1 = tl.getBlockX() + x;
+//			z1 = tl.getBlockZ();
+//			break;
+//		default:
+//			throw new IllegalStateException("Unexpected facing " + facing + " for " + this);	
+//		}
 		Block b = tl.getWorld().getBlockAt(x1, y1, z1);
 		if (b.getType() == Material.WALL_SIGN) {
 			return (org.bukkit.block.Sign) b.getState();
@@ -276,7 +299,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 	/**
 	 * Apply all the updates that have been marked as pending.  Doing them all at once means
-	 * we only need to send world updates each sign once.
+	 * we only need to send world updates for each sign once.
 	 */
 	private void applyUpdates() {
 		for (Entry<Location,String[]> e : updates.entrySet()) {
@@ -396,8 +419,6 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private String formatLine(String prefix, String text, ViewJustification just) {
-//		text = variableSubs(text);
-		
 		int l = 15 * width - prefix.length();
 		String s = "";
 		//		this regexp sadly doesn't work
@@ -428,7 +449,6 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		for (int i = 0; i < lines.size(); i++) {
 			lines.set(i, formatLine("", lines.get(i), getTitleJustification()));
 		}
-//		return formatLine("", getMenu().getTitle(), getTitleJustification());
 		return lines;
 	}
 
@@ -436,22 +456,22 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		return formatLine(prefix, variableSubs(text), getItemJustification());
 	}
 
-	/**
-	 * Erase all the signs for this view.
-	 */
-	private void blankSigns() {
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				org.bukkit.block.Sign s = getSign(x, y);
-				if (s != null) {
-					for (int i = 0; i < 4; i++) {
-						s.setLine(i, "");
-					}
-					s.update();
-				}
-			}
-		}
-	}
+//	/**
+//	 * Erase all the signs for this view.
+//	 */
+//	private void blankSigns() {
+//		for (int x = 0; x < width; x++) {
+//			for (int y = 0; y < height; y++) {
+//				org.bukkit.block.Sign s = getSign(x, y);
+//				if (s != null) {
+//					for (int i = 0; i < 4; i++) {
+//						s.setLine(i, "");
+//					}
+//					s.update();
+//				}
+//			}
+//		}
+//	}
 
 	private boolean isHexDigit(char c) {
 		return c >= '0' && c <= '9' || c >= 'a' && c <= 'f'	;

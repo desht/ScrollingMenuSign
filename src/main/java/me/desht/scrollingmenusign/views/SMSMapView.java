@@ -180,21 +180,6 @@ public class SMSMapView extends SMSScrollableView {
 		autosave();
 	}
 
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.views.SMSView#deletePermanent()
-	 */
-	@Override
-	public void deletePermanent() {
-		if (mapView != null) {
-			allMapViews.remove(mapView.getId());
-			mapView.removeRenderer(getMapRenderer());
-			for (MapRenderer r : previousRenderers) {
-				mapView.addRenderer(r);
-			}
-		}
-		super.deletePermanent();
-	}
-
 	/**
 	 * Get the Bukkit @see org.bukkit.map.MapView associated with this map view object.
 	 * 
@@ -325,6 +310,11 @@ public class SMSMapView extends SMSScrollableView {
 		return image;
 	}
 
+	/**
+	 * Apply an item name & lore for this map view to the given item (which should be a map!)
+	 * 
+	 * @param item
+	 */
 	public void setMapItemName(ItemStack item) {
 		int nItems = getNativeMenu().getItemCount();
 		String loreStr = nItems + (nItems == 1 ? " item" : " items");
@@ -337,7 +327,16 @@ public class SMSMapView extends SMSScrollableView {
 		item.setItemMeta(im);
 	}
 
+	/**
+	 * Remove any custom item name & lore from the given item.
+	 * 
+	 * @param item
+	 */
 	public void removeMapItemName(ItemStack item) {
+		if (item.getType() != Material.MAP || getMapView().getId() != item.getDurability()) {
+			LogUtils.warning("SMSMapView: Attempt to remove item name from non map-view item!");
+			return;
+		}
 		ItemMeta im = item.getItemMeta();
 		im.setDisplayName(null);
 		im.setLore(null);
@@ -357,6 +356,17 @@ public class SMSMapView extends SMSScrollableView {
 		}
 		mapView.addRenderer(getMapRenderer());
 		setDirty(true);
+	}
+
+	@Override
+	public void erase() {
+		if (mapView != null) {
+			allMapViews.remove(mapView.getId());
+			mapView.removeRenderer(getMapRenderer());
+			for (MapRenderer r : previousRenderers) {
+				mapView.addRenderer(r);
+			}
+		}
 	}
 
 	/* (non-Javadoc)

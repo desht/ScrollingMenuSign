@@ -182,15 +182,26 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	 */
 	@Override
 	public void update(Observable menu, Object arg) {
-		if (arg instanceof SMSMenuAction) {
-			// the GUI will have repainted itself if it was scrolled so we don't need to do another repaint now
-			SMSMenuAction act = (SMSMenuAction)arg;
-			if (act == SMSMenuAction.SCROLLED)
-				return;	
+		switch ((SMSMenuAction) arg) {
+		case REPAINT:
+			for (SMSPopup gui : popups.values()) {
+				gui.repaint();
+			}
+			break;
+		default:
+			break;
 		}
-		for (SMSPopup gui : popups.values()) {
-			gui.repaint();
-		}
+		// although this is a scrollable view, we don't need to do anything if the action was SCROLLED,
+		// since the Spout list widget handles its own repainting
+	}
+
+	@Override
+	public void erase() {
+		for (Entry<String, SpoutViewPopup> e : popups.entrySet()) {
+			if (e.getValue().isPoppedUp(null)) {
+				hideGUI(e.getValue().getPlayer());
+			}
+		};
 	}
 
 	/* (non-Javadoc)
@@ -203,19 +214,6 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 
 	public String toString() {
 		return "spout (" + popups.size() + " popups created)";
-	}
-
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.views.SMSView#deletePermanent()
-	 */
-	@Override
-	public void deletePermanent() {
-		for (Entry<String, SpoutViewPopup> e : popups.entrySet()) {
-			if (e.getValue().isPoppedUp(null)) {
-				hideGUI(e.getValue().getPlayer());
-			}
-		};
-		super.deletePermanent();
 	}
 
 	/* (non-Javadoc)

@@ -76,36 +76,39 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
 	 */
 	@Override
-	public void update(Observable menu, Object arg1) {
-		super.update(menu, arg1);
-		
-		Sign sign = getSign();
-		if (sign == null)
-			return;
-		if (!(menu instanceof SMSMenu))
-			return;
+	public void update(Observable obj, Object arg1) {
+		super.update(obj, arg1);
 
 		SMSMenuAction action = (SMSMenuAction) arg1;
 		switch (action) {
 		case REPAINT: case SCROLLED:
-			// redraw the sign at the current scroll position
+			repaintAll();
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void erase() {
+		Sign sign = getSign();
+		if (sign == null)
+			return;
+		for (int i = 0; i < 4; i++) {
+			sign.setLine(i, "");
+		}
+		sign.update();
+	}
+
+	private void repaintAll() {
+		Sign sign = getSign();
+		if (sign != null) {
 			String[] lines = buildSignText(getLastScrollPos());
 			for (int i = 0; i < lines.length; i++) {
 				sign.setLine(i, lines[i]);
 			}
 			sign.update();
 			setDirty(false);
-			break;
-		case DELETE_PERM:
-			// blank the sign
-			for (int i = 0; i < 4; i++) {
-				sign.setLine(i, "");
-			}
-			sign.update();
-			setDirty(false);
-			break;
-		default:
-			break;
 		}
 	}
 
@@ -198,15 +201,10 @@ public class SMSSignView extends SMSGlobalScrollableView {
 
 	/**
 	 * Erase the text for this view's sign, leaving it blank.
+	 * @deprecated use {@link erase()}
 	 */
 	public void blankSign() {
-		Sign sign = getSign();
-		if (sign == null)
-			return;
-		for (int i = 0; i < 4; i++) {
-			sign.setLine(i, "");
-		}
-		sign.update();		
+		erase();
 	}
 
 	/**
@@ -235,15 +233,6 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	}
 	public static SMSView addSignToMenu(SMSMenu menu, Location loc) throws SMSException {
 		return addSignToMenu(null, menu, loc);
-	}
-	
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.views.SMSView#deletePermanent()
-	 */
-	@Override
-	public void deletePermanent() {
-		blankSign();
-		super.deletePermanent();
 	}
 	
 	@Override

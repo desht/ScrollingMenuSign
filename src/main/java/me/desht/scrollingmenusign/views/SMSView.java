@@ -86,6 +86,11 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @return	The type of view this is.
 	 */
 	public abstract String getType();
+	
+	/**
+	 * Erase the view's contents and perform any housekeeping; called when it's about to be deleted.
+	 */
+	public abstract void erase();
 
 	public SMSView(SMSMenu menu) {
 		this(null, menu);
@@ -613,6 +618,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * Permanently delete a view.  The view is deactivated and purged from persisted storage on disk.
 	 */
 	public void deletePermanent() {
+		erase();
 		unregister();
 		SMSPersistence.unPersist(this);
 	}

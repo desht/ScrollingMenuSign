@@ -10,6 +10,7 @@ import me.desht.scrollingmenusign.views.icon.IconMenu;
 import me.desht.scrollingmenusign.views.icon.IconMenu.OptionClickEvent;
 import me.desht.scrollingmenusign.views.icon.IconMenu.OptionClickEventHandler;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class SMSInventoryView extends SMSView implements PoppableView, OptionClickEventHandler {
@@ -30,7 +31,21 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
 	@Override
 	public void update(Observable menu, Object arg1) {
-		iconMenu.repaint();
+		switch ((SMSMenuAction) arg1) {
+		case REPAINT:
+			iconMenu.repaint();
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void erase() {
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			hideGUI(p);
+		}
+		iconMenu.destroy();
 	}
 
 	@Override
@@ -83,12 +98,6 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	public void deleteTemporary() {
 		iconMenu.destroy();
 		super.deleteTemporary();
-	}
-	
-	@Override
-	public void deletePermanent() {
-		iconMenu.destroy();
-		super.deletePermanent();
 	}
 
 	/**
