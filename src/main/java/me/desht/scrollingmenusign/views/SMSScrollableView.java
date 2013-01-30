@@ -63,7 +63,7 @@ public abstract class SMSScrollableView extends SMSView {
 	protected void thaw(ConfigurationSection node) throws SMSException {
 		super.thaw(node);
 		lastScrollPos = node.getInt("scrollPos", 1);
-		if (lastScrollPos < 1 || lastScrollPos > getActiveMenu().getItemCount())
+		if (lastScrollPos < 1 || lastScrollPos > getActiveMenuItemCount())
 			lastScrollPos = 1;
 	}
 
@@ -77,8 +77,8 @@ public abstract class SMSScrollableView extends SMSView {
 	public int getLastScrollPos() {
 		if (lastScrollPos < 1)
 			lastScrollPos = 1;
-		else if (lastScrollPos > getActiveMenu().getItemCount())
-			lastScrollPos = getActiveMenu().getItemCount();
+		else if (lastScrollPos > getActiveMenuItemCount())
+			lastScrollPos = getActiveMenuItemCount();
 
 		return lastScrollPos;
 	}
@@ -95,8 +95,8 @@ public abstract class SMSScrollableView extends SMSView {
 		if (perPlayerScrolling) {
 			if (!playerScrollPos.containsKey(playerName) || playerScrollPos.get(playerName) < 1) {
 				setScrollPos(playerName, 1);
-			} else if (playerScrollPos.get(playerName) > getActiveMenu().getItemCount())
-				setScrollPos(playerName, getActiveMenu().getItemCount());
+			} else if (playerScrollPos.get(playerName) > getActiveMenuItemCount())
+				setScrollPos(playerName, getActiveMenuItemCount());
 
 			return playerScrollPos.get(playerName);
 		} else {
@@ -127,8 +127,8 @@ public abstract class SMSScrollableView extends SMSView {
 	 */
 	public void scrollDown(String playerName) {
 		int pos = getScrollPos(playerName) + 1;
-		if (pos > getActiveMenu().getItemCount()) {
-			pos = wrap ? 1 : getActiveMenu().getItemCount();
+		if (pos > getActiveMenuItemCount()) {
+			pos = wrap ? 1 : getActiveMenuItemCount();
 		}
 		setScrollPos(playerName, pos);
 	}
@@ -139,12 +139,12 @@ public abstract class SMSScrollableView extends SMSView {
 	 * @param playerName	The player to scroll the view for
 	 */
 	public void scrollUp(String playerName) {
-		if (getActiveMenu().getItemCount() == 0)
+		if (getActiveMenuItemCount() == 0)
 			return;
 
 		int pos = getScrollPos(playerName) - 1;
 		if (pos <= 0) {
-			pos = wrap ? getActiveMenu().getItemCount() : 1;
+			pos = wrap ? getActiveMenuItemCount() : 1;
 		}
 		setScrollPos(playerName, pos);
 	}
@@ -192,7 +192,7 @@ public abstract class SMSScrollableView extends SMSView {
 	 * @return
 	 */
 	public List<String> splitTitle() {
-		String title = variableSubs(getActiveMenu().getTitle());
+		String title = variableSubs(getActiveMenuTitle());
 		int lineLength = getLineLength();
 		List<String> result = new ArrayList<String>();
 		int maxLines = Math.min(getMaxTitleLines(), getHardMaxTitleLines());

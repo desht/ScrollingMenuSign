@@ -137,11 +137,11 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		}
 
 		int current = getLastScrollPos();
-		int nItems = getActiveMenu().getItemCount();
+		int nItems = getActiveMenuItemCount();
 		int nDisplayable = height * 4 - nTitleLines;
 		if (nItems > 0) {
 			for (int n = 0; n < nDisplayable; n++) {
-				SMSMenuItem item = getActiveMenu().getItemAt(current);
+				SMSMenuItem item = getActiveMenuItemAt(current);
 				String lineText;
 				if (n < nItems) {
 					lineText = item == null ? "???" : item.getLabel();

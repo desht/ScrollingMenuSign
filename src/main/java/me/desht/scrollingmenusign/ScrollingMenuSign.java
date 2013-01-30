@@ -16,6 +16,10 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.responsehandler.ResponseHandler;
+import me.desht.scrollingmenusign.commandlets.CloseSubmenuCommandlet;
+import me.desht.scrollingmenusign.commandlets.CommandletManager;
+import me.desht.scrollingmenusign.commandlets.PopupCommandlet;
+import me.desht.scrollingmenusign.commandlets.SubmenuCommandlet;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
 import me.desht.scrollingmenusign.commands.AddViewCommand;
@@ -75,6 +79,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
 	private final CommandManager cmds = new CommandManager(this);
+	private final CommandletManager cmdlets = new CommandletManager(this);
 	
 	private boolean spoutEnabled = false;
 	private ConfigurationManager configManager;
@@ -112,6 +117,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		}
 
 		registerCommands();
+		registerCommandlets();
 
 		MessagePager.setPageCmd("/sms page [#|n|p]");
 		MessagePager.setDefaultPageSize(getConfig().getInt("sms.pager.lines", 0));
@@ -166,6 +172,10 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	public static ScrollingMenuSign getInstance() {
 		return instance;
+	}
+	
+	public CommandletManager getCommandletManager() {
+		return cmdlets;
 	}
 
 	public ConfigurationManager getConfigManager() {
@@ -288,6 +298,12 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		cmds.registerCommand(new SortMenuCommand());
 		cmds.registerCommand(new VarCommand());
 		cmds.registerCommand(new ViewCommand());
+	}
+
+	private void registerCommandlets() {
+		cmdlets.registerCommandlet("POPUP", new PopupCommandlet());
+		cmdlets.registerCommandlet("SUBMENU", new SubmenuCommandlet());
+		cmdlets.registerCommandlet("BACK", new CloseSubmenuCommandlet());
 	}
 
 	private void loadPersistedData() {

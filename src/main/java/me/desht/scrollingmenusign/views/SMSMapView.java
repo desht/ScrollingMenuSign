@@ -1,6 +1,12 @@
 package me.desht.scrollingmenusign.views;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -18,11 +24,13 @@ import javax.imageio.ImageIO;
 
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
 
 import org.bukkit.Bukkit;
@@ -32,11 +40,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.map.MapFont;
 import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
-import org.bukkit.map.MinecraftFont;
 
 /**
  * @author des
@@ -46,6 +52,9 @@ import org.bukkit.map.MinecraftFont;
  */
 public class SMSMapView extends SMSScrollableView {
 
+	private static final String[] NOT_OWNER = { "\u00a7oThis map belongs", "\u00a7to someone else." };
+	private static final String[] NO_PERM = { "\u00a7oYou do not have", "\u00a7permission to use", "\u00a7map menus." };
+
 	// magic map X value used by the Courier plugin
 	public static final int COURIER_MAP_X = 2147087904;
 
@@ -53,15 +62,18 @@ public class SMSMapView extends SMSScrollableView {
 
 	// attributes
 	public static final String IMAGE_FILE = "imagefile";
+	public static final String FONT = "font";
+	public static final String FONT_SIZE = "fontsize";
+
+	private static final Color DEFAULT_COLOR = new Color(0,0,0);
 
 	private MapView mapView = null;
 	private final SMSMapRenderer mapRenderer;
-	private MapFont mapFont = MinecraftFont.Font;
 	private int x, y;
 	private int width, height;
 	private int lineSpacing;
 	private final List<MapRenderer> previousRenderers = new ArrayList<MapRenderer>();
-	private BufferedImage image = null;
+	private BufferedImage backgroundImage = null;
 
 	private static Map<Short,SMSMapView> allMapViews = new HashMap<Short, SMSMapView>();
 
@@ -84,18 +96,20 @@ public class SMSMapView extends SMSScrollableView {
 		super(name, menu);
 
 		registerAttribute(IMAGE_FILE, "");
+		registerAttribute(FONT, "Serif");
+		registerAttribute(FONT_SIZE, 9);
 
 		x = 4;
 		y = 10;	// leaving space for the map name in the top left
 		width = 120;
 		height = 120;
-		lineSpacing = 1;
+		lineSpacing = 0;
 
 		mapRenderer = new SMSMapRenderer(this);
 	}
 
 	private void loadBackgroundImage() {
-		image = null;
+		backgroundImage = null;
 
 		String file = getAttributeAsString(IMAGE_FILE, "");
 		if (file.isEmpty()) {
@@ -118,7 +132,7 @@ public class SMSMapView extends SMSScrollableView {
 					LogUtils.info("Cached image " + url + " as " + cached);
 				}
 			}
-			image = resizedImage;
+			backgroundImage = resizedImage;
 		} catch (MalformedURLException e) {
 			LogUtils.warning("malformed image URL for map view " + getName() + ": " + e.getMessage());
 		} catch (IOException e) {
@@ -288,26 +302,8 @@ public class SMSMapView extends SMSScrollableView {
 		this.lineSpacing = lineSpacing;
 	}
 
-	/**
-	 * Get the font used for drawing menu text
-	 * 
-	 * @return	The font
-	 */
-	public MapFont getMapFont() {
-		return mapFont;
-	}
-
-	/**
-	 * Set the font used for drawing menu text
-	 * 
-	 * @param mapFont	The font
-	 */
-	public void setMapFont(MapFont mapFont) {
-		this.mapFont = mapFont;
-	}
-
 	public BufferedImage getImage() {
-		return image;
+		return backgroundImage;
 	}
 
 	/**
@@ -462,7 +458,7 @@ public class SMSMapView extends SMSScrollableView {
 	public static boolean usedByOtherPlugin(ItemStack item) {
 		if (item.getType() != Material.MAP)
 			throw new IllegalArgumentException("Item is not a map: " + item.getType());
-		
+
 		MapView mapView = Bukkit.getServer().getMap(item.getDurability());
 
 		for (MapRenderer r : mapView.getRenderers()) {
@@ -470,7 +466,7 @@ public class SMSMapView extends SMSScrollableView {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -482,5 +478,194 @@ public class SMSMapView extends SMSScrollableView {
 	@Override
 	protected int getLineLength() {
 		return 30;	// estimate
+	}
+
+	/**
+	 * This method does the actual creation of the map image, to be returned to the Bukkit
+	 * map renderer for copying to the canvas.
+	 * 
+	 * @return an Image
+	 */
+	public BufferedImage renderImage(Player player) {
+		if (mapView == null) return null;
+
+		int yPos = getY();
+
+		BufferedImage result = backgroundImage == null ? new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB): deepCopy(backgroundImage);
+
+		Graphics g = result.getGraphics();
+		g.setFont(new Font(getAttributeAsString(FONT), 0, (Integer) getAttribute(FONT_SIZE)));
+		g.setColor(DEFAULT_COLOR);
+
+		FontMetrics metrics = g.getFontMetrics();
+		SMSMenu menu = getActiveMenu();
+
+		if (!hasOwnerPermission(player)) {
+			drawMessage(g, NOT_OWNER);
+			return result;
+		} else if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
+			drawMessage(g, NO_PERM);
+			return result;
+		} 
+
+		// draw the title line(s)
+		List<String> titleLines = splitTitle();
+		for (String line : titleLines) {
+			drawText(g, getTitleJustification(), yPos, line);
+			yPos += metrics.getHeight() + getLineSpacing();	
+		}
+
+		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ");
+		String prefix2 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ");
+
+		int nDisplayable = (getHeight() - yPos) / (metrics.getHeight() + getLineSpacing());
+
+		if (menu.getItemCount() > 0) {
+			int current = getScrollPos(player.getName());
+			ViewJustification itemJust = getItemJustification();
+			for (int n = 0; n < nDisplayable; n++) {
+				String lineText = getItemLabel(current);
+				if (lineText == null) lineText = "???";
+				if (n == 0) {
+					lineText = prefix2 + lineText;
+				} else {
+					lineText = prefix1 + lineText;
+				}
+				drawText(g, itemJust, yPos, lineText);
+				yPos += metrics.getHeight() + getLineSpacing();
+				current++;
+				if (current > getActiveMenuItemCount())
+					current = 1;
+				if (n + 1 >= getActiveMenuItemCount())
+					break;
+			}
+		}
+
+		return result;
+	}
+
+	private void drawText(Graphics g, ViewJustification itemJust, int y, String text) {
+		FontMetrics metrics = g.getFontMetrics();
+		int textWidth = metrics.stringWidth(text);
+		drawText(g, getXOffset(itemJust, textWidth), y, text);
+	}
+
+	private void drawMessage(Graphics g, String[] text) {
+		FontMetrics metrics = g.getFontMetrics();
+		int h = metrics.getHeight() + getLineSpacing();
+		int y = getY() + (getHeight() - h * text.length) / 2;
+		for (String s : text)	 {
+			int x = getX() + (getWidth() - metrics.stringWidth(s)) / 2;
+			drawText(g, x, y, s);
+			y += h;
+		}
+	}
+
+	private static final byte BOLD = 0x01;
+	private static final byte ITALIC = 0x02;
+	private static final byte UNDERLINE = 0x04;
+	private static final byte STRIKE = 0x08;
+
+	private void drawText(Graphics g, int x, int y, String text) {
+		FontMetrics metrics = g.getFontMetrics();
+
+		byte flags = 0;
+
+		StringBuffer sb = new StringBuffer(text.length());
+		for (int i = 0; i < text.length(); i++) {
+			Character c = text.charAt(i);
+			if (c == '\u00a7') {
+				// markup code: render what we have so far, then change the font/color
+				String s = sb.toString();
+				int width = metrics.stringWidth(s);
+				int height = metrics.getMaxAscent();
+				renderTextElement(g, s, x, y, width, height, flags);
+				x += width;
+				sb.delete(0, sb.length());
+				i++;
+				c = Character.toLowerCase(text.charAt(i));
+				if (c >= '0' && c <= '9' || c >= 'a' && c <= 'f') {
+					byte mcColor = Byte.parseByte(c.toString(), 16);
+					g.setColor(minecraftToJavaColor(mcColor));
+					flags = 0x0;
+				} else if (c == 'l') {
+					flags |= BOLD;
+				} else if (c == 'm') {
+					flags |= STRIKE;
+				} else if (c == 'n') {
+					flags |= UNDERLINE;
+				} else if (c == 'o') {
+					flags |= ITALIC;
+				} else if (c == 'r') {
+					flags = 0;
+					g.setColor(DEFAULT_COLOR);
+				}
+			} else {
+				sb.append(c);
+			}
+		}
+		String s = sb.toString();
+		int width = metrics.stringWidth(s);
+		int height = metrics.getMaxAscent();
+		renderTextElement(g, s, x, y, width, height, flags);
+		g.setColor(DEFAULT_COLOR);
+	}
+
+	private void renderTextElement(Graphics g, String s, int x, int y, int width, int height, byte flags) {
+		Font f = g.getFont();
+
+		int style = 0;
+		if ((flags & BOLD) == BOLD) style |= Font.BOLD;
+		if ((flags & ITALIC) == ITALIC) style |= Font.ITALIC;
+		if (style != 0) g.setFont(new Font(f.getFamily(), style, f.getSize()));
+
+		g.drawString(s, x, y);
+
+		if ((flags & UNDERLINE) == UNDERLINE) g.drawLine(x, y, x + width, y);
+		if ((flags & STRIKE) == STRIKE) g.drawLine(x, y - height / 2, x + width, y - height / 2);
+		g.setFont(f);
+	}
+
+	private int getXOffset(ViewJustification just, int width) {
+		switch (just) {
+		case LEFT:
+			return getX();
+		case CENTER:
+			return getX() + (getWidth() - width) / 2;
+		case RIGHT:
+			return getX() + getWidth() - width;
+		default:
+			return 0;
+		}
+	}
+
+	private static BufferedImage deepCopy(BufferedImage bi) {
+		ColorModel cm = bi.getColorModel();
+		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		WritableRaster raster = bi.copyData(null);
+		return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+	}
+
+	private static final Color[] colors = new Color[16];
+	static {
+		colors[0] = new Color(0, 0, 0);
+		colors[1] = new Color(0, 0, 128);
+		colors[2] = new Color(0, 128, 0);
+		colors[3] = new Color(0, 128, 128);
+		colors[4] = new Color(128, 0, 0);
+		colors[5] = new Color(128, 0, 128);
+		colors[6] = new Color(128, 128, 0);
+		colors[7] = new Color(128, 128, 128);
+		colors[8] = new Color(64, 64, 64);
+		colors[9] = new Color(0, 0, 255);
+		colors[10] = new Color(0, 255, 0);
+		colors[11] = new Color(0, 255, 255);
+		colors[12] = new Color(255, 0, 0);
+		colors[13] = new Color(255, 0, 255);
+		colors[14] = new Color(255, 255, 0);
+		colors[15] = new Color(255, 255, 255);
+	}
+	private static Color minecraftToJavaColor(int mcColor) {
+		return colors[mcColor];
 	}
 }

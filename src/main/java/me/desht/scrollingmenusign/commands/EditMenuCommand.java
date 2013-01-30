@@ -47,9 +47,9 @@ public class EditMenuCommand extends AbstractCommand {
 		}
 
 		SMSMenuItem currentItem = menu.getItemAt(pos, true);
-		String label   = hasOption("label") ? getStringOption("label") : currentItem.getLabel();
+		String label   = hasOption("label") ? MiscUtil.parseColourSpec(getStringOption("label")) : currentItem.getLabel();
 		String command = hasOption("command") ? getStringOption("command") : currentItem.getCommand();
-		String message = hasOption("feedback") ? getStringOption("feedback") : currentItem.getMessage();
+		String message = hasOption("feedback") ? MiscUtil.parseColourSpec(getStringOption("feedback")) : currentItem.getMessage();
 		String iconMat = hasOption("icon") ? getStringOption("icon") : currentItem.getIconMaterial().toString();
 
 		if (!command.isEmpty() && sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, command)) {

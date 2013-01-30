@@ -10,6 +10,7 @@ import java.util.regex.PatternSyntaxException;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.commandlets.CommandletManager;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.dhutils.Cost;
 import me.desht.dhutils.MiscUtil;
@@ -37,11 +38,12 @@ public class ParsedCommand {
 	private String lastError;
 	private StringBuilder rawCommand;
 	private String[] quotedArgs;
+	private boolean commandlet;
 
 	ParsedCommand (CommandSender sender, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
 		costs = new ArrayList<Cost>();
-		elevated = restricted = chat = whisper = macro = console = false;
+		elevated = restricted = chat = whisper = macro = console = commandlet = false;
 		commandStopped = macroStopped = false;
 		affordable = applicable = true;
 		command = null;
@@ -49,6 +51,8 @@ public class ParsedCommand {
 		lastError = "no error";
 		rawCommand = new StringBuilder();
 
+		CommandletManager cmdlets = ScrollingMenuSign.getInstance().getCommandletManager();
+		
 		while (scanner.hasNext()) {
 			String token = scanner.next();
 
@@ -76,7 +80,11 @@ public class ParsedCommand {
 			
 			rawCommand.append(token).append(" ");
 			
-			if (token.startsWith("%")) {
+			if (cmdlets.hasCommandlet(token)) {
+				// commandlet
+				command = token;
+				commandlet = true;
+			} else if (token.startsWith("%")) {
 				// macro
 				command = token.substring(1);
 				macro = true;
@@ -100,12 +108,12 @@ public class ParsedCommand {
 				command = token.substring(1);
 				chat = true;
 			} else if (token.startsWith("@!") && command == null) {
-				// verify NOT player or group name
+				// verify a restriction NOT matched
 				if (restrictionCheck(sender, token.substring(2))) {
 					restricted = true;
 				}
 			} else if (token.startsWith("@") && command == null) {
-				// verify player or group name
+				// verify a restriction matched
 				if (!restrictionCheck(sender, token.substring(1))) {
 					restricted = true;
 				}
@@ -228,6 +236,15 @@ public class ParsedCommand {
 		return applicable;
 	}
 
+	/**
+	 * Check if this command is a special "commandlet" registered with SMS.
+	 * 
+	 * @return
+	 */
+	public boolean isCommandlet() {
+		return commandlet;
+	}
+	
 	/**
 	 * Get the details of the costs for this command.
 	 * 

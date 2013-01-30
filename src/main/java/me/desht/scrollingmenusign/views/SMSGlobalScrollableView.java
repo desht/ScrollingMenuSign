@@ -78,7 +78,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	public void updateSwitchPower() {
-		SMSMenuItem item = getActiveMenu().getItemAt(getLastScrollPos());
+		SMSMenuItem item = getActiveMenuItemAt(getLastScrollPos());
 		if (item == null) {
 			return;
 		}
@@ -90,7 +90,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	public void toggleSwitchPower() {
-		SMSMenuItem item = getActiveMenu().getItemAt(getLastScrollPos());
+		SMSMenuItem item = getActiveMenuItemAt(getLastScrollPos());
 		if (item == null) {
 			return;
 		}
@@ -103,7 +103,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	public void pulseSwitchPower(boolean pulseAll) {
-		SMSMenuItem item = getActiveMenu().getItemAt(getLastScrollPos());
+		SMSMenuItem item = getActiveMenuItemAt(getLastScrollPos());
 		if (item == null) {
 			return;
 		}

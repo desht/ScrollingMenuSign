@@ -118,7 +118,7 @@ public class GiveCommand extends AbstractCommand {
 		String s = amount == 1 ? "" : "s";
 		MiscUtil.statusMessage(sender, String.format("Gave %d book%s (&6%s&-) to &6%s", amount, s, argStr, targetPlayer.getName()));
 		if (sender != targetPlayer) {
-			MiscUtil.statusMessage(targetPlayer, String.format("You received %d books%s for menu &6%s", amount, s, view.getMenu().getTitle()));
+			MiscUtil.statusMessage(targetPlayer, String.format("You received %d books%s for menu &6%s", amount, s, view.getNativeMenu().getTitle()));
 		}
 	}
 

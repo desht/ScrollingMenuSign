@@ -48,7 +48,7 @@ public class IconMenu implements Listener, SMSPopup {
 
 	@Override
 	public boolean isPoppedUp(Player p) {
-		return p.getOpenInventory().getTitle().equals(getView().getActiveMenu().getTitle());		
+		return p.getOpenInventory().getTitle().equals(getView().getActiveMenuTitle());		
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class IconMenu implements Listener, SMSPopup {
 	@Override
 	public void popup(Player p) {
 		if (!isPoppedUp(p)) {
-			String title = getView().variableSubs(getView().getActiveMenu().getTitle());
+			String title = getView().variableSubs(getView().getActiveMenuTitle());
 			Inventory inventory = Bukkit.createInventory(p, size, title);
 			for (int i = 0; i < size; i++) {
 				inventory.setItem(i, optionIcons[i]);
@@ -76,10 +76,8 @@ public class IconMenu implements Listener, SMSPopup {
 	}
 
 	private void buildMenu() {
-		SMSMenu menu = getView().getActiveMenu();
-	
 		int width = (Integer) getView().getAttribute(SMSInventoryView.WIDTH);
-		int nItems = menu.getItemCount();
+		int nItems = getView().getActiveMenuItemCount(); //menu.getItemCount();
 		int nRows = Math.min(MAX_INVENTORY_ROWS, ((nItems - 1) / width) + 1);
 	
 		size = INVENTORY_WIDTH * nRows;
@@ -91,7 +89,7 @@ public class IconMenu implements Listener, SMSPopup {
 		for (int i = 0; i < nItems; i++) {
 			int row = i / width;
 			int pos = row * INVENTORY_WIDTH + xOff + i % width;
-			SMSMenuItem menuItem = menu.getItemAt(i + 1);
+			SMSMenuItem menuItem = getView().getActiveMenuItemAt(i + 1); //menu.getItemAt(i + 1);
 			ItemStack icon = menuItem.getIconMaterial().makeItemStack();
 			String label = getView().variableSubs(menuItem.getLabel());
 			ItemMeta im = icon.getItemMeta();
@@ -122,8 +120,9 @@ public class IconMenu implements Listener, SMSPopup {
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	void onInventoryClick(InventoryClickEvent event) {
-		String name = getView().variableSubs(getView().getActiveMenu().getTitle());
+		String name = getView().variableSubs(getView().getActiveMenuTitle());
 		
+		System.out.println("inv click: name = [" + name + "], inv title = [" + event.getInventory().getTitle() + "]");
 		if (event.getInventory().getTitle().equals(name)) {
 
 			LogUtils.fine("InventoryClickEvent: player = " + event.getWhoClicked().getName() + ", view = " + getView().getName() +

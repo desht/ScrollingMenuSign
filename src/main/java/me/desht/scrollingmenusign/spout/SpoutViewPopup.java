@@ -73,7 +73,7 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	 */
 	@Override
 	public void repaint() {
-		title.setText(view.variableSubs(view.getActiveMenu().getTitle()));
+		title.setText(view.variableSubs(view.getActiveMenuTitle()));
 		rejustify();
 		texture.updateURL();
 		listWidget.repaint();

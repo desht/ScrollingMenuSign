@@ -5,6 +5,7 @@ import java.util.Observable;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.icon.IconMenu;
 import me.desht.scrollingmenusign.views.icon.IconMenu.OptionClickEvent;
@@ -83,15 +84,28 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	}
 
 	@Override
-	public void onOptionClick(OptionClickEvent event) {
-		SMSMenuItem item = getActiveMenu().getItemAt(event.getIndex());
+	public void onOptionClick(final OptionClickEvent event) {
+		SMSMenuItem item = getActiveMenuItemAt(event.getIndex());
 		if (item == null) {
 			throw new SMSException("icon menu: index " + event.getIndex() + " out of range for " + getActiveMenu().getName() + " ?");
 		}
+		SMSMenu m = getActiveMenu();
 		item.executeCommand(event.getPlayer(), this);
 		item.feedbackMessage(event.getPlayer());
 		onExecuted(event.getPlayer());
-		event.setWillClose((Boolean)getAttribute(AUTOPOPDOWN));
+		if (m != getActiveMenu()) {
+			// just pushed or popped a submenu
+			// need to pop this inventory down and pop up a new one with the right title
+			event.setWillClose(true);
+			Bukkit.getScheduler().runTaskLater(ScrollingMenuSign.getInstance(), new Runnable() {
+				@Override
+				public void run() {
+					iconMenu.popup(event.getPlayer());
+				}
+			}, 2L);
+		} else {
+			event.setWillClose((Boolean)getAttribute(AUTOPOPDOWN));
+		}
 	}
 	
 	@Override

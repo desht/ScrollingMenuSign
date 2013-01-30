@@ -138,29 +138,29 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	}
 
 	private String getLine2Item(int pos) {
-		if (getActiveMenu().getItemCount() < 3)
+		if (getActiveMenuItemCount() < 3)
 			return "";
 			
 		int prevPos = pos - 1;
 		if (prevPos < 1) {
-			prevPos = getActiveMenu().getItemCount();
+			prevPos = getActiveMenuItemCount();
 		}
 		return getItemLabel(prevPos);
 	}
 	
 	private String getLine3Item(int pos) {
-		if (getActiveMenu().getItemCount() < 1) {
+		if (getActiveMenuItemCount() < 1) {
 			return "";
 		}
 		return getItemLabel(pos);
 	}
 
 	private String getLine4Item(int pos) {
-		if (getActiveMenu().getItemCount() < 2) 
+		if (getActiveMenuItemCount() < 2) 
 			return "";
 			
 		int nextPos = pos + 1;
-		if (nextPos > getActiveMenu().getItemCount()) {
+		if (nextPos > getActiveMenuItemCount()) {
 			nextPos = 1;
 		}
 		return getItemLabel(nextPos);

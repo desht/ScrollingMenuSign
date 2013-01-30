@@ -22,6 +22,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import me.desht.scrollingmenusign.DirectoryStructure;
+import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.SMSPersistable;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -38,6 +39,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.PersistableLocation;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -214,11 +216,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Push the given menu onto the view, making it the active menu as returned by {@link getActiveMenu()}
 	 * 
-	 * @param m the menu to make active
+	 * @param newActive the menu to make active
 	 */
-	public void pushMenu(SMSMenu m) {
-		menuStack.push(new WeakReference<SMSMenu>(m));
-		m.addObserver(this);
+	public void pushMenu(SMSMenu newActive) {
+		getActiveMenu().deleteObserver(this);
+		menuStack.push(new WeakReference<SMSMenu>(newActive));
+		newActive.addObserver(this);
+		update(newActive, SMSMenuAction.REPAINT);
 	}
 	
 	/**
@@ -227,9 +231,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @return	the active menu that has just been popped off
 	 */
 	public SMSMenu popMenu() {
-		SMSMenu m = menuStack.pop().get();
-		m.deleteObserver(this);
-		return m;
+		SMSMenu oldActive = menuStack.pop().get();
+		oldActive.deleteObserver(this);
+		
+		SMSMenu newActive = getActiveMenu();
+		newActive.addObserver(this);
+		update(newActive, SMSMenuAction.REPAINT);
+		return oldActive;
 	}
 	
 	/**
@@ -322,7 +330,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @return
 	 */
 	public String getItemLabel(int pos) {
-		String label =  getMenu().getItemAt(pos).getLabel();
+		String label = getActiveMenuItemAt(pos).getLabel();
 		
 		if (label == null)
 			return null;
@@ -343,7 +351,25 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return sb.toString();
 	}
 
+	public String getActiveMenuTitle() {
+		String prefix = getActiveMenu() == getNativeMenu() ? "" : "\u21b3";	// TODO configurable
+		return prefix + getActiveMenu().getTitle();
+	}
 
+	public int getActiveMenuItemCount() {
+		int count = getActiveMenu().getItemCount();
+		if (getActiveMenu() != getNativeMenu()) count++;
+		return count;
+	}
+	
+	public SMSMenuItem getActiveMenuItemAt(int pos) {
+		if (getActiveMenu() != getNativeMenu() && pos == getActiveMenu().getItemCount() + 1) {
+			return new SMSMenuItem(getActiveMenu(), ChatColor.BOLD + "\u21e6 BACK", "BACK", "");
+		} else {
+			return getActiveMenu().getItemAt(pos);
+		}
+	}
+	
 	public Map<String, Object> freeze() {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, String> vars = new HashMap<String, String>();
@@ -544,7 +570,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 		SMSView v = SMSView.getViewForLocation(loc);
 		if (v != null) {
-			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " already contains view on menu: " + v.getMenu().getName());
+			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " already contains view on menu: " + v.getNativeMenu().getName());
 		}
 
 		locations.add(new PersistableLocation(loc));
@@ -705,7 +731,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			List<SMSView> res = new ArrayList<SMSView>();
 			for (String name : sorted) {
 				SMSView v = allViewNames.get(name);
-				if (v.getMenu() == menu) {
+				if (v.getNativeMenu() == menu) {
 					res.add(v);
 				}
 			}
@@ -763,7 +789,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	
 	public static SMSView findView(SMSMenu menu, Class<?> c) {
 		for (SMSView view : listViews()) {
-			if (view.getMenu() == menu && (c == null || c.isAssignableFrom(view.getClass()))) {
+			if (view.getNativeMenu() == menu && (c == null || c.isAssignableFrom(view.getClass()))) {
 				return view;
 			}
 		}

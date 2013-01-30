@@ -9,6 +9,7 @@ import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
@@ -382,8 +383,10 @@ public class SMSPlayerListener extends SMSListenerBase {
 	 */
 	private void tryToAddRedstoneOutput(SMSGlobalScrollableView locView, Player player) {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.create.switch");
-		String trigger = locView.getActiveMenu().getItemAt(locView.getLastScrollPos()).getLabel();
+		SMSMenuItem item = locView.getActiveMenu().getItemAt(locView.getLastScrollPos());
+		if (item == null) return;
 		
+		String trigger = item.getLabel();
 		MiscUtil.statusMessage(player, "Place your lever or hit an existing lever to add it as a");
 		MiscUtil.statusMessage(player, String.format("  redstone output on view &e%s&- / &e%s&-.",
 		                                             locView.getName(), trigger));
