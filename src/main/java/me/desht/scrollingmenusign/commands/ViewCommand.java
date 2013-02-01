@@ -72,7 +72,7 @@ public class ViewCommand extends AbstractCommand {
 				varName = varName.substring(1);
 				view.setVariable(varName, null);
 				view.autosave();
-				view.update(view.getActiveMenu(), SMSMenuAction.REPAINT);
+				view.update(null, SMSMenuAction.REPAINT);
 				MiscUtil.statusMessage(sender, "Deleted view variable: &a" + varName + "&-.");
 			}
 		} else if (args.length <= 1) {
@@ -85,7 +85,7 @@ public class ViewCommand extends AbstractCommand {
 				if (args.length == 3) {
 					view.setVariable(varName, args[2]);
 					view.autosave();
-					view.update(view.getActiveMenu(), SMSMenuAction.REPAINT);
+					view.update(null, SMSMenuAction.REPAINT);
 				}
 				MiscUtil.statusMessage(sender, String.format("&a%s.$%s&- = &a%s&-", view.getName(), varName, view.getVariable(varName)));
 			} else {

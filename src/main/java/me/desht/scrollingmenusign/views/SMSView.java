@@ -13,31 +13,31 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import me.desht.dhutils.AttributeCollection;
+import me.desht.dhutils.ConfigurationListener;
+import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.DirectoryStructure;
-import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.SMSPersistable;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.SMSPersistable;
 import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
-import me.desht.dhutils.AttributeCollection;
-import me.desht.dhutils.ConfigurationListener;
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.PersistableLocation;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -68,9 +68,9 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	private final Set<PersistableLocation> locations = new HashSet<PersistableLocation>();
 	private final String name;
 	private final AttributeCollection attributes;	// view attributes to be displayed and/or edited by players
-	private final Map<String, String> variables;
-	private final Deque<WeakReference<SMSMenu>> menuStack;
-
+	private final Map<String, String> variables;	// view variables
+	private final Map<String, MenuStack> menuStack;	// map player name to menu stack (submenu support)
+	
 	private boolean autosave;
 	private boolean dirty;
 	private int maxLocations;
@@ -78,9 +78,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	private final Map<String,Boolean> dirtyPlayers = new HashMap<String,Boolean>();
 	// map a world name (which hasn't been loaded yet) to a list of x,y,z positions
 	private final Map<String,List<Vector>> deferredLocations = new HashMap<String, List<Vector>>();
-
-//	@Override
-//	public abstract void update(Observable menu, Object arg1);
 
 	/**
 	 * Get a user-friendly string representing the type of this view.
@@ -111,7 +108,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		this.attributes = new AttributeCollection(this);
 		this.variables = new HashMap<String, String>();
 		this.maxLocations = 1;
-		this.menuStack = new ArrayDeque<WeakReference<SMSMenu>>();
+		this.menuStack = new HashMap<String, MenuStack>();
 
 		registerAttribute(OWNER, "");
 		registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT);
@@ -159,6 +156,9 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
+		if (o == null)
+			return;
+		
 		SMSMenu m = (SMSMenu) o;
 		SMSMenuAction action = (SMSMenuAction) arg;
 		LogUtils.fine("update: view=" + getName() + " action=" + action + " menu=" + m.getName() + ", nativemenu=" + getNativeMenu().getName());
@@ -200,17 +200,18 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
-	 * Get the active menu for this view.  This is not necessarily the same as the view's
-	 * native menu.
+	 * Get the currently active menu for this view for the given player.  This is not necessarily the
+	 * same as the view's native menu, if the player has a submenu open.
 	 * 
 	 * @return the active SMSMenu object for this view
 	 */
-	public SMSMenu getActiveMenu() {
-		SMSMenu m = null;
-		while (m == null && !menuStack.isEmpty()) {
-			m = menuStack.peek().get();
+	public SMSMenu getActiveMenu(String playerName) {
+		MenuStack mst;
+		if (!menuStack.containsKey(playerName)) {
+			menuStack.put(playerName, new MenuStack());
 		}
-		return m == null ? getNativeMenu() : m;
+		mst = menuStack.get(playerName);
+		return mst.isEmpty() ? getNativeMenu() : mst.peek();
 	}
 	
 	/**
@@ -218,9 +219,12 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * 
 	 * @param newActive the menu to make active
 	 */
-	public void pushMenu(SMSMenu newActive) {
-		getActiveMenu().deleteObserver(this);
-		menuStack.push(new WeakReference<SMSMenu>(newActive));
+	public void pushMenu(String playerName, SMSMenu newActive) {
+		getActiveMenu(playerName).deleteObserver(this);
+		if (!menuStack.containsKey(playerName)) {
+			menuStack.put(playerName, new MenuStack());
+		}
+		menuStack.get(playerName).pushMenu(newActive);
 		newActive.addObserver(this);
 		update(newActive, SMSMenuAction.REPAINT);
 	}
@@ -230,14 +234,29 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * 
 	 * @return	the active menu that has just been popped off
 	 */
-	public SMSMenu popMenu() {
-		SMSMenu oldActive = menuStack.pop().get();
+	public SMSMenu popMenu(String playerName) {
+		if (!menuStack.containsKey(playerName)) {
+			menuStack.put(playerName, new MenuStack());
+		}
+		MenuStack mst = menuStack.get(playerName);
+		SMSMenu oldActive = mst.popMenu();
+		if (oldActive == null) {
+			return null;
+		}
 		oldActive.deleteObserver(this);
-		
-		SMSMenu newActive = getActiveMenu();
+		SMSMenu newActive = getActiveMenu(playerName);
 		newActive.addObserver(this);
 		update(newActive, SMSMenuAction.REPAINT);
 		return oldActive;
+	}
+	
+	/**
+	 * Get the set of players who have a submenu open for this view.
+	 * 
+	 * @return
+	 */
+	public Set<String> getSubmenuPlayers() {
+		return menuStack.keySet();
 	}
 	
 	/**
@@ -323,21 +342,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		}
 	}
 	
-	/**
-	 * Get the label text at the given scroll position, substituting any view variables.
-	 * 
-	 * @param pos
-	 * @return
-	 */
-	public String getItemLabel(int pos) {
-		String label = getActiveMenuItemAt(pos).getLabel();
-		
-		if (label == null)
-			return null;
-		
-		return variableSubs(label);
-	}
-	
 	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
 	
 	public String variableSubs(String text) {
@@ -351,23 +355,33 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return sb.toString();
 	}
 
-	public String getActiveMenuTitle() {
-		String prefix = getActiveMenu() == getNativeMenu() ? "" : "\u21b3";	// TODO configurable
-		return prefix + getActiveMenu().getTitle();
+	public String getActiveMenuTitle(String playerName) {
+		SMSMenu activeMenu = getActiveMenu(playerName);
+		String prefix = activeMenu == getNativeMenu() ? "" : "\u21b3";	// TODO configurable
+		return prefix + activeMenu.getTitle();
 	}
 
-	public int getActiveMenuItemCount() {
-		int count = getActiveMenu().getItemCount();
-		if (getActiveMenu() != getNativeMenu()) count++;
+	public int getActiveMenuItemCount(String playerName) {
+		SMSMenu activeMenu = getActiveMenu(playerName);
+		int count = activeMenu.getItemCount();
+		if (activeMenu != getNativeMenu()) count++;	// adding a synthetic entry for the BACK item
 		return count;
 	}
 	
-	public SMSMenuItem getActiveMenuItemAt(int pos) {
-		if (getActiveMenu() != getNativeMenu() && pos == getActiveMenu().getItemCount() + 1) {
-			return new SMSMenuItem(getActiveMenu(), ChatColor.BOLD + "\u21e6 BACK", "BACK", "");
+	public SMSMenuItem getActiveMenuItemAt(String playerName, int pos) {
+		SMSMenu activeMenu = getActiveMenu(playerName);
+		if (activeMenu != getNativeMenu() && pos == activeMenu.getItemCount() + 1) {
+			return new SMSMenuItem(activeMenu, ChatColor.BOLD + "\u21e6 BACK", "BACK", "");
 		} else {
-			return getActiveMenu().getItemAt(pos);
+			return activeMenu.getItemAt(pos);
 		}
+	}
+	
+	public String getActiveItemLabel(String playerName, int pos) {
+		String label = getActiveMenuItemAt(playerName, pos).getLabel();
+		if (label == null)
+			return null;
+		return variableSubs(label);
 	}
 	
 	public Map<String, Object> freeze() {
@@ -621,11 +635,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 	private void unregister() {
 		getNativeMenu().deleteObserver(this);
-		for (WeakReference<SMSMenu> ref : menuStack) {
-			SMSMenu m = ref.get();
-			if (m != null) m.deleteObserver(this);
+		for (String playerName : menuStack.keySet()) {
+			MenuStack mst = menuStack.get(playerName);
+			for (WeakReference<SMSMenu> ref : mst.stack) {
+				SMSMenu m = ref.get();
+				if (m != null) m.deleteObserver(this);
+			}
 		}
-		menuStack.clear();
 		allViewNames.remove(getName());
 		for (Location l : getLocations()) {
 			allViewLocations.remove(new PersistableLocation(l));
@@ -917,7 +933,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		// avoid calling updates on views that haven't been registered yet (which will be the case
 		// when restoring saved views from disk)
 		if (allViewNames.containsKey(getName())) {
-			update(getActiveMenu(), SMSMenuAction.REPAINT);
+			update(null, SMSMenuAction.REPAINT);	
 		}
 	}
 
@@ -1001,6 +1017,30 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 				}
 			}
 			l.clear();
+		}
+	}
+	
+	public class MenuStack {
+		private final Deque<WeakReference<SMSMenu>> stack;
+		
+		public MenuStack() {
+			stack = new ArrayDeque<WeakReference<SMSMenu>>();
+		}
+		
+		public void pushMenu(SMSMenu menu) {
+			stack.push(new WeakReference<SMSMenu>(menu));
+		}
+		
+		public SMSMenu popMenu() {
+			return stack.pop().get();
+		}
+		
+		public SMSMenu peek() {
+			return stack.peek().get();
+		}
+		
+		public boolean isEmpty() {
+			return stack.isEmpty();
 		}
 	}
 }

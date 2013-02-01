@@ -27,8 +27,9 @@ public class SortMenuCommand extends AbstractCommand {
 			menu = SMSMenu.getMenu(args[0]);
 		} else {
 			notFromConsole(sender);
-			SMSView view = SMSView.getTargetedView((Player)sender, true);
-			menu = view.getActiveMenu();
+			Player player = (Player)sender;
+			SMSView view = SMSView.getTargetedView(player, true);
+			menu = view.getActiveMenu(player.getName());
 		}
 		
 		boolean autoSort = getBooleanOption("auto");

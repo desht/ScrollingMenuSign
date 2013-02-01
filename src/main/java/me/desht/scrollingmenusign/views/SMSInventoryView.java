@@ -1,6 +1,10 @@
 package me.desht.scrollingmenusign.views;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Observable;
+import java.util.Set;
 
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -18,8 +22,9 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
 	public static final String WIDTH = "width";
 	public static final String AUTOPOPDOWN = "autopopdown";
-
-	private IconMenu iconMenu;
+	
+	private final Map<String, IconMenu> iconMenus;	// map menu name to the icon menu object
+	private final Map<String, Set<String>> users;	// map menu name to list of players using it
 	
 	public SMSInventoryView(String name, SMSMenu menu) {
 		super(name, menu);
@@ -27,26 +32,69 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 		registerAttribute(WIDTH, 9);
 		registerAttribute(AUTOPOPDOWN, true);
 
-		iconMenu = new IconMenu(this);
+		iconMenus = new HashMap<String, IconMenu>();
+		iconMenus.put(getNativeMenu().getName(), new IconMenu(this));
+		
+		users = new HashMap<String, Set<String>>();
 	}
 
 	@Override
-	public void update(Observable menu, Object arg1) {
+	public void update(Observable obj, Object arg1) {
+		SMSMenu menu = (SMSMenu) obj;
 		switch ((SMSMenuAction) arg1) {
 		case REPAINT:
-			iconMenu.repaint();
+			if (menu == null) {
+				for (IconMenu iconMenu : iconMenus.values()) {
+					iconMenu.repaint();
+				}
+			} else if (iconMenus.containsKey(menu.getName())) {
+				iconMenus.get(menu.getName()).repaint();
+			}
 			break;
 		default:
 			break;
 		}
 	}
+	
+	public Set<String> playersUsing(String menuName) {
+		if (!users.containsKey(menuName)) {
+			users.put(menuName, new HashSet<String>());
+		}
+		return users.get(menuName);
+	}
+	
+	@Override
+	public void pushMenu(String playerName, SMSMenu newActive) {
+		super.pushMenu(playerName, newActive);
+		String menuName = newActive.getName();
+		
+		if (playersUsing(menuName).isEmpty()) {
+			// this menu was not used by anyone else yet - create it
+			iconMenus.put(menuName, new IconMenu(this));
+		}
+		playersUsing(menuName).add(playerName);
+	}
 
 	@Override
-	public void erase() {
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			hideGUI(p);
+	public SMSMenu popMenu(String playerName) {
+		SMSMenu oldActive = super.popMenu(playerName);
+		
+		String menuName = oldActive.getName();
+		playersUsing(menuName).remove(playerName);
+		if (playersUsing(menuName).isEmpty()) {
+			// no one using this menu any more - destroy it
+			iconMenus.get(menuName).destroy();
+			iconMenus.remove(menuName);
 		}
-		iconMenu.destroy();
+		
+		return oldActive;
+	}
+	
+	@Override
+	public void erase() {
+		for (IconMenu iconMenu : iconMenus.values()) {
+			iconMenu.destroy();
+		}
 	}
 
 	@Override
@@ -56,12 +104,14 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
 	@Override
 	public void showGUI(Player p) {
-		iconMenu.popup(p);
+		String menuName = getActiveMenu(p.getName()).getName();
+		iconMenus.get(menuName).popup(p);
 	}
 
 	@Override
 	public void hideGUI(Player p) {
-		iconMenu.popdown(p);
+		String menuName = getActiveMenu(p.getName()).getName();
+		iconMenus.get(menuName).popdown(p);
 	}
 
 	@Override
@@ -75,32 +125,36 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
 	@Override
 	public boolean hasActiveGUI(Player p) {
-		return iconMenu.isPoppedUp(p);
+		String menuName = getActiveMenu(p.getName()).getName();
+		return iconMenus.get(menuName).isPoppedUp(p);
 	}
 
 	@Override
 	public SMSPopup getActiveGUI(Player p) {
-		return hasActiveGUI(p) ? iconMenu : null;
+		String menuName = getActiveMenu(p.getName()).getName();
+		return hasActiveGUI(p) ? iconMenus.get(menuName) : null;
 	}
 
 	@Override
 	public void onOptionClick(final OptionClickEvent event) {
-		SMSMenuItem item = getActiveMenuItemAt(event.getIndex());
+		final String playerName = event.getPlayer().getName();
+		SMSMenu m = getActiveMenu(playerName);
+		SMSMenuItem item = getActiveMenuItemAt(playerName, event.getIndex());
+//		SMSMenuItem item = m.getItemAt(event.getIndex());
 		if (item == null) {
-			throw new SMSException("icon menu: index " + event.getIndex() + " out of range for " + getActiveMenu().getName() + " ?");
+			throw new SMSException("icon menu: index " + event.getIndex() + " out of range for " + getActiveMenu(playerName).getName() + " ?");
 		}
-		SMSMenu m = getActiveMenu();
 		item.executeCommand(event.getPlayer(), this);
 		item.feedbackMessage(event.getPlayer());
 		onExecuted(event.getPlayer());
-		if (m != getActiveMenu()) {
+		if (m != getActiveMenu(playerName)) {
 			// just pushed or popped a submenu
 			// need to pop this inventory down and pop up a new one with the right title
 			event.setWillClose(true);
 			Bukkit.getScheduler().runTaskLater(ScrollingMenuSign.getInstance(), new Runnable() {
 				@Override
 				public void run() {
-					iconMenu.popup(event.getPlayer());
+					showGUI(event.getPlayer());
 				}
 			}, 2L);
 		} else {
@@ -110,7 +164,9 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	
 	@Override
 	public void deleteTemporary() {
-		iconMenu.destroy();
+		for (IconMenu iconMenu : iconMenus.values()) {
+			iconMenu.destroy();
+		}
 		super.deleteTemporary();
 	}
 
@@ -133,6 +189,6 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	
 	@Override
 	public String toString() {
-		return "inventory: " + iconMenu.getSlots() + " slots";
+		return "inventory: " + users.size() + " using " + iconMenus.size() + " menus";
 	}
 }

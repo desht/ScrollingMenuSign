@@ -344,14 +344,21 @@ public class SMSMapView extends SMSScrollableView {
 	 */
 	@Override
 	public void update(Observable menu, Object arg1) {
-		if (mapView == null)
-			return;
-
-		if (mapView.getRenderers().contains(getMapRenderer())) {
-			mapView.removeRenderer(getMapRenderer());
+		super.update(menu, arg1);
+		
+		switch ((SMSMenuAction) arg1) {
+		case REPAINT: case SCROLLED:
+			if (mapView == null)
+				return;
+			if (mapView.getRenderers().contains(getMapRenderer())) {
+				mapView.removeRenderer(getMapRenderer());
+			}
+			mapView.addRenderer(getMapRenderer());
+			setDirty(true);
+			break;
+		default:
+			break;
 		}
-		mapView.addRenderer(getMapRenderer());
-		setDirty(true);
 	}
 
 	@Override
@@ -498,7 +505,7 @@ public class SMSMapView extends SMSScrollableView {
 		g.setColor(DEFAULT_COLOR);
 
 		FontMetrics metrics = g.getFontMetrics();
-		SMSMenu menu = getActiveMenu();
+		SMSMenu menu = getActiveMenu(player.getName());
 
 		if (!hasOwnerPermission(player)) {
 			drawMessage(g, NOT_OWNER);
@@ -509,7 +516,7 @@ public class SMSMapView extends SMSScrollableView {
 		} 
 
 		// draw the title line(s)
-		List<String> titleLines = splitTitle();
+		List<String> titleLines = splitTitle(player.getName());
 		for (String line : titleLines) {
 			drawText(g, getTitleJustification(), yPos, line);
 			yPos += metrics.getHeight() + getLineSpacing();	
@@ -524,7 +531,7 @@ public class SMSMapView extends SMSScrollableView {
 			int current = getScrollPos(player.getName());
 			ViewJustification itemJust = getItemJustification();
 			for (int n = 0; n < nDisplayable; n++) {
-				String lineText = getItemLabel(current);
+				String lineText = getActiveItemLabel(player.getName(), current);
 				if (lineText == null) lineText = "???";
 				if (n == 0) {
 					lineText = prefix2 + lineText;
@@ -534,9 +541,9 @@ public class SMSMapView extends SMSScrollableView {
 				drawText(g, itemJust, yPos, lineText);
 				yPos += metrics.getHeight() + getLineSpacing();
 				current++;
-				if (current > getActiveMenuItemCount())
+				if (current > getActiveMenuItemCount(player.getName()))
 					current = 1;
-				if (n + 1 >= getActiveMenuItemCount())
+				if (n + 1 >= getActiveMenuItemCount(player.getName()))
 					break;
 			}
 		}

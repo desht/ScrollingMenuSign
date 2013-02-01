@@ -66,7 +66,7 @@ public class SMSSpoutKeyListener extends SMSListenerBase {
 			if (view != null) {	
 				SMSUserAction action = getAction(pressed);
 				LogUtils.fine("spout keypress event: keys pressed = " + pressed
-						+ ", view = " + view.getName() + ", menu = " + view.getActiveMenu().getName()
+						+ ", view = " + view.getName() + ", menu = " + view.getActiveMenu(player.getName()).getName()
 						+ ", action = " + action);
 				action.execute(player, view);
 			}

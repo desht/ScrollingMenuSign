@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign.spout;
 
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MiscUtil;
@@ -85,11 +86,12 @@ public class SMSListWidget extends GenericListWidget {
 			return;
 		}
 
-		SMSMenuItem item = view.getActiveMenu().getItemAt(idx + 1);
 		SpoutPlayer player = getScreen().getPlayer();
+		SMSMenu menu = view.getActiveMenu(player.getName());
+		SMSMenuItem item = menu.getItemAt(idx + 1);
 		try {
 			if (item == null) {
-				throw new SMSException("spout list widget onSelected: index " + idx + " out of range for " + view.getActiveMenu().getName() + " ?");
+				throw new SMSException("spout list widget onSelected: index " + idx + " out of range for " + menu.getName() + " ?");
 			}
 			item.executeCommand(player, view);
 			item.feedbackMessage(player);
@@ -111,7 +113,7 @@ public class SMSListWidget extends GenericListWidget {
 				ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.show_command_text")
 				&& PermissionUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
 
-		for (SMSMenuItem item : view.getActiveMenu().getItems()) {
+		for (SMSMenuItem item : view.getActiveMenu(sp.getName()).getItems()) {
 			addItem(new ListWidgetItem(defaultTextColor + view.variableSubs(item.getLabel()), showCommand ? item.getCommand() : ""));
 		}
 	}

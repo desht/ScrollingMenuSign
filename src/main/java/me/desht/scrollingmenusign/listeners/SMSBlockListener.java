@@ -65,7 +65,7 @@ public class SMSBlockListener extends SMSListenerBase {
 		if (SMSMapView.getHeldMapView(p) != null) {
 			// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
 			event.setCancelled(true);
-			if (view != null) view.update(view.getActiveMenu(), SMSMenuAction.REPAINT);
+			if (view != null) view.update(view.getActiveMenu(p.getName()), SMSMenuAction.REPAINT);
 			return;
 		}
 
@@ -73,7 +73,7 @@ public class SMSBlockListener extends SMSListenerBase {
 			LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getNativeMenu().getName());
 			if (plugin.getConfig().getBoolean("sms.no_destroy_signs", false)) {
 				event.setCancelled(true);
-				view.update(view.getActiveMenu(), SMSMenuAction.REPAINT);
+				view.update(view.getActiveMenu(p.getName()), SMSMenuAction.REPAINT);
 			} else {
 				view.removeLocation(loc);
 				if (view.getLocations().size() == 0) {

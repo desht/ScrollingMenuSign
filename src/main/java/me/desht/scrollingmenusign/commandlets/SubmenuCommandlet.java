@@ -5,15 +5,19 @@ import me.desht.scrollingmenusign.views.SMSView;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class SubmenuCommandlet extends BaseCommandlet {
 
 	@Override
 	public void execute(CommandSender sender, SMSView view, String cmd, String[] args) {
 		Validate.isTrue(args.length >= 2, "Usage: " + cmd + " <menu-name>");
-		SMSMenu menu = SMSMenu.getMenu(args[1]);
+		Validate.isTrue(sender instanceof Player, "Not from the console!");
 		
-		view.pushMenu(menu);
+		SMSMenu menu = SMSMenu.getMenu(args[1]);
+		Player player = (Player)sender;
+		
+		view.pushMenu(player.getName(), menu);
 	}
 
 }

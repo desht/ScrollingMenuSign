@@ -21,16 +21,18 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	private final SMSSpoutView view;
 	private final SMSListWidget listWidget;
 	private final SMSListTexture texture;
+	private final SpoutPlayer sp;
 	
 	private boolean poppedUp;
 
 	public SpoutViewPopup(SpoutPlayer sp, SMSSpoutView view) {
+		this.sp = sp;
 		this.view = view;
 		this.poppedUp = false;
 
 		Screen mainScreen = sp.getMainScreen();
 
-		title = new GenericLabel(view.variableSubs(view.getActiveMenu().getTitle()));
+		title = new GenericLabel(view.variableSubs(view.getActiveMenu(sp.getName()).getTitle()));
 		title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(15).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
 		title.setAnchor(WidgetAnchor.TOP_LEFT);
 		title.setAuto(false	);
@@ -73,7 +75,7 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	 */
 	@Override
 	public void repaint() {
-		title.setText(view.variableSubs(view.getActiveMenuTitle()));
+		title.setText(view.variableSubs(view.getActiveMenuTitle(sp.getName())));
 		rejustify();
 		texture.updateURL();
 		listWidget.repaint();

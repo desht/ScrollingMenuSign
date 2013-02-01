@@ -369,7 +369,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	private void repaintViews(String type) {
 		for (SMSView v : SMSView.listViews()) {
 			if (type == null || v.getType().equals(type)) {
-				v.update(v.getActiveMenu(), SMSMenuAction.REPAINT);
+				v.update(null, SMSMenuAction.REPAINT);
 			}
 		}
 	}

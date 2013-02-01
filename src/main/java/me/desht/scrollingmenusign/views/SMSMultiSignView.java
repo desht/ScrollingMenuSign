@@ -95,11 +95,10 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
 	 */
 	@Override
-	public void update(Observable obj, Object arg1) {
-		super.update(obj, arg1);
+	public void update(Observable menu, Object arg) {
+		super.update(menu, arg);
 		
-		SMSMenuAction action = (SMSMenuAction) arg1;		
-		switch (action) {
+		switch ((SMSMenuAction) arg) {
 		case REPAINT: case SCROLLED:
 			repaintAll();
 			break;
@@ -136,12 +135,12 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 			drawText(i, titleLines.get(i));
 		}
 
-		int current = getLastScrollPos();
-		int nItems = getActiveMenuItemCount();
+		int current = getScrollPos();
+		int nItems = getActiveMenuItemCount(null);
 		int nDisplayable = height * 4 - nTitleLines;
 		if (nItems > 0) {
 			for (int n = 0; n < nDisplayable; n++) {
-				SMSMenuItem item = getActiveMenuItemAt(current);
+				SMSMenuItem item = getActiveMenuItemAt(null, current);
 				String lineText;
 				if (n < nItems) {
 					lineText = item == null ? "???" : item.getLabel();
@@ -445,7 +444,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private List<String> formatTitle() {
-		List<String> lines = splitTitle();
+		List<String> lines = splitTitle(null);
 		for (int i = 0; i < lines.size(); i++) {
 			lines.set(i, formatLine("", lines.get(i), getTitleJustification()));
 		}

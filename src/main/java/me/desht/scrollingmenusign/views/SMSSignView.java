@@ -76,11 +76,10 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
 	 */
 	@Override
-	public void update(Observable obj, Object arg1) {
-		super.update(obj, arg1);
+	public void update(Observable menu, Object arg) {
+		super.update(menu, arg);
 
-		SMSMenuAction action = (SMSMenuAction) arg1;
-		switch (action) {
+		switch ((SMSMenuAction) arg) {
 		case REPAINT: case SCROLLED:
 			repaintAll();
 			break;
@@ -103,7 +102,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	private void repaintAll() {
 		Sign sign = getSign();
 		if (sign != null) {
-			String[] lines = buildSignText(getLastScrollPos());
+			String[] lines = buildSignText(getScrollPos());
 			for (int i = 0; i < lines.length; i++) {
 				sign.setLine(i, lines[i]);
 			}
@@ -115,7 +114,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	private String[] buildSignText(int scrollPos) {
 		String[] res = new String[4];
 
-		List<String> title = splitTitle();
+		List<String> title = splitTitle(null);
 		
 		// first line of the sign is the menu title
 		for (int i = 0; i < title.size(); i++) {
@@ -138,32 +137,32 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	}
 
 	private String getLine2Item(int pos) {
-		if (getActiveMenuItemCount() < 3)
+		if (getActiveMenuItemCount(null) < 3)
 			return "";
 			
 		int prevPos = pos - 1;
 		if (prevPos < 1) {
-			prevPos = getActiveMenuItemCount();
+			prevPos = getActiveMenuItemCount(null);
 		}
-		return getItemLabel(prevPos);
+		return getActiveItemLabel(null, prevPos);
 	}
 	
 	private String getLine3Item(int pos) {
-		if (getActiveMenuItemCount() < 1) {
+		if (getActiveMenuItemCount(null) < 1) {
 			return "";
 		}
-		return getItemLabel(pos);
+		return getActiveItemLabel(null, pos);
 	}
 
 	private String getLine4Item(int pos) {
-		if (getActiveMenuItemCount() < 2) 
+		if (getActiveMenuItemCount(null) < 2) 
 			return "";
 			
 		int nextPos = pos + 1;
-		if (nextPos > getActiveMenuItemCount()) {
+		if (nextPos > getActiveMenuItemCount(null)) {
 			nextPos = 1;
 		}
-		return getItemLabel(nextPos);
+		return getActiveItemLabel(null, nextPos);
 	}
 	
 	private String makePrefix(String prefix, ViewJustification just) {
