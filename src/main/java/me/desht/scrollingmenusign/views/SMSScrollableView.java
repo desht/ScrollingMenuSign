@@ -1,6 +1,8 @@
 package me.desht.scrollingmenusign.views;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,8 @@ public abstract class SMSScrollableView extends SMSView {
 
 	private boolean wrap;
 	private final Map<String,Integer> playerScrollPos = new HashMap<String, Integer>();
-
+	private final ScrollPosStack storedScrollPos = new ScrollPosStack();
+	
 	public SMSScrollableView(SMSMenu menu) {
 		this(null, menu);
 	}
@@ -36,6 +39,19 @@ public abstract class SMSScrollableView extends SMSView {
 		Map<String, Object> map = super.freeze();
 		
 		return map;
+	}
+	
+	@Override
+	public void pushMenu(String playerName, SMSMenu newActive) {
+		super.pushMenu(playerName, newActive);
+		storedScrollPos.pushScrollPos(playerName, getScrollPos(playerName));
+		setScrollPos(playerName, 1);
+	}
+	
+	@Override
+	public SMSMenu popMenu(String playerName) {		
+		setScrollPos(playerName, storedScrollPos.popScrollPos(playerName));
+		return super.popMenu(playerName);
 	}
 
 	public boolean isWrap() {
@@ -59,6 +75,8 @@ public abstract class SMSScrollableView extends SMSView {
 	 * @return				The scroll position
 	 */
 	public int getScrollPos(String playerName) {
+		playerName = getPlayerContext(playerName);
+
 		if (!playerScrollPos.containsKey(playerName) || playerScrollPos.get(playerName) < 1) {
 			setScrollPos(playerName, 1);
 		} else if (playerScrollPos.get(playerName) > getActiveMenuItemCount(playerName))
@@ -74,6 +92,8 @@ public abstract class SMSScrollableView extends SMSView {
 	 * @param scrollPos		The scroll position
 	 */
 	public void setScrollPos(String playerName, int scrollPos) {
+		playerName = getPlayerContext(playerName);
+
 		playerScrollPos.put(playerName, scrollPos);
 		setDirty(playerName, true);
 	}
@@ -228,6 +248,26 @@ public abstract class SMSScrollableView extends SMSView {
 				}
 			}
 			return m;
+		}
+	}
+	
+	private class ScrollPosStack {
+		private Map<String,Deque<Integer>> stacks = new HashMap<String, Deque<Integer>>();
+
+		private void verify(String playerName) {
+			if (!stacks.containsKey(playerName)) {
+				stacks.put(playerName, new ArrayDeque<Integer>());
+			}
+		}
+		public void pushScrollPos(String playerName, int pos) {
+			verify(playerName);
+			stacks.get(playerName).push(pos);
+		}
+		
+		public int popScrollPos(String playerName) {
+			verify(playerName);
+			Deque<Integer> stack = stacks.get(playerName);
+			return stack.isEmpty() ? 1 : stack.pop();
 		}
 	}
 }

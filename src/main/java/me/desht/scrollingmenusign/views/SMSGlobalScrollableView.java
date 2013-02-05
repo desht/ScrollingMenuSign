@@ -29,16 +29,14 @@ import me.desht.scrollingmenusign.views.redout.Switch;
 /**
  * @author desht
  *
- * This is just like a SMSScrollableView but per-player scrolling is false by default.
- * So only one scroll position is maintained for all players.
+ * This is just like a SMSScrollableView but per-player scrolling/submenus is not used
+ * here.
  * 
  * It also maintains a set of output switches which are powered/unpowered depending on
  * the selected item in this view.
  */
 public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
-	private static final String GLOBAL_PSEUDO_PLAYER = "&&global";
-	
 	public static final String RS_OUTPUT_MODE = "rsoutputmode";
 	public static final String PULSE_TICKS = "pulseticks";
 
@@ -79,80 +77,23 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		controlSigns.remove(sign);
 		autosave();
 	}
-	
-	@Override
-	public SMSMenu getActiveMenu(String playerName) {
-		return super.getActiveMenu(GLOBAL_PSEUDO_PLAYER);
-	}
-	
-	@Override
-	public void pushMenu(String playerName, SMSMenu newActive) {
-		super.pushMenu(GLOBAL_PSEUDO_PLAYER, newActive);
-	}
 
 	@Override
-	public SMSMenu popMenu(String playerName) {
-		return super.popMenu(GLOBAL_PSEUDO_PLAYER);
+	protected String getPlayerContext(String playerName) {
+		return GLOBAL_PSEUDO_PLAYER;
 	}
 
-	@Override
-	public String getActiveMenuTitle(String playerName) {
-		return super.getActiveMenuTitle(GLOBAL_PSEUDO_PLAYER);
-	}
-
-	@Override
-	public int getActiveMenuItemCount(String playerName) {
-		return super.getActiveMenuItemCount(GLOBAL_PSEUDO_PLAYER);
-	}
-	
-	@Override
-	public SMSMenuItem getActiveMenuItemAt(String playerName, int pos) {
-		return super.getActiveMenuItemAt(GLOBAL_PSEUDO_PLAYER, pos);
-	}
-	
-	@Override
-	public List<String> splitTitle(String playerName) {
-		return super.splitTitle(GLOBAL_PSEUDO_PLAYER);
-	}
-	
-	@Override
-	public String getActiveItemLabel(String playerName, int pos) {
-		return super.getActiveItemLabel(GLOBAL_PSEUDO_PLAYER, pos);
-	}
-
-	@Override
-	public int getScrollPos(String playerName) {
-		return super.getScrollPos(GLOBAL_PSEUDO_PLAYER);
-	}
-	
-	@Override
-	public void setScrollPos(String playerName, int pos) {
-		super.setScrollPos(GLOBAL_PSEUDO_PLAYER, pos);
-	}
-	
 	/**
 	 * Get the last scroll position (currently-selected item) for this view.  If the scroll position
 	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
 	 * adjusted to be in range before being returned.
 	 * 
 	 * @return	The scroll position
-	 * @deprecated use getScrollPos()
 	 */
-	@Deprecated
-	public int getLastScrollPos() {
-//		if (lastScrollPos < 1)
-//			lastScrollPos = 1;
-//		else if (lastScrollPos > getActiveMenuItemCount())
-//			lastScrollPos = getActiveMenuItemCount();
-//
-//		return lastScrollPos;
-		return getScrollPos(GLOBAL_PSEUDO_PLAYER);
-	}
-
 	public int getScrollPos() {
 		return super.getScrollPos(GLOBAL_PSEUDO_PLAYER);
 	}
-		
+
 	public void updateSwitchPower() {
 		SMSMenuItem item = getActiveMenuItemAt(null, getScrollPos());
 		if (item == null) {
@@ -219,7 +160,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		Map<String, Object> map = super.freeze();
 
 		map.put("scrollPos", lastScrollPos);
-		
+
 		Map<String,Map<String,Object>> l = new HashMap<String, Map<String,Object>>();
 		for (Switch sw : switches) {
 			l.put(sw.getName(), sw.freeze());
@@ -245,7 +186,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		lastScrollPos = node.getInt("scrollPos", 1);
 		if (lastScrollPos < 1 || lastScrollPos > getNativeMenu().getItemCount())
 			lastScrollPos = 1;
-		
+
 		ConfigurationSection sw = node.getConfigurationSection("switches");
 		if (sw != null) {
 

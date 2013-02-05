@@ -55,7 +55,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 			break;
 		}
 	}
-	
+
 	public Set<String> playersUsing(String menuName) {
 		if (!users.containsKey(menuName)) {
 			users.put(menuName, new HashSet<String>());
@@ -140,7 +140,6 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 		final String playerName = event.getPlayer().getName();
 		SMSMenu m = getActiveMenu(playerName);
 		SMSMenuItem item = getActiveMenuItemAt(playerName, event.getIndex());
-//		SMSMenuItem item = m.getItemAt(event.getIndex());
 		if (item == null) {
 			throw new SMSException("icon menu: index " + event.getIndex() + " out of range for " + getActiveMenu(playerName).getName() + " ?");
 		}
