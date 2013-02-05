@@ -25,4 +25,8 @@ public class CommandletManager {
 	public BaseCommandlet getCommandlet(String name) {
 		return map.get(name);
 	}
+	
+	public ScrollingMenuSign getPlugin() {
+		return plugin;
+	}
 }

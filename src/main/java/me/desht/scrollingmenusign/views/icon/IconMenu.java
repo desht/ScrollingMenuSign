@@ -141,9 +141,7 @@ public class IconMenu implements Listener, SMSPopup {
 		String playerName = event.getWhoClicked().getName();
 		String name = getView().variableSubs(getView().getActiveMenuTitle(playerName));
 		
-		System.out.println("inv click: name = [" + name + "], inv title = [" + event.getInventory().getTitle() + "]");
 		if (event.getInventory().getTitle().equals(name)) {
-
 			LogUtils.fine("InventoryClickEvent: player = " + playerName + ", view = " + getView().getName() +
 			              ", inventory name = " + event.getInventory().getTitle());
 

@@ -438,7 +438,7 @@ public class CommandParser {
 	private void runCommandlet(CommandSender sender, SMSView view, ParsedCommand cmd) {
 		CommandletManager cmdlets = ScrollingMenuSign.getInstance().getCommandletManager();
 		
-		cmdlets.getCommandlet(cmd.getCommand()).execute(sender, view, cmd.getCommand(), cmd.getQuotedArgs());
+		cmdlets.getCommandlet(cmd.getCommand()).execute(cmdlets.getPlugin(), sender, view, cmd.getCommand(), cmd.getQuotedArgs());
 	}
 
 	private void executeLowLevelCommand(CommandSender sender, ParsedCommand cmd, String command) {
