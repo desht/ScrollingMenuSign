@@ -103,7 +103,10 @@ public class ViewCommand extends AbstractCommand {
 
 	private void showViewDetails(CommandSender sender, SMSView view) {
 		MessagePager pager = MessagePager.getPager(sender).clear();
-		pager.add(String.format("View &e%s&- (%s) :", view.getName(), view.toString()));
+		pager.add(String.format("View &e%s&- (%s) :",
+		                        view.getName(), view.toString()));
+		pager.add(String.format("Native menu: &e%s&-, your active menu: &e%s&-",
+		                        view.getNativeMenu().getName(), view.getActiveMenu(sender.getName()).getName()));
 		for (String k : view.listAttributeKeys(true)) {
 			pager.add(String.format(MessagePager.BULLET + "&e%s&- = &e%s&-", k, view.getAttributeAsString(k, "")));
 		}

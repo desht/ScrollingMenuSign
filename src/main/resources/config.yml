@@ -58,3 +58,6 @@ sms:
     autocreate_views: true
     pager:
         lines: 0
+    back_item:
+        label: BACK
+        material: 324

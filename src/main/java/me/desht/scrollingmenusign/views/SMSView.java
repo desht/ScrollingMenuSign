@@ -305,7 +305,9 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 		SMSMenu activeMenu = getActiveMenu(playerName);
 		if (activeMenu != getNativeMenu() && pos == activeMenu.getItemCount() + 1) {
-			return new SMSMenuItem(activeMenu, ChatColor.BOLD + "\u21e6 BACK", "BACK", "");
+			String label = ScrollingMenuSign.getInstance().getConfig().getString("sms.back_item.label", "BACK");
+			String mat = ScrollingMenuSign.getInstance().getConfig().getString("sms.back_item.material", "irondoor");
+			return new SMSMenuItem(activeMenu, ChatColor.BOLD + "\u21e6 " + label, "BACK", "", mat);
 		} else {
 			return activeMenu.getItemAt(pos);
 		}
