@@ -10,6 +10,7 @@ import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.getspout.spoutapi.gui.Color;
@@ -86,9 +87,9 @@ public class SMSListWidget extends GenericListWidget {
 			return;
 		}
 
-		SpoutPlayer player = getScreen().getPlayer();
+		final SpoutPlayer player = getScreen().getPlayer();
 		SMSMenu menu = view.getActiveMenu(player.getName());
-		SMSMenuItem item = menu.getItemAt(idx + 1);
+		SMSMenuItem item = view.getActiveMenuItemAt(sp.getName(), idx + 1);
 		try {
 			if (item == null) {
 				throw new SMSException("spout list widget onSelected: index " + idx + " out of range for " + menu.getName() + " ?");
@@ -96,6 +97,14 @@ public class SMSListWidget extends GenericListWidget {
 			item.executeCommand(player, view);
 			item.feedbackMessage(player);
 			view.onExecuted(player);
+			if (menu != view.getActiveMenu(player.getName())) {
+				Bukkit.getScheduler().runTaskLater(ScrollingMenuSign.getInstance(), new Runnable() {
+					@Override
+					public void run() {
+						view.showGUI(player);
+					}
+				}, 2L);
+			}
 		} catch (SMSException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
 		}
@@ -113,7 +122,9 @@ public class SMSListWidget extends GenericListWidget {
 				ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.show_command_text")
 				&& PermissionUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
 
-		for (SMSMenuItem item : view.getActiveMenu(sp.getName()).getItems()) {
+		int nItems = view.getActiveMenuItemCount(sp.getName());
+		for (int i = 1; i <= nItems; i++) {
+			SMSMenuItem item = view.getActiveMenuItemAt(sp.getName(), i);
 			addItem(new ListWidgetItem(defaultTextColor + view.variableSubs(item.getLabel()), showCommand ? item.getCommand() : ""));
 		}
 	}

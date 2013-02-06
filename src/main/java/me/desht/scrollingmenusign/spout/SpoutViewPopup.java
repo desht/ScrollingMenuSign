@@ -115,9 +115,16 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	 * @see me.desht.scrollingmenusign.spout.SMSPopup#scrollTo(int)
 	 */
 	public void scrollTo(int scrollPos) {
-		listWidget.ignoreNextSelection(true);
 		listWidget.setSelection(scrollPos - 1);
 		
-		LogUtils.fine("scroll to " + scrollPos + " = " + listWidget.getSelectedItem().getTitle());
+		LogUtils.fine("Spout view " + getView().getName() + ": scroll to " + scrollPos + ": " + listWidget.getSelectedItem().getTitle());
+	}
+	
+	/**
+	 * This is used when the view is scrolled by a Spout keypress.  When that happens a new item
+	 * becomes selected; we need to distinguish that from an item being selected by a mouse click.
+	 */
+	public void ignoreNextSelection() {
+		listWidget.ignoreNextSelection(true);
 	}
 }

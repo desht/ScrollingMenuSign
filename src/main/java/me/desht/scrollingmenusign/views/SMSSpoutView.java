@@ -284,13 +284,25 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	}
 
 	@Override
-	public void setScrollPos(String playerName, int scrollPos) {
-		super.setScrollPos(playerName, scrollPos);
+	public void scrollDown(String playerName) {
+		super.scrollDown(playerName);
+		scrollPopup(playerName);
+	}
+	
+	@Override
+	public void scrollUp(String playerName) {
+		super.scrollUp(playerName);
+		scrollPopup(playerName);
+	}
+	
+	private void scrollPopup(String playerName) {
 		if (popups.containsKey(playerName)) {
-			popups.get(playerName).scrollTo(scrollPos);
+			SpoutViewPopup popup = popups.get(playerName);
+			popup.scrollTo(getScrollPos(playerName));
+			popup.ignoreNextSelection();
 		}
 	}
-
+	
 	/**
 	 * Convenience method.  Create a new spout view and add it to the given menu.
 	 * 

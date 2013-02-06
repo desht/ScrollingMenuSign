@@ -16,8 +16,7 @@ import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 /**
- * @author des
- *
+ * @author desht
  */
 public class SpoutUtils {
 	private static final Map<String, SMSSpoutKeyMap> wantedKeys = new HashMap<String, SMSSpoutKeyMap>();
