@@ -25,8 +25,8 @@ public class GiveCommand extends AbstractCommand {
 		super("sms gi", 2, 4);
 		setPermissionNode("scrollingmenusign.commands.givemap");
 		setUsage(new String[] {
-				"/sms give map <id> [<amount>] [<player>]",
-				"/sms give book <view-name> [<amount>] [<player>]",	
+				"/sms give map <menu-name|view-name|map-id> [<amount>] [<player>]",
+				"/sms give book <menu-name|view-name> [<amount>] [<player>]",	
 		});
 	}
 
