@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import me.desht.dhutils.ConfigurationManager;
@@ -43,19 +44,17 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	private final Set<Switch> switches = new HashSet<Switch>();
 	private final Set<RedstoneControlSign> controlSigns = new HashSet<RedstoneControlSign>();
 
-	private int pulseResetTask;
-	private int lastScrollPos;
+	private BukkitTask pulseResetTask;
 
 	public SMSGlobalScrollableView(SMSMenu menu) {
 		this(null, menu);
-		lastScrollPos = 1;
 	}
 
 	public SMSGlobalScrollableView(String name, SMSMenu menu) {
 		super(name, menu);
 		registerAttribute(RS_OUTPUT_MODE, RedstoneOutputMode.SELECTED);
 		registerAttribute(PULSE_TICKS, ScrollingMenuSign.getInstance().getConfig().getLong("sms.redstoneoutput.pulseticks", 20));
-		pulseResetTask = -1;
+		pulseResetTask = null;
 	}
 
 	public void addSwitch(Switch sw) {
@@ -135,13 +134,13 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
 		if (!affected.isEmpty()) {
 			long delay = (Long) getAttribute(PULSE_TICKS);
-			pulseResetTask = Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
+			pulseResetTask = Bukkit.getScheduler().runTaskLater(ScrollingMenuSign.getInstance(), new Runnable() {
 				@Override
 				public void run() {
 					for (Switch sw : affected) {
 						sw.setPowered(false);
 					}
-					pulseResetTask = -1;
+					pulseResetTask = null;
 				}
 			}, delay);
 		}
@@ -158,8 +157,6 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	@Override
 	public Map<String,Object> freeze() {
 		Map<String, Object> map = super.freeze();
-
-		map.put("scrollPos", lastScrollPos);
 
 		Map<String,Map<String,Object>> l = new HashMap<String, Map<String,Object>>();
 		for (Switch sw : switches) {
@@ -182,10 +179,6 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	@Override
 	protected void thaw(ConfigurationSection node) throws SMSException {
 		super.thaw(node);
-
-		lastScrollPos = node.getInt("scrollPos", 1);
-		if (lastScrollPos < 1 || lastScrollPos > getNativeMenu().getItemCount())
-			lastScrollPos = 1;
 
 		ConfigurationSection sw = node.getConfigurationSection("switches");
 		if (sw != null) {
@@ -261,9 +254,9 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 					sw.setPowered(false);
 				}
 			}
-			if (pulseResetTask > 0) {
-				Bukkit.getScheduler().cancelTask(pulseResetTask);
-				pulseResetTask = -1;
+			if (pulseResetTask != null) {
+				pulseResetTask.cancel();
+				pulseResetTask = null;
 			}
 		}
 	}
