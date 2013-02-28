@@ -3,6 +3,8 @@ package me.desht.scrollingmenusign.commandlets;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 public class CommandletManager {
@@ -15,7 +17,9 @@ public class CommandletManager {
 	}
 	
 	public void registerCommandlet(BaseCommandlet cmd) {
-		map.put(cmd.getName(), cmd);
+		String name = cmd.getName();
+		Validate.isTrue(!map.containsKey(name), "Commandlet " + name + " is already registered");
+		map.put(name, cmd);
 	}
 	
 	public boolean hasCommandlet(String name) {
