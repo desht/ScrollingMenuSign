@@ -22,7 +22,7 @@ import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 
-public class Switch {
+public class Switch implements Comparable<Switch> {
 	private static final Map<PersistableLocation,Switch> allSwitchLocs = new HashMap<PersistableLocation,Switch>();
 	private static final Map<String, Switch> allSwitches = new HashMap<String,Switch>();
 
@@ -253,5 +253,10 @@ public class Switch {
 		}
 
 		deferred.remove(world.getName());
+	}
+
+	@Override
+	public int compareTo(Switch other) {
+		return name.compareTo(other.getName());
 	}
 }

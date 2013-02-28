@@ -103,15 +103,15 @@ public class ViewCommand extends AbstractCommand {
 
 	private void showViewDetails(CommandSender sender, SMSView view) {
 		MessagePager pager = MessagePager.getPager(sender).clear();
-		pager.add(String.format("View &e%s&- (%s) :",
+		pager.add(String.format("View &6%s&f (%s) :",
 		                        view.getName(), view.toString()));
-		pager.add(String.format("Native menu: &e%s&-, your active menu: &e%s&-",
+		pager.add(String.format("Native menu: &6%s&f, your active menu: &6%s",
 		                        view.getNativeMenu().getName(), view.getActiveMenu(sender.getName()).getName()));
 		for (String k : view.listAttributeKeys(true)) {
-			pager.add(String.format(MessagePager.BULLET + "&e%s&- = &e%s&-", k, view.getAttributeAsString(k, "")));
+			pager.add(String.format(MessagePager.BULLET + "&e%s&f = &e%s", k, view.getAttributeAsString(k, "")));
 		}
 		for (String k : MiscUtil.asSortedList(view.listVariables())) {
-			pager.add(String.format("&4\u2022 &a$%s&- = &a%s", k, view.getVariable(k)));
+			pager.add(String.format("&4\u2022 &a$%s&f = &a%s", k, view.getVariable(k)));
 		}
 		if (view instanceof SMSGlobalScrollableView) {
 			SMSGlobalScrollableView gsv = (SMSGlobalScrollableView) view;
@@ -119,8 +119,8 @@ public class ViewCommand extends AbstractCommand {
 			if (nSwitches > 0) {
 				String s = nSwitches > 1 ? "s"	: "";
 				pager.add("&f" + nSwitches + "&- redstone output" + s + ":");
-				for (Switch sw: gsv.getSwitches()) {
-					pager.add(String.format(MessagePager.BULLET + "&e%s&- @ &e%s",
+				for (Switch sw: MiscUtil.asSortedList(gsv.getSwitches())) {
+					pager.add(String.format(MessagePager.BULLET + "&e%s&f @ &e%s",
 					                        sw.getTrigger(), MiscUtil.formatLocation(sw.getLocation())));
 				}
 			}
