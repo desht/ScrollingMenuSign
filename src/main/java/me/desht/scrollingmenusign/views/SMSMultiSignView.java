@@ -47,11 +47,11 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	public SMSMultiSignView(String name, SMSMenu menu) {
 		super(name, menu);
 
-		this.setMaxLocations(100);
+		this.setMaxLocations(100);  // arbitrary maximum
 	}
 
 	/**
-	 * Create a new multi-sign view at loc.  The signs around loc will be scanned to work out just
+	 * Create a new multi-sign view at loc.  The wall signs around loc will be scanned to work out just
 	 * what signs comprise this view.
 	 * 
 	 * @param name
@@ -196,12 +196,9 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 					}
 				}
 			}
-			LogUtils.finest("drawLine: sub = [" + sub + "]");
-			org.bukkit.block.Sign s = getSign(x, y);
-			if (s != null) {
-				LogUtils.finest("drawLine: x=" + x + " y=" + y + " sign = " + s.getLocation() + " line = " + line % 4);
-				pendingUpdate(s, line % 4, sub);
-			}
+			Location loc = getSignLocation(x, y);
+			LogUtils.finest("drawLine: sub = [" + sub + "] @" + x + "," + y + loc + " line=" + line % 4);
+			pendingUpdate(loc, line % 4, sub);
 			begin += sub.length() - ctrl.length();
 			x++;
 		}
@@ -245,41 +242,44 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * @return	the Sign block retrieved
 	 */
 	public org.bukkit.block.Sign getSign(int x, int y) {
-		Location tl = topLeft.getLocation();
-		
-		int x1 = tl.getBlockX() + facing.getModX() * x;
-		int y1 = tl.getBlockY() - y;
-		int z1 = tl.getBlockZ() + facing.getModZ() * x;
-		
-//		int x1, z1;
-//		switch (facing) {
-//		case NORTH:
-//			x1 = tl.getBlockX();
-//			z1 = tl.getBlockZ() + x;
-//			break;
-//		case SOUTH:
-//			x1 = tl.getBlockX();
-//			z1 = tl.getBlockZ() - x;
-//			break;
-//		case EAST:
-//			x1 = tl.getBlockX() - x;
-//			z1 = tl.getBlockZ();
-//			break;
-//		case WEST:
-//			x1 = tl.getBlockX() + x;
-//			z1 = tl.getBlockZ();
-//			break;
-//		default:
-//			throw new IllegalStateException("Unexpected facing " + facing + " for " + this);	
-//		}
-		Block b = tl.getWorld().getBlockAt(x1, y1, z1);
+		Block b = getSignLocation(x, y).getBlock();
 		if (b.getType() == Material.WALL_SIGN) {
 			return (org.bukkit.block.Sign) b.getState();
 		} else {
 			return null;
 		}
 	}
+	
+	/**
+	 * Get the location that position (x,y) in the view maps to.  (x, y) = (0, 0) is the top left sign.
+	 * x increases to the right, y increases downward.  This works regardless of sign orientation.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Location getSignLocation(int x, int y) {
+		Location tl = topLeft.getLocation();
+		
+		BlockFace toLeft = getLeft(facing);
+		
+		int x1 = tl.getBlockX() + toLeft.getModX() * x;
+		int y1 = tl.getBlockY() - y;
+		int z1 = tl.getBlockZ() + toLeft.getModZ() * x;
+		
+		return new Location(tl.getWorld(), x1, y1, z1);
+	}
 
+	public BlockFace getLeft(BlockFace face) {
+		switch (face) {
+		case NORTH: return BlockFace.WEST;
+		case EAST: return BlockFace.NORTH;
+		case SOUTH: return BlockFace.EAST;
+		case WEST: return BlockFace.SOUTH;
+		default: throw new IllegalArgumentException("unsupported face");
+		}
+	}
+	
 	/**
 	 * Mark one line on a given sign as requiring an update.
 	 * 
@@ -287,8 +287,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * @param line
 	 * @param text
 	 */
-	private void pendingUpdate(org.bukkit.block.Sign s, int line, String text) {
-		Location loc = s.getLocation();
+	private void pendingUpdate(Location loc, int line, String text) {
 		if (!updates.containsKey(loc)) {
 			updates.put(loc, new String[4]);
 		}
@@ -303,6 +302,9 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	private void applyUpdates() {
 		for (Entry<Location,String[]> e : updates.entrySet()) {
 			Block b = e.getKey().getBlock();
+			if (b.getType() != Material.WALL_SIGN) {
+				continue;
+			}
 			org.bukkit.block.Sign s = (org.bukkit.block.Sign) b.getState();
 			for (int i = 0; i < 4; i++) {
 				String line = e.getValue()[i];
@@ -350,10 +352,10 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		height = (tl.getBlockY() - br.getBlockY()) + 1;
 		switch (horizontal) {
 		case NORTH: case SOUTH:
-			width = Math.abs(tl.getBlockX() - br.getBlockX()) + 1;
+			width = Math.abs(tl.getBlockZ() - br.getBlockZ()) + 1;
 			break;
 		case EAST: case WEST:
-			width = Math.abs(tl.getBlockZ() - br.getBlockZ()) + 1;
+			width = Math.abs(tl.getBlockX() - br.getBlockX()) + 1;
 			break;
 		default:
 			break;
