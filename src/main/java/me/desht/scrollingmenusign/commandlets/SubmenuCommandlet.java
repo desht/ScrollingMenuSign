@@ -10,6 +10,10 @@ import org.bukkit.entity.Player;
 
 public class SubmenuCommandlet extends BaseCommandlet {
 
+	public SubmenuCommandlet() {
+		super("SUBMENU");
+	}
+	
 	@Override
 	public void execute(ScrollingMenuSign plugin, CommandSender sender, SMSView view, String cmd, String[] args) {
 		Validate.isTrue(args.length >= 2, "Usage: " + cmd + " <menu-name>");

@@ -301,9 +301,9 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	}
 
 	private void registerCommandlets() {
-		cmdlets.registerCommandlet("POPUP", new PopupCommandlet());
-		cmdlets.registerCommandlet("SUBMENU", new SubmenuCommandlet());
-		cmdlets.registerCommandlet("BACK", new CloseSubmenuCommandlet());
+		cmdlets.registerCommandlet(new PopupCommandlet());
+		cmdlets.registerCommandlet(new SubmenuCommandlet());
+		cmdlets.registerCommandlet(new CloseSubmenuCommandlet());
 	}
 
 	private void loadPersistedData() {

@@ -9,6 +9,10 @@ import org.bukkit.entity.Player;
 
 public class CloseSubmenuCommandlet extends BaseCommandlet {
 
+	public CloseSubmenuCommandlet() {
+		super("BACK");
+	}
+	
 	@Override
 	public void execute(ScrollingMenuSign plugin, CommandSender sender, SMSView view, String cmd, String[] args) {
 		Validate.isTrue(sender instanceof Player, "Not from the console!");

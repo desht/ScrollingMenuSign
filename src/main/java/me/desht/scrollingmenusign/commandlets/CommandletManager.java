@@ -14,8 +14,8 @@ public class CommandletManager {
 		this.plugin = plugin;
 	}
 	
-	public void registerCommandlet(String name, BaseCommandlet cmd) {
-		map.put(name, cmd);
+	public void registerCommandlet(BaseCommandlet cmd) {
+		map.put(cmd.getName(), cmd);
 	}
 	
 	public boolean hasCommandlet(String name) {

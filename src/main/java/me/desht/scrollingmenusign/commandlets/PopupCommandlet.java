@@ -10,6 +10,10 @@ import me.desht.scrollingmenusign.views.SMSView;
 
 public class PopupCommandlet extends BaseCommandlet {
 	
+	public PopupCommandlet() {
+		super("POPUP");
+	}
+	
 	@Override
 	public void execute(ScrollingMenuSign plugin, CommandSender sender, SMSView view, String cmd, String[] args) {
 		Validate.isTrue(args.length >= 2, "Usage: " + cmd + " <view-name>");
