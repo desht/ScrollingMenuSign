@@ -91,12 +91,12 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	@Override
 	public void erase() {
 		Sign sign = getSign();
-		if (sign == null)
-			return;
-		for (int i = 0; i < 4; i++) {
-			sign.setLine(i, "");
+		if (sign != null) {
+			for (int i = 0; i < 4; i++) {
+				sign.setLine(i, "");
+			}
+			sign.update();
 		}
-		sign.update();
 	}
 
 	private void repaintAll() {
@@ -116,7 +116,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 
 		List<String> title = splitTitle(null);
 		
-		// first line of the sign is the menu title
+		// first line (or two) of the sign is the menu title
 		for (int i = 0; i < title.size(); i++) {
 			res[i] = String.format(makePrefix("", getTitleJustification()), title.get(i));
 		}
@@ -199,22 +199,6 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	}
 
 	/**
-	 * Erase the text for this view's sign, leaving it blank.
-	 * @deprecated use {@link erase()}
-	 */
-	public void blankSign() {
-		erase();
-	}
-
-	/**
-	 * Destroy the sign for this view, replacing it with air.
-	 */
-	public void destroySign() {
-		Location loc = getLocationsArray()[0];
-		loc.getBlock().setTypeId(0);
-	}
-
-	/**
 	 * Convenience routine.  Create and register a new SMSSignView object, and attach it to
 	 * the given menu.  A sign must already exist at the given location, and it must not be
 	 * an already-existing view.
@@ -256,6 +240,9 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		return 15;
 	}
 	
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#getHardMaxTitleLines()
+	 */
 	@Override
 	protected int getHardMaxTitleLines() {
 		return 2;
