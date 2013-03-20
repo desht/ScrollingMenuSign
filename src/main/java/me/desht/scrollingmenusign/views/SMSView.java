@@ -283,6 +283,12 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return menuStack.keySet();
 	}
 
+	/**
+	 * Get the title for the given player's currently active menu.
+	 * 
+	 * @param playerName
+	 * @return
+	 */
 	public String getActiveMenuTitle(String playerName) {
 		playerName = getPlayerContext(playerName);
 
@@ -291,6 +297,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return prefix + activeMenu.getTitle();
 	}
 
+	/**
+	 * Get the number of items in the given player's currently active menu.  Note that for non-native menus,
+	 * this will be one greater than the actual menu size, because a synthetic "BACK" button will be added.
+	 * 
+	 * @param playerName
+	 * @return
+	 */
 	public int getActiveMenuItemCount(String playerName) {
 		playerName = getPlayerContext(playerName);
 
@@ -300,6 +313,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return count;
 	}
 
+	/**
+	 * Get the menu item at the given position for the given player's currently active menu.
+	 * 
+	 * @param playerName
+	 * @param pos
+	 * @return
+	 */
 	public SMSMenuItem getActiveMenuItemAt(String playerName, int pos) {
 		playerName = getPlayerContext(playerName);
 
@@ -313,6 +333,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		}
 	}
 
+	/**
+	 * Get the label for the menu item at the given position for the given player's currently active menu.
+	 * 
+	 * @param playerName
+	 * @param pos
+	 * @return
+	 */
 	public String getActiveItemLabel(String playerName, int pos) {
 		playerName = getPlayerContext(playerName);
 
