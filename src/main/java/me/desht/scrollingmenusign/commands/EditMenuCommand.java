@@ -57,11 +57,17 @@ public class EditMenuCommand extends AbstractCommand {
 		List<String> lore = currentItem.getLoreAsList();
 		if (hasOption("lore")) {
 			String l = getStringOption("lore");
+			String l1;
 			if (l.startsWith("+") && l.length() > 1) {
-				lore.add(l.substring(1));
+				l1 = l.substring(1);
 			} else {
 				lore.clear();
-				if (!l.isEmpty()) { lore.add(l); }
+				l1 = l;
+			}
+			if (!l1.isEmpty()) {
+				for (String s : l1.split("\\\\\\\\")) {
+					lore.add(s);
+				}
 			}
 		}
 		
