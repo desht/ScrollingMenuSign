@@ -16,6 +16,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.Plugin;
 
@@ -132,6 +133,10 @@ public class GiveCommand extends AbstractCommand {
 
 		ItemStack stack = new ItemStack(Material.MAP, amount);
 		stack.setDurability(mapId);
+		SMSMapView v = SMSMapView.getViewForId(mapId);
+		if (v != null) {
+			v.setMapItemName(stack);
+		}
 		targetPlayer.getInventory().addItem(stack);
 		targetPlayer.updateInventory();
 
