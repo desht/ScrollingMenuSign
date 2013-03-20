@@ -31,7 +31,6 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
-import me.desht.scrollingmenusign.views.map.SMSMapRenderer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -40,6 +39,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
@@ -674,5 +674,24 @@ public class SMSMapView extends SMSScrollableView {
 	}
 	private static Color minecraftToJavaColor(int mcColor) {
 		return colors[mcColor];
+	}
+	
+	private class SMSMapRenderer extends MapRenderer {
+		private final SMSMapView smsMapView;
+
+		public SMSMapRenderer(SMSMapView view) {
+			super(true);
+			smsMapView = view;
+		}
+		
+		@Override
+		public void render(MapView map, MapCanvas canvas, Player player) {
+			if (smsMapView.isDirty(player.getName())) {
+				BufferedImage img = smsMapView.renderImage(player);
+				canvas.drawImage(0, 0, img);
+				smsMapView.setDirty(player.getName(), false);
+				player.sendMap(map);
+			}
+		}
 	}
 }
