@@ -44,7 +44,7 @@ sms:
         double_click: false
         list_alpha: 0.5
         list_background: ccc072
-        show_command_text: true
+        show_tooltips: true
     redstonecontrol:
         execute: false
         scrollup: true

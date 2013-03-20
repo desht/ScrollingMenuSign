@@ -54,8 +54,8 @@ import org.bukkit.map.MapView;
  */
 public class SMSMapView extends SMSScrollableView {
 
-	private static final String[] NOT_OWNER = { "\u00a7oThis map belongs", "\u00a7to someone else." };
-	private static final String[] NO_PERM = { "\u00a7oYou do not have", "\u00a7permission to use", "\u00a7map menus." };
+	private static final String[] NOT_OWNER = { "\u00a7oThis map belongs", "\u00a7oto someone else." };
+	private static final String[] NO_PERM = { "\u00a7oYou do not have", "\u00a7opermission to use", "\u00a7omap menus." };
 
 	// magic map X value used by the Courier plugin
 	public static final int COURIER_MAP_X = 2147087904;
@@ -411,7 +411,7 @@ public class SMSMapView extends SMSScrollableView {
 	 */	
 	public static SMSMapView addMapToMenu(String viewName, SMSMenu menu, short mapId) throws SMSException {
 		if (SMSMapView.checkForMapId(mapId)) {
-			throw new SMSException("This map already has a menu view associated with it");
+			throw new SMSException("Map #" + mapId + " already has a menu view associated with it");
 		}
 		SMSMapView mapView = new SMSMapView(viewName, menu);
 		mapView.register();
@@ -510,10 +510,11 @@ public class SMSMapView extends SMSScrollableView {
 		SMSMenu menu = getActiveMenu(player.getName());
 		Configuration config = ScrollingMenuSign.getInstance().getConfig();
 		
-		if (!hasOwnerPermission(player)) {
+		if (!hasOwnerPermission(player) && !hasGroupPermission(player)) {
 			drawMessage(g, NOT_OWNER);
 			return result;
 		} else if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
+			System.out.println("no maps!");
 			drawMessage(g, NO_PERM);
 			return result;
 		} 

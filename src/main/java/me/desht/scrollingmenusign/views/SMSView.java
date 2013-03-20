@@ -58,6 +58,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 	// view attribute names
 	public static final String OWNER = "owner";
+	public static final String GROUP = "group";
 	public static final String ITEM_JUSTIFY = "item_justify";
 	public static final String TITLE_JUSTIFY = "title_justify";
 
@@ -115,6 +116,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		this.menuStack = new HashMap<String, MenuStack>();
 
 		registerAttribute(OWNER, "");
+		registerAttribute(GROUP, "");
 		registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT);
 		registerAttribute(ITEM_JUSTIFY, ViewJustification.DEFAULT);
 	}
@@ -891,13 +893,35 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
+	 * @param player
+	 * @return
+	 */
+	public boolean hasGroupPermission(Player player) {
+		if (ScrollingMenuSign.permission == null) {
+			return false;
+		}
+		String group = getAttributeAsString(GROUP);
+		if (group.isEmpty()) {
+			return false;
+		}
+		boolean ignore = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.ignore_view_ownership");
+		if (!ignore && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.ignoreViewOwnership")) {
+			boolean ok = ScrollingMenuSign.permission.playerInGroup(player.getWorld(), player.getName(), group);
+			LogUtils.fine("check player " + player.getName() + " in perm group " + group + ": " + ok);
+			return ok;
+		}
+		
+		return true;
+	}
+	
+	/**
 	 * Require that the given player is allowed to use this view, and throw a SMSException if not.
 	 * 
 	 * @param player	The player to check
 	 */
 	public void ensureAllowedToUse(Player player) {
-		if (!hasOwnerPermission(player)) {
-			throw new SMSException("You do not own that view");
+		if (!hasOwnerPermission(player) && !hasGroupPermission(player)) {
+			throw new SMSException("You don't have permission to use this view");
 		}
 
 		if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use." + getType())) {
