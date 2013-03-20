@@ -514,7 +514,6 @@ public class SMSMapView extends SMSScrollableView {
 			drawMessage(g, NOT_OWNER);
 			return result;
 		} else if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
-			System.out.println("no maps!");
 			drawMessage(g, NO_PERM);
 			return result;
 		} 
