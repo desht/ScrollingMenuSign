@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.List;
+
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
@@ -25,10 +27,11 @@ public class EditMenuCommand extends AbstractCommand {
 				"  -command    The new command to run",
 				"  -feedback   The new feedback message to display",
 				"  -icon       The new material used for the item's icon",
+				"  -lore       The new lore for the item (use '+text' to append)",
 				"  -move       The new position in the menu for the item",
 		});
 		setQuotedArgs(true);
-		setOptions(new String[] { "label:s", "command:s", "feedback:s", "icon:s", "move:i" });
+		setOptions(new String[] { "label:s", "command:s", "feedback:s", "icon:s", "move:i", "lore:s" });
 	}
 
 	@Override
@@ -51,12 +54,22 @@ public class EditMenuCommand extends AbstractCommand {
 		String command = hasOption("command") ? getStringOption("command") : currentItem.getCommand();
 		String message = hasOption("feedback") ? MiscUtil.parseColourSpec(getStringOption("feedback")) : currentItem.getMessage();
 		String iconMat = hasOption("icon") ? getStringOption("icon") : currentItem.getIconMaterial().toString();
-
+		List<String> lore = currentItem.getLoreAsList();
+		if (hasOption("lore")) {
+			String l = getStringOption("lore");
+			if (l.startsWith("+") && l.length() > 1) {
+				lore.add(l.substring(1));
+			} else {
+				lore.clear();
+				if (!l.isEmpty()) { lore.add(l); }
+			}
+		}
+		
 		if (!command.isEmpty() && sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, command)) {
 			throw new SMSException("You do not have permission to add that kind of command.");
 		}
 
-		SMSMenuItem newItem = new SMSMenuItem(menu, label, command, message, iconMat);
+		SMSMenuItem newItem = new SMSMenuItem(menu, label, command, message, iconMat, lore.toArray(new String[lore.size()]));
 		if (hasOption("move")) {
 			int newPos = getIntOption("move");
 			if (newPos < 1 || newPos > menu.getItemCount()) {
@@ -66,12 +79,10 @@ public class EditMenuCommand extends AbstractCommand {
 			menu.insertItem(newPos, newItem);
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- edited in &e" + menu.getName() + "&-, new position &e" + newPos);
 		} else {
-			menu.replaceItem(pos, new SMSMenuItem(menu, label, command, message, iconMat));
+			menu.replaceItem(pos, newItem);
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- edited in &e" + menu.getName() + "&-, position &e" + pos);		
 		} 
 		menu.notifyObservers(SMSMenuAction.REPAINT);
-
-		
 
 		return true;
 	}

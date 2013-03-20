@@ -17,9 +17,16 @@ public class AddItemCommand extends AbstractCommand {
 	public AddItemCommand() {
 		super("sms a", 2);
 		setPermissionNode("scrollingmenusign.commands.add");
-		setUsage("/sms add <menu-name> <label> [<command>] [-at <pos>] [-feedback <text>] [-icon <material>]");
+		setUsage(new String[] { 
+				"/sms add <menu-name> <label> [<command>] [<options...>]",
+				"Options (-at takes integer, all others take string):",
+				"  -at         Position to add the new item at",
+				"  -feedback   The new feedback message to display",
+				"  -icon       The new material used for the item's icon",
+				"  -lore       The lore for the item (line delimiter '\\\\')",
+		});
 		setQuotedArgs(true);
-		setOptions(new String[] { "at:i", "feedback:s", "icon:s" });
+		setOptions(new String[] { "at:i", "feedback:s", "icon:s", "lore:s" });
 	}
 
 	@Override
@@ -37,16 +44,18 @@ public class AddItemCommand extends AbstractCommand {
 		String cmd = args.length >= 3 ? args[2] : "";
 		String msg = hasOption("feedback") ? getStringOption("feedback") : "";
 		String iconMat = hasOption("icon") ? getStringOption("icon") : plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
+		String[] lore = hasOption("lore") ? getStringOption("lore").split("\\\\\\\\") : new String[0];
 				
 		if (sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd)) {
 			throw new SMSException("You do not have permission to add that kind of command.");
 		}
 
+		SMSMenuItem newItem = new SMSMenuItem(menu, label, cmd, msg, iconMat, lore);
 		if (pos < 0) {
-			menu.addItem(new SMSMenuItem(menu, label, cmd, msg, iconMat));
+			menu.addItem(newItem);
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- added to &e" + menuName);
 		} else {
-			menu.insertItem(pos, new SMSMenuItem(menu, label, cmd, msg, iconMat));
+			menu.insertItem(pos, newItem);
 			int actualPos = menu.indexOfItem(label);
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- inserted in &e" + menuName + "&- at position " + actualPos);
 		}

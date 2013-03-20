@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +23,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	private final String label;
 	private final String command;
 	private final String message;
+	private final List<String> lore;
 	private final MaterialWithData iconMaterial;
 	private final SMSRemainingUses uses;
 	private final SMSMenu menu;
@@ -29,7 +32,12 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		this(menu, label, command, message, null);
 	}
 
+
 	public SMSMenuItem(SMSMenu menu, String label, String command, String message, String iconMaterialName) {
+		this(menu, label, command, message, iconMaterialName, new String[0]);
+	}
+	
+	public SMSMenuItem(SMSMenu menu, String label, String command, String message, String iconMaterialName, String[] lore) {
 		if (label == null || command == null || message == null)
 			throw new NullPointerException();
 		this.menu = menu;
@@ -43,14 +51,19 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		} catch (IllegalArgumentException e) {
 			throw new SMSException("invalid material '" + iconMaterialName + "'");
 		}
+		this.lore = new ArrayList<String>();
+		for (String l : lore) { 
+			this.lore.add(MiscUtil.parseColourSpec(l));
+		}
 		this.uses = new SMSRemainingUses(this);
+		for (String l : this.lore) { System.out.println("lore = " + l); }
 	}
-	
+
 	public SMSMenuItem(SMSMenu menu, ConfigurationSection node) throws SMSException {
 		SMSPersistence.mustHaveField(node, "label");
 		SMSPersistence.mustHaveField(node, "command");
 		SMSPersistence.mustHaveField(node, "message");
-		
+
 		this.menu = menu;
 		this.label = MiscUtil.parseColourSpec(node.getString("label"));
 		this.command = node.getString("command");
@@ -59,6 +72,12 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		String iconMat = node.getString("icon", defMat);
 		this.iconMaterial = MaterialWithData.get(iconMat);
 		this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
+		this.lore = new ArrayList<String>();
+		if (node.contains("lore")) {
+			for (String l : node.getStringList("lore")) {
+				lore.add(MiscUtil.parseColourSpec(l));
+			}
+		}
 	}
 
 	/**
@@ -78,7 +97,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	public String getLabelStripped() {
 		return ChatColor.stripColor(label);
 	}
-	
+
 	/**
 	 * Get the command for this menu item
 	 * 
@@ -106,6 +125,39 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	public MaterialWithData getIconMaterial() {
 		return iconMaterial;
 	}
+	
+	/**
+	 * Get the lore (tooltip) for this menu item.  Note that not all view types necessarily support
+	 * display of lore.
+	 * 
+	 * @return
+	 */
+	public String[] getLore() {
+		return lore.toArray(new String[lore.size()]);
+	}
+	
+	public List<String> getLoreAsList() {
+		return new ArrayList<String>(lore);
+	}
+	
+	/**
+	 * Append a line of text to the item's lore.
+	 * 
+	 * @param l
+	 */
+	public void appendLore(String l) {
+		lore.add(l);
+	}
+	
+	/**
+	 * Replace the item's lore with a line of text.
+	 * 
+	 * @param l
+	 */
+	public void setLore(String l) {
+		lore.clear();
+		lore.add(l);
+	}
 
 	/**
 	 * Executes the command for this item
@@ -122,14 +174,14 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty() ) {
 			cmd = menu.getDefaultCommand().replace("<LABEL>", ChatColor.stripColor(getLabel())).replace("<RAWLABEL>", getLabel());
 		}
-		
+
 		CommandUtils.executeCommand(sender, cmd, view);
 	}
 
 	public void executeCommand(CommandSender sender) {
 		executeCommand(sender, null);
 	}
-	
+
 	private void checkRemainingUses(SMSRemainingUses uses, Player player) throws SMSException {
 		String name = player.getName();
 		if (uses.hasLimitedUses(name)) {
@@ -288,7 +340,11 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		map.put("message", MiscUtil.unParseColourSpec(message));
 		map.put("icon", iconMaterial.toString());
 		map.put("usesRemaining", uses.freeze());
-
+		List<String> lore2 = new ArrayList<String>(lore.size());
+		for (String l : lore) {
+			lore2.add(MiscUtil.unParseColourSpec(l));
+		}
+		map.put("lore", lore2);
 		return map;
 	}
 
@@ -313,7 +369,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			n++;
 			ls = getLabelStripped() + "-" + n;
 		} while (menu.getItem(ls) != null);
-		
-		return new SMSMenuItem(menu, getLabel() + "-" + n, getCommand(), getMessage());
+
+		return new SMSMenuItem(menu, getLabel() + "-" + n, getCommand(), getMessage(), getIconMaterial().toString());
 	}
 }

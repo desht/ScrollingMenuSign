@@ -102,6 +102,7 @@ public class IconMenu implements Listener, SMSPopup {
 			String label = getView().variableSubs(menuItem.getLabel());
 			ItemMeta im = icon.getItemMeta();
 			im.setDisplayName(ChatColor.RESET + label);
+			im.setLore(menuItem.getLoreAsList());
 			icon.setItemMeta(im);
 			optionIcons[pos] = icon;
 			optionNames[pos] = menuItem.getLabel();

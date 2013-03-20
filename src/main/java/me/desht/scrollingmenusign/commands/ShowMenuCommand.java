@@ -85,6 +85,10 @@ public class ShowMenuCommand extends AbstractCommand {
 			if (!message.isEmpty()) pager.add("    &9Feedback: &e" + message);
 			if (!uses.isEmpty()) pager.add("    &9Uses: &e" + uses);
 			if (!icon.equalsIgnoreCase(defIcon)) pager.add("    &9Icon: &e" + icon);
+			String[] lore = item.getLore();
+			for (int i = 0; i < lore.length; i++) {
+				pager.add((i == 0 ? "    &9Lore: &e" : "          &e") + lore[i]);
+			}
 		}
 		
 		pager.showPage();
