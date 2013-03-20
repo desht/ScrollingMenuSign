@@ -1,12 +1,11 @@
 package me.desht.scrollingmenusign.spout;
 
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 
@@ -18,6 +17,8 @@ import org.getspout.spoutapi.gui.GenericListWidget;
 import org.getspout.spoutapi.gui.ListWidgetItem;
 import org.getspout.spoutapi.gui.Scrollable;
 import org.getspout.spoutapi.player.SpoutPlayer;
+
+import com.google.common.base.Joiner;
 
 public class SMSListWidget extends GenericListWidget {
 	private static final float THRESHOLD = 129;
@@ -118,14 +119,13 @@ public class SMSListWidget extends GenericListWidget {
 	private void populateMenu() {
 		clear();
 
-		boolean showCommand =
-				ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.show_command_text")
-				&& PermissionUtils.isAllowedTo(sp, "scrollingmenusign.commands.show");
+		boolean showTooltips = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.show_tooltips");
 
 		int nItems = view.getActiveMenuItemCount(sp.getName());
 		for (int i = 1; i <= nItems; i++) {
 			SMSMenuItem item = view.getActiveMenuItemAt(sp.getName(), i);
-			addItem(new ListWidgetItem(defaultTextColor + view.variableSubs(item.getLabel()), showCommand ? item.getCommand() : ""));
+			String lore = Joiner.on("//").join(item.getLore());
+			addItem(new ListWidgetItem(defaultTextColor + view.variableSubs(item.getLabel()), showTooltips ? lore : ""));
 		}
 	}
 
