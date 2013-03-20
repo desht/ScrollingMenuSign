@@ -28,6 +28,7 @@ import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
@@ -515,12 +516,19 @@ public class SMSMapView extends SMSScrollableView {
 			return result;
 		} 
 
+		int lineHeight = metrics.getHeight() + getLineSpacing();
+		
 		// draw the title line(s)
 		List<String> titleLines = splitTitle(player.getName());
 		for (String line : titleLines) {
 			drawText(g, getTitleJustification(), yPos, line);
-			yPos += metrics.getHeight() + getLineSpacing();	
+			yPos += lineHeight;
 		}
+		Color c = g.getColor();
+		g.setColor(minecraftToJavaColor(7));
+		int lineY = yPos + 1 - lineHeight;
+		g.drawLine(x, lineY, x + width, lineY);
+		g.setColor(c);
 
 		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ");
 		String prefix2 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ");
@@ -539,7 +547,7 @@ public class SMSMapView extends SMSScrollableView {
 					lineText = prefix1 + lineText;
 				}
 				drawText(g, itemJust, yPos, lineText);
-				yPos += metrics.getHeight() + getLineSpacing();
+				yPos += lineHeight;
 				current++;
 				if (current > getActiveMenuItemCount(player.getName()))
 					current = 1;
@@ -547,7 +555,26 @@ public class SMSMapView extends SMSScrollableView {
 					break;
 			}
 		}
-
+		
+		SMSMenuItem item = menu.getItemAt(getScrollPos(player.getName()));
+		if (item != null) {
+			String[] lore = item.getLore();
+			if (lore.length > 0) {
+				int y1 = lineHeight * (titleLines.size() + 1);
+				int x1 = x + 10;
+				int y2 = y1 + lineHeight * lore.length;
+				int x2 = x + width - 10;
+				g.setColor(minecraftToJavaColor(0));
+				g.fillRect(x1, y1, x2 - x1, y2 - y1);
+				g.setColor(minecraftToJavaColor(15));
+				g.drawRect(x1, y1, x2 - x1, y2 - y1);
+				yPos = y1 + metrics.getAscent();
+				for (String l : lore) {
+					drawText(g, x1 + 2, yPos, l);
+					yPos += lineHeight;
+				}
+			}
+		}
 		return result;
 	}
 
