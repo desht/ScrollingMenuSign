@@ -34,6 +34,8 @@ sms:
     inv_view:
         default_icon: stone
     maps:
+        font: SansSerif
+        show_tooltips: true
         break_block_id: 0
         transfer:
             to_sign: true

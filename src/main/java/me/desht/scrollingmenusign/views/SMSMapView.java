@@ -36,6 +36,7 @@ import me.desht.scrollingmenusign.enums.ViewJustification;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -97,7 +98,7 @@ public class SMSMapView extends SMSScrollableView {
 		super(name, menu);
 
 		registerAttribute(IMAGE_FILE, "");
-		registerAttribute(FONT, "Serif");
+		registerAttribute(FONT, ScrollingMenuSign.getInstance().getConfig().getString("sms.maps.font"));
 		registerAttribute(FONT_SIZE, 9);
 
 		x = 4;
@@ -507,7 +508,8 @@ public class SMSMapView extends SMSScrollableView {
 
 		FontMetrics metrics = g.getFontMetrics();
 		SMSMenu menu = getActiveMenu(player.getName());
-
+		Configuration config = ScrollingMenuSign.getInstance().getConfig();
+		
 		if (!hasOwnerPermission(player)) {
 			drawMessage(g, NOT_OWNER);
 			return result;
@@ -530,8 +532,8 @@ public class SMSMapView extends SMSScrollableView {
 		g.drawLine(x, lineY, x + width, lineY);
 		g.setColor(c);
 
-		String prefix1 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ");
-		String prefix2 = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ");
+		String prefix1 = config.getString("sms.item_prefix.not_selected", "  ");
+		String prefix2 = config.getString("sms.item_prefix.selected", "> ");
 
 		int nDisplayable = (getHeight() - yPos) / (metrics.getHeight() + getLineSpacing());
 
@@ -557,19 +559,21 @@ public class SMSMapView extends SMSScrollableView {
 		}
 		
 		SMSMenuItem item = menu.getItemAt(getScrollPos(player.getName()));
-		if (item != null) {
+		if (item != null && config.getBoolean("sms.maps.show_tooltips")) {
 			String[] lore = item.getLore();
 			if (lore.length > 0) {
 				int y1 = lineHeight * (titleLines.size() + 1);
 				int x1 = x + 10;
 				int y2 = y1 + lineHeight * lore.length;
-				int x2 = x + width - 10;
+				int x2 = (x + width) - 10;
 				g.setColor(minecraftToJavaColor(0));
 				g.fillRect(x1, y1, x2 - x1, y2 - y1);
 				g.setColor(minecraftToJavaColor(15));
-				g.drawRect(x1, y1, x2 - x1, y2 - y1);
+				g.draw3DRect(x1, y1, x2 - x1, y2 - y1, true);
 				yPos = y1 + metrics.getAscent();
+				g.setClip(x1, y1, x2 - x1, y2 - y1);
 				for (String l : lore) {
+					g.setColor(minecraftToJavaColor(15));
 					drawText(g, x1 + 2, yPos, l);
 					yPos += lineHeight;
 				}
