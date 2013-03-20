@@ -293,7 +293,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		playerName = getPlayerContext(playerName);
 
 		SMSMenu activeMenu = getActiveMenu(playerName);
-		String prefix = activeMenu == getNativeMenu() ? "" : "\u21b3";	// TODO configurable
+		String prefix = activeMenu == getNativeMenu() ? "" : "->";	// TODO configurable
 		return prefix + activeMenu.getTitle();
 	}
 
@@ -327,7 +327,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		if (activeMenu != getNativeMenu() && pos == activeMenu.getItemCount() + 1) {
 			String label = ScrollingMenuSign.getInstance().getConfig().getString("sms.back_item.label", "BACK");
 			String mat = ScrollingMenuSign.getInstance().getConfig().getString("sms.back_item.material", "irondoor");
-			return new SMSMenuItem(activeMenu, ChatColor.BOLD + "\u21e6 " + label, "BACK", "", mat);
+			return new SMSMenuItem(activeMenu, ChatColor.BOLD + "<- " + label, "BACK", "", mat);
 		} else {
 			return activeMenu.getItemAt(pos);
 		}
