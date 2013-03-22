@@ -92,6 +92,7 @@ permissions:
       scrollingmenusign.commands.view: true
       scrollingmenusign.commands.var: true
       scrollingmenusign.commands.edit: true
+      scrollingmenusign.commands.font: true
       scrollingmenusign.coloursigns: true
       scrollingmenusign.destroy: true
       scrollingmenusign.maps.toSign: true
@@ -173,6 +174,9 @@ permissions:
     default: op
   scrollingmenusign.commands.edit:
     description: Allows menu items to be edited in existing menus
+    default: op
+  scrollingmenusign.commands.font:
+    description: Allows listing of fonts known to the system (for use in map views)
     default: op
   scrollingmenusign.scroll:
     description: Allows menus to be scrolled
