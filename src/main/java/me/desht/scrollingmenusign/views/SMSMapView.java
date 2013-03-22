@@ -102,12 +102,12 @@ public class SMSMapView extends SMSScrollableView {
 		registerAttribute(FONT_SIZE, 9);
 
 		x = 4;
-		y = 10;	// leaving space for the map name in the top left
+		y = 0;
 		width = 120;
-		height = 120;
+		height = 128;
 		lineSpacing = 0;
 
-		mapRenderer = new SMSMapRenderer(this);
+		mapRenderer = new SMSMapRenderer();
 	}
 
 	private void loadBackgroundImage() {
@@ -347,7 +347,7 @@ public class SMSMapView extends SMSScrollableView {
 	@Override
 	public void update(Observable menu, Object arg1) {
 		super.update(menu, arg1);
-		
+
 		switch ((SMSMenuAction) arg1) {
 		case REPAINT: case SCROLLED:
 			if (mapView == null)
@@ -418,7 +418,7 @@ public class SMSMapView extends SMSScrollableView {
 		mapView.setMapId(mapId);
 		mapView.update(menu, SMSMenuAction.REPAINT);
 
-		return mapView;		
+		return mapView;
 	}
 	public static SMSMapView addMapToMenu(SMSMenu menu, short mapId) throws SMSException {
 		return addMapToMenu(null, menu, mapId);
@@ -498,8 +498,6 @@ public class SMSMapView extends SMSScrollableView {
 	public BufferedImage renderImage(Player player) {
 		if (mapView == null) return null;
 
-		int yPos = getY();
-
 		BufferedImage result = backgroundImage == null ? new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB): deepCopy(backgroundImage);
 
 		Graphics g = result.getGraphics();
@@ -509,17 +507,18 @@ public class SMSMapView extends SMSScrollableView {
 		FontMetrics metrics = g.getFontMetrics();
 		SMSMenu menu = getActiveMenu(player.getName());
 		Configuration config = ScrollingMenuSign.getInstance().getConfig();
-		
+
 		if (!hasOwnerPermission(player) && !hasGroupPermission(player)) {
 			drawMessage(g, NOT_OWNER);
 			return result;
 		} else if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
 			drawMessage(g, NO_PERM);
 			return result;
-		} 
+		}
 
 		int lineHeight = metrics.getHeight() + getLineSpacing();
-		
+		int yPos = getY() + lineHeight;
+
 		// draw the title line(s)
 		List<String> titleLines = splitTitle(player.getName());
 		for (String line : titleLines) {
@@ -557,13 +556,13 @@ public class SMSMapView extends SMSScrollableView {
 					break;
 			}
 		}
-		
+
 		SMSMenuItem item = menu.getItemAt(getScrollPos(player.getName()));
 		if (item != null && config.getBoolean("sms.maps.show_tooltips")) {
 			String[] lore = item.getLore();
 			if (lore.length > 0) {
-				int y1 = lineHeight * (titleLines.size() + 1);
-				int x1 = x + 10;
+				int y1 = lineHeight * (titleLines.size() + 2);
+				int x1 = x + 15;
 				int y2 = y1 + lineHeight * lore.length;
 				int x2 = (x + width) - 10;
 				g.setColor(minecraftToJavaColor(0));
@@ -584,7 +583,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	private void drawText(Graphics g, ViewJustification itemJust, int y, String text) {
 		FontMetrics metrics = g.getFontMetrics();
-		int textWidth = metrics.stringWidth(text);
+		int textWidth = metrics.stringWidth(text.replaceAll("\u00a7.", ""));
 		drawText(g, getXOffset(itemJust, textWidth), y, text);
 	}
 
@@ -706,21 +705,21 @@ public class SMSMapView extends SMSScrollableView {
 	private static Color minecraftToJavaColor(int mcColor) {
 		return colors[mcColor];
 	}
-	
-	private class SMSMapRenderer extends MapRenderer {
-		private final SMSMapView smsMapView;
 
-		public SMSMapRenderer(SMSMapView view) {
+	private class SMSMapRenderer extends MapRenderer {
+//		private final SMSMapView smsMapView;
+
+		public SMSMapRenderer() {
 			super(true);
-			smsMapView = view;
+//			smsMapView = view;
 		}
-		
+
 		@Override
 		public void render(MapView map, MapCanvas canvas, Player player) {
-			if (smsMapView.isDirty(player.getName())) {
-				BufferedImage img = smsMapView.renderImage(player);
+			if (isDirty(player.getName())) {
+				BufferedImage img = renderImage(player);
 				canvas.drawImage(0, 0, img);
-				smsMapView.setDirty(player.getName(), false);
+				setDirty(player.getName(), false);
 				player.sendMap(map);
 			}
 		}
