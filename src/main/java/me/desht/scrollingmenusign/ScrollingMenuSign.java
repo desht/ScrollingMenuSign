@@ -46,14 +46,14 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	public static final int BLOCK_TARGET_DIST = 4;
 
 	private static ScrollingMenuSign instance = null;
-	
+
 	public static Economy economy = null;
 	public static Permission permission = null;
-	
+
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
 	private final CommandManager cmds = new CommandManager(this);
 	private final CommandletManager cmdlets = new CommandletManager(this);
-	
+
 	private boolean spoutEnabled = false;
 	private ConfigurationManager configManager;
 
@@ -61,9 +61,9 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	@Override
 	public void onLoad() {
-		ConfigurationSerialization.registerClass(PersistableLocation.class);	
+		ConfigurationSerialization.registerClass(PersistableLocation.class);
 	}
-	
+
 	@Override
 	public void onEnable() {
 		setInstance(this);
@@ -74,9 +74,9 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		configManager = new ConfigurationManager(this, this);
 		configManager.setPrefix("sms");
-		
+
 		LogUtils.setLogLevel(getConfig().getString("sms.log_level", "INFO"));
-		
+
 		PluginManager pm = getServer().getPluginManager();
 		setupSpout(pm);
 		setupVault(pm);
@@ -146,7 +146,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	public static ScrollingMenuSign getInstance() {
 		return instance;
 	}
-	
+
 	public CommandletManager getCommandletManager() {
 		return cmdlets;
 	}
@@ -159,7 +159,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		if (!getConfig().getBoolean("sms.mcstats")) {
 			return;
 		}
-		
+
 		try {
 			Metrics metrics = new Metrics(this);
 
@@ -182,7 +182,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 					return SMSMacro.listMacros().size();
 				}
 			});
-			
+
 			Graph graphV = metrics.createGraph("View Types");
 			for (final Entry<String,Integer> e : SMSView.getViewCounts().entrySet()) {
 				graphV.addPlotter(new Plotter(e.getKey()) {

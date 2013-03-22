@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.listeners;
 
+import me.desht.dhutils.BlockFaceUtil;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
@@ -20,6 +21,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -29,6 +32,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.material.Attachable;
+import org.bukkit.material.Sign;
 
 public class SMSBlockListener extends SMSListenerBase {
 
@@ -61,7 +65,7 @@ public class SMSBlockListener extends SMSListenerBase {
 		Location loc = b.getLocation();
 
 		SMSView view = SMSView.getViewForLocation(loc);
-		
+
 		if (SMSMapView.getHeldMapView(p) != null) {
 			// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
 			event.setCancelled(true);
@@ -94,6 +98,11 @@ public class SMSBlockListener extends SMSListenerBase {
 			rcSign.delete();
 			MiscUtil.statusMessage(p, String.format("Redstone control sign @ &f%s&- was removed from view &e%s&-.",
 			                                        MiscUtil.formatLocation(loc), rcSign.getView().getName()));
+		} else if (SMSGlobalScrollableView.getViewForTooltipLocation(loc) != null) {
+			SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(loc);
+			gsv.removeTooltipSign();
+			MiscUtil.statusMessage(p, String.format("Tooltip sign @ &f%s&- was removed from view &e%s&-.",
+			                                        MiscUtil.formatLocation(loc), gsv.getName()));
 		}
 	}
 
@@ -128,6 +137,17 @@ public class SMSBlockListener extends SMSListenerBase {
 				rcSign.processActions();
 			}
 			rcSign.setLastPowerLevel(b.getBlockPower());
+		} else if (SMSGlobalScrollableView.getViewForTooltipLocation(loc) != null) {
+			BlockState bs = b.getState();
+			if (bs.getData() instanceof Attachable) {
+				Attachable a = (Attachable)	b.getState().getData();
+				Block attachedBlock = b.getRelative(a.getAttachedFace());
+				if (attachedBlock.getTypeId() == 0) {
+					SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(loc);
+					LogUtils.info("Tooltip sign for " + gsv.getName() + " @ " + loc + " has become detached: deleting");
+					gsv.removeTooltipSign();
+				}
+			}
 		}
 	}
 
@@ -147,31 +167,14 @@ public class SMSBlockListener extends SMSListenerBase {
 
 	@EventHandler
 	public void onSignChanged(SignChangeEvent event) {
-		if (event.getLine(0).equals("[smsred]")) {
-			final Player player = event.getPlayer();
-			try {
-				PermissionUtils.requirePerms(player, "scrollingmenusign.create.redstonecontrol");
-				SMSView view = SMSView.getView(event.getLine(1));
-				if (!(view instanceof SMSGlobalScrollableView)) {
-					throw new SMSException(view.getName() + " must be a globally scrollable view");
-				}
-				event.setLine(0, ChatColor.RED + "[smsred]");
-				final Block block = event.getBlock();
-				
-				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-					// get the new control sign cached
-					@Override
-					public void run() {
-						try {
-							RedstoneControlSign.getControlSign(block.getLocation());
-						} catch (SMSException e) {
-							MiscUtil.errorMessage(player, e.getMessage());
-						}
-					}
-				});
-			} catch (SMSException e) {
-				MiscUtil.errorMessage(player, e.getMessage());
+		try {
+			if (event.getLine(0).equals("[smsred]")) {
+				placeRedstoneControlSign(event);
+			} else if (event.getLine(0).equals("[smstooltip]")) {
+				placeTooltipSign(event);
 			}
+		} catch (SMSException e) {
+			MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
 		}
 	}
 
@@ -194,6 +197,67 @@ public class SMSBlockListener extends SMSListenerBase {
 				RedstoneControlSign.getSignAt(loc).delete();
 			}
 		}
+	}
 
+	private void placeRedstoneControlSign(SignChangeEvent event) {
+		final Player player = event.getPlayer();
+
+		PermissionUtils.requirePerms(player, "scrollingmenusign.create.redstonecontrol");
+		SMSView view = SMSView.getView(event.getLine(1));
+		if (!(view instanceof SMSGlobalScrollableView)) {
+			throw new SMSException(view.getName() + " must be a globally scrollable view");
+		}
+		event.setLine(0, ChatColor.RED + "[smsred]");
+		final Block block = event.getBlock();
+
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			// get the new control sign cached
+			@Override
+			public void run() {
+				try {
+					RedstoneControlSign.getControlSign(block.getLocation());
+				} catch (SMSException e) {
+					MiscUtil.errorMessage(player, e.getMessage());
+				}
+			}
+		});
+	}
+
+	private void placeTooltipSign(SignChangeEvent event) {
+		Player player = event.getPlayer();
+
+		PermissionUtils.requirePerms(player, "scrollingmenusign.create.tooltipsign");
+
+		// check up, down, left, right for a global scrollable view
+		Block b = event.getBlock();
+		BlockState bs = b.getState();
+		Sign sign = (Sign) bs.getData();
+		BlockFace face = sign.getAttachedFace();
+		BlockFace left = BlockFaceUtil.getLeft(face);
+		if (!checkForGSView(b, BlockFace.UP) &&	!checkForGSView(b, left) && 
+				!checkForGSView(b, BlockFace.DOWN) && !checkForGSView(b, left.getOppositeFace())) {
+			throw new SMSException("Tooltip signs must be placed next to a ScrollingMenuSign view");
+		}
+		for (int i = 0; i < 4; i++) {
+			event.setLine(i, "");
+		}
+		SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(b.getLocation());
+		MiscUtil.statusMessage(event.getPlayer(), String.format("Tooltip sign @ &f%s&- has been added to view &e%s&-.",
+		                                                        MiscUtil.formatLocation(b.getLocation()), gsv.getName()));
+	}
+
+	private boolean checkForGSView(Block b, BlockFace face) {
+		Location viewLoc = b.getRelative(face).getLocation();
+		SMSView view = SMSView.getViewForLocation(viewLoc);
+		System.out.println("check for view at " + viewLoc + " got " + view);
+		if (view == null || !(view instanceof SMSGlobalScrollableView)) {
+			return false;
+		}
+		SMSGlobalScrollableView gsv = (SMSGlobalScrollableView) view;
+		if (gsv.getTooltipSign() != null) {
+			return false;
+		}
+		gsv.addTooltipSign(b.getLocation());
+		return true;
 	}
 }

@@ -26,36 +26,35 @@ import org.bukkit.util.Vector;
 
 public class RedstoneControlSign {
 	private static final Map<PersistableLocation, RedstoneControlSign> allSigns = new HashMap<PersistableLocation, RedstoneControlSign>();
-	
+
 	private static final Map<String, Set<Vector>> deferred = new HashMap<String, Set<Vector>>();
-	
+
 	private final PersistableLocation location;
 	private final SMSGlobalScrollableView view;
 	private final List<RedstoneControlSign.Action> actions = new ArrayList<RedstoneControlSign.Action>();
-	
+
 	private int lastPowerLevel;
-	
 
 	private static Map<BlockFace,BlockFace> toLeft = new HashMap<BlockFace, BlockFace>();
 	static {
-        toLeft.put(BlockFace.NORTH, BlockFace.WEST);
-        toLeft.put(BlockFace.NORTH_NORTH_EAST, BlockFace.NORTH_WEST);
-        toLeft.put(BlockFace.NORTH_EAST, BlockFace.NORTH_WEST);
-        toLeft.put(BlockFace.EAST_NORTH_EAST, BlockFace.NORTH_WEST);
-        toLeft.put(BlockFace.EAST, BlockFace.NORTH);
-        toLeft.put(BlockFace.EAST_SOUTH_EAST, BlockFace.NORTH_EAST);
-        toLeft.put(BlockFace.SOUTH_EAST, BlockFace.NORTH_EAST);
-        toLeft.put(BlockFace.SOUTH_SOUTH_EAST, BlockFace.NORTH_EAST);
-        toLeft.put(BlockFace.SOUTH, BlockFace.EAST);
-        toLeft.put(BlockFace.SOUTH_SOUTH_WEST, BlockFace.SOUTH_EAST);
-        toLeft.put(BlockFace.SOUTH_WEST, BlockFace.SOUTH_EAST);
-        toLeft.put(BlockFace.WEST_SOUTH_WEST, BlockFace.SOUTH_EAST);
-        toLeft.put(BlockFace.WEST, BlockFace.SOUTH);
-        toLeft.put(BlockFace.WEST_NORTH_WEST, BlockFace.SOUTH_WEST);
-        toLeft.put(BlockFace.NORTH_WEST, BlockFace.SOUTH_WEST);
-        toLeft.put(BlockFace.NORTH_NORTH_WEST, BlockFace.SOUTH_WEST);
+		toLeft.put(BlockFace.NORTH, BlockFace.WEST);
+		toLeft.put(BlockFace.NORTH_NORTH_EAST, BlockFace.NORTH_WEST);
+		toLeft.put(BlockFace.NORTH_EAST, BlockFace.NORTH_WEST);
+		toLeft.put(BlockFace.EAST_NORTH_EAST, BlockFace.NORTH_WEST);
+		toLeft.put(BlockFace.EAST, BlockFace.NORTH);
+		toLeft.put(BlockFace.EAST_SOUTH_EAST, BlockFace.NORTH_EAST);
+		toLeft.put(BlockFace.SOUTH_EAST, BlockFace.NORTH_EAST);
+		toLeft.put(BlockFace.SOUTH_SOUTH_EAST, BlockFace.NORTH_EAST);
+		toLeft.put(BlockFace.SOUTH, BlockFace.EAST);
+		toLeft.put(BlockFace.SOUTH_SOUTH_WEST, BlockFace.SOUTH_EAST);
+		toLeft.put(BlockFace.SOUTH_WEST, BlockFace.SOUTH_EAST);
+		toLeft.put(BlockFace.WEST_SOUTH_WEST, BlockFace.SOUTH_EAST);
+		toLeft.put(BlockFace.WEST, BlockFace.SOUTH);
+		toLeft.put(BlockFace.WEST_NORTH_WEST, BlockFace.SOUTH_WEST);
+		toLeft.put(BlockFace.NORTH_WEST, BlockFace.SOUTH_WEST);
+		toLeft.put(BlockFace.NORTH_NORTH_WEST, BlockFace.SOUTH_WEST);
 	}
-	
+
 	/**
 	 * Construct a new RedstoneControlSign for the given Sign and view.  Private constructor - use getControlSign().
 	 * 
@@ -65,12 +64,12 @@ public class RedstoneControlSign {
 	 */
 	private RedstoneControlSign(Sign sign, SMSGlobalScrollableView view) {
 		this.location = new PersistableLocation(sign.getLocation());
-		
+
 		if (!sign.getLine(0).equals(ChatColor.RED + "[smsred]")) {
 			throw new SMSException("Sign @ " + MiscUtil.formatLocation(sign.getBlock().getLocation()) +
-			                       " is not a SMS redstone control sign");
+					" is not a SMS redstone control sign");
 		}
-		
+
 		if (view == null) {
 			SMSView baseView = SMSView.getView(sign.getLine(1));
 			if (!(baseView instanceof SMSGlobalScrollableView)) {
@@ -80,14 +79,14 @@ public class RedstoneControlSign {
 		} else {
 			this.view = view;
 		}
-		
+
 		String line23 = sign.getLine(2) + " " + sign.getLine(3);
 		for (String action : line23.split("\\s+")) {
 			parseAction(action);
 		}
-		
+
 		lastPowerLevel = sign.getBlock().getBlockPower();
-		
+
 		this.view.addControlSign(this);
 		this.view.autosave();
 	}
@@ -102,9 +101,9 @@ public class RedstoneControlSign {
 	 * @throws SMSException if there is no sign at this block or the sign is not valid
 	 */
 	public static RedstoneControlSign getControlSign(Location loc) {
-			return getControlSign(loc, null);
+		return getControlSign(loc, null);
 	}
-	
+
 	/**
 	 * Get a new RedstoneControlSign for the given block and view object.  This is called when restoring
 	 * RedstoneControlSign from disk.
@@ -143,7 +142,7 @@ public class RedstoneControlSign {
 	public void setLastPowerLevel(int lastPowerLevel) {
 		this.lastPowerLevel = lastPowerLevel;
 	}
-	
+
 	/**
 	 * Get the location of this control sign.
 	 * 
@@ -152,7 +151,7 @@ public class RedstoneControlSign {
 	public Location getlocation() {
 		return location.getLocation();
 	}
-	
+
 	/**
 	 * Get the view that this control sign is attached to.
 	 * 
@@ -170,11 +169,11 @@ public class RedstoneControlSign {
 		view.removeControlSign(this);
 		view.autosave();
 	}
-	
+
 	public boolean isAttached() {
 		Block b = getlocation().getBlock();
 		BlockState bs = b.getState();
-		
+
 		if (bs instanceof Sign) {
 			org.bukkit.material.Sign s = (org.bukkit.material.Sign) bs.getData();
 			Block attached = b.getRelative(s.getAttachedFace());
@@ -201,7 +200,7 @@ public class RedstoneControlSign {
 			}
 		}
 	}
-	
+
 	/**
 	 * Retrieve the org.bukkit.block.Sign object from this control sign.
 	 * 
@@ -225,7 +224,7 @@ public class RedstoneControlSign {
 	private void parseAction(String action) {
 		Sign sign = getSignBlock();
 		org.bukkit.material.Sign signData = (org.bukkit.material.Sign) sign.getData();
-		
+
 		if (action.length() != 2) {
 			throw new SMSException("Invalid redstone control spec. '" + action +
 			                       "' for sign @ " +  MiscUtil.formatLocation(sign.getBlock().getLocation()));
@@ -253,7 +252,7 @@ public class RedstoneControlSign {
 		default:
 			throw new SMSException("Invalid redstone control direction '" + action.charAt(0) + "'");	
 		}
-		
+
 		SMSUserAction userAction;
 		switch (Character.toLowerCase(action.charAt(1))) {
 		case 'x':	// execute
@@ -265,7 +264,7 @@ public class RedstoneControlSign {
 		default:
 			throw new SMSException("Invalid redstone control action '" + action.charAt(1) + "'");
 		}
-		
+
 		actions.add(new Action(face, sign.getBlock().getRelative(face), userAction));
 	}
 
@@ -285,7 +284,7 @@ public class RedstoneControlSign {
 	public static boolean checkForSign(Location loc) {
 		return allSigns.containsKey(new PersistableLocation(loc));
 	}
-	
+
 	/**
 	 * Get the existing control sign at the given loc, if any.
 	 * 
@@ -308,7 +307,7 @@ public class RedstoneControlSign {
 		}
 		deferred.get(worldName).add(pos);
 	}
-	
+
 	/**
 	 * Load any deferred control signs for the given world.  Called from the
 	 * WorldLoadEvent handler.
@@ -326,7 +325,7 @@ public class RedstoneControlSign {
 		}
 		deferred.remove(world.getName());
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(MiscUtil.formatLocation(location.getLocation())).append(": ");
@@ -335,19 +334,19 @@ public class RedstoneControlSign {
 		}
 		return sb.toString();
 	}
-	
+
 	private class Action {
 		BlockFace face;
 		Block block;
 		SMSUserAction action;
-		
+
 		Action (BlockFace face, Block block, SMSUserAction action) {
 			this.face = face;
 			this.block = block;
 			this.action = action;
 			LogUtils.fine("redstone control: create power-on action: " + block + " = " + action);
 		}
-		
+
 		@Override
 		public String toString() {
 			return face + "=" + action.getShortDesc();

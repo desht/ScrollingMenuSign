@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -43,7 +44,10 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
 	private final Set<Switch> switches = new HashSet<Switch>();
 	private final Set<RedstoneControlSign> controlSigns = new HashSet<RedstoneControlSign>();
+	
+	private static final Map<PersistableLocation,SMSGlobalScrollableView> tooltipLocs = new HashMap<PersistableLocation, SMSGlobalScrollableView>();
 
+	private PersistableLocation tooltipSign;
 	private BukkitTask pulseResetTask;
 
 	public SMSGlobalScrollableView(SMSMenu menu) {
@@ -55,6 +59,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		registerAttribute(RS_OUTPUT_MODE, RedstoneOutputMode.SELECTED);
 		registerAttribute(PULSE_TICKS, ScrollingMenuSign.getInstance().getConfig().getLong("sms.redstoneoutput.pulseticks", 20));
 		pulseResetTask = null;
+		tooltipSign = null;
 	}
 
 	public void addSwitch(Switch sw) {
@@ -172,6 +177,10 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		}
 		map.put("controlSigns", locs);
 
+		if (tooltipSign != null) {
+			map.put("tooltip", tooltipSign);
+		}
+
 		return map;
 	}
 
@@ -207,6 +216,11 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 					LogUtils.warning("can't load redstone control sign at " + MiscUtil.formatLocation(pl.getLocation()) + ": " + e.getMessage());
 				}
 			}
+		}
+
+		tooltipSign = (PersistableLocation) node.get("tooltip");
+		if (tooltipSign != null) {
+			tooltipLocs.put(tooltipSign, this);
 		}
 	}
 
@@ -259,5 +273,26 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 				pulseResetTask = null;
 			}
 		}
+	}
+
+	public void addTooltipSign(Location loc) {
+		tooltipSign = new PersistableLocation(loc);
+		tooltipSign.setSavePitchAndYaw(false);
+		tooltipLocs.put(tooltipSign, this);
+		autosave();
+	}
+
+	public Location getTooltipSign() {
+		return tooltipSign == null ? null : tooltipSign.getLocation();
+	}
+
+	public void removeTooltipSign() {
+		tooltipSign = null;
+		tooltipLocs.remove(tooltipSign);
+		autosave();
+	}
+	
+	public static SMSGlobalScrollableView getViewForTooltipLocation(Location loc) {
+		return tooltipLocs.get(new PersistableLocation(loc));
 	}
 }
