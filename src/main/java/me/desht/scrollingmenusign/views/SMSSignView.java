@@ -102,6 +102,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	private void repaintAll() {
 		Sign sign = getSign();
 		if (sign != null) {
+			System.out.println("update sign: pos = " + getScrollPos());
 			String[] lines = buildSignText(getScrollPos());
 			for (int i = 0; i < lines.length; i++) {
 				sign.setLine(i, lines[i]);

@@ -5,15 +5,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+
+import com.google.common.base.Joiner;
 
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
@@ -44,7 +50,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
 	private final Set<Switch> switches = new HashSet<Switch>();
 	private final Set<RedstoneControlSign> controlSigns = new HashSet<RedstoneControlSign>();
-	
+
 	private static final Map<PersistableLocation,SMSGlobalScrollableView> tooltipLocs = new HashMap<PersistableLocation, SMSGlobalScrollableView>();
 
 	private PersistableLocation tooltipSign;
@@ -60,6 +66,24 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		registerAttribute(PULSE_TICKS, ScrollingMenuSign.getInstance().getConfig().getLong("sms.redstoneoutput.pulseticks", 20));
 		pulseResetTask = null;
 		tooltipSign = null;
+	}
+
+	@Override
+	public void pushMenu(String playerName, SMSMenu newActive) {
+		super.pushMenu(playerName, newActive);
+
+		System.out.println("global pushed, pos = " + getScrollPos());
+		System.out.println("menu item = " + getActiveItemLabel(null, getScrollPos()));
+		updateTooltipSign();
+	}
+
+	@Override
+	public SMSMenu popMenu(String playerName) {
+		SMSMenu menu = super.popMenu(playerName);
+
+		updateTooltipSign();
+
+		return menu;
 	}
 
 	public void addSwitch(Switch sw) {
@@ -232,6 +256,8 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		if (mode == RedstoneOutputMode.SELECTED) {
 			updateSwitchPower();
 		}
+
+		updateTooltipSign();
 	}
 
 	@Override
@@ -291,8 +317,47 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		tooltipLocs.remove(tooltipSign);
 		autosave();
 	}
-	
+
+	public void updateTooltipSign() {
+		if (tooltipSign == null) {
+			return;
+		}
+		Block b = tooltipSign.getBlock();
+		if (b.getType() != Material.WALL_SIGN && b.getType() != Material.SIGN_POST) {
+			LogUtils.warning("Block " + b + " is not a sign.  Removing tooltip from view " + getName());
+			removeTooltipSign();
+		} else {
+			Sign sign = (Sign) b.getState();
+			String[] text = getTooltipText();
+			for (int i = 0; i < 4; i++) {
+				sign.setLine(i, text[i]);
+			}
+			sign.update();
+		}
+	}
+
+	public String[] getTooltipText() {
+		String[] lore = getActiveMenuItemAt(null, getScrollPos()).getLore();
+		Scanner scanner = new Scanner(Joiner.on(" ").join(lore));
+		StringBuilder sb = new StringBuilder();
+		String[] text = new String[4];
+		int i = 0;
+		while (scanner.hasNext() && i < 4) {
+			String word = scanner.next();
+			if (sb.length() + word.length() > 14) {
+				text[i++] = sb.toString();
+				sb.setLength(0);
+			}
+			if (sb.length() > 0) sb.append(" ");
+			sb.append(word);
+		}
+		if (i < 4) text[i] = sb.toString();
+
+		return text;
+	}
+
 	public static SMSGlobalScrollableView getViewForTooltipLocation(Location loc) {
 		return tooltipLocs.get(new PersistableLocation(loc));
 	}
+
 }

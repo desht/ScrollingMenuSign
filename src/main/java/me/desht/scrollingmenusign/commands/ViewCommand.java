@@ -105,7 +105,7 @@ public class ViewCommand extends AbstractCommand {
 		MessagePager pager = MessagePager.getPager(sender).clear();
 		pager.add(String.format("View &6%s&f (%s) :",
 		                        view.getName(), view.toString()));
-		pager.add(String.format("Native menu: &6%s&f, your active menu: &6%s",
+		pager.add(String.format("Native menu: &6%s&f, Active menu: &6%s",
 		                        view.getNativeMenu().getName(), view.getActiveMenu(sender.getName()).getName()));
 		for (String k : view.listAttributeKeys(true)) {
 			pager.add(String.format(MessagePager.BULLET + "&e%s&f = &e%s", k, view.getAttributeAsString(k, "")));

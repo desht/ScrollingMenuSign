@@ -22,7 +22,7 @@ public abstract class SMSScrollableView extends SMSView {
 	private boolean wrap;
 	private final Map<String,Integer> playerScrollPos = new HashMap<String, Integer>();
 	private final ScrollPosStack storedScrollPos = new ScrollPosStack();
-	
+
 	public SMSScrollableView(SMSMenu menu) {
 		this(null, menu);
 	}
@@ -37,17 +37,17 @@ public abstract class SMSScrollableView extends SMSView {
 	@Override
 	public Map<String, Object> freeze() {
 		Map<String, Object> map = super.freeze();
-		
+
 		return map;
 	}
-	
+
 	@Override
 	public void pushMenu(String playerName, SMSMenu newActive) {
-		super.pushMenu(playerName, newActive);
 		storedScrollPos.pushScrollPos(playerName, getScrollPos(playerName));
 		setScrollPos(playerName, 1);
+		super.pushMenu(playerName, newActive);
 	}
-	
+
 	@Override
 	public SMSMenu popMenu(String playerName) {		
 		setScrollPos(playerName, storedScrollPos.popScrollPos(playerName));
@@ -94,6 +94,7 @@ public abstract class SMSScrollableView extends SMSView {
 	public void setScrollPos(String playerName, int scrollPos) {
 		playerName = getPlayerContext(playerName);
 
+		System.out.println("set scroll pos " + playerName + " = " + scrollPos);
 		playerScrollPos.put(playerName, scrollPos);
 		setDirty(playerName, true);
 	}
@@ -250,7 +251,7 @@ public abstract class SMSScrollableView extends SMSView {
 			return m;
 		}
 	}
-	
+
 	private class ScrollPosStack {
 		private Map<String,Deque<Integer>> stacks = new HashMap<String, Deque<Integer>>();
 
@@ -263,7 +264,7 @@ public abstract class SMSScrollableView extends SMSView {
 			verify(playerName);
 			stacks.get(playerName).push(pos);
 		}
-		
+
 		public int popScrollPos(String playerName) {
 			verify(playerName);
 			Deque<Integer> stack = stacks.get(playerName);

@@ -569,7 +569,7 @@ public class SMSMapView extends SMSScrollableView {
 				g.fillRect(x1, y1, x2 - x1, y2 - y1);
 				g.setColor(minecraftToJavaColor(15));
 				g.draw3DRect(x1, y1, x2 - x1, y2 - y1, true);
-				yPos = y2 - 2; //y1 + metrics.getAscent();
+				yPos = y2 - (2 + lineHeight * (lore.length - 1));
 				g.setClip(x1, y1, x2 - x1, y2 - y1);
 				for (String l : lore) {
 					g.setColor(minecraftToJavaColor(15));

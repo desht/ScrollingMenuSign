@@ -238,10 +238,11 @@ public class SMSBlockListener extends SMSListenerBase {
 				!checkForGSView(b, BlockFace.DOWN) && !checkForGSView(b, left.getOppositeFace())) {
 			throw new SMSException("Tooltip signs must be placed next to a ScrollingMenuSign view");
 		}
-		for (int i = 0; i < 4; i++) {
-			event.setLine(i, "");
-		}
 		SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(b.getLocation());
+		String[] text = gsv.getTooltipText();
+		for (int i = 0; i < 4; i++) {
+			event.setLine(i, text[i]);
+		}
 		MiscUtil.statusMessage(event.getPlayer(), String.format("Tooltip sign @ &f%s&- has been added to view &e%s&-.",
 		                                                        MiscUtil.formatLocation(b.getLocation()), gsv.getName()));
 	}
