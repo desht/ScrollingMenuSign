@@ -1,5 +1,10 @@
 package me.desht.scrollingmenusign;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -80,6 +85,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		PluginManager pm = getServer().getPluginManager();
 		setupSpout(pm);
 		setupVault(pm);
+
+		setupCustomFonts();
 
 		new SMSPlayerListener(this);
 		new SMSBlockListener(this);
@@ -344,6 +351,28 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		for (SMSView v : SMSView.listViews()) {
 			if (type == null || v.getType().equals(type)) {
 				v.update(null, SMSMenuAction.REPAINT);
+			}
+		}
+	}
+
+	private void setupCustomFonts() {
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+		for (File f : DirectoryStructure.getFontsFolder().listFiles()) {
+			String n = f.getName().toLowerCase();
+			int type;
+			if (n.endsWith(".ttf")) {
+				type = Font.TRUETYPE_FONT;
+			} else if (n.endsWith(".pfa") || n.endsWith(".pfb") || n.endsWith(".pfm") || n.endsWith(".afm")) {
+				type = Font.TYPE1_FONT;
+			} else {
+				continue;
+			}
+			try {
+				ge.registerFont(Font.createFont(type, f));
+				LogUtils.fine("registered font: " + f.getName());
+			} catch (Exception e) {
+				LogUtils.warning("can't load custom font " + f + ": " + e.getMessage());
 			}
 		}
 	}

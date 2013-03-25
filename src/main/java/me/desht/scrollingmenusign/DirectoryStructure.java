@@ -6,7 +6,7 @@ import me.desht.dhutils.LogUtils;
 
 public class DirectoryStructure {
 	private static File pluginDir;
-	private static File dataDir, menusDir, viewsDir, varsDir, macrosDir, imgCacheDir;
+	private static File dataDir, menusDir, viewsDir, varsDir, macrosDir, imgCacheDir, fontsDir;
 	private static File commandFile;
 
 	private static final String dataDirName = "data";
@@ -16,6 +16,7 @@ public class DirectoryStructure {
 	private static final String varsDirName = "variables";
 	private static final String imgCacheDirName = "imagecache";
 	private static final String commandFileName = "commands.yml";
+	private static final String fontsDirName = "fonts";
 
 	static void setupDirectoryStructure() {
 		pluginDir = ScrollingMenuSign.getInstance().getDataFolder();
@@ -27,6 +28,7 @@ public class DirectoryStructure {
 		varsDir = new File(dataDir, varsDirName);
 		macrosDir = new File(dataDir, macrosDirName);
 		imgCacheDir = new File(pluginDir, imgCacheDirName);
+		fontsDir = new File(pluginDir, fontsDirName);
 
 		createDirectory(pluginDir);
 		createDirectory(dataDir);
@@ -35,6 +37,7 @@ public class DirectoryStructure {
 		createDirectory(varsDir);
 		createDirectory(macrosDir);
 		createDirectory(imgCacheDir);
+		createDirectory(fontsDir);
 	}
 
 	private static void createDirectory(File dir) {
@@ -73,8 +76,12 @@ public class DirectoryStructure {
 	public static File getImgCacheFolder() {
 		return imgCacheDir;
 	}
-	
+
 	public static File getVarsFolder() {
 		return varsDir;
+	}
+
+	public static File getFontsFolder() {
+		return fontsDir;
 	}
 }
