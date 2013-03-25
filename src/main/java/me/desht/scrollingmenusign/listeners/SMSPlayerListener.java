@@ -31,6 +31,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -41,7 +42,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class SMSPlayerListener extends SMSListenerBase {
-	
+
 	public SMSPlayerListener(ScrollingMenuSign plugin) {
 		super(plugin);
 	}
@@ -57,7 +58,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 			// arrive cancelled by default.
 			return;
 		}
-		
+
 		try {
 			boolean cancelEvent = handleInteraction(event);
 			event.setCancelled(cancelEvent);
@@ -71,13 +72,13 @@ public class SMSPlayerListener extends SMSListenerBase {
 	@EventHandler
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
 		Player player = event.getPlayer();
-		
+
 		if (plugin.responseHandler.isExpecting(player.getName(), ExpectSwitchAddition.class)) {
 			plugin.responseHandler.cancelAction(player.getName(), ExpectSwitchAddition.class);
 			MiscUtil.statusMessage(player, "&6Switch placement cancelled.");
 			return;
 		}
-		
+
 		try {
 			SMSView view = SMSView.getTargetedView(player);
 			if (view == null)
@@ -88,6 +89,10 @@ public class SMSPlayerListener extends SMSListenerBase {
 			SMSUserAction action = SMSUserAction.getAction(event);
 			if (action != null) {
 				action.execute(player, view);
+				if ((action == SMSUserAction.SCROLLDOWN || action == SMSUserAction.SCROLLUP) && event instanceof Cancellable) {
+					// Bukkit 1.5.1+ PlayerItemHeldEvent is now cancellable
+					((Cancellable) event).setCancelled(true);
+				}
 			}
 		} catch (SMSException e) {
 			LogUtils.warning(e.getMessage());
@@ -146,16 +151,16 @@ public class SMSPlayerListener extends SMSListenerBase {
 			PopupBook.destroy(player);
 			return true;
 		}
-	
+
 		// If there is no mapView, book or selected block, there's nothing for us to do
 		if (block == null && mapView == null && popupBook == null) {
 			return false;
 		}
-	
+
 		SMSView locView = block == null ? null : SMSView.getViewForLocation(block.getLocation());
-	
+
 		String playerName = player.getName();
-		
+
 		// left or right-clicking cancels any command substitution in progress
 		if (plugin.responseHandler.isExpecting(playerName, ExpectCommandSubstitution.class)) {
 			plugin.responseHandler.cancelAction(playerName, ExpectCommandSubstitution.class);
@@ -248,7 +253,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 	 */
 	private void tryToAddInventoryView(SMSGlobalScrollableView view, Player player) {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.inventory");
-		
+
 		boolean newView = false;
 		SMSMenu menu = view.getActiveMenu(player.getName());
 		SMSView popView = SMSView.findView(menu, PoppableView.class);
@@ -259,7 +264,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 		}
 		PopupBook popup = new PopupBook(player, popView);
 		player.setItemInHand(popup.toItemStack());
-		
+
 		if (newView) {
 			MiscUtil.statusMessage(player, String.format("Associated book with new %s view &e%s&-", popView.getType(), popView.getName()));
 		} else {
@@ -387,20 +392,20 @@ public class SMSPlayerListener extends SMSListenerBase {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.create.switch");
 		SMSMenuItem item = locView.getActiveMenu(player.getName()).getItemAt(locView.getScrollPos());
 		if (item == null) return;
-		
+
 		String trigger = item.getLabel();
 		MiscUtil.statusMessage(player, "Place your lever or hit an existing lever to add it as a");
 		MiscUtil.statusMessage(player, String.format("  redstone output on view &e%s&- / &e%s&-.",
 		                                             locView.getName(), trigger));
 		MiscUtil.statusMessage(player, "Change your held item to cancel.");
-		
+
 		plugin.responseHandler.expect(player.getName(), new ExpectSwitchAddition(locView, trigger));
 	}
 
 	private boolean isHittingViewWithSwitch(Player player, SMSView locView) {
 		if (!(locView instanceof SMSGlobalScrollableView))
 			return false;
-		
+
 		return player.getItemInHand().getType() == Material.LEVER;
 	}
 
@@ -409,7 +414,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 			return false;
 		if (player.getItemInHand().getType() != Material.LEVER)
 			return false;
-		
+
 		return true;
 	}
 
