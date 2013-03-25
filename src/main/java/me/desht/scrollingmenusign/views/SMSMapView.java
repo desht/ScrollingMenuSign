@@ -563,13 +563,13 @@ public class SMSMapView extends SMSScrollableView {
 			if (lore.length > 0) {
 				int y1 = lineHeight * (titleLines.size() + 2);
 				int x1 = x + 15;
-				int y2 = y1 + lineHeight * lore.length;
-				int x2 = (x + width) - 10;
+				int y2 = y1 + lineHeight * lore.length + 1;
+				int x2 = x + width;
 				g.setColor(minecraftToJavaColor(0));
 				g.fillRect(x1, y1, x2 - x1, y2 - y1);
 				g.setColor(minecraftToJavaColor(15));
 				g.draw3DRect(x1, y1, x2 - x1, y2 - y1, true);
-				yPos = y1 + metrics.getAscent();
+				yPos = y2 - 2; //y1 + metrics.getAscent();
 				g.setClip(x1, y1, x2 - x1, y2 - y1);
 				for (String l : lore) {
 					g.setColor(minecraftToJavaColor(15));
@@ -683,35 +683,39 @@ public class SMSMapView extends SMSScrollableView {
 		return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
 	}
 
-	private static final Color[] colors = new Color[16];
+	// Minecraft map palette is very limited.  Not all colours will look good.
+	private static final byte[] mcToPaletteIdx = new byte[] {
+		44,	// 0 black
+		48, // 1 blue
+		28, // 2 green
+		21, // 3 cyan
+		16, // 4 red
+		20,	// 5 purple (looks blueish)
+		40,	// 6 yellow (looks brown)
+		13,	// 7 grey
+		12,	// 8 dark grey
+		50,	// 9 bright blue
+		6,	// 10 bright green
+		22,	// 11 bright cyan
+		18,	// 12 bright red
+		21, // 13 pink (much too blue)
+		42, // 14 bright yellow (too brown)
+		34, // 15 white
+	};
+
+	private static final Color[] colors = new Color[mcToPaletteIdx.length];
 	static {
-		colors[0] = new Color(0, 0, 0);
-		colors[1] = new Color(0, 0, 128);
-		colors[2] = new Color(0, 128, 0);
-		colors[3] = new Color(0, 128, 128);
-		colors[4] = new Color(128, 0, 0);
-		colors[5] = new Color(128, 0, 128);
-		colors[6] = new Color(128, 128, 0);
-		colors[7] = new Color(128, 128, 128);
-		colors[8] = new Color(64, 64, 64);
-		colors[9] = new Color(0, 0, 255);
-		colors[10] = new Color(0, 255, 0);
-		colors[11] = new Color(0, 255, 255);
-		colors[12] = new Color(255, 0, 0);
-		colors[13] = new Color(255, 0, 255);
-		colors[14] = new Color(255, 255, 0);
-		colors[15] = new Color(255, 255, 255);
+		for (int i = 0; i < mcToPaletteIdx.length; i++) {
+			colors[i] = MapPalette.getColor(mcToPaletteIdx[i]);
+		}
 	}
 	private static Color minecraftToJavaColor(int mcColor) {
 		return colors[mcColor];
 	}
 
 	private class SMSMapRenderer extends MapRenderer {
-//		private final SMSMapView smsMapView;
-
 		public SMSMapRenderer() {
 			super(true);
-//			smsMapView = view;
 		}
 
 		@Override
