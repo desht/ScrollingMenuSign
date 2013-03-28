@@ -10,7 +10,7 @@ import org.bukkit.plugin.Plugin;
 public class DefaultCmdCommand extends AbstractCommand {
 
 	public DefaultCmdCommand() {
-		super("sms def", 1);
+		super("sms defcmd", 1);
 		setPermissionNode("scrollingmenusign.commands.defcmd");
 		setUsage("/sms defcmd <menu-name> [<default-command>]");
 	}

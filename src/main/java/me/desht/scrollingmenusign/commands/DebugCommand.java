@@ -14,7 +14,7 @@ import org.bukkit.plugin.Plugin;
 public class DebugCommand extends AbstractCommand {
 
 	public DebugCommand() {
-		super("sms deb", 0, 0);
+		super("sms debug", 0, 0);
 		setPermissionNode("scrollingmenusign.commands.debug");
 		setUsage("/sms debug");
 	}

@@ -84,7 +84,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		SMSPersistence.mustHaveField(node, "name");
 		SMSPersistence.mustHaveField(node, "title");
 		SMSPersistence.mustHaveField(node, "owner");
-		
+
 		initCommon(node.getString("name"),
 		           MiscUtil.parseColourSpec(node.getString("title")),
 		           node.getString("owner"));
@@ -269,7 +269,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	public int getItemCount() {
 		return items.size();
 	}
-	
+
 	/**
 	 * Get the item at the given numeric index
 	 * 
@@ -292,7 +292,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	public SMSMenuItem getItemAt(int index) {
 		return getItemAt(index, false);
 	}
-	
+
 	/**
 	 * Get the menu item matching the given label
 	 * 
@@ -313,7 +313,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public SMSMenuItem getItem(String wanted, boolean mustExist) {
 		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
-		
+
 		Integer idx = itemMap.get(ChatColor.stripColor(wanted));
 		if (idx == null) {
 			if (mustExist) {
@@ -324,7 +324,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		}
 		return getItemAt(idx);
 	}
-	
+
 	/**
 	 * Get the index of the item matching the given label
 	 * 
@@ -333,7 +333,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public int indexOfItem(String wanted) {
 		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
-		
+
 		int index = -1;
 		try {
 			index = Integer.parseInt(wanted);
@@ -364,7 +364,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	public void addItem(SMSMenuItem item) {
 		insertItem(items.size() + 1, item);
 	}
-	
+
 	/**
 	 * Insert new item in the menu, at the given position.
 	 * 
@@ -385,7 +385,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public void insertItem(int pos, SMSMenuItem item) {
 		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
-	
+
 		if (item == null)
 			throw new NullPointerException();
 		String l = item.getLabelStripped();
@@ -400,16 +400,16 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 			items.add(pos - 1, item);
 			rebuildItemMap();
 		}
-		
+
 		if (autosort) {
 			Collections.sort(items);
 			if (pos <= items.size()) rebuildItemMap();
 		}
-		
+
 		setChanged();
 		autosave();
 	}
-	
+
 	/**
 	 * Replace an existing menu item.  The label must already be present in the menu, 
 	 * or an exception will be thrown.
@@ -422,7 +422,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	public void replaceItem(String label, String command, String message) {
 		replaceItem(new SMSMenuItem(this, label, command, message));
 	}
-	
+
 	/**
 	 * Replace an existing menu item.  The label must already be present in the menu, 
 	 * or an exception will be thrown.
@@ -432,7 +432,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public void replaceItem(SMSMenuItem item) {
 		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
-		
+
 		String l = item.getLabelStripped();
 		if (!itemMap.containsKey(l)) {
 			throw new SMSException("Label '" + l + "' is not in the menu.");
@@ -440,11 +440,11 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		int idx = itemMap.get(l);
 		items.set(idx - 1, item);
 		itemMap.put(l, idx);
-		
+
 		setChanged();
 		autosave();
 	}
-	
+
 	/**
 	 * Replace the menu item at the given 1-based index.  The new label must not already be
 	 * present in the menu or an exception will be thrown - duplicates are not allowed.
@@ -457,7 +457,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	public void replaceItem(int idx, String label, String command, String message) {
 		replaceItem(idx, new SMSMenuItem(this, label, command, message));
 	}
-	
+
 	/**
 	 * Replace the menu item at the given 1-based index.  The new label must not already be
 	 * present in the menu or an exception will be thrown - duplicates are not allowed.
@@ -467,7 +467,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public void replaceItem(int idx, SMSMenuItem item) {
 		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
-		
+
 		String l = item.getLabelStripped();
 		if (idx < 1 || idx > items.size()) {
 			throw new SMSException("Index " + idx + " out of range.");
@@ -478,7 +478,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		itemMap.remove(items.get(idx - 1).getLabelStripped());
 		items.set(idx - 1, item);
 		itemMap.put(l, idx);
-		
+
 		setChanged();
 		autosave();
 	}
@@ -522,7 +522,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		}
 		removeItem(index);
 	}
-	
+
 	/**
 	 * Remove an item from the menu by numeric index
 	 * 
@@ -663,7 +663,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	static boolean checkForMenu(String menuName) {
 		return menus.containsKey(menuName);
 	}
-	
+
 	/**
 	 * Return an unsorted list of all the known menus
 	 * Equivalent to calling <b>listMenus(false)</b>

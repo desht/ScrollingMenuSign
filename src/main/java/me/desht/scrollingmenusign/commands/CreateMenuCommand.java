@@ -20,7 +20,7 @@ import org.bukkit.plugin.Plugin;
 public class CreateMenuCommand extends AbstractCommand {
 
 	public CreateMenuCommand() {
-		super("sms c", 2);
+		super("sms create", 2);
 		setPermissionNode("scrollingmenusign.commands.create");
 		setUsage(new String[] { 
 				"/sms create <menu> <title>",

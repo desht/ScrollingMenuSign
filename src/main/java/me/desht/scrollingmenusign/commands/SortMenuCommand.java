@@ -13,9 +13,9 @@ import org.bukkit.plugin.Plugin;
 public class SortMenuCommand extends AbstractCommand {
 
 	public SortMenuCommand() {
-		super("sms so", 0, 2);
+		super("sms sort", 0, 2);
 		setPermissionNode("scrollingmenusign.commands.sort");
-		setUsage("sms sort [<menu-name>] [-auto]");
+		setUsage("/sms sort [<menu-name>] [-auto]");
 		setOptions("auto");
 	}
 

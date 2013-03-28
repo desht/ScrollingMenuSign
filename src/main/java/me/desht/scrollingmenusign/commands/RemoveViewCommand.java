@@ -15,7 +15,7 @@ import org.bukkit.plugin.Plugin;
 public class RemoveViewCommand extends AbstractCommand {
 
 	public RemoveViewCommand() {
-		super("sms b", 0, 2);
+		super("sms break", 0, 2);
 		setPermissionNode("scrollingmenusign.commands.break");
 		setUsage(new String[] {
 				"/sms break",

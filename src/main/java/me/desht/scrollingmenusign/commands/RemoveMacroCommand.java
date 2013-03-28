@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin;
 public class RemoveMacroCommand extends AbstractCommand {
 
 	public RemoveMacroCommand() {
-		super("sms m r", 1, 2);
+		super("sms macro remove", 1, 2);
 		setPermissionNode("scrollingmenusign.commands.macro");
 		setUsage("/sms macro remove <macro> [<command>]");
 	}

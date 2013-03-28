@@ -87,7 +87,7 @@ permissions:
       scrollingmenusign.commands.debug: true
       scrollingmenusign.commands.sort: true
       scrollingmenusign.commands.defcmd: true
-      scrollingmenusign.commands.givemap: true
+      scrollingmenusign.commands.give: true
       scrollingmenusign.commands.uses: true
       scrollingmenusign.commands.view: true
       scrollingmenusign.commands.var: true
@@ -148,8 +148,8 @@ permissions:
   scrollingmenusign.commands.setcfg:
     description: Allows configuration items to be changed
     default: op
-  scrollingmenusign.commands.givemap:
-    description: Allows giving of maps with a specific map ID
+  scrollingmenusign.commands.give:
+    description: Allows giving of map or book items to self or others
     default: op
   scrollingmenusign.destroy:
     description: Allows destruction of views belonging to a menu created by someone else

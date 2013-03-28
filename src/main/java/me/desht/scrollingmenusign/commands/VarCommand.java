@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 public class VarCommand extends AbstractCommand {
 
 	public VarCommand() {
-		super("sms va", 1, 4);
+		super("sms var", 1, 4);
 		setPermissionNode("scrollingmenusign.commands.var");
 		setUsage(new String[] {
 				"/sms var -l [<player>]",

@@ -21,13 +21,13 @@ import org.bukkit.plugin.Plugin;
 public class ViewCommand extends AbstractCommand {
 
 	public ViewCommand() {
-		super("sms vi", 0, 3);
+		super("sms view", 0, 3);
 		setPermissionNode("scrollingmenusign.commands.view");
 		setUsage(new String[] {
-				"sms view",
-				"sms view <view-name> [<attribute|$var>] [<new-value>]",
-				"sms view <view-name> -d [<$var>]",
-				"sms view <view-name> -popup"
+				"/sms view",
+				"/sms view <view-name> [<attribute|$var>] [<new-value>]",
+				"/sms view <view-name> -d [<$var>]",
+				"/sms view <view-name> -popup"
 		});
 		setQuotedArgs(true);
 		setOptions(new String[] { "popup", "d:s" });

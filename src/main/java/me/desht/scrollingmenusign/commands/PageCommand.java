@@ -10,7 +10,7 @@ import org.bukkit.plugin.Plugin;
 public class PageCommand extends AbstractCommand {
 
 	public PageCommand() {
-		super("sms p", 0, 1);
+		super("sms page", 0, 1);
 		setUsage("/sms page [<page-number>|<next>|<prev>]");
 	}
 

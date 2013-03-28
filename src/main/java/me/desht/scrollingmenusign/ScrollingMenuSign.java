@@ -46,6 +46,8 @@ import org.mcstats.Metrics;
 import org.mcstats.Metrics.Graph;
 import org.mcstats.Metrics.Plotter;
 
+import com.google.common.base.Joiner;
+
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
 	public static final int BLOCK_TARGET_DIST = 4;
@@ -140,6 +142,12 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			MiscUtil.errorMessage(sender, e.getMessage());
 			return true;
 		}
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		LogUtils.info("tab complete: cmd="+command+ ", label="+label+", args=["+Joiner.on(",").join(args)+"]");
+		return null;
 	}
 
 	public SMSHandler getHandler() {

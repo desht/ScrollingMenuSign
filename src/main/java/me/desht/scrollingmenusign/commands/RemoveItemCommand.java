@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin;
 public class RemoveItemCommand extends AbstractCommand {
 
 	public RemoveItemCommand() {
-		super("sms rem", 2, 2);
+		super("sms remove", 2, 2);
 		setPermissionNode("scrollingmenusign.commands.remove");
 		setUsage(new String[] {
 			"/sms remove <menu-name> @<pos>",

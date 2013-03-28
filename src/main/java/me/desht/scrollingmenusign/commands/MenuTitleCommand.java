@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin;
 public class MenuTitleCommand extends AbstractCommand {
 
 	public MenuTitleCommand() {
-		super("sms t", 2);
+		super("sms title", 2);
 		setPermissionNode("scrollingmenusign.commands.title");
 		setUsage("/sms title <menu-name> <new-title>");
 	}

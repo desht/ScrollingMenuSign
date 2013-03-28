@@ -15,7 +15,7 @@ import org.bukkit.plugin.Plugin;
 public class DeleteMenuCommand extends AbstractCommand {
 	
 	public DeleteMenuCommand() {
-		super("sms del", 0, 1);
+		super("sms delete", 0, 1);
 		setPermissionNode("scrollingmenusign.commands.delete");
 		setUsage("/sms delete <menu>");
 	}

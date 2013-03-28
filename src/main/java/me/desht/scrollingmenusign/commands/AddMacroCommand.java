@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin;
 public class AddMacroCommand extends AbstractCommand {
 
 	public AddMacroCommand() {
-		super("sms m a", 2);
+		super("sms macro add", 2);
 		setPermissionNode("scrollingmenusign.commands.macro");
 		setUsage("/sms macro add <macro> <command>");
 		setQuotedArgs(true);

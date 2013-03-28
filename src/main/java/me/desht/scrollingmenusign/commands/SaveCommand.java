@@ -10,7 +10,7 @@ import org.bukkit.plugin.Plugin;
 public class SaveCommand extends AbstractCommand {
 
 	public SaveCommand() {
-		super("sms sa");
+		super("sms save");
 		setPermissionNode("scrollingmenusign.commands.save");
 		setUsage("/sms save [menus] [macros]");
 	}

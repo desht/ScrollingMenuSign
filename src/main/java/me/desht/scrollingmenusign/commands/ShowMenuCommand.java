@@ -22,7 +22,7 @@ import org.bukkit.plugin.Plugin;
 public class ShowMenuCommand extends AbstractCommand {
 
 	public ShowMenuCommand() {
-		super("sms sh", 0, 1);
+		super("sms show", 0, 1);
 		setPermissionNode("scrollingmenusign.commands.show");
 		setUsage("/sms show <menu-name>");
 		setQuotedArgs(true);

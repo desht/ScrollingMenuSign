@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -7,8 +9,6 @@ import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSInventoryView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -16,15 +16,14 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.Plugin;
 
 public class GiveCommand extends AbstractCommand {
 
 	public GiveCommand() {
-		super("sms gi", 2, 4);
-		setPermissionNode("scrollingmenusign.commands.givemap");
+		super("sms give", 2, 4);
+		setPermissionNode("scrollingmenusign.commands.give");
 		setUsage(new String[] {
 				"/sms give map <menu-name|view-name|map-id> [<amount>] [<player>]",
 				"/sms give book <menu-name|view-name> [<amount>] [<player>]",	

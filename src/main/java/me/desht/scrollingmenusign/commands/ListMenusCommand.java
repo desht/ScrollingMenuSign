@@ -18,7 +18,7 @@ import org.bukkit.plugin.Plugin;
 public class ListMenusCommand extends AbstractCommand {
 
 	public ListMenusCommand() {
-		super("sms l", 0, 1);
+		super("sms list", 0, 1);
 		setPermissionNode("scrollingmenusign.commands.list");
 		setUsage("/sms list [<menu-name>]");
 		setQuotedArgs(true);

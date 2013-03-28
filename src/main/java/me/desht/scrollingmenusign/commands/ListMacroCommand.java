@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin;
 public class ListMacroCommand extends AbstractCommand {
 
 	public ListMacroCommand() {
-		super("sms m l", 0, 1);
+		super("sms macro list", 0, 1);
 		setPermissionNode("scrollingmenusign.commands.macro");
 		setUsage("/sms macro list [<macro-name>]");
 	}

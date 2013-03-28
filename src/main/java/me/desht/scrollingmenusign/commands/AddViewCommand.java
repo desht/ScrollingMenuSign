@@ -25,7 +25,7 @@ import org.bukkit.plugin.Plugin;
 public class AddViewCommand extends AbstractCommand {
 
 	public AddViewCommand() {
-		super("sms sy", 1);
+		super("sms sync", 1);
 		setPermissionNode("scrollingmenusign.commands.sync");
 		setUsage(new String[] {
 				"/sms sync <menu-name>",

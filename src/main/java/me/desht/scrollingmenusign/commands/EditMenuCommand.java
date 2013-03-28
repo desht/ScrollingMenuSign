@@ -17,7 +17,7 @@ import org.bukkit.plugin.Plugin;
 public class EditMenuCommand extends AbstractCommand {
 
 	public EditMenuCommand() {
-		super("sms ed", 3);
+		super("sms edit", 3);
 		setPermissionNode("scrollingmenusign.commands.edit");
 		setUsage(new String[] {
 				"/sms edit <menu-name> @<pos> <replacements...>",

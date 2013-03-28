@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 public class FontCommand extends AbstractCommand {
 
 	public FontCommand() {
-		super("sms f", 0, 1);
+		super("sms font", 0, 1);
 		setPermissionNode("scrollingmenusign.commands.font");
 		setUsage("/sms font");
 	}

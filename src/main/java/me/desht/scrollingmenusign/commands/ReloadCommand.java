@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin;
 public class ReloadCommand extends AbstractCommand {
 
 	public ReloadCommand() {
-		super("sms rel");
+		super("sms reload");
 		setPermissionNode("scrollingmenusign.commands.reload");
 		setUsage("/sms reload [menus] [macros] [config]");
 	}

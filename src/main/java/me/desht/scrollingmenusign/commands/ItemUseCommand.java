@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 public class ItemUseCommand extends AbstractCommand {
 
 	public ItemUseCommand() {
-		super("sms u", 2, 4);
+		super("sms uses", 2, 4);
 		setPermissionNode("scrollingmenusign.commands.uses");
 		setUsage(new String[] {
 				"/sms uses <menu> <item> <count> [-global]",

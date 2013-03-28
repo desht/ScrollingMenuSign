@@ -19,7 +19,7 @@ import org.bukkit.plugin.Plugin;
 public class GetConfigCommand extends AbstractCommand {
 
 	public GetConfigCommand() {
-		super("sms ge", 0, 1);
+		super("sms getcfg", 0, 1);
 		setPermissionNode("scrollingmenusign.commands.getcfg");
 		setUsage("/sms getcfg [<key>]");
 	}

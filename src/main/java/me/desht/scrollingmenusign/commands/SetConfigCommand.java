@@ -15,7 +15,7 @@ import org.bukkit.plugin.Plugin;
 public class SetConfigCommand extends AbstractCommand {
 
 	public SetConfigCommand() {
-		super("sms se", 2);
+		super("sms setcfg", 2);
 		setPermissionNode("scrollingmenusign.commands.setcfg");
 		setUsage("/sms setcfg <key> <value>");
 		setQuotedArgs(true);
@@ -24,9 +24,9 @@ public class SetConfigCommand extends AbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender player, String[] args) {
 		String key = args[0], val = args[1];
-		
+
 		ConfigurationManager configManager = ((ScrollingMenuSign) plugin).getConfigManager();
-		
+
 		try {
 			if (args.length > 2) {
 				List<String> list = new ArrayList<String>(args.length - 1);
