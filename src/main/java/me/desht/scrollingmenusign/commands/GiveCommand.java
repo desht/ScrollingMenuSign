@@ -1,7 +1,6 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -19,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.Plugin;
 
-public class GiveCommand extends AbstractCommand {
+public class GiveCommand extends SMSAbstractCommand {
 
 	public GiveCommand() {
 		super("sms give", 2, 4);

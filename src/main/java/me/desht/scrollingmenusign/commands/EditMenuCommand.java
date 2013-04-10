@@ -3,7 +3,6 @@ package me.desht.scrollingmenusign.commands;
 import java.util.List;
 
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
@@ -14,7 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class EditMenuCommand extends AbstractCommand {
+public class EditMenuCommand extends SMSAbstractCommand {
 
 	public EditMenuCommand() {
 		super("sms edit", 3);
@@ -70,7 +69,7 @@ public class EditMenuCommand extends AbstractCommand {
 				}
 			}
 		}
-		
+
 		if (!command.isEmpty() && sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, command)) {
 			throw new SMSException("You do not have permission to add that kind of command.");
 		}

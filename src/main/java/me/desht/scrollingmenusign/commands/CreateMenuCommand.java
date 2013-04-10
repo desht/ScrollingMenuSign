@@ -2,7 +2,6 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -17,7 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class CreateMenuCommand extends AbstractCommand {
+public class CreateMenuCommand extends SMSAbstractCommand {
 
 	public CreateMenuCommand() {
 		super("sms create", 2);
@@ -35,7 +34,7 @@ public class CreateMenuCommand extends AbstractCommand {
 
 		ScrollingMenuSign smsPlugin = (ScrollingMenuSign) plugin;
 		SMSHandler handler = smsPlugin.getHandler();
-		
+
 		if (handler.checkMenu(menuName)) {
 			throw new SMSException("A menu called '" + menuName + "' already exists.");
 		}
@@ -45,7 +44,7 @@ public class CreateMenuCommand extends AbstractCommand {
 		String owner = "&console";	// dummy owner if menu created from console
 
 		boolean autoCreate = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autocreate_views");
-		
+
 		if (autoCreate && sender instanceof Player) {
 			Player player = (Player) sender;
 			owner = sender.getName();

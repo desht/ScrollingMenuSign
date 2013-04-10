@@ -2,7 +2,6 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.views.SMSMapView;
@@ -12,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class RemoveViewCommand extends AbstractCommand {
+public class RemoveViewCommand extends SMSAbstractCommand {
 
 	public RemoveViewCommand() {
 		super("sms break", 0, 2);

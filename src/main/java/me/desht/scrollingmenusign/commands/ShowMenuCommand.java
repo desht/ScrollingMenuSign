@@ -4,7 +4,6 @@ import java.util.List;
 
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.block.MaterialWithData;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
@@ -19,7 +18,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class ShowMenuCommand extends AbstractCommand {
+public class ShowMenuCommand extends SMSAbstractCommand {
 
 	public ShowMenuCommand() {
 		super("sms show", 0, 1);
@@ -31,7 +30,7 @@ public class ShowMenuCommand extends AbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {	
 		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
-		
+
 		SMSMenu menu = null;
 		SMSView view = null;
 		if (args.length > 0) {
@@ -54,11 +53,11 @@ public class ShowMenuCommand extends AbstractCommand {
 			}
 			menu = view.getActiveMenu(player.getName());
 		}
-		
+
 		MessagePager pager = MessagePager.getPager(sender).clear();
 		String mo = menu.getOwner().isEmpty() ? "(no one)" : menu.getOwner().replace("&", "&&");
 		pager.add(String.format("Menu &e%s&-, Title \"&f%s&-\", Owner &e%s&-",
-		                                       menu.getName(),  menu.getTitle(), mo));
+		                        menu.getName(),  menu.getTitle(), mo));
 		if (!menu.formatUses(sender).isEmpty()) {
 			pager.add("Uses: &c" + menu.formatUses(sender));
 		}
@@ -69,9 +68,9 @@ public class ShowMenuCommand extends AbstractCommand {
 			String owner = view.getAttributeAsString("owner", "(no one)");
 			pager.add(String.format("View &e%s&-, Owner &e%s&-", view.getName(), owner));
 		}
-		
+
 		String defIcon = MaterialWithData.get(plugin.getConfig().getString("sms.inv_view.default_icon", "stone")).toString();
-		
+
 		List<SMSMenuItem> items = menu.getItems();
 		int n = 1;
 		for (SMSMenuItem item : items) {
@@ -80,7 +79,7 @@ public class ShowMenuCommand extends AbstractCommand {
 			String uses = item.formatUses(sender);
 			String icon = item.getIconMaterial().toString();
 			String s = String.format("&e%2d) &f%s &7[%s]", // &e%s&c%s",
-					n++, item.getLabel(), command); //, message, item.formatUses(sender));
+			                         n++, item.getLabel(), command); //, message, item.formatUses(sender));
 			pager.add(s);
 			if (!message.isEmpty()) pager.add("    &9Feedback: &e" + message);
 			if (!uses.isEmpty()) pager.add("    &9Uses: &e" + uses);
@@ -90,10 +89,16 @@ public class ShowMenuCommand extends AbstractCommand {
 				pager.add((i == 0 ? "    &9Lore: &e" : "          &e") + lore[i]);
 			}
 		}
-		
+
 		pager.showPage();
-		
+
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		String prefix = args.length > 0 ? args[0] : "";
+		return getMenuCompletions(plugin, sender, prefix);
 	}
 
 }

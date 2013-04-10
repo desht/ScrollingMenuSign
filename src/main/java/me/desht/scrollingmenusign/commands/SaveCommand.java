@@ -1,13 +1,12 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSPersistence;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class SaveCommand extends AbstractCommand {
+public class SaveCommand extends SMSAbstractCommand {
 
 	public SaveCommand() {
 		super("sms save");
@@ -17,7 +16,7 @@ public class SaveCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		
+
 		boolean saveMenus = false;
 		boolean saveMacros = false;
 		boolean saveAll = false;
@@ -36,7 +35,7 @@ public class SaveCommand extends AbstractCommand {
 			SMSPersistence.saveMenusAndViews();
 		if (saveAll || saveMacros)
 			SMSPersistence.saveMacros();
-		
+
 		if (sender != null)
 			MiscUtil.statusMessage(sender, "Save complete.");
 

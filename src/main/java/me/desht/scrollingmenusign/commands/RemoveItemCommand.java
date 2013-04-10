@@ -1,21 +1,20 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class RemoveItemCommand extends AbstractCommand {
+public class RemoveItemCommand extends SMSAbstractCommand {
 
 	public RemoveItemCommand() {
 		super("sms remove", 2, 2);
 		setPermissionNode("scrollingmenusign.commands.remove");
 		setUsage(new String[] {
-			"/sms remove <menu-name> @<pos>",
-			"/sms remove <menu-name> <item-label>"
+				"/sms remove <menu-name> @<pos>",
+				"/sms remove <menu-name> <item-label>"
 		});
 		setQuotedArgs(true);
 	}
@@ -25,13 +24,13 @@ public class RemoveItemCommand extends AbstractCommand {
 
 		String menuName = args[0];
 		String item = args[1];
-		
+
 		if (item.matches("@[0-9]+")) {
 			// backwards compatibility - numeric indices should be prefixed with a '@'
 			// but we'll allow raw numbers to be used 
 			item = item.substring(1);
 		}
-		
+
 		try {
 			SMSMenu menu = SMSMenu.getMenu(menuName);
 			menu.removeItem(item);
@@ -42,7 +41,7 @@ public class RemoveItemCommand extends AbstractCommand {
 		} catch (IllegalArgumentException e) {
 			MiscUtil.errorMessage(sender, e.getMessage());
 		}
-		
+
 		return true;
 	}
 

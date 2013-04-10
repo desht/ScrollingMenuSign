@@ -1,14 +1,13 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.SMSPersistence;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class RemoveMacroCommand extends AbstractCommand {
+public class RemoveMacroCommand extends SMSAbstractCommand {
 
 	public RemoveMacroCommand() {
 		super("sms macro remove", 1, 2);
@@ -32,9 +31,9 @@ public class RemoveMacroCommand extends AbstractCommand {
 				MiscUtil.errorMessage(sender, "invalid index: " + args[1]);	
 			}
 		}
-	
+
 		SMSPersistence.saveMacros();
-		
+
 		return true;
 	}
 

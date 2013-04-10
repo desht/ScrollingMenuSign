@@ -1,8 +1,11 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -18,7 +21,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class ViewCommand extends AbstractCommand {
+public class ViewCommand extends SMSAbstractCommand {
 
 	public ViewCommand() {
 		super("sms view", 0, 3);
@@ -56,7 +59,7 @@ public class ViewCommand extends AbstractCommand {
 				return true;
 			}
 		}
-		
+
 		if (getBooleanOption("popup")) {
 			notFromConsole(sender);
 			view.ensureAllowedToUse((Player) sender);
@@ -155,4 +158,33 @@ public class ViewCommand extends AbstractCommand {
 		return false;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		SMSView view;
+		switch (args.length) {
+		case 1:
+			return getViewCompletions(sender, args[0]);
+		case 2:
+			view = SMSView.getView(args[0]);
+			System.out.println("arg2 = [" + args[1] + "]");
+			return filterPrefix(sender, view.getAttributes().listAttributeKeys(false), args[1]);
+		case 3:
+			view = SMSView.getView(args[0]);
+			Object o = view.getAttribute(args[1]);
+			List<String> res = new ArrayList<String>();
+			if (o instanceof Enum<?>) {
+				for (Object o1 : o.getClass().getEnumConstants()) {
+					res.add(o1.toString());
+				}
+			} else if (o instanceof Boolean) {
+				res.add("true");
+				res.add("false");
+			} else {
+				MiscUtil.alertMessage(sender, args[1] + " = <" + o.getClass().getSimpleName() + ">");
+			}
+			return filterPrefix(sender, res, args[2]);
+		default:
+			return noCompletions(sender);
+		}
+	}
 }

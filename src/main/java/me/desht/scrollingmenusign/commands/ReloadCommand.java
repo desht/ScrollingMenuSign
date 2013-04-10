@@ -1,14 +1,13 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class ReloadCommand extends AbstractCommand {
+public class ReloadCommand extends SMSAbstractCommand {
 
 	public ReloadCommand() {
 		super("sms reload");
@@ -18,14 +17,14 @@ public class ReloadCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		
+
 		boolean loadMenus = false;
 		boolean loadViews = false;
 		boolean loadMacros = false;
 		boolean loadConfig = false;
 		boolean loadAll = false;
 		boolean loadVariables = false;
-		
+
 		if (args.length == 0) {
 			loadAll = true;
 		} else {

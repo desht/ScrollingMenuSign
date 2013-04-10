@@ -6,17 +6,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
-public class GetConfigCommand extends AbstractCommand {
+public class GetConfigCommand extends SMSAbstractCommand {
 
 	public GetConfigCommand() {
 		super("sms getcfg", 0, 1);

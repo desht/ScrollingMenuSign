@@ -2,7 +2,6 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -22,7 +21,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class AddViewCommand extends AbstractCommand {
+public class AddViewCommand extends SMSAbstractCommand {
 
 	public AddViewCommand() {
 		super("sms sync", 1);
@@ -43,7 +42,7 @@ public class AddViewCommand extends AbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws SMSException {
 		ScrollingMenuSign smsPlugin = (ScrollingMenuSign) plugin;
-		
+
 		SMSView view = null;
 		SMSMenu menu = SMSMenu.getMenu(args[0]);
 		String viewName = getStringOption("viewname");

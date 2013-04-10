@@ -2,14 +2,13 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSVariables;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class VarCommand extends AbstractCommand {
+public class VarCommand extends SMSAbstractCommand {
 
 	public VarCommand() {
 		super("sms var", 1, 4);
@@ -44,9 +43,9 @@ public class VarCommand extends AbstractCommand {
 			pager.showPage();
 			return true;
 		} 
-		
+
 		String varSpec = args[0];
-		
+
 		if (getBooleanOption("d")) {
 			// delete the variable
 			SMSVariables.set(sender, varSpec, null);

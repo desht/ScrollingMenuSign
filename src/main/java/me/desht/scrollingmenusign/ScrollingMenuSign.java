@@ -136,18 +136,12 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		try {
-			return cmds.dispatch(sender, command.getName(), args);
-		} catch (DHUtilsException e) {
-			MiscUtil.errorMessage(sender, e.getMessage());
-			return true;
-		}
+		return cmds.dispatch(sender, command, label, args);
 	}
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-		LogUtils.info("tab complete: cmd="+command+ ", label="+label+", args=["+Joiner.on(",").join(args)+"]");
-		return null;
+		return cmds.onTabComplete(sender, command, label, args);
 	}
 
 	public SMSHandler getHandler() {

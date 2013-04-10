@@ -4,12 +4,11 @@ import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 
 import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class FontCommand extends AbstractCommand {
+public class FontCommand extends SMSAbstractCommand {
 
 	public FontCommand() {
 		super("sms font", 0, 1);

@@ -1,14 +1,13 @@
 package me.desht.scrollingmenusign.commands;
 
-import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.commands.AbstractCommand;
+import me.desht.scrollingmenusign.SMSMacro;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class ListMacroCommand extends AbstractCommand {
+public class ListMacroCommand extends SMSAbstractCommand {
 
 	public ListMacroCommand() {
 		super("sms macro list", 0, 1);
@@ -34,7 +33,7 @@ public class ListMacroCommand extends AbstractCommand {
 			}
 		}
 		pager.showPage();
-		
+
 		return true;
 	}
 

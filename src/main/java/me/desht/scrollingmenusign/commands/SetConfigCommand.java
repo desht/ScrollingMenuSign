@@ -5,14 +5,13 @@ import java.util.List;
 
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class SetConfigCommand extends AbstractCommand {
+public class SetConfigCommand extends SMSAbstractCommand {
 
 	public SetConfigCommand() {
 		super("sms setcfg", 2);

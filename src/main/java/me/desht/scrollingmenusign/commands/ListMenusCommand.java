@@ -5,7 +5,6 @@ import java.util.List;
 
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -15,7 +14,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class ListMenusCommand extends AbstractCommand {
+public class ListMenusCommand extends SMSAbstractCommand {
 
 	public ListMenusCommand() {
 		super("sms list", 0, 1);
@@ -25,10 +24,10 @@ public class ListMenusCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {		
-		
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
+
 		MessagePager pager = MessagePager.getPager(sender).clear();
-		
+
 		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
 		if (args.length > 0) {
 			SMSMenu menu = handler.getMenu(args[0]);
@@ -45,8 +44,14 @@ public class ListMenusCommand extends AbstractCommand {
 			}
 		}
 		pager.showPage();
-		
+
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		String prefix = args.length > 0 ? args[0] : "";
+		return getMenuCompletions(plugin, sender, prefix);
 	}
 
 	private void listMenu(MessagePager pager, SMSMenu menu, boolean listViews) {

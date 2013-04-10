@@ -1,7 +1,6 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
@@ -9,7 +8,7 @@ import me.desht.scrollingmenusign.SMSMenuItem;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class ItemUseCommand extends AbstractCommand {
+public class ItemUseCommand extends SMSAbstractCommand {
 
 	public ItemUseCommand() {
 		super("sms uses", 2, 4);
@@ -27,7 +26,7 @@ public class ItemUseCommand extends AbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender player, String[] args) {
 		SMSMenu menu = SMSMenu.getMenu(args[0]);
-				
+
 		boolean isGlobal = getBooleanOption("global") || getBooleanOption("g");
 		boolean isClearing = args[args.length - 1].startsWith("c");
 
@@ -46,11 +45,11 @@ public class ItemUseCommand extends AbstractCommand {
 				if (isGlobal) {
 					item.getUseLimits().setGlobalUses(count);
 					MiscUtil.statusMessage(player, "Set GLOBAL use limit for item &e" + item.getLabel()
-							+ "&- to " + count + ".");
+					                       + "&- to " + count + ".");
 				} else {
 					item.getUseLimits().setUses(count);
 					MiscUtil.statusMessage(player, "Set PER-PLAYER use limit for item &e" + item.getLabel()
-							+ "&- to " + count + ".");
+					                       + "&- to " + count + ".");
 				}
 			}
 		} else if (args.length == 2) {
@@ -63,15 +62,15 @@ public class ItemUseCommand extends AbstractCommand {
 				if (isGlobal) {
 					menu.getUseLimits().setGlobalUses(count);
 					MiscUtil.statusMessage(player, "Set GLOBAL use limit for menu &e" + menu.getName()
-							+ "&- to " + count + ".");
+					                       + "&- to " + count + ".");
 				} else {
 					menu.getUseLimits().setUses(count);
 					MiscUtil.statusMessage(player, "Set PER-PLAYER use limit for menu &e" + menu.getName()
-							+ "&- to " + count + ".");
+					                       + "&- to " + count + ".");
 				}
 			}
 		}
-		
+
 		return true;
 	}
 

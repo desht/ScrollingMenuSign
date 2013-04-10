@@ -1,14 +1,13 @@
 package me.desht.scrollingmenusign.commands;
 
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.SMSPersistence;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class AddMacroCommand extends AbstractCommand {
+public class AddMacroCommand extends SMSAbstractCommand {
 
 	public AddMacroCommand() {
 		super("sms macro add", 2);
