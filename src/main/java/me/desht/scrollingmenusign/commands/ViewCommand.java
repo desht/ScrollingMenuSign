@@ -166,7 +166,6 @@ public class ViewCommand extends SMSAbstractCommand {
 			return getViewCompletions(sender, args[0]);
 		case 2:
 			view = SMSView.getView(args[0]);
-			System.out.println("arg2 = [" + args[1] + "]");
 			return filterPrefix(sender, view.getAttributes().listAttributeKeys(false), args[1]);
 		case 3:
 			view = SMSView.getView(args[0]);

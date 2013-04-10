@@ -1,7 +1,6 @@
 package me.desht.scrollingmenusign;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,7 +55,6 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			this.lore.add(MiscUtil.parseColourSpec(l));
 		}
 		this.uses = new SMSRemainingUses(this);
-		for (String l : this.lore) { System.out.println("lore = " + l); }
 	}
 
 	public SMSMenuItem(SMSMenu menu, ConfigurationSection node) throws SMSException {

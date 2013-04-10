@@ -250,7 +250,6 @@ public class SMSBlockListener extends SMSListenerBase {
 	private boolean checkForGSView(Block b, BlockFace face) {
 		Location viewLoc = b.getRelative(face).getLocation();
 		SMSView view = SMSView.getViewForLocation(viewLoc);
-		System.out.println("check for view at " + viewLoc + " got " + view);
 		if (view == null || !(view instanceof SMSGlobalScrollableView)) {
 			return false;
 		}

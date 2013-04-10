@@ -71,9 +71,6 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	@Override
 	public void pushMenu(String playerName, SMSMenu newActive) {
 		super.pushMenu(playerName, newActive);
-
-		System.out.println("global pushed, pos = " + getScrollPos());
-		System.out.println("menu item = " + getActiveItemLabel(null, getScrollPos()));
 		updateTooltipSign();
 	}
 
