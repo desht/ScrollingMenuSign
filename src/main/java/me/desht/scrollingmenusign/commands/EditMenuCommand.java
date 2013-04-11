@@ -75,6 +75,8 @@ public class EditMenuCommand extends SMSAbstractCommand {
 		}
 
 		SMSMenuItem newItem = new SMSMenuItem(menu, label, command, message, iconMat, lore.toArray(new String[lore.size()]));
+		newItem.setUseLimits(currentItem.getUseLimits());
+
 		if (hasOption("move")) {
 			int newPos = getIntOption("move");
 			if (newPos < 1 || newPos > menu.getItemCount()) {
