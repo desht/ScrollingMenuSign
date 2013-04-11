@@ -1,7 +1,6 @@
 package me.desht.scrollingmenusign.commands;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import me.desht.dhutils.MessagePager;
@@ -12,7 +11,6 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
-import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
@@ -45,9 +43,6 @@ public class ViewCommand extends SMSAbstractCommand {
 			notFromConsole(sender);
 			Player player = (Player)sender;
 			view = SMSView.getTargetedView(player);
-			if (view == null) {
-				view = SMSMapView.getHeldMapView(player);
-			}
 		}
 
 		if (view == null) {
@@ -165,10 +160,10 @@ public class ViewCommand extends SMSAbstractCommand {
 		case 1:
 			return getViewCompletions(sender, args[0]);
 		case 2:
-			view = SMSView.getView(args[0]);
+			view = getView(sender, args[0]);
 			return filterPrefix(sender, view.getAttributes().listAttributeKeys(false), args[1]);
 		case 3:
-			view = SMSView.getView(args[0]);
+			view = getView(sender, args[0]);
 			Object o = view.getAttribute(args[1]);
 			List<String> res = new ArrayList<String>();
 			if (o instanceof Enum<?>) {
@@ -184,6 +179,14 @@ public class ViewCommand extends SMSAbstractCommand {
 			return filterPrefix(sender, res, args[2]);
 		default:
 			return noCompletions(sender);
+		}
+	}
+
+	private SMSView getView(CommandSender sender, String viewName) {
+		if (viewName.equals(".") && sender instanceof Player) {
+			return SMSView.getTargetedView((Player) sender, true);
+		} else {
+			return SMSView.getView(viewName);
 		}
 	}
 }

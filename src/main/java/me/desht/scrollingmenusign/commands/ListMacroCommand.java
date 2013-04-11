@@ -1,7 +1,10 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.List;
+
 import me.desht.dhutils.MessagePager;
 import me.desht.scrollingmenusign.SMSMacro;
+import me.desht.scrollingmenusign.SMSMenu;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -37,4 +40,14 @@ public class ListMacroCommand extends SMSAbstractCommand {
 		return true;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		switch (args.length) {
+		case 1:
+			return getMacroCompletions(sender, args[0]);
+		default:
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+	}
 }

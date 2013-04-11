@@ -1,5 +1,8 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.Arrays;
+import java.util.List;
+
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
@@ -145,4 +148,14 @@ public class GiveCommand extends SMSAbstractCommand {
 		}
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		switch (args.length) {
+		case 1:
+			return filterPrefix(sender, Arrays.asList(new String[] { "book", "map" }), args[0]);
+		default:
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+	}
 }

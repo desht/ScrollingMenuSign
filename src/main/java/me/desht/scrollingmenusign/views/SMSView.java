@@ -29,6 +29,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.DirectoryStructure;
+import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
@@ -41,6 +42,7 @@ import me.desht.scrollingmenusign.enums.ViewJustification;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -846,15 +848,32 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 */
 	public static SMSView getTargetedView(Player player, boolean complain) {
 		SMSView v = null;
-		try {
-			Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
-			v =  getViewForLocation(b.getLocation());
-		} catch (IllegalStateException e) {
-			// the block iterator can throw this sometimes - we can ignore it
+
+		if (player.getItemInHand().getType() == Material.MAP) {
+			// map
+			v = SMSMapView.getHeldMapView(player);
 		}
+
+		if (v == null && PopupBook.holding(player)) {
+			// popup book (spout/inventory)
+			PopupBook book = PopupBook.get(player);
+			v = book.getView();
+		}
+
+		if (v == null) {
+			// targeted view (sign/multisign/redstone)
+			try {
+				Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
+				v =  getViewForLocation(b.getLocation());
+			} catch (IllegalStateException e) {
+				// the block iterator can throw this sometimes - we can ignore it
+			}
+		}
+
 		if (v == null && complain) {
 			throw new SMSException("You are not looking at a menu view.");
 		}
+
 		return v;
 	}
 

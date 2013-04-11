@@ -357,7 +357,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		}
 	}
 
-	private void setupCustomFonts() {
+	public void setupCustomFonts() {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
 		for (File f : DirectoryStructure.getFontsFolder().listFiles()) {

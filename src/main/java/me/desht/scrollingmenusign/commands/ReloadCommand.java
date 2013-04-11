@@ -1,8 +1,12 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.Arrays;
+import java.util.List;
+
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistence;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
@@ -24,6 +28,7 @@ public class ReloadCommand extends SMSAbstractCommand {
 		boolean loadConfig = false;
 		boolean loadAll = false;
 		boolean loadVariables = false;
+		boolean loadFonts = false;
 
 		if (args.length == 0) {
 			loadAll = true;
@@ -39,6 +44,8 @@ public class ReloadCommand extends SMSAbstractCommand {
 					loadVariables = true;
 				} else if (args[i].startsWith("vi")) {
 					loadViews = true;
+				} else if (args[i].startsWith("fo")) {
+					loadFonts = true;
 				}
 			}
 		}
@@ -59,9 +66,23 @@ public class ReloadCommand extends SMSAbstractCommand {
 		if (loadAll || loadVariables) {
 			SMSPersistence.loadVariables();
 		}
+		if (loadAll || loadFonts) {
+			ScrollingMenuSign.getInstance().setupCustomFonts();
+		}
 
 		MiscUtil.statusMessage(sender, "Reload complete.");
 
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		if (args.length >= 1) {
+			List<String> opts = Arrays.asList(new String[] { "menus", "macros", "config", "views", "vars", "fonts" });
+			return filterPrefix(sender, opts, args[args.length - 1]);
+		} else {
+			showUsage(sender);
+			return noCompletions(sender);
+		}
 	}
 }

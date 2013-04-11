@@ -27,6 +27,8 @@ import org.bukkit.entity.Player;
  *
  */
 public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitable {
+	public static final String FAKE_SPACE = "\u203f";
+
 	private String name;
 	private String title;
 	private String owner;
@@ -314,7 +316,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	public SMSMenuItem getItem(String wanted, boolean mustExist) {
 		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
 
-		Integer idx = itemMap.get(ChatColor.stripColor(wanted));
+		Integer idx = itemMap.get(ChatColor.stripColor(wanted.replace(FAKE_SPACE, " ")));
 		if (idx == null) {
 			if (mustExist) {
 				throw new SMSException("No such item '" + wanted + "' in menu " + getName());
@@ -338,7 +340,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		try {
 			index = Integer.parseInt(wanted);
 		} catch (NumberFormatException e) {
-			String l = ChatColor.stripColor(wanted);
+			String l = ChatColor.stripColor(wanted.replace(FAKE_SPACE, " "));
 			if (itemMap.containsKey(l))
 				index = itemMap.get(l);
 		}

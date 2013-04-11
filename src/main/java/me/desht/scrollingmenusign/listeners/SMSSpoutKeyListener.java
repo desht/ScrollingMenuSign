@@ -31,7 +31,7 @@ public class SMSSpoutKeyListener extends SMSListenerBase {
 
 	public SMSSpoutKeyListener(ScrollingMenuSign plugin) {
 		super(plugin);
-		
+
 		SpoutUtils.loadKeyDefinitions();
 	}
 
@@ -54,7 +54,7 @@ public class SMSSpoutKeyListener extends SMSListenerBase {
 		PopupScreen s  = player.getMainScreen().getActivePopup();
 		if (s != null && !(s instanceof SMSGenericPopup))
 			return;
-			
+
 		try {
 			// see if any existing spout view has a mapping for the pressed keys
 			if (SMSSpoutView.handleKeypress(player, pressed)) {
@@ -66,8 +66,8 @@ public class SMSSpoutKeyListener extends SMSListenerBase {
 			if (view != null) {	
 				SMSUserAction action = getAction(pressed);
 				LogUtils.fine("spout keypress event: keys pressed = " + pressed
-						+ ", view = " + view.getName() + ", menu = " + view.getActiveMenu(player.getName()).getName()
-						+ ", action = " + action);
+				              + ", view = " + view.getName() + ", menu = " + view.getActiveMenu(player.getName()).getName()
+				              + ", action = " + action);
 				action.execute(player, view);
 			}
 		} catch (SMSException e) {
@@ -84,29 +84,22 @@ public class SMSSpoutKeyListener extends SMSListenerBase {
 
 	private SMSView findViewForPlayer(SpoutPlayer player) {
 		SMSView view = null;
-		
+
 		// is there an open spout view for this player?
 		PopupScreen popup = player.getMainScreen().getActivePopup();
 		if (popup != null && popup instanceof SpoutViewPopup) {
 			view = ((SpoutViewPopup) popup).getView();
 		}
 
-		// check for a map view...
-		if (view == null) {
-			// check for a map view...
-			if (player.getItemInHand().getType() == Material.MAP) {
-				view = SMSMapView.getViewForId(player.getItemInHand().getDurability());	
-			}
-		}
-		// check if user is looking at a sign view...
+		// check if user is targetting any other kind of view
 		if (view == null) {
 			view = SMSView.getTargetedView(player);
 		}
-		
+
 		return view;
 	}
-	
-	
+
+
 	private SMSSpoutKeyMap getPressedKeys(Player player) {
 		if (!pressedKeys.containsKey(player.getName())) {
 			pressedKeys.put(player.getName(), new SMSSpoutKeyMap());

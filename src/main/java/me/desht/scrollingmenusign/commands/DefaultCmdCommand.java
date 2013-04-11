@@ -37,6 +37,7 @@ public class DefaultCmdCommand extends SMSAbstractCommand {
 		if (args.length == 1) {
 			return getMenuCompletions(plugin, sender, args[0]);
 		} else {
+			showUsage(sender);
 			return noCompletions(sender);
 		}
 	}

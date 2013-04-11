@@ -42,8 +42,11 @@ public class DeleteMenuCommand extends SMSAbstractCommand {
 
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
-		String prefix = args.length > 0 ? args[0] : "";
-		return getMenuCompletions(plugin, sender, prefix);
+		if (args.length == 1) {
+			return getMenuCompletions(plugin, sender, args[0]);
+		} else {
+			showUsage(sender);
+			return noCompletions(sender);
+		}
 	}
-
 }

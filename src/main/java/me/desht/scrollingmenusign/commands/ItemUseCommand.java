@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.List;
+
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -82,5 +84,16 @@ public class ItemUseCommand extends SMSAbstractCommand {
 			throw new SMSException("Invalid numeric argument: " + s);
 		}
 		return count;
+	}
+
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		switch (args.length) {
+		case 1:
+			return getMenuCompletions(plugin, sender, args[0]);
+		default:
+			showUsage(sender);
+			return noCompletions(sender);
+		}
 	}
 }

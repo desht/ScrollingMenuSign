@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.List;
+
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.PopupBook;
@@ -38,16 +40,10 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 			} catch (IllegalArgumentException e) {
 				throw new SMSException(e.getMessage());
 			}
-		} else if (sender instanceof Player && (view = SMSMapView.getHeldMapView((Player)sender)) != null) {
-			// detaching a map view - remove any custom item name from the map
-			Player player = (Player)sender;
-			((SMSMapView)view).removeMapItemName(player.getItemInHand());
-		} else if (sender instanceof Player && PopupBook.holding((Player)sender)) {
-			view = PopupBook.get((Player) sender).getView();
 		} else if (args.length == 0) {
 			// detaching a view that the player is looking at?
 			notFromConsole(sender);
-			view = SMSView.getTargetedView((Player) sender);
+			view = SMSView.getTargetedView((Player) sender, true);
 		}
 
 		if (view == null) {
@@ -60,5 +56,15 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 		}
 
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		switch (args.length) {
+		case 1:
+			return getViewCompletions(sender, args[0]);
+		default:
+			return noCompletions(sender);
+		}
 	}
 }

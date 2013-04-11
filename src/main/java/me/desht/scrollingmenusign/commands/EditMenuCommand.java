@@ -92,4 +92,17 @@ public class EditMenuCommand extends SMSAbstractCommand {
 		return true;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		switch (args.length) {
+		case 1:
+			return getMenuCompletions(plugin, sender, args[0]);
+		case 2:
+			SMSMenu menu = SMSMenu.getMenu(args[0]);
+			return getMenuItemCompletions(sender, menu, args[1]);
+		default:
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+	}
 }

@@ -4,16 +4,12 @@ import java.util.List;
 
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.block.MaterialWithData;
-import me.desht.scrollingmenusign.PopupBook;
-import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
-import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -28,7 +24,7 @@ public class ShowMenuCommand extends SMSAbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {	
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
 
 		SMSMenu menu = null;
@@ -38,19 +34,7 @@ public class ShowMenuCommand extends SMSAbstractCommand {
 		} else {
 			notFromConsole(sender);
 			Player player = (Player) sender;
-			view = SMSView.getTargetedView(player);
-			if (view == null) {
-				if (player.getItemInHand().getType() == Material.MAP) {		// map
-					short mapId = player.getItemInHand().getDurability();
-					view = SMSMapView.getViewForId(mapId);
-				} else if (PopupBook.holding(player)) {
-					PopupBook book = PopupBook.get(player);
-					view = book.getView();
-				}
-			}
-			if (view == null) {
-				throw new SMSException("No suitable view found.");
-			}
+			view = SMSView.getTargetedView(player, true);
 			menu = view.getActiveMenu(player.getName());
 		}
 

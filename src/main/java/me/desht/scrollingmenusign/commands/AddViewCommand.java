@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.List;
+
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
@@ -113,6 +115,16 @@ public class AddViewCommand extends SMSAbstractCommand {
 		}
 
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		if (args.length == 1) {
+			return getMenuCompletions(plugin, sender, args[0]);
+		} else {
+			showUsage(sender);
+			return noCompletions(sender);
+		}
 	}
 
 	private void interactiveCreation(CommandSender sender, String viewName, SMSMenu menu, String viewType) {

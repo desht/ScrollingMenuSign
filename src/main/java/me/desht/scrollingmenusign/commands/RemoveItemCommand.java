@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.List;
+
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
@@ -45,4 +47,17 @@ public class RemoveItemCommand extends SMSAbstractCommand {
 		return true;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		switch (args.length) {
+		case 1:
+			return getMenuCompletions(plugin, sender, args[0]);
+		case 2:
+			SMSMenu menu = SMSMenu.getMenu(args[0]);
+			return getMenuItemCompletions(sender, menu, args[1]);
+		default:
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+	}
 }

@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.List;
+
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.SMSPersistence;
@@ -12,7 +14,7 @@ public class RemoveMacroCommand extends SMSAbstractCommand {
 	public RemoveMacroCommand() {
 		super("sms macro remove", 1, 2);
 		setPermissionNode("scrollingmenusign.commands.macro");
-		setUsage("/sms macro remove <macro> [<command>]");
+		setUsage("/sms macro remove <macro> [<command-index>]");
 	}
 
 	@Override
@@ -37,4 +39,15 @@ public class RemoveMacroCommand extends SMSAbstractCommand {
 		return true;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		switch (args.length) {
+		case 1:
+			return getMacroCompletions(sender, args[0]);
+		default:
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+		// TODO handle 2-argument case
+	}
 }
