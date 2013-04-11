@@ -183,7 +183,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @see me.desht.scrollingmenusign.Freezable#getName()
 	 */
 	public String getName() {
-		return name;	
+		return name;
 	}
 
 	/**
@@ -680,10 +680,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			SMSPersistence.save(this);
 	}
 
-	public void screenClosed() {
-		// TODO Auto-generated method stub
-	}
-
 	/**
 	 * Register this view in the global view list and get it saved to disk.
 	 */
@@ -929,10 +925,10 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			LogUtils.fine("check player " + player.getName() + " in perm group " + group + ": " + ok);
 			return ok;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Require that the given player is allowed to use this view, and throw a SMSException if not.
 	 * 
