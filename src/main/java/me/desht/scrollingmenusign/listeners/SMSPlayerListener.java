@@ -89,7 +89,8 @@ public class SMSPlayerListener extends SMSListenerBase {
 			SMSUserAction action = SMSUserAction.getAction(event);
 			if (action != null) {
 				action.execute(player, view);
-				if ((action == SMSUserAction.SCROLLDOWN || action == SMSUserAction.SCROLLUP) && event instanceof Cancellable) {
+				if ((action == SMSUserAction.SCROLLDOWN || action == SMSUserAction.SCROLLUP) &&
+						player.isSneaking() && event instanceof Cancellable) {
 					// Bukkit 1.5.1+ PlayerItemHeldEvent is now cancellable
 					((Cancellable) event).setCancelled(true);
 				}

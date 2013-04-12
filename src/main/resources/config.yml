@@ -5,10 +5,10 @@ sms:
             normal: execute
             sneak: none
         wheeldown:
-            normal: none
+            normal: scrolldown
             sneak: scrolldown
         wheelup:
-            normal: none
+            normal: scrollup
             sneak: scrollup
         rightclick:
             normal: scrolldown
