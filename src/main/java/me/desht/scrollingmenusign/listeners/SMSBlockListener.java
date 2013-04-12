@@ -116,38 +116,40 @@ public class SMSBlockListener extends SMSListenerBase {
 			LogUtils.fine("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getNativeMenu().getName());
 			if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
 				event.setCancelled(true);
-			} else if (b.getState().getData() instanceof Attachable) {
-				Attachable a = (Attachable)	b.getState().getData();
-				Block attachedBlock = b.getRelative(a.getAttachedFace());
-				if (attachedBlock.getTypeId() == 0) {
-					// attached to air? looks like the sign (or other attachable) has become detached
-					LogUtils.info("Attachable view block " + view.getName() + " @ " + loc + " has become detached: deleting");
-					view.deletePermanent();
-				}
+			} else if (isAttachableDetached(b)) {
+				// attached to air? looks like the sign (or other attachable) has become detached
+				LogUtils.info("Attachable view block " + view.getName() + " @ " + loc + " has become detached: deleting");
+				view.deletePermanent();
 			}
 		} else if (RedstoneControlSign.checkForSign(loc)) {
 			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
 			if (!rcSign.isAttached()) {
 				rcSign.delete();
 				LogUtils.info("Redstone control sign for " + rcSign.getView().getName() + " @ " + loc + " has become detached: deleting");
-				return;
-			}
-			LogUtils.fine("block physics event @ " + b + " power=" + b.getBlockPower() + " prev-power=" + rcSign.getLastPowerLevel());
-			if (b.getBlockPower() > 0 && b.getBlockPower() > rcSign.getLastPowerLevel()) {
-				rcSign.processActions();
-			}
-			rcSign.setLastPowerLevel(b.getBlockPower());
-		} else if (SMSGlobalScrollableView.getViewForTooltipLocation(loc) != null) {
-			BlockState bs = b.getState();
-			if (bs.getData() instanceof Attachable) {
-				Attachable a = (Attachable)	b.getState().getData();
-				Block attachedBlock = b.getRelative(a.getAttachedFace());
-				if (attachedBlock.getTypeId() == 0) {
-					SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(loc);
-					LogUtils.info("Tooltip sign for " + gsv.getName() + " @ " + loc + " has become detached: deleting");
-					gsv.removeTooltipSign();
+			} else {
+				LogUtils.fine("block physics event @ " + b + " power=" + b.getBlockPower() + " prev-power=" + rcSign.getLastPowerLevel());
+				if (b.getBlockPower() > 0 && b.getBlockPower() > rcSign.getLastPowerLevel()) {
+					rcSign.processActions();
 				}
+				rcSign.setLastPowerLevel(b.getBlockPower());
 			}
+		} else if (SMSGlobalScrollableView.getViewForTooltipLocation(loc) != null) {
+			if (isAttachableDetached(b)) {
+				SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(loc);
+				LogUtils.info("Tooltip sign for " + gsv.getName() + " @ " + loc + " has become detached: deleting");
+				gsv.removeTooltipSign();
+			}
+		}
+	}
+
+	private boolean isAttachableDetached(Block b) {
+		BlockState bs = b.getState();
+		if (bs instanceof Attachable) {
+			Attachable a = (Attachable)	b.getState().getData();
+			Block attachedBlock = b.getRelative(a.getAttachedFace());
+			return !attachedBlock.getType().isSolid();
+		} else {
+			return false;
 		}
 	}
 

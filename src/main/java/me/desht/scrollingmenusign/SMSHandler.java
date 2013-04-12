@@ -17,16 +17,16 @@ public interface SMSHandler {
 	 * @return		The menu
 	 */
 	public SMSMenu createMenu(String name, String title, String owner);
-	
-	/**
-	 * Creates a new menu as a copy of an existing menu
-	 * @param name		Unique name of the menu
-	 * @param otherMenu	The menu to copy
-	 * @param owner		Owner of the menu
-	 * @return			The menu
-	 */
-	public SMSMenu createMenu(String name, SMSMenu otherMenu, String owner);
-	
+
+	//	/**
+	//	 * Creates a new menu as a copy of an existing menu
+	//	 * @param name		Unique name of the menu
+	//	 * @param otherMenu	The menu to copy
+	//	 * @param owner		Owner of the menu
+	//	 * @return			The menu
+	//	 */
+	//	public SMSMenu createMenu(String name, SMSMenu otherMenu, String owner);
+
 	/**
 	 * Deletes a menu, leaving its signs as they are
 	 * 
@@ -34,7 +34,7 @@ public interface SMSHandler {
 	 * @throws SMSException	if the menu does not exist
 	 */
 	public void deleteMenu(String name) throws SMSException;
-	
+
 	/**
 	 * Delete a menu, carrying out an action on each of the menu's signs
 	 * @param menuName	Name of the menu to delete
@@ -58,7 +58,7 @@ public interface SMSHandler {
 	 * @return		true if the menu exists, false if it does not
 	 */
 	public boolean checkMenu(String name);
-	
+
 	/**
 	 * Get the name of the menu which owns the sign at <b>loc</b>
 	 * @param loc	The location of the sign

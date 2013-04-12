@@ -41,11 +41,11 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 
 		Location signLoc = null;
 		short mapId = -1;
-		String owner = "&console";	// dummy owner if menu created from console
+		String owner = null;
 
-		boolean autoCreate = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autocreate_views");
+		boolean autoCreateView = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autocreate_views");
 
-		if (autoCreate && sender instanceof Player) {
+		if (autoCreateView && sender instanceof Player) {
 			Player player = (Player) sender;
 			owner = sender.getName();
 			Block b = null;
@@ -53,7 +53,7 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 				b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
 			} catch (IllegalStateException e) {
 				// ignore
-			}				
+			}
 			if (b != null && (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN)) {
 				if (handler.getMenuNameAt(b.getLocation()) == null) {
 					PermissionUtils.requirePerms(sender, "scrollingmenusign.use.sign");

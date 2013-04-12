@@ -28,18 +28,18 @@ public class SMSHandlerImpl implements SMSHandler {
 		return menu;
 	}
 
-	@Override
-	public SMSMenu createMenu(String name, SMSMenu otherMenu, String owner) {
-		SMSMenu menu;
-		try {
-			menu = new SMSMenu(otherMenu, name, owner);
-		} catch (SMSException e) {
-			// should not get here
-			return null;
-		}
-		SMSMenu.registerMenu(name, menu, false);
-		return menu;
-	}
+//	@Override
+//	public SMSMenu createMenu(String name, SMSMenu otherMenu, String owner) {
+//		SMSMenu menu;
+//		try {
+//			menu = new SMSMenu(otherMenu, name, owner);
+//		} catch (SMSException e) {
+//			// should not get here
+//			return null;
+//		}
+//		SMSMenu.registerMenu(name, menu, false);
+//		return menu;
+//	}
 
 	@Override
 	public SMSMenu getMenu(String name) throws SMSException {

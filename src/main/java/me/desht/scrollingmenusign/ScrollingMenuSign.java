@@ -1,10 +1,8 @@
 package me.desht.scrollingmenusign;
 
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,15 +12,38 @@ import java.util.Map.Entry;
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.Cost;
-import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.responsehandler.ResponseHandler;
-import me.desht.scrollingmenusign.commandlets.*;
-import me.desht.scrollingmenusign.commands.*;
+import me.desht.scrollingmenusign.commandlets.CloseSubmenuCommandlet;
+import me.desht.scrollingmenusign.commandlets.CommandletManager;
+import me.desht.scrollingmenusign.commandlets.PopupCommandlet;
+import me.desht.scrollingmenusign.commandlets.SubmenuCommandlet;
+import me.desht.scrollingmenusign.commands.AddItemCommand;
+import me.desht.scrollingmenusign.commands.AddMacroCommand;
+import me.desht.scrollingmenusign.commands.AddViewCommand;
+import me.desht.scrollingmenusign.commands.CreateMenuCommand;
+import me.desht.scrollingmenusign.commands.DebugCommand;
+import me.desht.scrollingmenusign.commands.DeleteMenuCommand;
+import me.desht.scrollingmenusign.commands.EditMenuCommand;
+import me.desht.scrollingmenusign.commands.FontCommand;
+import me.desht.scrollingmenusign.commands.GetConfigCommand;
+import me.desht.scrollingmenusign.commands.GiveCommand;
+import me.desht.scrollingmenusign.commands.ItemUseCommand;
+import me.desht.scrollingmenusign.commands.ListMacroCommand;
+import me.desht.scrollingmenusign.commands.ListMenusCommand;
+import me.desht.scrollingmenusign.commands.MenuCommand;
+import me.desht.scrollingmenusign.commands.PageCommand;
+import me.desht.scrollingmenusign.commands.ReloadCommand;
+import me.desht.scrollingmenusign.commands.RemoveItemCommand;
+import me.desht.scrollingmenusign.commands.RemoveMacroCommand;
+import me.desht.scrollingmenusign.commands.RemoveViewCommand;
+import me.desht.scrollingmenusign.commands.SaveCommand;
+import me.desht.scrollingmenusign.commands.SetConfigCommand;
+import me.desht.scrollingmenusign.commands.VarCommand;
+import me.desht.scrollingmenusign.commands.ViewCommand;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.listeners.SMSBlockListener;
 import me.desht.scrollingmenusign.listeners.SMSEntityListener;
@@ -45,8 +66,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 import org.mcstats.Metrics.Graph;
 import org.mcstats.Metrics.Plotter;
-
-import com.google.common.base.Joiner;
 
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
@@ -253,14 +272,13 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		return (permission != null);
 	}
 
-
 	private void registerCommands() {
 		cmds.registerCommand(new AddItemCommand());
 		cmds.registerCommand(new AddMacroCommand());
 		cmds.registerCommand(new AddViewCommand());
 		cmds.registerCommand(new CreateMenuCommand());
-		cmds.registerCommand(new DebugCommand());
-		cmds.registerCommand(new DefaultCmdCommand());
+//		cmds.registerCommand(new DebugCommand());
+//		cmds.registerCommand(new DefaultCmdCommand());
 		cmds.registerCommand(new DeleteMenuCommand());
 		cmds.registerCommand(new EditMenuCommand());
 		cmds.registerCommand(new FontCommand());
@@ -269,7 +287,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		cmds.registerCommand(new ItemUseCommand());
 		cmds.registerCommand(new ListMacroCommand());
 		cmds.registerCommand(new ListMenusCommand());
-		cmds.registerCommand(new MenuTitleCommand());
+		cmds.registerCommand(new MenuCommand());
+//		cmds.registerCommand(new MenuTitleCommand());
 		cmds.registerCommand(new PageCommand());
 		cmds.registerCommand(new ReloadCommand());
 		cmds.registerCommand(new RemoveItemCommand());
@@ -277,8 +296,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		cmds.registerCommand(new RemoveViewCommand());
 		cmds.registerCommand(new SaveCommand());
 		cmds.registerCommand(new SetConfigCommand());
-		cmds.registerCommand(new ShowMenuCommand());
-		cmds.registerCommand(new SortMenuCommand());
+//		cmds.registerCommand(new ShowMenuCommand());
+//		cmds.registerCommand(new SortMenuCommand());
 		cmds.registerCommand(new VarCommand());
 		cmds.registerCommand(new ViewCommand());
 	}

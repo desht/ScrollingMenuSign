@@ -10,6 +10,9 @@ import java.util.Observable;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import me.desht.dhutils.AttributeCollection;
+import me.desht.dhutils.ConfigurationListener;
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
@@ -26,18 +29,22 @@ import org.bukkit.entity.Player;
  * @author des
  *
  */
-public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitable {
+public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitable, ConfigurationListener {
 	public static final String FAKE_SPACE = "\u203f";
+	public static final String CONSOLE_OWNER = "[console]";
 
-	private String name;
-	private String title;
-	private String owner;
-	private List<SMSMenuItem> items;
-	private Map<String,Integer> itemMap;
-	private boolean autosave;
-	private boolean autosort;
-	private SMSRemainingUses uses;
-	private String defaultCommand;
+	private static final String AUTOSORT = "autosort";
+	private static final String DEFAULT_CMD = "defcmd";
+	private static final String OWNER = "owner";
+	private static final String TITLE = "title";
+
+	private final String name;
+	private String title;  // cache colour-parsed version of the title attribute
+	private final List<SMSMenuItem> items = new ArrayList<SMSMenuItem>();
+	private final Map<String,Integer> itemMap = new HashMap<String, Integer>();
+	private final SMSRemainingUses uses;
+
+	private final AttributeCollection attributes;	// menu attributes to be displayed and/or edited by players
 
 	private static final Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
 
@@ -45,34 +52,19 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * Construct a new menu
 	 *
 	 * @param plugin	Reference to the ScrollingMenuSign plugin
-	 * @param n			Name of the menu
-	 * @param t			Title of the menu
-	 * @param o			Owner of the menu
+	 * @param name			Name of the menu
+	 * @param title			Title of the menu
+	 * @param owner			Owner of the menu
 	 * @param l			Location of the menu's first sign (may be null)
 	 * @throws SMSException If there is already a menu at this location
 	 */
-	SMSMenu(String n, String t, String o) throws SMSException {
-		initCommon(n, t, o);
-		uses = new SMSRemainingUses(this);
-	}
-
-	/**
-	 * Construct a new menu which is a copy of an existing menu
-	 *
-	 * @param plugin	Reference to the ScrollingMenuSign plugin
-	 * @param other		The existing menu to be copied
-	 * @param n			Name of the menu
-	 * @param o			Owner of the menu
-	 * @param l			Location of the menu's first sign (may be null)
-	 * @throws SMSException  If there is already a menu at this location
-	 */
-	SMSMenu(SMSMenu other, String n, String o) throws SMSException {
-		initCommon(n, other.getTitle(), o);
-		uses = new SMSRemainingUses(this);
-
-		for (SMSMenuItem item: other.getItems()) {
-			addItem(item.getLabel(), item.getCommand(), item.getMessage());
-		}
+	SMSMenu(String name, String title, String owner) throws SMSException {
+		this.name = name;
+		this.uses = new SMSRemainingUses(this);
+		this.attributes = new AttributeCollection(this);
+		registerAttributes();
+		setAttribute(OWNER, owner == null ? CONSOLE_OWNER : owner);
+		setAttribute(TITLE, title);
 	}
 
 	/**
@@ -87,13 +79,21 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		SMSPersistence.mustHaveField(node, "title");
 		SMSPersistence.mustHaveField(node, "owner");
 
-		initCommon(node.getString("name"),
-		           MiscUtil.parseColourSpec(node.getString("title")),
-		           node.getString("owner"));
+		this.name =  node.getString("name");
+		this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
+		this.attributes = new AttributeCollection(this);
+		registerAttributes();
+		for (String k : node.getKeys(false)) {
+			if (!node.isConfigurationSection(k) && attributes.hasAttribute(k)) {
+				setAttribute(k, node.getString(k));
+			}
+		}
 
-		autosort = node.getBoolean("autosort", false);
-		uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
-		defaultCommand = node.getString("defaultCommand", "");
+		// migration of owner field from pre-2.0.0
+		String owner = attributes.get(OWNER).toString();
+		if (owner.equals("&console")) {
+			setAttribute(OWNER, CONSOLE_OWNER);
+		}
 
 		List<Map<String,Object>> items = (List<Map<String,Object>>) node.getList("items");
 		for (Map<String,Object> item : items) {
@@ -108,16 +108,18 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		}
 	}
 
-	private void initCommon(String n, String t, String o) {
-		items = new ArrayList<SMSMenuItem>();
-		itemMap = new HashMap<String, Integer>();
-		name = n;
-		title = t;
-		owner = o;
-		autosave = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autosave", true);
-		autosort = false;
-		uses = new SMSRemainingUses(this);
-		defaultCommand = "";
+	public void setAttribute(String k, String val) throws SMSException {
+		if (!attributes.contains(k)) {
+			throw new SMSException("No such view attribute: " + k);
+		}
+		attributes.set(k, val);
+	}
+
+	private void registerAttributes() {
+		attributes.registerAttribute(AUTOSORT, false);
+		attributes.registerAttribute(DEFAULT_CMD, "");
+		attributes.registerAttribute(OWNER, "");
+		attributes.registerAttribute(TITLE, "");
 	}
 
 	public Map<String, Object> freeze() {
@@ -127,16 +129,18 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		for (SMSMenuItem item : items) {
 			l.add(item.freeze());
 		}
-
+		for (String key : attributes.listAttributeKeys(false)) {
+			map.put(key, attributes.get(key).toString());
+		}
 		map.put("name", getName());
-		map.put("title", MiscUtil.unParseColourSpec(getTitle()));
-		map.put("owner", getOwner());
 		map.put("items", l);
-		map.put("autosort", autosort);
 		map.put("usesRemaining", uses.freeze());
-		map.put("defaultCommand", defaultCommand);
 
 		return map;
+	}
+
+	public AttributeCollection getAttributes() {
+		return attributes;
 	}
 
 	/**
@@ -163,10 +167,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param newTitle	The new title string
 	 */
 	public void setTitle(String newTitle) {
-		title = newTitle;
-		setChanged();
-
-		autosave();
+		attributes.set(TITLE, title);
 	}
 
 	/**
@@ -175,7 +176,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @return	Name of the menu's owner
 	 */
 	public String getOwner() {
-		return owner;
+		return attributes.get(OWNER).toString();
 	}
 
 	/**
@@ -184,18 +185,18 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param owner	Name of the menu's owner
 	 */
 	public void setOwner(String owner) {
-		this.owner = owner;
-
-		autosave();
+		attributes.set(OWNER, owner);
 	}
 
 	/**
 	 * Get the menu's autosave status - will menus be automatically saved to disk when modified?
 	 *
 	 * @return	true or false
+	 * @deprecated always true now, not necessary to use anymore
 	 */
+	@Deprecated
 	public boolean isAutosave() {
-		return autosave;
+		return true;
 	}
 
 	/**
@@ -203,13 +204,11 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * 
 	 * @param autosave	true or false
 	 * @return			the previous autosave status - true or false
+	 * @deprecated method is a no-op now, autosave is always true
 	 */
+	@Deprecated
 	public boolean setAutosave(boolean autosave) {
-		boolean prev = this.autosave;
-		this.autosave = autosave;
-		if (autosave)
-			autosave();
-		return prev;
+		return true;
 	}
 
 	/**
@@ -218,7 +217,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @return	true or false
 	 */
 	public boolean isAutosort() {
-		return autosort;
+		return (Boolean) attributes.get(AUTOSORT);
 	}
 
 	/**
@@ -227,9 +226,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param autosort	true or false
 	 */
 	public void setAutosort(boolean autosort) {
-		this.autosort = autosort;
-
-		autosave();
+		setAttribute(AUTOSORT, Boolean.toString(autosort));
 	}
 
 	/**
@@ -239,7 +236,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @return	The default command string
 	 */
 	public String getDefaultCommand() {
-		return defaultCommand;
+		return attributes.get(DEFAULT_CMD).toString();
 	}
 
 	/**
@@ -249,9 +246,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param defaultCommand
 	 */
 	public void setDefaultCommand(String defaultCommand) {
-		this.defaultCommand = defaultCommand;
-
-		autosave();
+		setAttribute(DEFAULT_CMD, defaultCommand);
 	}
 
 	/**
@@ -403,7 +398,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 			rebuildItemMap();
 		}
 
-		if (autosort) {
+		if (isAutosort()) {
 			Collections.sort(items);
 			if (pos <= items.size()) rebuildItemMap();
 		}
@@ -579,7 +574,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	public void autosave() {
 		// we only save menus which have been registered via SMSMenu.addMenu()
-		if (autosave && SMSMenu.checkForMenu(getName()))
+		if (SMSMenu.checkForMenu(getName()))
 			SMSPersistence.save(this);
 	}
 
@@ -738,6 +733,29 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	@Override
 	public String getDescription() {
 		return "menu";
+	}
+
+	@Override
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, List<?> val) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+		if (key.equals(AUTOSORT) && (Boolean)newVal == true) {
+			sortItems();
+		} else if (key.equals(TITLE)) {
+			title = MiscUtil.parseColourSpec(newVal.toString());
+			setChanged();
+			notifyObservers(SMSMenuAction.REPAINT);
+		}
+
+		autosave();
 	}
 
 }

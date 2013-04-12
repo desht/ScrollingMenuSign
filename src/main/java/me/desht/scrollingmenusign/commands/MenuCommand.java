@@ -3,34 +3,33 @@ package me.desht.scrollingmenusign.commands;
 import java.util.List;
 
 import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.block.MaterialWithData;
-import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class ShowMenuCommand extends SMSAbstractCommand {
+public class MenuCommand extends SMSAbstractCommand {
 
-	public ShowMenuCommand() {
-		super("sms show", 0, 1);
-		setPermissionNode("scrollingmenusign.commands.show");
-		setUsage("/sms show <menu-name>");
+	public MenuCommand() {
+		super("sms menu", 0, 3);
+		setPermissionNode("scrollingmenusign.commands.menu");
+		setUsage(new String[] {
+				"/sms menu <menu-name> [<attribute>] [<value>]",
+		});
 		setQuotedArgs(true);
 	}
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
-
-		SMSMenu menu = null;
+		SMSMenu menu;
 		SMSView view = null;
-		if (args.length > 0) {
-			menu = handler.getMenu(args[0]);
+		if (args.length > 0 && !args[0].equals(".")) {
+			menu = SMSMenu.getMenu(args[0]);
 		} else {
 			notFromConsole(sender);
 			Player player = (Player) sender;
@@ -38,36 +37,49 @@ public class ShowMenuCommand extends SMSAbstractCommand {
 			menu = view.getActiveMenu(player.getName());
 		}
 
+		String attr;
+		switch (args.length) {
+		case 0: case 1:
+			showMenuDetails(plugin, sender, menu, view);
+			break;
+		case 2:
+			attr = args[1];
+			MiscUtil.statusMessage(sender, String.format("&e%s.%s&- = &e%s&-", menu.getName(), attr, menu.getAttributes().get(attr).toString()));
+			break;
+		case 3:
+			attr = args[1];
+			String newVal = args[2];
+			menu.getAttributes().set(attr, newVal);
+			MiscUtil.statusMessage(sender, String.format("&e%s.%s&- = &e%s&-", menu.getName(), attr, menu.getAttributes().get(attr).toString()));
+			break;
+		}
+		return true;
+	}
+
+	private void showMenuDetails(Plugin plugin, CommandSender sender, SMSMenu menu, SMSView view) {
 		MessagePager pager = MessagePager.getPager(sender).clear();
-//		String mo = menu.getOwner().isEmpty() ? "(no one)" : menu.getOwner().replace("&", "&&");
-//		pager.add(String.format("Menu &e%s&-, Title \"&f%s&-\", Owner &e%s&-",
-//		                        menu.getName(),  menu.getTitle(), mo));
 		pager.add("Menu: &e" + menu.getName());
+		if (view != null) {
+			pager.add(String.format("(View: &e%s&f)", view.getName()));
+		}
 		for (String k : menu.getAttributes().listAttributeKeys(true)) {
 			pager.add(String.format(MessagePager.BULLET + "&e%s&f = &e%s", k, menu.getAttributes().get(k).toString()));
 		}
 		if (!menu.formatUses(sender).isEmpty()) {
 			pager.add("Uses: &c" + menu.formatUses(sender));
 		}
-		if (!menu.getDefaultCommand().isEmpty()) {
-			pager.add(" Default command: &f" + menu.getDefaultCommand());
-		}
-		if (view != null) {
-			String owner = view.getAttributeAsString("owner", "(no one)");
-			pager.add(String.format("View &e%s&-, Owner &e%s&-", view.getName(), owner));
-		}
 
 		String defIcon = MaterialWithData.get(plugin.getConfig().getString("sms.inv_view.default_icon", "stone")).toString();
 
 		List<SMSMenuItem> items = menu.getItems();
 		int n = 1;
+		pager.add("Menu items:");
 		for (SMSMenuItem item : items) {
 			String message = item.getMessage();
 			String command = item.getCommand().replace(" && ", " &&&& ");
 			String uses = item.formatUses(sender);
 			String icon = item.getIconMaterial().toString();
-			String s = String.format("&e%2d) &f%s &7[%s]", // &e%s&c%s",
-			                         n++, item.getLabel(), command); //, message, item.formatUses(sender));
+			String s = String.format("&e%2d) &f%s &7[%s]", n++, item.getLabel(), command);
 			pager.add(s);
 			if (!message.isEmpty()) pager.add("    &9Feedback: &e" + message);
 			if (!uses.isEmpty()) pager.add("    &9Uses: &e" + uses);
@@ -79,14 +91,5 @@ public class ShowMenuCommand extends SMSAbstractCommand {
 		}
 
 		pager.showPage();
-
-		return true;
 	}
-
-	@Override
-	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
-		String prefix = args.length > 0 ? args[0] : "";
-		return getMenuCompletions(plugin, sender, prefix);
-	}
-
 }
