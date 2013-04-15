@@ -36,6 +36,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		SMSMenu menu = SMSMenu.getMenu(args[0]);
+		menu.ensureAllowedToModify(sender);
 
 		int pos = 0;
 		if (args[1].startsWith("@")) {

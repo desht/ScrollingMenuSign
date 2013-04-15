@@ -4,11 +4,14 @@ import java.util.List;
 
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.block.MaterialWithData;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -49,6 +52,10 @@ public class MenuCommand extends SMSAbstractCommand {
 		case 3:
 			attr = args[1];
 			String newVal = args[2];
+			menu.ensureAllowedToModify(sender);
+			if (attr.equals(SMSMenu.OWNER) && !PermissionUtils.isAllowedTo(sender, "scrollingmenusign.edit.any")) {
+				throw new SMSException("You may not change the owner of a menu.");
+			}
 			menu.getAttributes().set(attr, newVal);
 			MiscUtil.statusMessage(sender, String.format("&e%s.%s&- = &e%s&-", menu.getName(), attr, menu.getAttributes().get(attr).toString()));
 			break;
@@ -91,5 +98,34 @@ public class MenuCommand extends SMSAbstractCommand {
 		}
 
 		pager.showPage();
+	}
+
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		SMSMenu menu;
+		switch (args.length) {
+		case 1:
+			return getMenuCompletions(plugin, sender, args[0]);
+		case 2:
+			menu = getMenu(sender, args[0]);
+			return filterPrefix(sender, menu.getAttributes().listAttributeKeys(false), args[1]);
+		case 3:
+			menu = getMenu(sender, args[0]);
+			Object o = menu.getAttributes().get(args[1]);
+			String desc = menu.getAttributes().getDescription(args[1]);
+			if (!desc.isEmpty())
+				desc = ChatColor.GRAY.toString() + ChatColor.ITALIC + " [" + desc + "]";
+			return getConfigValueCompletions(sender, args[1], o, desc, args[2]);
+		default:
+			return noCompletions(sender);
+		}
+	}
+
+	private SMSMenu getMenu(CommandSender sender, String menuName) {
+		if (menuName.equals(".") && sender instanceof Player) {
+			return SMSView.getTargetedView((Player) sender, true).getActiveMenu(sender.getName());
+		} else {
+			return SMSMenu.getMenu(menuName);
+		}
 	}
 }

@@ -40,6 +40,8 @@ public class AddItemCommand extends SMSAbstractCommand {
 			throw new SMSException(getUsage()[0]);
 		}
 
+		menu.ensureAllowedToModify(sender);
+
 		int pos = hasOption("at") ? getIntOption("at") : -1;
 		String label = MiscUtil.parseColourSpec(sender, args[1]);
 		String cmd = args.length >= 3 ? args[2] : "";

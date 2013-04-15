@@ -27,7 +27,6 @@ sms:
     item_justify: left
     title_justify: center
     max_title_lines: 1
-    ignore_view_ownership: true
     elevation:
         nodes: []
         grant_op: false
@@ -35,6 +34,7 @@ sms:
         default_icon: stone
     maps:
         font: SansSerif
+        fontsize: 9
         show_tooltips: true
         break_block_id: 0
         transfer:
@@ -50,7 +50,7 @@ sms:
         scrollup: true
         scrolldown: true
     redstoneoutput:
-        pulseticks: 20
+        pulseticks: 10
     persistent_user_vars: false
     resource_base_url: ''
     log_commands: false

@@ -31,7 +31,13 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 
 	protected List<String> getMenuCompletions(Plugin plugin, CommandSender sender, String prefix) {
 		List<String> res = new ArrayList<String>();
-		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
+		if (sender instanceof Player) {
+			if (SMSView.getTargetedView((Player) sender) != null) {
+				// player has a view targeted - add "." as the first item
+				// "." is a convenience for "currently targeted menu"
+				res.add(".");
+			}
+		}		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
 		List<SMSMenu> menus = handler.listMenus(true);
 		for (SMSMenu menu : menus) {
 			if (prefix.isEmpty() || menu.getName().startsWith(prefix))

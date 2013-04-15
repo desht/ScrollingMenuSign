@@ -25,7 +25,6 @@ import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
 import me.desht.scrollingmenusign.commands.AddViewCommand;
 import me.desht.scrollingmenusign.commands.CreateMenuCommand;
-import me.desht.scrollingmenusign.commands.DebugCommand;
 import me.desht.scrollingmenusign.commands.DeleteMenuCommand;
 import me.desht.scrollingmenusign.commands.EditMenuCommand;
 import me.desht.scrollingmenusign.commands.FontCommand;
@@ -338,19 +337,13 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	}
 
 	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		// do nothing
 	}
 
 	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, List<?> val) {
-		// do nothing
-	}
-
-	@Override
-	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal,
-			Object newVal) {
-		if (key.equalsIgnoreCase("ignore_view_ownership")) {
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+		if (key.equalsIgnoreCase("access.any")) {
 			// redraw map views
 			repaintViews("map");
 		} else if (key.startsWith("actions.spout") && isSpoutEnabled()) {

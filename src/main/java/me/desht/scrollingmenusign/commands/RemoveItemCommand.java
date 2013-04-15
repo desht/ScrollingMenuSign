@@ -35,6 +35,7 @@ public class RemoveItemCommand extends SMSAbstractCommand {
 
 		try {
 			SMSMenu menu = SMSMenu.getMenu(menuName);
+			menu.ensureAllowedToModify(sender);
 			menu.removeItem(item);
 			menu.notifyObservers(SMSMenuAction.REPAINT);
 			MiscUtil.statusMessage(sender, "Menu entry &f#" + item + "&- removed from &e" + menuName);

@@ -329,7 +329,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
-		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.toSign");
+		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.to.sign");
 		SMSMenu menu = mapView.getActiveMenu(player.getName());
 		SMSView view = SMSSignView.addSignToMenu(menu, block.getLocation());
 		MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
@@ -369,7 +369,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
-		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.fromSign");
+		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.from.sign");
 
 		SMSView clickedView = SMSView.getViewForLocation(block.getLocation());
 		if (clickedView == null || !(clickedView instanceof SMSGlobalScrollableView))

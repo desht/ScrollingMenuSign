@@ -31,7 +31,7 @@ public class GetConfigCommand extends SMSAbstractCommand {
 			for (String line : lines) {
 				pager.add(line);
 			}
-			pager.showPage();		
+			pager.showPage();
 		} else if (lines.size() == 1) {
 			MiscUtil.statusMessage(sender, lines.get(0));
 		} else {
@@ -71,5 +71,15 @@ public class GetConfigCommand extends SMSAbstractCommand {
 		}
 		Collections.sort(res);
 		return res;
+	}
+
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		switch (args.length) {
+		case 1:
+			return getConfigCompletions(sender, ScrollingMenuSign.getInstance().getConfig().getConfigurationSection("sms"), args[0]);
+		default:
+			return noCompletions(sender);
+		}
 	}
 }

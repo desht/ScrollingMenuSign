@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import me.desht.dhutils.AttributeCollection;
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
@@ -36,6 +37,7 @@ import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.SMSPersistable;
 import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
@@ -45,6 +47,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -60,9 +63,9 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 	// view attribute names
 	public static final String OWNER = "owner";
-	public static final String GROUP = "group";
 	public static final String ITEM_JUSTIFY = "item_justify";
 	public static final String TITLE_JUSTIFY = "title_justify";
+	public static final String ACCESS = "access";
 
 	// map view name to view object for registered views
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
@@ -117,10 +120,10 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		this.maxLocations = 1;
 		this.menuStack = new HashMap<String, MenuStack>();
 
-		registerAttribute(OWNER, "");
-		registerAttribute(GROUP, "");
-		registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT);
-		registerAttribute(ITEM_JUSTIFY, ViewJustification.DEFAULT);
+		registerAttribute(OWNER, "", "Player who owns this view");
+		registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT, "Horizontal item positioning");
+		registerAttribute(ITEM_JUSTIFY, ViewJustification.DEFAULT, "Horizontal title positioning");
+		attributes.registerAttribute(ACCESS, SMSAccessRights.ANY, "Who may use this view");
 	}
 
 	private String makeUniqueName(String base) {
@@ -492,11 +495,16 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 				throw new SMSException("invalid location in view " + getName() + " (corrupted file?)");
 			}
 		}
+
+		// temporarily disable validation while attributes are loaded from saved data
+		attributes.setConfigurationListener(null);
 		for (String k : node.getKeys(false)) {
 			if (!node.isConfigurationSection(k) && attributes.hasAttribute(k)) {
 				setAttribute(k, node.getString(k));
 			}
 		}
+		attributes.setConfigurationListener(this);
+
 		ConfigurationSection vars = node.getConfigurationSection("vars");
 		if (vars != null) {
 			for (String k : vars.getKeys(false)) {
@@ -891,59 +899,59 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
-	 * Check if the given player is allowed to use this view.
-	 * 
+	 * Check if the given player has access right for this view.
+	 *
 	 * @param player	The player to check
 	 * @return	True if the player may use this view, false if not
 	 */
 	public boolean hasOwnerPermission(Player player) {
-		boolean ignore = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.ignore_view_ownership");
-		if (!ignore && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.ignoreViewOwnership")) {
-			String owner = getAttributeAsString(OWNER);
-			if (owner != null && !owner.isEmpty() && !owner.equalsIgnoreCase(player.getName())) {
-				return false;
-			}
+		if (!getActiveMenu(player.getName()).hasOwnerPermission(player)) {
+			return false;
 		}
-		return true;
+		SMSAccessRights access = (SMSAccessRights) getAttribute(ACCESS);
+		return access.isAllowedToUse(player, getAttributeAsString(OWNER));
 	}
 
 	/**
+	 * Check if this view is owned by the given player.
+	 *
 	 * @param player
 	 * @return
 	 */
-	public boolean hasGroupPermission(Player player) {
-		if (ScrollingMenuSign.permission == null) {
-			return false;
-		}
-		String group = getAttributeAsString(GROUP);
-		if (group.isEmpty()) {
-			return false;
-		}
-		boolean ignore = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.ignore_view_ownership");
-		if (!ignore && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.ignoreViewOwnership")) {
-			boolean ok = ScrollingMenuSign.permission.playerInGroup(player.getWorld(), player.getName(), group);
-			LogUtils.fine("check player " + player.getName() + " in perm group " + group + ": " + ok);
-			return ok;
-		}
-
-		return true;
+	public boolean isOwnedBy(Player player) {
+		return player.getName().equalsIgnoreCase(getAttributeAsString(OWNER));
 	}
 
 	/**
 	 * Require that the given player is allowed to use this view, and throw a SMSException if not.
-	 * 
+	 *
 	 * @param player	The player to check
 	 */
-	public void ensureAllowedToUse(Player player) {
-		if (!hasOwnerPermission(player) && !hasGroupPermission(player)) {
-			throw new SMSException("You don't have permission to use this view");
-		}
-
-		if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use." + getType())) {
-			throw new SMSException("You don't have permission to use this type of view");
+	public void ensureAllowedToUse(CommandSender sender) {
+		if (sender instanceof Player) {
+			Player player = (Player) sender;
+			if (!hasOwnerPermission(player)) {
+				throw new SMSException("This view is private to someone else.");
+			}
+			if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use." + getType())) {
+				throw new SMSException("You don't have permission to use this type of view.");
+			}
 		}
 	}
 
+	/**
+	 * Require that the given player is allowed to modify this view, and throw a SMSException if not.
+	 *
+	 * @param player	The player to check
+	 */
+	public void ensureAllowedToModify(CommandSender sender) {
+		if (sender instanceof Player) {
+			Player player = (Player) sender;
+			if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any") && !isOwnedBy(player)) {
+				throw new SMSException("You may not modify or delete someone else's view.");
+			}
+		}
+	}
 
 	/**
 	 * Instantiate a new view from a saved config file
@@ -993,6 +1001,10 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		LogUtils.warning("  Exception message: " + e.getMessage());
 	}
 
+	protected void registerAttribute(String attr, Object def, String desc) {
+		attributes.registerAttribute(attr, def, desc);
+	}
+
 	protected void registerAttribute(String attr, Object def) {
 		attributes.registerAttribute(attr, def);
 	}
@@ -1033,7 +1045,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		// avoid calling updates on views that haven't been registered yet (which will be the case
 		// when restoring saved views from disk)
 		if (allViewNames.containsKey(getName())) {
-			update(null, SMSMenuAction.REPAINT);	
+			update(null, SMSMenuAction.REPAINT);
 		}
 	}
 
@@ -1041,16 +1053,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @see me.desht.dhutils.ConfigurationListener#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
-		// no validation here, override in subclasses
-	}
-
-	/* (non-Javadoc)
-	 * @see me.desht.dhutils.ConfigurationListener#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.util.List)
-	 */
-	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, List<?> val) {
-		// no validation here, override in subclasses
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+		if (key.equals(ACCESS)) {
+			SMSAccessRights access = (SMSAccessRights) newVal;
+			if (newVal != SMSAccessRights.ANY && getAttributeAsString(OWNER).isEmpty()) {
+				throw new DHUtilsException("Cannot set '" + key + "' to " + access + " without a view owner; set one first.");
+			}
+		}
 	}
 
 	/**

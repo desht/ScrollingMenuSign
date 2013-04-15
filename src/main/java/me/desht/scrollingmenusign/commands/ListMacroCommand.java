@@ -4,7 +4,6 @@ import java.util.List;
 
 import me.desht.dhutils.MessagePager;
 import me.desht.scrollingmenusign.SMSMacro;
-import me.desht.scrollingmenusign.SMSMenu;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

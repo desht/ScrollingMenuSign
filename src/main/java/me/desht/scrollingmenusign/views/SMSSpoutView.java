@@ -2,26 +2,27 @@ package me.desht.scrollingmenusign.views;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observable;
 import java.util.Map.Entry;
+import java.util.Observable;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.gui.Color;
-import org.getspout.spoutapi.gui.PopupScreen;
-import org.getspout.spoutapi.player.SpoutPlayer;
-
+import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.scrollingmenusign.spout.SpoutViewPopup;
+import me.desht.scrollingmenusign.spout.HexColor;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
+import me.desht.scrollingmenusign.spout.SpoutViewPopup;
 import me.desht.scrollingmenusign.spout.TextEntryPopup;
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.PermissionUtils;
+
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.entity.Player;
+import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.gui.PopupScreen;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 
@@ -40,7 +41,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 
 	/**
 	 * Construct a new SMSSPoutView object
-	 * 
+	 *
 	 * @param name	The view name
 	 * @param menu	The menu to attach the object to
 	 * @throws SMSException 
@@ -51,12 +52,15 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 
 		if (!ScrollingMenuSign.getInstance().isSpoutEnabled()) {
 			throw new SMSException("Spout view cannot be created - server does not have Spout enabled");
-		}		
-		registerAttribute(SPOUTKEYS, new SMSSpoutKeyMap());
-		registerAttribute(AUTOPOPDOWN, true);
-		registerAttribute(BACKGROUND, "");
-		registerAttribute(ALPHA, "");
-		registerAttribute(TEXTURE, "");
+		}
+		Configuration config = ScrollingMenuSign.getInstance().getConfig();
+		String defColor = config.getString("sms.spout.list_background");
+		Double defAlpha = config.getDouble("sms.spout.list_alpha");
+		registerAttribute(SPOUTKEYS, new SMSSpoutKeyMap(), "Key(s) to toggle view visibility");
+		registerAttribute(AUTOPOPDOWN, true, "Auto-popdown after item click?");
+		registerAttribute(BACKGROUND, new HexColor(defColor), "Background colour of view");
+		registerAttribute(ALPHA, defAlpha, "Transparency of view");
+		registerAttribute(TEXTURE, "", "Image to use as view background");
 	}
 
 	public SMSSpoutView(SMSMenu menu) throws SMSException {
@@ -220,13 +224,13 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	 * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String attribute, String newVal) {
-		super.onConfigurationValidate(configurationManager, attribute, newVal);
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
+		super.onConfigurationValidate(configurationManager, attribute, oldVal, newVal);
 
 		String err = null;
-		if (attribute.equals(SPOUTKEYS) && !newVal.isEmpty()) {
+		if (attribute.equals(SPOUTKEYS) && !newVal.toString().isEmpty()) {
 			try {
-				SMSSpoutKeyMap sp = new SMSSpoutKeyMap(newVal);
+				SMSSpoutKeyMap sp = new SMSSpoutKeyMap(newVal.toString());
 				if (keyMap.containsKey(sp.toString())) {
 					String otherView = keyMap.get(sp.toString());
 					if (SMSView.checkForView(otherView)) {
@@ -237,19 +241,13 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 				throw new SMSException("Invalid key binding: " + newVal);
 			}
 
-		} else if (attribute.equals(ALPHA) && !newVal.isEmpty()) {
+		} else if (attribute.equals(ALPHA)) {
 			try {
-				double d = Double.parseDouble(newVal);
+				double d = (Double) newVal;
 				if (d < 0.0 || d > 1.0)
 					err = "Invalid value for alpha channel (must be a floating point number between 0.0 and 1.0)";
 			} catch (NumberFormatException e) {
 				err = "Invalid value for alpha channel (must be a floating point number between 0.0 and 1.0)";
-			}
-		} else if (attribute.equals(BACKGROUND) && !newVal.isEmpty()) {
-			try {
-				new Color(newVal);
-			} catch (NumberFormatException e) {
-				err = "Invalid value for background (must be RRGGBB hex string, e.g. ffffff for white)";
 			}
 		}
 		if (err != null) {
@@ -288,13 +286,13 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 		super.scrollDown(playerName);
 		scrollPopup(playerName);
 	}
-	
+
 	@Override
 	public void scrollUp(String playerName) {
 		super.scrollUp(playerName);
 		scrollPopup(playerName);
 	}
-	
+
 	private void scrollPopup(String playerName) {
 		if (popups.containsKey(playerName)) {
 			SpoutViewPopup popup = popups.get(playerName);
@@ -302,7 +300,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 			popup.ignoreNextSelection();
 		}
 	}
-	
+
 	/**
 	 * Convenience method.  Create a new spout view and add it to the given menu.
 	 * 

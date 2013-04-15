@@ -26,8 +26,9 @@ public class ItemUseCommand extends SMSAbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender player, String[] args) {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		SMSMenu menu = SMSMenu.getMenu(args[0]);
+		menu.ensureAllowedToModify(sender);
 
 		boolean isGlobal = getBooleanOption("global") || getBooleanOption("g");
 		boolean isClearing = args[args.length - 1].startsWith("c");
@@ -41,16 +42,16 @@ public class ItemUseCommand extends SMSAbstractCommand {
 			}
 			if (isClearing) {
 				item.getUseLimits().clearUses();
-				MiscUtil.statusMessage(player, "Unset all usage limits for item &e" + item.getLabel());
+				MiscUtil.statusMessage(sender, "Unset all usage limits for item &e" + item.getLabel());
 			} else {
 				int count = parseNumber(args[2]);
 				if (isGlobal) {
 					item.getUseLimits().setGlobalUses(count);
-					MiscUtil.statusMessage(player, "Set GLOBAL use limit for item &e" + item.getLabel()
+					MiscUtil.statusMessage(sender, "Set GLOBAL use limit for item &e" + item.getLabel()
 					                       + "&- to " + count + ".");
 				} else {
 					item.getUseLimits().setUses(count);
-					MiscUtil.statusMessage(player, "Set PER-PLAYER use limit for item &e" + item.getLabel()
+					MiscUtil.statusMessage(sender, "Set PER-PLAYER use limit for item &e" + item.getLabel()
 					                       + "&- to " + count + ".");
 				}
 			}
@@ -58,16 +59,16 @@ public class ItemUseCommand extends SMSAbstractCommand {
 			// dealing with a menu
 			if (isClearing) {
 				menu.getUseLimits().clearUses();
-				MiscUtil.statusMessage(player, "Unset all usage limits for menu &e" + menu.getName());
+				MiscUtil.statusMessage(sender, "Unset all usage limits for menu &e" + menu.getName());
 			} else {
 				int count = parseNumber(args[1]);
 				if (isGlobal) {
 					menu.getUseLimits().setGlobalUses(count);
-					MiscUtil.statusMessage(player, "Set GLOBAL use limit for menu &e" + menu.getName()
+					MiscUtil.statusMessage(sender, "Set GLOBAL use limit for menu &e" + menu.getName()
 					                       + "&- to " + count + ".");
 				} else {
 					menu.getUseLimits().setUses(count);
-					MiscUtil.statusMessage(player, "Set PER-PLAYER use limit for menu &e" + menu.getName()
+					MiscUtil.statusMessage(sender, "Set PER-PLAYER use limit for menu &e" + menu.getName()
 					                       + "&- to " + count + ".");
 				}
 			}

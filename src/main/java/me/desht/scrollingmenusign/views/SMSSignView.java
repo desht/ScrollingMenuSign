@@ -21,7 +21,7 @@ import org.bukkit.block.Sign;
  * This view draws menus on signs.
  */
 public class SMSSignView extends SMSGlobalScrollableView {
-	
+
 	/**
 	 * Create a new sign view object.
 	 * 
@@ -46,7 +46,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	public SMSSignView(String name, SMSMenu menu) {
 		super(name, menu);
 	}
-	
+
 	/**
 	 * Create a new sign view object.  Equivalent to calling SMSSignView(null, menu, loc).  The
 	 * view's name will be automatically generated, based on the menu name.
@@ -68,7 +68,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
 			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " does not contain a sign.");
 		}
-		
+
 		super.addLocation(loc);
 	}
 
@@ -115,38 +115,38 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		String[] res = new String[4];
 
 		List<String> title = splitTitle(null);
-		
+
 		// first line (or two) of the sign is the menu title
 		for (int i = 0; i < title.size(); i++) {
 			res[i] = String.format(makePrefix("", getTitleJustification()), title.get(i));
 		}
-		
+
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
 		String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
 		String prefixSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
-		
+
 		ViewJustification ij = getItemJustification();
 		if (title.size() < 2) {
 			res[1] = String.format(makePrefix(prefixNotSel, ij), getLine2Item(scrollPos));
 		}
 		res[2] = String.format(makePrefix(prefixSel, ij), getLine3Item(scrollPos));
 		res[3] = String.format(makePrefix(prefixNotSel, ij), getLine4Item(scrollPos));
-		
+
 		return res;
 	}
 
 	private String getLine2Item(int pos) {
 		if (getActiveMenuItemCount(null) < 3)
 			return "";
-			
+
 		int prevPos = pos - 1;
 		if (prevPos < 1) {
 			prevPos = getActiveMenuItemCount(null);
 		}
 		return getActiveItemLabel(null, prevPos);
 	}
-	
+
 	private String getLine3Item(int pos) {
 		if (getActiveMenuItemCount(null) < 1) {
 			return "";
@@ -157,14 +157,14 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	private String getLine4Item(int pos) {
 		if (getActiveMenuItemCount(null) < 2) 
 			return "";
-			
+
 		int nextPos = pos + 1;
 		if (nextPos > getActiveMenuItemCount(null)) {
 			nextPos = 1;
 		}
 		return getActiveItemLabel(null, nextPos);
 	}
-	
+
 	private String makePrefix(String prefix, ViewJustification just) {
 		int l = 15 - prefix.length();
 		String s = "";
@@ -180,7 +180,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		}
 		return MiscUtil.parseColourSpec(s);
 	}
-	
+
 	/**
 	 * Get the actual Bukkit Sign object for this view.
 	 * 
@@ -189,7 +189,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	private Sign getSign() {
 		if (getLocations().isEmpty())
 			return null;
-		
+
 		Location loc = getLocationsArray()[0];
 		Block b = loc.getBlock();
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
@@ -217,7 +217,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	public static SMSView addSignToMenu(SMSMenu menu, Location loc) throws SMSException {
 		return addSignToMenu(null, menu, loc);
 	}
-	
+
 	@Override
 	public String toString() {
 		Location[] locs = getLocationsArray();
@@ -231,7 +231,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	public String getType() {
 		return "sign";
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#getLineLength()
 	 */
@@ -239,7 +239,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	protected int getLineLength() {
 		return 15;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSScrollableView#getHardMaxTitleLines()
 	 */

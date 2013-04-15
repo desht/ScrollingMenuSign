@@ -37,11 +37,11 @@ public class SMSRedstoneView extends SMSView {
 	public SMSRedstoneView(String name, SMSMenu menu) {
 		super(name, menu);
 
-		registerAttribute(POWERON, "");
-		registerAttribute(POWEROFF, "");
-		registerAttribute(POWERTOGGLE, "");
-		registerAttribute(PLAYERRADIUS, 0.0);
-		registerAttribute(AFFECTONLYNEAREST, true);
+		registerAttribute(POWERON, "", "Item to run when redstone power goes on");
+		registerAttribute(POWEROFF, "", "Item to run when redstone power goes off");
+		registerAttribute(POWERTOGGLE, "", "Item to run when redstone power changes");
+		registerAttribute(PLAYERRADIUS, 0.0, "Command will be run on players within this radius");
+		registerAttribute(AFFECTONLYNEAREST, true, "If true, command will only be run on nearest player");
 	}
 
 	public SMSRedstoneView(SMSMenu menu) {
@@ -134,7 +134,7 @@ public class SMSRedstoneView extends SMSView {
 			return null;
 		}
 		radius *= radius;
-		
+
 		double minDist = Double.MAX_VALUE;
 		List<Player> res = new ArrayList<Player>();
 
@@ -160,7 +160,7 @@ public class SMSRedstoneView extends SMSView {
 				}
 			}
 		}
-		
+
 		return res;
 	}
 
@@ -304,17 +304,18 @@ public class SMSRedstoneView extends SMSView {
 			rv.handlePowerChange(neighbour.getLocation(), event.getNewCurrent());
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String attribute, String newVal) {
-		super.onConfigurationValidate(configurationManager, attribute, newVal);
-		
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
+		super.onConfigurationValidate(configurationManager, attribute, oldVal, newVal);
+
 		if (attribute.equals(POWERON) || attribute.equals(POWEROFF) || attribute.equals(POWERTOGGLE)) {
-			if (!newVal.isEmpty()) {
-				if (getNativeMenu().indexOfItem(newVal) == -1) {
+			String label = newVal.toString();
+			if (!label.isEmpty()) {
+				if (getNativeMenu().indexOfItem(label) == -1) {
 					throw new SMSException("Menu " + getNativeMenu().getName() + " does not contain the item '" + newVal + "'");
 				}
 			}

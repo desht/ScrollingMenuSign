@@ -31,7 +31,7 @@ public abstract class SMSScrollableView extends SMSView {
 		super(name, menu);
 		wrap = true;
 
-		registerAttribute(MAX_TITLE_LINES, 0);
+		registerAttribute(MAX_TITLE_LINES, 0, "Max lines to use for menu title");
 	}
 
 	@Override

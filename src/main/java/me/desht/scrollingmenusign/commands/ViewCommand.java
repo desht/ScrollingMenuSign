@@ -1,12 +1,13 @@
 package me.desht.scrollingmenusign.commands;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.PoppableView;
@@ -14,6 +15,7 @@ import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -65,6 +67,7 @@ public class ViewCommand extends SMSAbstractCommand {
 				throw new SMSException("This view type can't be popped up");
 			}
 		} else if (hasOption("d")) {
+			view.ensureAllowedToModify(sender);
 			String varName = getStringOption("d");
 			if (varName.startsWith("$")) {
 				varName = varName.substring(1);
@@ -81,6 +84,7 @@ public class ViewCommand extends SMSAbstractCommand {
 				String varName = attr.substring(1);
 				// user-defined view variable
 				if (args.length == 3) {
+					view.ensureAllowedToModify(sender);
 					view.setVariable(varName, args[2]);
 					view.autosave();
 					view.update(null, SMSMenuAction.REPAINT);
@@ -89,6 +93,10 @@ public class ViewCommand extends SMSAbstractCommand {
 			} else {
 				// predefined view attribute
 				if (args.length == 3) {
+					view.ensureAllowedToModify(sender);
+					if (attr.equals(SMSView.OWNER) && !PermissionUtils.isAllowedTo(sender, "scrollingmenusign.edit.any")) {
+						throw new SMSException("You may not change the owner of a view.");
+					}
 					view.setAttribute(attr, args[2]);
 					view.autosave();
 				}
@@ -165,18 +173,10 @@ public class ViewCommand extends SMSAbstractCommand {
 		case 3:
 			view = getView(sender, args[0]);
 			Object o = view.getAttribute(args[1]);
-			List<String> res = new ArrayList<String>();
-			if (o instanceof Enum<?>) {
-				for (Object o1 : o.getClass().getEnumConstants()) {
-					res.add(o1.toString());
-				}
-			} else if (o instanceof Boolean) {
-				res.add("true");
-				res.add("false");
-			} else {
-				MiscUtil.alertMessage(sender, args[1] + " = <" + o.getClass().getSimpleName() + ">");
-			}
-			return filterPrefix(sender, res, args[2]);
+			String desc = view.getAttributes().getDescription(args[1]);
+			if (!desc.isEmpty())
+				desc = ChatColor.GRAY.toString() + ChatColor.ITALIC + " [" + desc + "]";
+			return getConfigValueCompletions(sender, args[1], o, desc, args[2]);
 		default:
 			return noCompletions(sender);
 		}

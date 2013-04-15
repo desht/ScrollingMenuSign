@@ -4,9 +4,7 @@ import java.util.List;
 
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.command.CommandSender;
@@ -50,6 +48,7 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 			throw new SMSException("No suitable view found to remove.");
 		} else {
 			PermissionUtils.requirePerms(sender, "scrollingmenusign.use." + view.getType());
+			view.ensureAllowedToModify(sender);
 			view.deletePermanent();
 			MiscUtil.statusMessage(sender, String.format("Removed &9%s&- view &e%s&- from menu &e%s&-.",
 			                                             view.getType(), view.getName(), view.getNativeMenu().getName()));

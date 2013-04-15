@@ -11,7 +11,6 @@ import me.desht.scrollingmenusign.views.SMSSpoutView;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.Configuration;
 import org.getspout.spoutapi.gui.Color;
 import org.getspout.spoutapi.gui.GenericListWidget;
 import org.getspout.spoutapi.gui.ListWidgetItem;
@@ -39,24 +38,16 @@ public class SMSListWidget extends GenericListWidget {
 	public SMSSpoutView getView() {
 		return view;
 	}
-	
+
 	public void ignoreNextSelection(boolean ignore) {
 		this.ignoreNextSelection = ignore;
 	}
 
 	public Scrollable updateBackground() {
-		Configuration cfg = ScrollingMenuSign.getInstance().getConfig();
-		String bgCol = view.getAttributeAsString(SMSSpoutView.BACKGROUND, cfg.getString("sms.spout.list_background"));
-		Color c;
-		try {
-			c = new Color(bgCol);
-			String a = view.getAttributeAsString(SMSSpoutView.ALPHA, cfg.getString("sms.spout.list_alpha"));
-			c.setAlpha(Float.parseFloat(a));
-		} catch (NumberFormatException	e) {
-			LogUtils.warning("Invalid Spout view colour/alpha specification for " + view.getName() + ": using default settings");
-			c = new Color(cfg.getDefaults().getString("sms.spout.list_background"));
-			c.setAlpha((float) cfg.getDefaults().getDouble("sms.spout.list_alpha"));
-		}
+		HexColor cw = (HexColor) view.getAttribute(SMSSpoutView.BACKGROUND);
+		double alpha = (Double) view.getAttribute(SMSSpoutView.ALPHA);
+		Color c = cw.getColor();
+		c.setAlpha((float)alpha);
 		LogUtils.finer("updateBackground: view = " + view.getName() + " background = " + c.toString());
 
 		// choose a contrasting text colour - black for a pale background, white for a dark background

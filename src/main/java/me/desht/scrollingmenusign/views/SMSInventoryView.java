@@ -22,19 +22,19 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
 	public static final String WIDTH = "width";
 	public static final String AUTOPOPDOWN = "autopopdown";
-	
+
 	private final Map<String, IconMenu> iconMenus;	// map menu name to the icon menu object
 	private final Map<String, Set<String>> users;	// map menu name to list of players using it
-	
+
 	public SMSInventoryView(String name, SMSMenu menu) {
 		super(name, menu);
-		
-		registerAttribute(WIDTH, 9);
-		registerAttribute(AUTOPOPDOWN, true);
+
+		registerAttribute(WIDTH, 9, "Number of icons per inventory row");
+		registerAttribute(AUTOPOPDOWN, true, "Auto-popdown after item click?");
 
 		iconMenus = new HashMap<String, IconMenu>();
 		iconMenus.put(getNativeMenu().getName(), new IconMenu(this));
-		
+
 		users = new HashMap<String, Set<String>>();
 	}
 
@@ -62,12 +62,12 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 		}
 		return users.get(menuName);
 	}
-	
+
 	@Override
 	public void pushMenu(String playerName, SMSMenu newActive) {
 		super.pushMenu(playerName, newActive);
 		String menuName = newActive.getName();
-		
+
 		if (playersUsing(menuName).isEmpty()) {
 			// this menu was not used by anyone else yet - create it
 			iconMenus.put(menuName, new IconMenu(this));
@@ -78,7 +78,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	@Override
 	public SMSMenu popMenu(String playerName) {
 		SMSMenu oldActive = super.popMenu(playerName);
-		
+
 		String menuName = oldActive.getName();
 		playersUsing(menuName).remove(playerName);
 		if (playersUsing(menuName).isEmpty()) {
@@ -86,10 +86,10 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 			iconMenus.get(menuName).destroy();
 			iconMenus.remove(menuName);
 		}
-		
+
 		return oldActive;
 	}
-	
+
 	@Override
 	public void erase() {
 		for (IconMenu iconMenu : iconMenus.values()) {
@@ -160,7 +160,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 			event.setWillClose((Boolean)getAttribute(AUTOPOPDOWN));
 		}
 	}
-	
+
 	@Override
 	public void deleteTemporary() {
 		for (IconMenu iconMenu : iconMenus.values()) {
@@ -185,7 +185,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 		view.update(view.getNativeMenu(), SMSMenuAction.REPAINT);
 		return view;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "inventory: " + users.size() + " using " + iconMenus.size() + " menus";

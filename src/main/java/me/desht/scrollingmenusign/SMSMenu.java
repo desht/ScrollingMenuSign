@@ -15,6 +15,8 @@ import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
+import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -26,17 +28,17 @@ import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 
 /**
- * @author des
- *
+ * Represents a menu object
  */
 public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitable, ConfigurationListener {
 	public static final String FAKE_SPACE = "\u203f";
 	public static final String CONSOLE_OWNER = "[console]";
 
-	private static final String AUTOSORT = "autosort";
-	private static final String DEFAULT_CMD = "defcmd";
-	private static final String OWNER = "owner";
-	private static final String TITLE = "title";
+	public static final String AUTOSORT = "autosort";
+	public static final String DEFAULT_CMD = "defcmd";
+	public static final String OWNER = "owner";
+	public static final String TITLE = "title";
+	public static final String ACCESS = "access";
 
 	private final String name;
 	private String title;  // cache colour-parsed version of the title attribute
@@ -89,7 +91,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 			}
 		}
 
-		// migration of owner field from pre-2.0.0
+		// migration of owner field from pre-2.0.0: "&console" => "[console]"
 		String owner = attributes.get(OWNER).toString();
 		if (owner.equals("&console")) {
 			setAttribute(OWNER, CONSOLE_OWNER);
@@ -116,10 +118,11 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	private void registerAttributes() {
-		attributes.registerAttribute(AUTOSORT, false);
-		attributes.registerAttribute(DEFAULT_CMD, "");
-		attributes.registerAttribute(OWNER, "");
-		attributes.registerAttribute(TITLE, "");
+		attributes.registerAttribute(AUTOSORT, false, "Always keep the menu sorted?");
+		attributes.registerAttribute(DEFAULT_CMD, "", "Default command to run if item has no command");
+		attributes.registerAttribute(OWNER, "", "Player who owns this menu");
+		attributes.registerAttribute(TITLE, "", "The menu's displayed title");
+		attributes.registerAttribute(ACCESS, SMSAccessRights.ANY, "Who may use this menu");
 	}
 
 	public Map<String, Object> freeze() {
@@ -578,6 +581,17 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 			SMSPersistence.save(this);
 	}
 
+	/**
+	 * Check if the given player has access right for this menu.
+	 *
+	 * @param player	The player to check
+	 * @return	True if the player may use this view, false if not
+	 */
+	public boolean hasOwnerPermission(Player player) {
+		SMSAccessRights access = (SMSAccessRights) getAttributes().get(ACCESS);
+		return access.isAllowedToUse(player, getOwner());
+	}
+
 	/**************************************************************************/
 
 	/**
@@ -736,13 +750,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, List<?> val) {
-		// TODO Auto-generated method stub
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+		// do nothing
 	}
 
 	@Override
@@ -758,4 +767,27 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		autosave();
 	}
 
+	/**
+	 * Check if this view is owned by the given player.
+	 *
+	 * @param player
+	 * @return
+	 */
+	public boolean isOwnedBy(Player player) {
+		return player.getName().equalsIgnoreCase(getAttributes().get(OWNER).toString());
+	}
+
+	/**
+	 * Require that the given player is allowed to modify this menu, and throw a SMSException if not.
+	 *
+	 * @param player	The player to check
+	 */
+	public void ensureAllowedToModify(CommandSender sender) {
+		if (sender instanceof Player) {
+			Player player = (Player) sender;
+			if (!isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
+				throw new SMSException("You may not modify or delete someone else's menu.");
+			}
+		}
+	}
 }

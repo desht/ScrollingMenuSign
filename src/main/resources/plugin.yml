@@ -12,14 +12,11 @@ commands:
       /sms create <menu-name> <title>
       /sms delete [<menu-name>]
       /sms list [<menu-name>]
-      /sms show [<menu-name>]
-      /sms title <menu-name> <new-title>
+      /sms menu <menu-name> <options...>
       /sms add <menu-name> label command <options...>
       /sms remove <menu-name> <@index|label>
       /sms edit <menu-name> <@index|label> <options...>
-      /sms sort <menu-name> [-auto]
       /sms uses <menu-name> [<item>] <count>|clear [-global]
-      /sms defcmd <menu-name> <command>
       /sms sync <menu-name> <options...>
       /sms break <options...>
       /sms view <view-name> <options...>
@@ -60,6 +57,39 @@ permissions:
       scrollingmenusign.use.map: true
       scrollingmenusign.use.inventory: true
       scrollingmenusign.use.spout: true
+  scrollingmenusign.limited_admin:
+    description: Gives limited administration rights for SMS
+    default: false
+    children:
+      scrollingmenusign.scroll: true
+      scrollingmenusign.execute: true
+      scrollingmenusign.execute.elevated: true
+      scrollingmenusign.use.map: true
+      scrollingmenusign.use.inventory: true
+      scrollingmenusign.use.spout: true
+      scrollingmenusign.commands.create: true
+      scrollingmenusign.commands.delete: true
+      scrollingmenusign.commands.break: true
+      scrollingmenusign.commands.sync: true
+      scrollingmenusign.commands.add: true
+      scrollingmenusign.commands.remove: true
+      scrollingmenusign.commands.save: true
+      scrollingmenusign.commands.reload: true
+      scrollingmenusign.commands.macro: true
+      scrollingmenusign.commands.getcfg: true
+      scrollingmenusign.commands.list: true
+      scrollingmenusign.commands.give: true
+      scrollingmenusign.commands.uses: true
+      scrollingmenusign.commands.view: true
+      scrollingmenusign.commands.var: true
+      scrollingmenusign.commands.edit: true
+      scrollingmenusign.commands.font: true
+      scrollingmenusign.commands.menu: true
+      scrollingmenusign.coloursigns: true
+      scrollingmenusign.maps.to.sign: true
+      scrollingmenusign.maps.from.sign: true
+      scrollingmenusign.create.redstonecontrol: true
+      scrollingmenusign.create.switch: true
   scrollingmenusign.admin:
     description: Gives complete access to all SMS features
     default: op
@@ -71,7 +101,6 @@ permissions:
       scrollingmenusign.use.inventory: true
       scrollingmenusign.use.spout: true
       scrollingmenusign.commands.create: true
-      scrollingmenusign.commands.title: true
       scrollingmenusign.commands.delete: true
       scrollingmenusign.commands.break: true
       scrollingmenusign.commands.sync: true
@@ -83,25 +112,24 @@ permissions:
       scrollingmenusign.commands.getcfg: true
       scrollingmenusign.commands.setcfg: true
       scrollingmenusign.commands.list: true
-      scrollingmenusign.commands.show: true
-      scrollingmenusign.commands.debug: true
       scrollingmenusign.commands.sort: true
-      scrollingmenusign.commands.defcmd: true
       scrollingmenusign.commands.give: true
       scrollingmenusign.commands.uses: true
       scrollingmenusign.commands.view: true
       scrollingmenusign.commands.var: true
       scrollingmenusign.commands.edit: true
       scrollingmenusign.commands.font: true
+      scrollingmenusign.commands.menu: true
       scrollingmenusign.coloursigns: true
       scrollingmenusign.destroy: true
-      scrollingmenusign.maps.toSign: true
-      scrollingmenusign.maps.fromSign: true
+      scrollingmenusign.maps.t.sign: true
+      scrollingmenusign.maps.from.sign: true
       scrollingmenusign.create.elevated: true
       scrollingmenusign.create.cost: true
       scrollingmenusign.create.redstonecontrol: true
       scrollingmenusign.create.switch: true
-      scrollingmenusign.ignoreViewOwnership: true
+      scrollingmenusign.access.any: true
+      scrollingmenusign.edit.any: true
       scrollingmenusign.vars.other: true
   scrollingmenusign.commands.create:
     description: Allow creation of new menus
@@ -167,7 +195,7 @@ permissions:
     description: Allows menu contents to be shown
     default: op
   scrollingmenusign.commands.view:
-    description: Allows menu views to be inspected and modified
+    description: Allows view attributes to be inspected and modified
     default: op
   scrollingmenusign.commands.var:
     description: Allows command substitution variables to be defined
@@ -177,6 +205,9 @@ permissions:
     default: op
   scrollingmenusign.commands.font:
     description: Allows listing of fonts known to the system (for use in map views)
+    default: op
+  scrollingmenusign.commands.menu:
+    description: Allows menu attributes to be inspected and modified
     default: op
   scrollingmenusign.scroll:
     description: Allows menus to be scrolled
@@ -190,10 +221,10 @@ permissions:
   scrollingmenusign.commands.page:
     description: Allows output data to be paged
     default: true
-  scrollingmenusign.maps.fromSign:
+  scrollingmenusign.maps.from.sign:
     description: Allows map views to be copied from sign views
     default: op
-  scrollingmenusign.maps.toSign:
+  scrollingmenusign.maps.to.sign:
     description: Allows map views to be copied to sign views
     default: op
   scrollingmenusign.create.cost:
@@ -202,8 +233,11 @@ permissions:
   scrollingmenusign.execute.elevated:
     description: Allow execution of menu items which bypass permissions checks
     default: true
-  scrollingmenusign.ignoreViewOwnership:
-    description: Allows views owned by others to be used (overrides sms.use_any_view config setting)
+  scrollingmenusign.access.any:
+    description: Allows use of any menu or view, overriding the menu or view's access controls
+    default: op
+  scrollingmenusign.edit.any:
+    description: Allows modification of any menu or view, regardless of ownership
     default: op
   scrollingmenusign.use.map:
     description: Allows usage of map views

@@ -28,7 +28,7 @@ public enum SMSUserAction {
 			key = new StringBuilder("sms.actions.leftclick.");
 			break;
 		default:
-			return NONE;	
+			return NONE;
 		}
 
 		return _makeAction(event.getPlayer(), key);
@@ -85,7 +85,6 @@ public enum SMSUserAction {
 		SMSMenu menu = sview.getActiveMenu(playerName);
 		switch (this) {
 		case EXECUTE:
-//			SMSMenuItem item = menu.getItemAt(sview.getScrollPos(playerName));
 			SMSMenuItem item = sview.getActiveMenuItemAt(playerName, sview.getScrollPos(playerName));
 			if (item != null) {
 				item.executeCommand(player, view);

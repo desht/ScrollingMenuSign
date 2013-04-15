@@ -14,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -62,8 +63,9 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
 	public SMSGlobalScrollableView(String name, SMSMenu menu) {
 		super(name, menu);
-		registerAttribute(RS_OUTPUT_MODE, RedstoneOutputMode.SELECTED);
-		registerAttribute(PULSE_TICKS, ScrollingMenuSign.getInstance().getConfig().getLong("sms.redstoneoutput.pulseticks", 20));
+		Configuration config = ScrollingMenuSign.getInstance().getConfig();
+		registerAttribute(RS_OUTPUT_MODE, RedstoneOutputMode.SELECTED, "Redstone output mode when menu is scrolled/clicked");
+		registerAttribute(PULSE_TICKS, config.getLong("sms.redstoneoutput.pulseticks"), "Pulse duration for " + RS_OUTPUT_MODE + "=pulse");
 		pulseResetTask = null;
 		tooltipSign = null;
 	}

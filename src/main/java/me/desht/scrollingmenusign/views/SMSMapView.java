@@ -97,9 +97,10 @@ public class SMSMapView extends SMSScrollableView {
 	public SMSMapView(String name, SMSMenu menu) {
 		super(name, menu);
 
-		registerAttribute(IMAGE_FILE, "");
-		registerAttribute(FONT, ScrollingMenuSign.getInstance().getConfig().getString("sms.maps.font"));
-		registerAttribute(FONT_SIZE, 9);
+		Configuration config = ScrollingMenuSign.getInstance().getConfig();
+		registerAttribute(IMAGE_FILE, "", "Image to use as map background");
+		registerAttribute(FONT, config.getString("sms.maps.font"), "Java font for map text drawing");
+		registerAttribute(FONT_SIZE, config.getInt("sms.maps.fontsize"), "Font size for map text drawing");
 
 		x = 4;
 		y = 0;
@@ -508,7 +509,7 @@ public class SMSMapView extends SMSScrollableView {
 		SMSMenu menu = getActiveMenu(player.getName());
 		Configuration config = ScrollingMenuSign.getInstance().getConfig();
 
-		if (!hasOwnerPermission(player) && !hasGroupPermission(player)) {
+		if (!hasOwnerPermission(player)) {
 			drawMessage(g, NOT_OWNER);
 			return result;
 		} else if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
