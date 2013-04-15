@@ -1,14 +1,8 @@
 package me.desht.scrollingmenusign.commands;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-
-import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMacro;
@@ -16,6 +10,10 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSView;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public abstract class SMSAbstractCommand extends AbstractCommand {
 
@@ -61,16 +59,6 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 		return getResult(res, sender, true);
 	}
 
-	protected List<String> filterPrefix(CommandSender sender, Collection<String> c, String prefix) {
-		List<String> res = new ArrayList<String>();
-		for (String s : c) {
-			if (prefix == null || prefix.isEmpty() || s.toLowerCase().startsWith(prefix.toLowerCase())) {
-				res.add(s);
-			}
-		}
-		return getResult(res, sender, true);
-	}
-
 	protected List<String> getMenuItemCompletions(CommandSender sender, SMSMenu menu, String prefix) {
 		List<String> res = new ArrayList<String>();
 		for (SMSMenuItem item : menu.getItems()) {
@@ -97,8 +85,4 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 		return getResult(res, sender, true);
 	}
 
-	private List<String> getResult(List<String> res, CommandSender sender, boolean sorted) {
-		if (res.isEmpty()) return sender == null ? noCompletions() : noCompletions(sender);
-		return sorted ? MiscUtil.asSortedList(res) : res;
-	}
 }
