@@ -19,7 +19,7 @@ public class ListMacroCommand extends SMSAbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		MessagePager pager = MessagePager.getPager(sender).clear();
+		MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
 
 		if (args.length == 0) {
 			pager.add("&e" + SMSMacro.getMacros().size() + " macros:");

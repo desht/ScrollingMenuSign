@@ -37,7 +37,7 @@ public class ListMenusCommand extends SMSAbstractCommand {
 			if (menus.size() == 0) {
 				MiscUtil.statusMessage(sender, "No menu signs exist.");
 			} else {
-				pager.add("Use &f/sms list <menu-name>&- to see all the views for a menu");
+				pager.add("Use /sms list <menu-name> to see all the views for a menu");
 				for (SMSMenu menu : menus) {
 					listMenu(pager, menu, false);
 				}
@@ -65,7 +65,7 @@ public class ListMenusCommand extends SMSAbstractCommand {
 		ChatColor viewCol = views.size() > 0 ? ChatColor.YELLOW : ChatColor.GOLD;
 		String ms = menu.getItemCount() == 1 ? "" : "s";
 		String vs = views.size() == 1 ? "" : "s";
-		String message = String.format(MessagePager.BULLET + " &f%s \"%s&f\" %s[%d item%s] %s[%d view%s]",
+		String message = String.format(MessagePager.BULLET + " %s \"%s" + ChatColor.WHITE + "\" %s[%d item%s] %s[%d view%s]",
 		                               menu.getName(), menu.getTitle(), itemCol, 
 		                               menu.getItemCount(), ms,
 		                               viewCol.toString(), views.size(), vs);
@@ -73,7 +73,7 @@ public class ListMenusCommand extends SMSAbstractCommand {
 		lines.add(message);
 		if (listViews) {
 			for (SMSView v : views) {
-				lines.add(String.format("  " + MessagePager.BULLET + " &f%s&-: &e%s", v.getName(), v.toString()));
+				lines.add(String.format("  " + MessagePager.BULLET + " %s: " + ChatColor.YELLOW + "%s", v.getName(), v.toString()));
 			}
 		}
 		pager.add(lines);

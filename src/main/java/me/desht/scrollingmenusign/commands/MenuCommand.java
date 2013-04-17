@@ -64,8 +64,8 @@ public class MenuCommand extends SMSAbstractCommand {
 	}
 
 	private void showMenuDetails(Plugin plugin, CommandSender sender, SMSMenu menu, SMSView view) {
-		MessagePager pager = MessagePager.getPager(sender).clear();
-		pager.add("Menu: &e" + menu.getName());
+		MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
+		pager.add("&fMenu: &e" + menu.getName());
 		if (view != null) {
 			pager.add(String.format("(View: &e%s&f)", view.getName()));
 		}
@@ -80,7 +80,7 @@ public class MenuCommand extends SMSAbstractCommand {
 
 		List<SMSMenuItem> items = menu.getItems();
 		int n = 1;
-		pager.add("Menu items:");
+		pager.add("&fMenu items:");
 		for (SMSMenuItem item : items) {
 			String message = item.getMessage();
 			String command = item.getCommand().replace(" && ", " &&&& ");

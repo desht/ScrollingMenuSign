@@ -36,9 +36,9 @@ public class VarCommand extends SMSAbstractCommand {
 			String target = args.length >= 1 ? args[0] : sender.getName();
 
 			SMSVariables vars = SMSVariables.getVariables(target, false);
-			MessagePager pager = MessagePager.getPager(sender).clear();
+			MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
 			for (String key : vars.getVariables()) {
-				pager.add(key + " = '&e" + vars.get(key) + "&-'");	
+				pager.add(key + " = '&e" + vars.get(key) + "&-'");
 			}
 			pager.showPage();
 			return true;

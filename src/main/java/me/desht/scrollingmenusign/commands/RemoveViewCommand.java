@@ -18,8 +18,8 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 		setPermissionNode("scrollingmenusign.commands.break");
 		setUsage(new String[] {
 				"/sms break",
+				"/sms break <view-name>",
 				"/sms break -loc <x,y,z,world>",
-				"/sms break -view <view-name>"
 		});
 		setOptions(new String[] { "loc:s", "view:s"});
 	}
@@ -28,9 +28,13 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		SMSView view = null;
 
-		if (hasOption("view")) {
+		if (args.length == 0) {
+			// detaching a view that the player is looking at?
+			notFromConsole(sender);
+			view = SMSView.getTargetedView((Player) sender, true);
+		} else if (args.length == 1) {
 			// detaching a view by view name
-			view = SMSView.getView(getStringOption("view"));
+			view = SMSView.getView(args[0]);
 		} else if (hasOption("loc")) {
 			// detaching a view by location
 			try {
@@ -38,10 +42,6 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 			} catch (IllegalArgumentException e) {
 				throw new SMSException(e.getMessage());
 			}
-		} else if (args.length == 0) {
-			// detaching a view that the player is looking at?
-			notFromConsole(sender);
-			view = SMSView.getTargetedView((Player) sender, true);
 		}
 
 		if (view == null) {

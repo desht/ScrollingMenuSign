@@ -108,7 +108,7 @@ public class ViewCommand extends SMSAbstractCommand {
 	}
 
 	private void showViewDetails(CommandSender sender, SMSView view) {
-		MessagePager pager = MessagePager.getPager(sender).clear();
+		MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
 		pager.add(String.format("View &6%s&f (%s) :",
 		                        view.getName(), view.toString()));
 		pager.add(String.format("Native menu: &6%s&f, Active menu: &6%s",

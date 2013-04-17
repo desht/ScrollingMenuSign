@@ -63,3 +63,4 @@ sms:
     back_item:
         label: BACK
         material: 324
+    coloured_console: true

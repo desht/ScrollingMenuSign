@@ -14,6 +14,7 @@ import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.Cost;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.responsehandler.ResponseHandler;
@@ -99,6 +100,9 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		configManager = new ConfigurationManager(this, this);
 		configManager.setPrefix("sms");
+
+		MiscUtil.init(this);
+		MiscUtil.setColouredConsole(getConfig().getBoolean("sms.coloured_console"));
 
 		LogUtils.setLogLevel(getConfig().getString("sms.log_level", "INFO"));
 
@@ -276,8 +280,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		cmds.registerCommand(new AddMacroCommand());
 		cmds.registerCommand(new AddViewCommand());
 		cmds.registerCommand(new CreateMenuCommand());
-//		cmds.registerCommand(new DebugCommand());
-//		cmds.registerCommand(new DefaultCmdCommand());
 		cmds.registerCommand(new DeleteMenuCommand());
 		cmds.registerCommand(new EditMenuCommand());
 		cmds.registerCommand(new FontCommand());
@@ -287,7 +289,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		cmds.registerCommand(new ListMacroCommand());
 		cmds.registerCommand(new ListMenusCommand());
 		cmds.registerCommand(new MenuCommand());
-//		cmds.registerCommand(new MenuTitleCommand());
 		cmds.registerCommand(new PageCommand());
 		cmds.registerCommand(new ReloadCommand());
 		cmds.registerCommand(new RemoveItemCommand());
@@ -295,8 +296,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		cmds.registerCommand(new RemoveViewCommand());
 		cmds.registerCommand(new SaveCommand());
 		cmds.registerCommand(new SetConfigCommand());
-//		cmds.registerCommand(new ShowMenuCommand());
-//		cmds.registerCommand(new SortMenuCommand());
 		cmds.registerCommand(new VarCommand());
 		cmds.registerCommand(new ViewCommand());
 	}
@@ -358,6 +357,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			LogUtils.setLogLevel(newVal.toString());
 		} else if (key.startsWith("item_prefix.") || key.endsWith("_justify") || key.equals("max_title_lines")) {
 			repaintViews(null);
+		} else if (key.equals("coloured_console")) {
+			MiscUtil.setColouredConsole((Boolean)newVal);
 		}
 	}
 
