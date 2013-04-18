@@ -272,30 +272,24 @@ public class SMSBlockListener extends SMSListenerBase {
 		final Player player = event.getPlayer();
 		String menuName = event.getLine(1);
 		if (menuName.isEmpty()) {
-			return;
+			throw new SMSException("Missing menu name on line 2.");
 		}
 		String title = MiscUtil.parseColourSpec(player, event.getLine(2));
 
 		SMSHandler handler = plugin.getHandler();
 		SMSMenu menu = null;
 		if (handler.checkMenu(menuName)) {
-			if (title.isEmpty()) {
-				PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
-				menu = handler.getMenu(menuName);
-			} else {
-				throw new SMSException("A menu called '" + menuName + "' already exists.");
-			}
+			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
+			menu = handler.getMenu(menuName);
 		} else if (title.length() > 0) {
 			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.create");
 			menu = handler.createMenu(menuName, title, player.getName());
-		}
-
-		if (menu == null) {
+		} else {
 			throw new SMSException("No such menu '" + menuName + "'.");
 		}
-		final SMSMenu menu2 = menu;
 
 		// using the scheduler here because updating the sign from its SignChangeEvent handler doesn't work 
+		final SMSMenu menu2 = menu;
 		Bukkit.getScheduler().runTask(plugin, new Runnable() {
 			@Override
 			public void run() {
