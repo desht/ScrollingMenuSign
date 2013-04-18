@@ -14,22 +14,22 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class SMSEntityListener extends SMSListenerBase {
-	
+
 	public SMSEntityListener(ScrollingMenuSign plugin) {
 		super(plugin);
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onEntityExplode(EntityExplodeEvent event) {
-		if (event.isCancelled()) return;
 		boolean noExplode = plugin.getConfig().getBoolean("sms.no_explosions", false);
+
 		Iterator<Block>	iter = event.blockList().iterator();
 		while (iter.hasNext()) {
 			Location loc = iter.next().getLocation();
 			SMSView view = SMSView.getViewForLocation(loc);
 			if (view == null)
 				continue;
-			
+
 			SMSMenu menu = view.getNativeMenu();
 			LogUtils.fine("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
 			if (noExplode) {

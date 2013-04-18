@@ -42,7 +42,7 @@ public class CommandParser {
 	private static final Pattern preDefPat = Pattern.compile("<([A-Z]+)>");
 	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)(=.*?)?>");
 	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
-	
+
 	private enum RunMode { CHECK_PERMS, EXECUTE };
 
 	private static Logger cmdLogger = null;
@@ -82,7 +82,7 @@ public class CommandParser {
 			cmdLogger.setUseParentHandlers(true);
 		}
 	}
-	
+
 	/**
 	 * Parse and run a command string via the SMS command engine
 	 * 
@@ -187,7 +187,7 @@ public class CommandParser {
 			} else if (key.equals("INAME")) {
 				repl = player.getItemInHand() == null ? "nothing" : player.getItemInHand().getType().toString();
 			} else if (key.equals("MONEY") && ScrollingMenuSign.economy != null) {
-				repl = formatStakeStr(ScrollingMenuSign.economy.getBalance(player.getName()));
+				repl = formatMoney(ScrollingMenuSign.economy.getBalance(player.getName()));
 			} else if (key.equals("VIEW")) {
 				repl = view == null ? "" : view.getName();
 			} else if (key.equals("EXP")) {
@@ -437,7 +437,7 @@ public class CommandParser {
 
 	private void runCommandlet(CommandSender sender, SMSView view, ParsedCommand cmd) {
 		CommandletManager cmdlets = ScrollingMenuSign.getInstance().getCommandletManager();
-		
+
 		cmdlets.getCommandlet(cmd.getCommand()).execute(cmdlets.getPlugin(), sender, view, cmd.getCommand(), cmd.getQuotedArgs());
 	}
 
@@ -458,14 +458,14 @@ public class CommandParser {
 		}
 	}
 
-	private static String formatStakeStr(double stake) {
+	private static String formatMoney(double amount) {
 		try {
-			return ScrollingMenuSign.economy.format(stake);
+			return ScrollingMenuSign.economy.format(amount);
 		} catch (Exception e) {
-			LogUtils.warning("Caught exception from " + ScrollingMenuSign.economy.getName() + " while trying to format quantity " + stake + ":");
+			LogUtils.warning("Caught exception from " + ScrollingMenuSign.economy.getName() + " while trying to format quantity " + amount + ":");
 			e.printStackTrace();
 			LogUtils.warning("ScrollingMenuSign will continue but you should verify your economy plugin configuration.");
 		}
-		return new DecimalFormat("#0.00").format(stake) + " ";
+		return new DecimalFormat("#0.00").format(amount) + " ";
 	}
 }

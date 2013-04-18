@@ -41,11 +41,9 @@ public class ExpectViewCreation extends ExpectLocation {
 			throw new DHUtilsException(e.getMessage());
 		}
 
-		if (view != null) {
-			if (player != null) {
-				MiscUtil.statusMessage(player, String.format("Added %s view &e%s&- to menu &e%s&-.",
-				                                             view.getType(), view.getName(), menu.getName()));
-			}
+		if (view != null && player != null) {
+			MiscUtil.statusMessage(player, String.format("Added %s view &e%s&- to menu &e%s&-.",
+			                                             view.getType(), view.getName(), menu.getName()));
 		}
 	}
 }

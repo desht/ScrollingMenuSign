@@ -17,13 +17,13 @@ public class ExpectCommandSubstitution extends ExpectBase {
 	private final boolean isPassword;
 
 	private String sub;
-	
+
 	public ExpectCommandSubstitution(String command, SMSView view, boolean isPassword) {
 		this.command = command;
 		this.view = view;
 		this.isPassword = isPassword;
 	}
-	
+
 	public ExpectCommandSubstitution(String command, SMSView view) {
 		this(command, view, false);
 	}
@@ -52,7 +52,7 @@ public class ExpectCommandSubstitution extends ExpectBase {
 		} else {
 			newCommand = command.replaceFirst("<\\$:.+?>", sub);	
 		}
-		
+
 		LogUtils.fine("command substitution: sub = [" + sub + "], cmd = [" + newCommand + "]");
 		try {
 			final Player player = Bukkit.getPlayer(playerName);

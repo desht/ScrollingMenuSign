@@ -53,12 +53,11 @@ public class SMSBlockListener extends SMSListenerBase {
 
 		SMSMenu menu = view.getNativeMenu();
 		LogUtils.fine("block damage event @ " + MiscUtil.formatLocation(loc) + ", view = " + view.getName() + ", menu=" + menu.getName());
-		Player p = event.getPlayer();
-		if (p.getName().equalsIgnoreCase(menu.getOwner()) || PermissionUtils.isAllowedTo(p, "scrollingmenusign.destroy")) 
-			return;
-
-		// don't allow destruction
-		event.setCancelled(true);
+		Player player = event.getPlayer();
+		if (plugin.getConfig().getBoolean("sms.no_destroy_signs") ||
+			!menu.isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
+			event.setCancelled(true);
+		}
 	}
 
 	@EventHandler(ignoreCancelled = true)
@@ -72,13 +71,12 @@ public class SMSBlockListener extends SMSListenerBase {
 		if (SMSMapView.getHeldMapView(p) != null) {
 			// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
 			event.setCancelled(true);
-			if (view != null) view.update(view.getActiveMenu(p.getName()), SMSMenuAction.REPAINT);
-			return;
-		}
-
-		if (view != null) {
+			if (view != null) {
+				view.update(view.getActiveMenu(p.getName()), SMSMenuAction.REPAINT);
+			}
+		} else if (view != null) {
 			LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getNativeMenu().getName());
-			if (plugin.getConfig().getBoolean("sms.no_destroy_signs", false)) {
+			if (plugin.getConfig().getBoolean("sms.no_destroy_signs")) {
 				event.setCancelled(true);
 				view.update(view.getActiveMenu(p.getName()), SMSMenuAction.REPAINT);
 			} else {

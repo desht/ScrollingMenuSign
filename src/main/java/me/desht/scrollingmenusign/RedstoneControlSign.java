@@ -51,9 +51,7 @@ public class RedstoneControlSign {
 
 		if (view == null) {
 			SMSView baseView = SMSView.getView(sign.getLine(1));
-			if (!(baseView instanceof SMSGlobalScrollableView)) {
-				throw new SMSException("view " + sign.getLine(1) + " is not a globally-scrollable view");
-			}
+			SMSValidate.isTrue(baseView instanceof SMSGlobalScrollableView, "view " + sign.getLine(1) + " is not a globally-scrollable view");
 			this.view = (SMSGlobalScrollableView) baseView;
 		} else {
 			this.view = view;
@@ -155,7 +153,7 @@ public class RedstoneControlSign {
 		if (bs instanceof Sign) {
 			org.bukkit.material.Sign s = (org.bukkit.material.Sign) bs.getData();
 			Block attached = b.getRelative(s.getAttachedFace());
-			return attached.getType() != Material.AIR;	
+			return attached.getType() != Material.AIR;
 		}
 		return true;
 	}

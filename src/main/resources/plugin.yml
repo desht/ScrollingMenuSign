@@ -133,9 +133,6 @@ permissions:
   scrollingmenusign.commands.create:
     description: Allow creation of new menus
     default: op
-  scrollingmenusign.commands.title:
-    description: Allow the title of menus to be changed
-    default: op
   scrollingmenusign.commands.delete:
     description: Allow deletion of menus
     default: op
@@ -160,12 +157,6 @@ permissions:
   scrollingmenusign.commands.macro:
     description: Allows usage of macro management commands
     default: op
-  scrollingmenusign.commands.debug:
-    description: Allows debugging of the plugin
-    default: op
-  scrollingmenusign.commands.sort:
-    description: Allows menus to be sorted
-    default: op
   scrollingmenusign.commands.uses:
     description: Allows the permitted use count of a menu item to be set
     default: op
@@ -177,15 +168,6 @@ permissions:
     default: op
   scrollingmenusign.commands.give:
     description: Allows giving of map or book items to self or others
-    default: op
-  scrollingmenusign.destroy:
-    description: Allows destruction of views belonging to a menu created by someone else
-    default: op
-  scrollingmenusign.coloursigns:
-    description: Allows creation of signs with coloured titles and menu items
-    default: op
-  scrollingmenusign.colorsigns:
-    description: Synonym for scrollingmenusign.coloursigns
     default: op
   scrollingmenusign.commands.list:
     description: Allows menus, and the views for a menu, to be listed
@@ -208,21 +190,27 @@ permissions:
   scrollingmenusign.commands.menu:
     description: Allows menu attributes to be inspected and modified
     default: op
-  scrollingmenusign.scroll:
-    description: Allows menus to be scrolled
-    default: true
-  scrollingmenusign.execute:
-    description: Allows menu items to be executed
-    default: true
-  scrollingmenusign.create.elevated:
-    description: Allows creation of menu items which bypass permissions checks
-    default: op
   scrollingmenusign.commands.page:
     description: Allows output data to be paged
     default: true
   scrollingmenusign.commands.undelete:
     description: Allows restoration of deleted menus
     default: op
+  scrollingmenusign.destroy:
+    description: Allows destruction of views belonging to a menu created by someone else
+    default: op
+  scrollingmenusign.coloursigns:
+    description: Allows creation of signs with coloured titles and menu items
+    default: op
+  scrollingmenusign.colorsigns:
+    description: Synonym for scrollingmenusign.coloursigns
+    default: op
+  scrollingmenusign.scroll:
+    description: Allows menus to be scrolled
+    default: true
+  scrollingmenusign.execute:
+    description: Allows menu items to be executed
+    default: true
   scrollingmenusign.maps.from.sign:
     description: Allows map views to be copied from sign views
     default: op
@@ -231,6 +219,9 @@ permissions:
     default: op
   scrollingmenusign.create.cost:
     description: Allows creation of menu items which have a cost
+    default: op
+  scrollingmenusign.create.elevated:
+    description: Allows creation of menu items which bypass permissions checks
     default: op
   scrollingmenusign.execute.elevated:
     description: Allow execution of menu items which bypass permissions checks
@@ -244,9 +235,6 @@ permissions:
   scrollingmenusign.use.map:
     description: Allows usage of map views
     default: op
-  scrollingmenusign.use.spout:
-    description: Allows usage of Spout views
-    default: op
   scrollingmenusign.use.sign:
     description: Allows usage of sign views
     default: true
@@ -258,6 +246,9 @@ permissions:
     default: true
   scrollingmenusign.use.inventory:
     description: Allows usage of inventory views
+    default: op
+  scrollingmenusign.use.spout:
+    description: Allows usage of Spout views
     default: op
   scrollingmenusign.create.redstonecontrol:
     description: Allows creation of redstone control signs
