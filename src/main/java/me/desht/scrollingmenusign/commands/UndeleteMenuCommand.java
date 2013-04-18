@@ -40,4 +40,14 @@ public class UndeleteMenuCommand extends SMSAbstractCommand {
 		}
 		return true;
 	}
+
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		if (args.length == 1) {
+			return getResult(SMSMenu.listDeletedMenus(), sender, true);
+		} else {
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+	}
 }
