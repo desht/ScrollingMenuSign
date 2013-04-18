@@ -9,7 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.world.WorldLoadEvent;
 
 public class SMSWorldListener extends SMSListenerBase {
-	
+
 	public SMSWorldListener(ScrollingMenuSign plugin) {
 		super(plugin);
 	}

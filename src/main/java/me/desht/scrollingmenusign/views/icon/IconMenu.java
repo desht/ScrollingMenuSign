@@ -38,7 +38,7 @@ public class IconMenu implements Listener, SMSPopup {
 	public int getSlots() {
 		return optionIcons.length;
 	}
-	
+
 	@Override
 	public SMSView getView() {
 		return view;
@@ -87,13 +87,13 @@ public class IconMenu implements Listener, SMSPopup {
 		int width = (Integer) getView().getAttribute(SMSInventoryView.WIDTH);
 		int nItems = getView().getActiveMenuItemCount(p.getName());
 		int nRows = Math.min(MAX_INVENTORY_ROWS, ((nItems - 1) / width) + 1);
-	
+
 		size = INVENTORY_WIDTH * nRows;
 		optionIcons = new ItemStack[size];
 		optionNames = new String[size];
-	
+
 		int xOff = getXOffset(width);
-	
+
 		for (int i = 0; i < nItems; i++) {
 			int row = i / width;
 			int pos = row * INVENTORY_WIDTH + xOff + i % width;
@@ -107,7 +107,7 @@ public class IconMenu implements Listener, SMSPopup {
 			optionIcons[pos] = icon;
 			optionNames[pos] = menuItem.getLabel();
 		}
-		
+
 		LogUtils.fine("built icon menu inventory for " + p.getName() + ": " + size + " slots");
 	}
 
@@ -128,19 +128,19 @@ public class IconMenu implements Listener, SMSPopup {
 		default: return (INVENTORY_WIDTH - width) / 2;
 		}
 	}
-	
-//	@EventHandler
-//	void onInventoryClose(InventoryCloseEvent event) {
-//		String playerName = event.getPlayer().getName();
-//		LogUtils.fine("InventoryCloseEvent: player = " + playerName + ", view = " + getView().getName() +
-//		              ", inventory name = " + event.getInventory().getTitle());
-//	}
+
+	//	@EventHandler
+	//	void onInventoryClose(InventoryCloseEvent event) {
+	//		String playerName = event.getPlayer().getName();
+	//		LogUtils.fine("InventoryCloseEvent: player = " + playerName + ", view = " + getView().getName() +
+	//		              ", inventory name = " + event.getInventory().getTitle());
+	//	}
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	void onInventoryClick(InventoryClickEvent event) {
 		String playerName = event.getWhoClicked().getName();
 		String name = getView().variableSubs(getView().getActiveMenuTitle(playerName));
-		
+
 		if (event.getInventory().getTitle().equals(name)) {
 			LogUtils.fine("InventoryClickEvent: player = " + playerName + ", view = " + getView().getName() +
 			              ", inventory name = " + event.getInventory().getTitle());

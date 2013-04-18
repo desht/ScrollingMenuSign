@@ -9,6 +9,7 @@ import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
@@ -271,9 +272,7 @@ public class SMSBlockListener extends SMSListenerBase {
 		final Block b = event.getBlock();
 		final Player player = event.getPlayer();
 		String menuName = event.getLine(1);
-		if (menuName.isEmpty()) {
-			throw new SMSException("Missing menu name on line 2.");
-		}
+		SMSValidate.isFalse(menuName.isEmpty(), "Missing menu name on line 2.");
 		String title = MiscUtil.parseColourSpec(player, event.getLine(2));
 
 		SMSHandler handler = plugin.getHandler();

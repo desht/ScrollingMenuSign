@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.commands;
 import java.util.List;
 
 import me.desht.dhutils.MiscUtil;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.SMSPersistence;
 
@@ -23,14 +24,12 @@ public class RemoveMacroCommand extends SMSAbstractCommand {
 			SMSMacro.removeMacro(args[0]);
 			MiscUtil.statusMessage(sender, "Removed macro &e" + args[0] + "&-.");	
 		} else {
-			try { 
-				int index = Integer.parseInt(args[1]);
+			try {
+				int index = parseNumber(args[1]);
 				SMSMacro.getMacro(args[0]).removeLine(index - 1);
 				MiscUtil.statusMessage(sender, "Removed command #" + index + " from macro &e" + args[0] + "&-.");
-			} catch (NumberFormatException e) {
-				MiscUtil.errorMessage(sender, "invalid index: " + args[1]);
 			} catch (IndexOutOfBoundsException e) {
-				MiscUtil.errorMessage(sender, "invalid index: " + args[1]);	
+				throw new SMSException("invalid index: " + args[1]);
 			}
 		}
 

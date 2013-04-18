@@ -6,6 +6,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.scrollingmenusign.views.SMSInventoryView;
@@ -107,13 +108,9 @@ public class AddViewCommand extends SMSAbstractCommand {
 			}
 		}
 
-		if (view != null) {
-			MiscUtil.statusMessage(sender, String.format("Added &9%s&- view &e%s&- to menu &e%s&-.",
-			                                             view.getType(), view.getName(), menu.getName()));
-		} else {
-			throw new SMSException("Found nothing suitable to add as a menu view");
-		}
-
+		SMSValidate.notNull(view, "Found nothing suitable to add as a menu view");
+		MiscUtil.statusMessage(sender, String.format("Added &9%s&- view &e%s&- to menu &e%s&-.",
+		                                             view.getType(), view.getName(), menu.getName()));
 		return true;
 	}
 

@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.commands;
 import java.util.List;
 
 import me.desht.dhutils.MiscUtil;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 
@@ -40,9 +41,9 @@ public class RemoveItemCommand extends SMSAbstractCommand {
 			menu.notifyObservers(SMSMenuAction.REPAINT);
 			MiscUtil.statusMessage(sender, "Menu entry &f#" + item + "&- removed from &e" + menu.getName());
 		} catch (IndexOutOfBoundsException e) {
-			MiscUtil.errorMessage(sender, "Item index " + item + " out of range");
+			throw new SMSException("Item index " + item + " out of range");
 		} catch (IllegalArgumentException e) {
-			MiscUtil.errorMessage(sender, e.getMessage());
+			throw new SMSException(e.getMessage());
 		}
 
 		return true;

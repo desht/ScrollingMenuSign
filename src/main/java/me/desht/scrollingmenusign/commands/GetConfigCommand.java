@@ -34,8 +34,6 @@ public class GetConfigCommand extends SMSAbstractCommand {
 			pager.showPage();
 		} else if (lines.size() == 1) {
 			MiscUtil.statusMessage(sender, lines.get(0));
-		} else {
-			MiscUtil.errorMessage(sender, "No such config key: " + args[0]); //$NON-NLS-1$	
 		}
 		return true;
 	}

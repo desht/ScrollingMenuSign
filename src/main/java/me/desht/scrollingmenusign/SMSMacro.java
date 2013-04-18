@@ -143,7 +143,7 @@ public class SMSMacro implements SMSPersistable {
 	public static SMSMacro getMacro(String macroName) throws SMSException {
 		return getMacro(macroName, false);	
 	}
-	
+
 	/**
 	 * @param macroName 	Name of macro to get
 	 * @param autoCreate	If true and there is no macro of that name, create a new macro
@@ -198,7 +198,7 @@ public class SMSMacro implements SMSPersistable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Get a list of all known macro names.
 	 * 
@@ -235,7 +235,7 @@ public class SMSMacro implements SMSPersistable {
 			return new ArrayList<SMSMacro>(allMacros.values());
 		}
 	}
-	
+
 	/**
 	 * Check to see if the given macro exists.
 	 * 

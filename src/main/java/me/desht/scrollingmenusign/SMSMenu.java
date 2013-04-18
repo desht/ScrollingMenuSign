@@ -112,9 +112,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	public void setAttribute(String k, String val) {
-		if (!attributes.contains(k)) {
-			throw new SMSException("No such view attribute: " + k);
-		}
+		SMSValidate.isTrue(attributes.contains(k), "No such view attribute: " + k);
 		attributes.set(k, val);
 	}
 
@@ -519,8 +517,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 			index = Integer.parseInt(indexStr);
 		} catch (NumberFormatException e) {
 			index = itemMap.get(ChatColor.stripColor(indexStr));
-			if (index == null)
-				throw new SMSException("No such label '" + indexStr + "' in menu '" + getName() + "'.");
+			SMSValidate.notNull(index, "No such label '" + indexStr + "' in menu '" + getName() + "'.");
 		}
 		removeItem(index);
 	}
@@ -634,8 +631,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @throws SMSException if the menu name is not found
 	 */
 	public static SMSMenu getMenu(String menuName) {
-		if (!menus.containsKey(menuName))
-			throw new SMSException("No such menu '" + menuName + "'.");
+		SMSValidate.isTrue(menus.containsKey(menuName), "No such menu '" + menuName + "'.");
 		return menus.get(menuName);
 	}
 
@@ -656,9 +652,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @throws SMSException if there is no deleted menu to restore
 	 */
 	public static SMSMenu restoreDeletedMenu(String menuName) {
-		if (!deletedMenus.containsKey(menuName)) {
-			throw new SMSException("No such deleted menu '" + menuName + "'.");
-		}
+		SMSValidate.isTrue(deletedMenus.containsKey(menuName), "No such deleted menu '" + menuName + "'.");
 		SMSMenu menu = deletedMenus.get(menuName);
 		registerMenu(menuName, menu, false);
 		deletedMenus.remove(menuName);
@@ -682,8 +676,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @throws SMSException if the menu name is not found
 	 */
 	public static SMSMenu getDeletedMenu(String menuName) {
-		if (!deletedMenus.containsKey(menuName))
-			throw new SMSException("No such deleted menu '" + menuName + "'.");
+		SMSValidate.isTrue(deletedMenus.containsKey(menuName), "No such deleted menu '" + menuName + "'.");
 		return deletedMenus.get(menuName);
 	}
 

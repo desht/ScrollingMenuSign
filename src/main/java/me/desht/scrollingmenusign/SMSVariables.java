@@ -220,7 +220,7 @@ public class SMSVariables implements SMSPersistable {
 	 */
 	public static String get(CommandSender sender, String varSpec, String def) {
 		VarSpec vs = new VarSpec(sender, varSpec);
-		
+
 		if (hasVariables(vs.playerName) && getVariables(vs.playerName, false).isSet(vs.varName)) {
 			return getVariables(vs.playerName, false).get(vs.varName);
 		} else {
@@ -260,7 +260,6 @@ public class SMSVariables implements SMSPersistable {
 
 	static void load(File f) {
 		YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
-//		String playerName = FilenameUtils.removeExtension(f.getName());
 		String playerName = f.getName().replaceAll("\\.yml$", "");
 		SMSVariables vars = getVariables(playerName, true);
 
@@ -275,7 +274,7 @@ public class SMSVariables implements SMSPersistable {
 
 		private VarSpec(CommandSender sender, String spec) {
 			String[] parts = spec.split("\\.", 2);
-			
+
 			if (parts.length == 1) {
 				// unqualified variable - <var>
 				if (!(sender instanceof Player)) {
@@ -294,9 +293,7 @@ public class SMSVariables implements SMSPersistable {
 					throw new SMSException("Invalid player name: " + spec);
 				}
 			}
-			if (!varName.matches("[a-zA-Z0-9_]+")) {
-				throw new SMSException("Invalid variable name: " + spec + " (must be all alphanumeric)");
-			}
+			SMSValidate.isTrue(varName.matches("[a-zA-Z0-9_]+"), "Invalid variable name: " + spec + " (must be all alphanumeric)");
 		}
 	}
 }

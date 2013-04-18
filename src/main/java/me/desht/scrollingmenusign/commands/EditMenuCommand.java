@@ -6,6 +6,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 
@@ -80,9 +81,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 
 		if (hasOption("move")) {
 			int newPos = getIntOption("move");
-			if (newPos < 1 || newPos > menu.getItemCount()) {
-				throw new SMSException("Invalid position for -move: " + newPos);
-			}
+			SMSValidate.isTrue(newPos >= 1 && newPos <= menu.getItemCount(), "Invalid position for -move: " + newPos);
 			menu.removeItem(pos);
 			menu.insertItem(newPos, newItem);
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- edited in &e" + menu.getName() + "&-, new position &e" + newPos);

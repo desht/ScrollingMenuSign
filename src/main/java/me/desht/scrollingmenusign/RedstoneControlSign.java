@@ -46,10 +46,8 @@ public class RedstoneControlSign {
 	private RedstoneControlSign(Sign sign, SMSGlobalScrollableView view) {
 		this.location = new PersistableLocation(sign.getLocation());
 
-		if (!sign.getLine(0).equals(ChatColor.RED + "[smsred]")) {
-			throw new SMSException("Sign @ " + MiscUtil.formatLocation(sign.getBlock().getLocation()) +
-					" is not a SMS redstone control sign");
-		}
+		SMSValidate.isTrue(sign.getLine(0).equals(ChatColor.RED + "[smsred]"),
+		                   "Sign @ " + MiscUtil.formatLocation(sign.getBlock().getLocation()) + " is not a SMS redstone control sign");
 
 		if (view == null) {
 			SMSView baseView = SMSView.getView(sign.getLine(1));
@@ -96,9 +94,8 @@ public class RedstoneControlSign {
 	 */
 	public static RedstoneControlSign getControlSign(Location loc, SMSGlobalScrollableView view) {
 		Block block = loc.getBlock();
-		if (block.getType() != Material.WALL_SIGN && block.getType() != Material.SIGN_POST) {
-			throw new SMSException("Block @ " + MiscUtil.formatLocation(block.getLocation()) + " does not contain a sign");
-		}
+		SMSValidate.isTrue(block.getType() == Material.WALL_SIGN || block.getType() == Material.SIGN_POST,
+				"Block @ " + MiscUtil.formatLocation(block.getLocation()) + " does not contain a sign");
 		PersistableLocation pLoc = new PersistableLocation(loc);
 		if (!allSigns.containsKey(pLoc)) {
 			allSigns.put(pLoc, new RedstoneControlSign((Sign) block.getState(), view));
@@ -189,11 +186,8 @@ public class RedstoneControlSign {
 	 */
 	private Sign getSignBlock() {
 		Block b = location.getLocation().getBlock();
-		if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
-			return (Sign)b.getState();
-		} else {
-			throw new SMSException("block " + b + " is not a Sign!");
-		}
+		SMSValidate.isTrue(b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST, "block " + b + " is not a Sign!");
+		return (Sign)b.getState();
 	}
 
 	/**
@@ -206,10 +200,9 @@ public class RedstoneControlSign {
 		Sign sign = getSignBlock();
 		org.bukkit.material.Sign signData = (org.bukkit.material.Sign) sign.getData();
 
-		if (action.length() != 2) {
-			throw new SMSException("Invalid redstone control spec. '" + action +
-			                       "' for sign @ " +  MiscUtil.formatLocation(sign.getBlock().getLocation()));
-		}
+		SMSValidate.isTrue(action.length() == 2,
+				"Invalid redstone control spec. '" + action +  "' for sign @ " +  MiscUtil.formatLocation(sign.getBlock().getLocation()));
+
 		BlockFace face;
 		switch (Character.toLowerCase(action.charAt(0))) {
 		case 'o':	// over

@@ -227,7 +227,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			}
 		} else {
 			MiscUtil.alertMessage(player, message);
-		}	
+		}
 	}
 
 	private static void sendFeedback(Player player, List<String> messages, Set<String> history) {

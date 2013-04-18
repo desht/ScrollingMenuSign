@@ -23,7 +23,7 @@ public class PopupBook {
 	private static final int VIEW_TYPE = 2;
 	private static final int VIEW_NAME = 3;
 	private static final int MENU_NAME = 4;
-	
+
 	private final WeakReference<SMSView> view;
 	private final WeakReference<Player> player;
 
@@ -31,21 +31,21 @@ public class PopupBook {
 	 * Private constructor (use PopupBook.get()).  Create a popup book object from a
 	 * written book item.
 	 * 
-	 * @param p	 the player
+	 * @param player	 the player
 	 * @param bi  the book item
 	 */
-	private PopupBook(Player p, ItemStack bi) {
+	private PopupBook(Player player, ItemStack bi) {
 		BookMeta bm = (BookMeta)bi.getItemMeta();
-		
+
 		String viewType = bm.getPage(VIEW_TYPE).split(" ")[1];
 		String viewName = bm.getPage(VIEW_NAME);
 		String menuName = bm.getPage(MENU_NAME);
-		
+
 		if (!ScrollingMenuSign.getInstance().getHandler().checkMenu(menuName)) {
 			// the menu's been deleted? the book's of no use anymore
 			throw new SMSException("Missing menu " + menuName);
 		}
-		
+
 		SMSView wantedView = null;
 		if (!SMSView.checkForView(viewName)) {
 			// the view could have been deleted - see if the menu has any other views of the same type
@@ -62,34 +62,28 @@ public class PopupBook {
 		} else {
 			wantedView = SMSView.getView(viewName);
 		}
-		
-		if (wantedView == null || !(wantedView instanceof PoppableView)) {
-			// couldn't get a suitable view for this book
-			throw new SMSException("Invalid view: " + viewName);
-		}
-		
-		this.player = new WeakReference<Player>(p);
+
+		SMSValidate.isTrue(wantedView != null && wantedView instanceof PoppableView, "Invalid view: " + viewName);
+		this.player = new WeakReference<Player>(player);
 		this.view = new WeakReference<SMSView>((SMSView) wantedView);
 	}
-	
+
 	/**
 	 * Create a popup book object for the given player and view.
 	 * 
-	 * @param p
+	 * @param player
 	 * @param view
 	 */
-	public PopupBook(Player p, SMSView view) {
-		this.player = new WeakReference<Player>(p);
-		if (!(view instanceof PoppableView)) {
-			throw new SMSException("Invalid view: " + view.getName());
-		}
+	public PopupBook(Player player, SMSView view) {
+		SMSValidate.isTrue(view instanceof PoppableView, "Invalid view: " + view.getName());
+		this.player = new WeakReference<Player>(player);
 		this.view = new WeakReference<SMSView>(view);
 	}
 
 	public SMSView getView() {
 		return view.get();	
 	}
-	
+
 	/**
 	 * Toggle the popped state of the view this book refers to.
 	 */
@@ -101,7 +95,7 @@ public class PopupBook {
 			((PoppableView)v).toggleGUI(p);
 		}
 	}
-	
+
 	/**
 	 * Get the book item corresponding to this popup book.
 	 * 
@@ -114,20 +108,20 @@ public class PopupBook {
 			return null;
 		}
 		ItemStack item = new ItemStack(Material.WRITTEN_BOOK, 1);
-		
+
 		BookMeta bm = (BookMeta) item.getItemMeta();
-		
+
 		bm.setTitle(v.variableSubs(v.getNativeMenu().getTitle()));
 		bm.setAuthor(p.getName());
 		bm.setPages("Left Click to Use!",
-					"sms " + v.getType() + " view",
-					v.getName(),
-					v.getNativeMenu().getName());
+		            "sms " + v.getType() + " view",
+		            v.getName(),
+		            v.getNativeMenu().getName());
 		item.setItemMeta(bm);
-		
+
 		return item;
 	}
-	
+
 	/**
 	 * Get the popup book that the player is holding, if any.
 	 * 
@@ -140,7 +134,7 @@ public class PopupBook {
 			return null;
 		return new PopupBook(p, p.getItemInHand());
 	}
-	
+
 	/**
 	 * Check if the player is holding a popup book.
 	 * 

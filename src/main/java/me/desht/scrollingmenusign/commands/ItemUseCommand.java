@@ -3,7 +3,6 @@ package me.desht.scrollingmenusign.commands;
 import java.util.List;
 
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 
@@ -36,10 +35,7 @@ public class ItemUseCommand extends SMSAbstractCommand {
 		if (args.length == 3) {
 			// dealing with an item
 			int idx = menu.indexOfItem(args[1]);
-			SMSMenuItem item = menu.getItemAt(idx);
-			if (item == null) {
-				throw new SMSException("Unknown menu item: " + args[1]);
-			}
+			SMSMenuItem item = menu.getItemAt(idx, true);
 			if (isClearing) {
 				item.getUseLimits().clearUses();
 				MiscUtil.statusMessage(sender, "Unset all usage limits for item &e" + item.getLabel());
@@ -75,16 +71,6 @@ public class ItemUseCommand extends SMSAbstractCommand {
 		}
 
 		return true;
-	}
-
-	private static int parseNumber(String s) throws SMSException {
-		int count;
-		try {
-			count = Integer.parseInt(s);
-		} catch (NumberFormatException e) {
-			throw new SMSException("Invalid numeric argument: " + s);
-		}
-		return count;
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 
@@ -49,9 +50,8 @@ public class AddItemCommand extends SMSAbstractCommand {
 		String iconMat = hasOption("icon") ? getStringOption("icon") : plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
 		String[] lore = hasOption("lore") ? getStringOption("lore").split("\\\\\\\\") : new String[0];
 
-		if (sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd)) {
-			throw new SMSException("You do not have permission to add that kind of command.");
-		}
+		SMSValidate.isFalse(sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd), 
+		                    "You do not have permission to add that kind of command.");
 
 		SMSMenuItem newItem = new SMSMenuItem(menu, label, cmd, msg, iconMat, lore);
 		if (pos < 0) {

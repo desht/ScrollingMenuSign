@@ -89,7 +89,7 @@ public class SMSPersistence {
 		}
 		LogUtils.fine("Loaded " + SMSVariables.listVariables().size() + " variable sets from file.");
 	}
-	
+
 	public static void saveMenusAndViews() {
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			save(menu);
@@ -114,12 +114,12 @@ public class SMSPersistence {
 		}
 		LogUtils.fine("saved " + SMSVariables.listVariables().size() + " variable sets to file.");
 	}
-	
+
 	public static void loadMenus() {
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			menu.deleteTemporary();
 		}
-	
+
 		for (File f : DirectoryStructure.getMenusFolder().listFiles(ymlFilter)) {
 			try {
 				LogUtils.finer("loading menu: " + f);

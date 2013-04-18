@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.desht.dhutils.commands.AbstractCommand;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -106,4 +107,15 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 			return SMSView.getView(viewName);
 		}
 	}
+
+	protected int parseNumber(String s) throws SMSException {
+		int count;
+		try {
+			count = Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			throw new SMSException("Invalid numeric argument: " + s);
+		}
+		return count;
+	}
+
 }
