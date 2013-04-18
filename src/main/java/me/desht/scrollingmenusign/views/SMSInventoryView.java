@@ -92,7 +92,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	}
 
 	@Override
-	public void erase() {
+	public void onDeletion() {
 		for (IconMenu iconMenu : iconMenus.values()) {
 			iconMenu.destroy();
 		}

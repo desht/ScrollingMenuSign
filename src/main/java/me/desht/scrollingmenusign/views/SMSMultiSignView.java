@@ -103,16 +103,14 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		case REPAINT: case SCROLLED:
 			repaintAll();
 			break;
-		case DELETE_PERM:
-			erase();
-			break;
 		default:
 			break;
 		}
 	}
 
 	@Override
-	public void erase() {
+	public void onDeletion() {
+		super.onDeletion();
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				org.bukkit.block.Sign s = getSign(x, y);

@@ -201,7 +201,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	}
 
 	@Override
-	public void erase() {
+	public void onDeletion() {
+		super.onDeletion();
 		for (Entry<String, SpoutViewPopup> e : popups.entrySet()) {
 			if (e.getValue().isPoppedUp(null)) {
 				hideGUI(e.getValue().getPlayer());

@@ -61,11 +61,6 @@ public class SMSRedstoneView extends SMSView {
 	}
 
 	@Override
-	public void erase() {
-		// A redstone view doesn't have any visual appearance to erase
-	}
-
-	@Override
 	public String getType() {
 		return "redstone";
 	}

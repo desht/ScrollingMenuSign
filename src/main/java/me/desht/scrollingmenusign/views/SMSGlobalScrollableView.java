@@ -8,20 +8,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.Vector;
-
-import com.google.common.base.Joiner;
-
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
@@ -34,6 +20,19 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.RedstoneOutputMode;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.redout.Switch;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
+
+import com.google.common.base.Joiner;
 
 /**
  * @author desht
@@ -126,8 +125,6 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		if (item == null) {
 			return;
 		}
-//		String selectedItem = ChatColor.stripColor(item.getLabel());
-
 		for (Switch sw : switches) {
 			sw.setPowered(sw.getTrigger().equals(item.getLabel()));
 		}
@@ -138,7 +135,6 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		if (item == null) {
 			return;
 		}
-//		String selectedItem = ChatColor.stripColor(item.getLabel());
 		for (Switch sw : switches) {
 			if (sw.getTrigger().equals(item.getLabel())) {
 				sw.setPowered(!sw.getPowered());
@@ -151,7 +147,6 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		if (item == null) {
 			return;
 		}
-//		String selectedItem = ChatColor.stripColor(item.getLabel());
 		final List<Switch> affected = new ArrayList<Switch>();
 		for (Switch sw : switches) {
 			if (pulseAll || sw.getTrigger().equals(item.getLabel())) {
@@ -280,6 +275,22 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	@Override
+	public void onDeletion() {
+		super.onDeletion();
+		if (tooltipSign != null) {
+			Block b = tooltipSign.getBlock();
+			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
+				Sign sign = (Sign) b.getState();
+				for (int i = 0; i < 4; i++) {
+					sign.setLine(i, "");
+				}
+				sign.update();
+			}
+			removeTooltipSign();
+		}
+	}
+
+	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		super.onConfigurationChanged(configurationManager, key, oldVal, newVal);
 
@@ -312,8 +323,8 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	public void removeTooltipSign() {
-		tooltipSign = null;
 		tooltipLocs.remove(tooltipSign);
+		tooltipSign = null;
 		autosave();
 	}
 

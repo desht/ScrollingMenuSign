@@ -366,7 +366,8 @@ public class SMSMapView extends SMSScrollableView {
 	}
 
 	@Override
-	public void erase() {
+	public void onDeletion() {
+		super.onDeletion();
 		if (mapView != null) {
 			allMapViews.remove(mapView.getId());
 			mapView.removeRenderer(getMapRenderer());

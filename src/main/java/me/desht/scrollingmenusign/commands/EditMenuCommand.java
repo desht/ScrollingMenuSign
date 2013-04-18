@@ -89,7 +89,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 		} else {
 			menu.replaceItem(pos, newItem);
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- edited in &e" + menu.getName() + "&-, position &e" + pos);		
-		} 
+		}
 		menu.notifyObservers(SMSMenuAction.REPAINT);
 
 		return true;

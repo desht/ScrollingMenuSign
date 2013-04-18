@@ -90,7 +90,8 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	}
 
 	@Override
-	public void erase() {
+	public void onDeletion() {
+		super.onDeletion();
 		Sign sign = getSign();
 		if (sign != null) {
 			for (int i = 0; i < 4; i++) {

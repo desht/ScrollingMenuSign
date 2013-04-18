@@ -93,11 +93,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 */
 	public abstract String getType();
 
-	/**
-	 * Erase the view's contents and perform any housekeeping; called when it's about to be deleted.
-	 */
-	public abstract void erase();
-
 	public SMSView(SMSMenu menu) {
 		this(null, menu);
 	}
@@ -730,7 +725,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * Permanently delete a view.  The view is deactivated and purged from persisted storage on disk.
 	 */
 	public void deletePermanent() {
-		erase();
+		onDeletion();
 		unregister();
 		SMSPersistence.unPersist(this);
 	}
@@ -1066,6 +1061,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 				throw new SMSException("Cannot use GROUP access control (no permission group support available)");
 			}
 		}
+	}
+
+	/**
+	 * Erase the view's contents and perform any housekeeping; called when it's about to be deleted.
+	 */
+	public void onDeletion() {
+		// override in subclasses
 	}
 
 	/**
