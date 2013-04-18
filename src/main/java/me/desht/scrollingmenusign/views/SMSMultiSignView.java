@@ -23,6 +23,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.material.Sign;
 
@@ -97,7 +98,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	@Override
 	public void update(Observable menu, Object arg) {
 		super.update(menu, arg);
-		
+
 		switch ((SMSMenuAction) arg) {
 		case REPAINT: case SCROLLED:
 			repaintAll();
@@ -249,7 +250,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Get the location that position (x,y) in the view maps to.  (x, y) = (0, 0) is the top left sign.
 	 * x increases to the right, y increases downward.  This works regardless of sign orientation.
@@ -260,13 +261,13 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 */
 	public Location getSignLocation(int x, int y) {
 		Location tl = topLeft.getLocation();
-		
+
 		BlockFace toLeft = getLeft(facing);
-		
+
 		int x1 = tl.getBlockX() + toLeft.getModX() * x;
 		int y1 = tl.getBlockY() - y;
 		int z1 = tl.getBlockZ() + toLeft.getModZ() * x;
-		
+
 		return new Location(tl.getWorld(), x1, y1, z1);
 	}
 
@@ -279,7 +280,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		default: throw new IllegalArgumentException("unsupported face");
 		}
 	}
-	
+
 	/**
 	 * Mark one line on a given sign as requiring an update.
 	 * 
@@ -343,7 +344,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	private void scan(Block b, BlockFace horizontal) throws SMSException {
 		Location tl = scan(b, horizontal, BlockFace.UP);
 		Location br = scan(b, horizontal.getOppositeFace(), BlockFace.DOWN);
-		
+
 		topLeft = new PersistableLocation(tl);
 		bottomRight = new PersistableLocation(br);
 
@@ -388,7 +389,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 	private List<Block> getBlocks() {
 		List<Block> res = new ArrayList<Block>();
-		
+
 		Block tlb = topLeft.getLocation().getBlock();
 		Block brb = bottomRight.getLocation().getBlock();
 
@@ -457,23 +458,6 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		return formatLine(prefix, variableSubs(text), getItemJustification());
 	}
 
-//	/**
-//	 * Erase all the signs for this view.
-//	 */
-//	private void blankSigns() {
-//		for (int x = 0; x < width; x++) {
-//			for (int y = 0; y < height; y++) {
-//				org.bukkit.block.Sign s = getSign(x, y);
-//				if (s != null) {
-//					for (int i = 0; i < 4; i++) {
-//						s.setLine(i, "");
-//					}
-//					s.update();
-//				}
-//			}
-//		}
-//	}
-
 	private boolean isHexDigit(char c) {
 		return c >= '0' && c <= '9' || c >= 'a' && c <= 'f'	;
 	}
@@ -486,21 +470,22 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * @return
 	 * @throws SMSException
 	 */
-	public static SMSView addSignToMenu(String viewName, SMSMenu menu, Location location) throws SMSException {
+	public static SMSView addSignToMenu(String viewName, SMSMenu menu, Location location, CommandSender owner) throws SMSException {
 		SMSView view = new SMSMultiSignView(viewName, menu, location);
 		view.register();
+		view.setAttribute(OWNER, view.getOwnerName(owner));
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
-	public static SMSView addSignToMenu(SMSMenu menu, Location location) throws SMSException {
-		return addSignToMenu(null, menu, location);
+	public static SMSView addSignToMenu(SMSMenu menu, Location location, CommandSender owner) throws SMSException {
+		return addSignToMenu(null, menu, location, owner);
 	}
 
 	@Override
 	protected int getLineLength() {
 		return 15 * width;
 	}
-	
+
 	@Override
 	protected int getHardMaxTitleLines() {
 		return 4;

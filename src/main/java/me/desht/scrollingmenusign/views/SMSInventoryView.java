@@ -16,6 +16,7 @@ import me.desht.scrollingmenusign.views.icon.IconMenu.OptionClickEvent;
 import me.desht.scrollingmenusign.views.icon.IconMenu.OptionClickEventHandler;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class SMSInventoryView extends SMSView implements PoppableView, OptionClickEventHandler {
@@ -175,13 +176,14 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	 * @param menu
 	 * @return
 	 */
-	public static SMSInventoryView addInventoryViewToMenu(SMSMenu menu) {
-		return addInventoryViewToMenu(null, menu);
+	public static SMSInventoryView addInventoryViewToMenu(SMSMenu menu, CommandSender owner) {
+		return addInventoryViewToMenu(null, menu, owner);
 	}
 
-	public static SMSInventoryView addInventoryViewToMenu(String viewName, SMSMenu menu) {
+	public static SMSInventoryView addInventoryViewToMenu(String viewName, SMSMenu menu, CommandSender owner) {
 		SMSInventoryView view = new SMSInventoryView(viewName, menu);
 		view.register();
+		view.setAttribute(OWNER, view.getOwnerName(owner));
 		view.update(view.getNativeMenu(), SMSMenuAction.REPAINT);
 		return view;
 	}

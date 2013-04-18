@@ -31,7 +31,7 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 
 	protected List<String> getMenuCompletions(Plugin plugin, CommandSender sender, String prefix) {
 		List<String> res = new ArrayList<String>();
-		if (sender instanceof Player) {
+		if (sender instanceof Player && prefix.isEmpty()) {
 			if (SMSView.getTargetedView((Player) sender) != null) {
 				// player has a view targeted - add "." as the first item
 				// "." is a convenience for "currently targeted menu"
@@ -49,7 +49,7 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 	protected List<String> getViewCompletions(CommandSender sender, String prefix) {
 		List<String> res = new ArrayList<String>();
 
-		if (sender instanceof Player) {
+		if (sender instanceof Player && prefix.isEmpty()) {
 			if (SMSView.getTargetedView((Player) sender) != null) {
 				// player has a view targeted - add "." as the first item
 				// "." is a convenience for "currently targeted view"
@@ -91,4 +91,19 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 		return getResult(res, sender, true);
 	}
 
+	protected SMSMenu getMenu(CommandSender sender, String menuName) {
+		if (menuName.equals(".") && sender instanceof Player) {
+			return SMSView.getTargetedView((Player) sender, true).getActiveMenu(sender.getName());
+		} else {
+			return SMSMenu.getMenu(menuName);
+		}
+	}
+
+	protected SMSView getView(CommandSender sender, String viewName) {
+		if (viewName.equals(".") && sender instanceof Player) {
+			return SMSView.getTargetedView((Player) sender, true);
+		} else {
+			return SMSView.getView(viewName);
+		}
+	}
 }

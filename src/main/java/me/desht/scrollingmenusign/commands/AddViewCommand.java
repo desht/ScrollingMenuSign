@@ -52,7 +52,7 @@ public class AddViewCommand extends SMSAbstractCommand {
 
 		if (hasOption("spout")) {		// spout view
 			if (smsPlugin.isSpoutEnabled())
-				view = SMSSpoutView.addSpoutViewToMenu(viewName, menu);
+				view = SMSSpoutView.addSpoutViewToMenu(viewName, menu, sender);
 			else
 				throw new SMSException("Server is not Spout-enabled");
 		} else if (hasOption("sign")) {			// sign view
@@ -60,23 +60,23 @@ public class AddViewCommand extends SMSAbstractCommand {
 				interactiveCreation(sender, viewName, menu, "sign");
 				return true;
 			} else {
-				view = SMSSignView.addSignToMenu(viewName, menu, loc);
+				view = SMSSignView.addSignToMenu(viewName, menu, loc, sender);
 			}
-		} else if (hasOption("redstone")) {	
+		} else if (hasOption("redstone")) {
 			if (loc == null) {
 				interactiveCreation(sender, viewName, menu, "redstone");
 				return true;
 			} else {
-				view = SMSRedstoneView.addRedstoneViewToMenu(viewName, menu, loc);
+				view = SMSRedstoneView.addRedstoneViewToMenu(viewName, menu, loc, sender);
 			}
 		} else if (hasOption("inventory") || hasOption("inv")) {
-			view = SMSInventoryView.addInventoryViewToMenu(viewName, menu);
+			view = SMSInventoryView.addInventoryViewToMenu(viewName, menu, sender);
 		} else if (hasOption("multi") && loc != null) { 	// multi-sign view
-			view = SMSMultiSignView.addSignToMenu(viewName, menu, loc);
+			view = SMSMultiSignView.addSignToMenu(viewName, menu, loc, sender);
 		} else if (hasOption("map")) {	// map view
 			try {
 				short mapId = (short) getIntOption("map");
-				view = SMSMapView.addMapToMenu(viewName, menu, mapId);
+				view = SMSMapView.addMapToMenu(viewName, menu, mapId, sender);
 			} catch (NumberFormatException e) {
 				throw new SMSException(e.getMessage());
 			}
@@ -91,15 +91,15 @@ public class AddViewCommand extends SMSAbstractCommand {
 			if (player.getItemInHand().getType() == Material.MAP) {		// map view?
 				PermissionUtils.requirePerms(sender, "scrollingmenusign.use.map");
 				short mapId = player.getItemInHand().getDurability();
-				view = SMSMapView.addMapToMenu(viewName, menu, mapId);
+				view = SMSMapView.addMapToMenu(viewName, menu, mapId, sender);
 				((SMSMapView) view).setMapItemName(player.getItemInHand());
 			} else {
 				try {
 					Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);		// sign view ?
 					if (hasOption("multi") && b.getType() == Material.WALL_SIGN) {
-						view = SMSMultiSignView.addSignToMenu(viewName, menu, b.getLocation());
+						view = SMSMultiSignView.addSignToMenu(viewName, menu, b.getLocation(), sender);
 					} else if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
-						view = SMSSignView.addSignToMenu(viewName, menu, b.getLocation());
+						view = SMSSignView.addSignToMenu(viewName, menu, b.getLocation(), sender);
 					}
 				} catch (IllegalStateException e) {
 					// ignore

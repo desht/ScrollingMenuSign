@@ -35,7 +35,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		SMSMenu menu = SMSMenu.getMenu(args[0]);
+		SMSMenu menu = getMenu(sender, args[0]);
 		menu.ensureAllowedToModify(sender);
 
 		int pos = 0;
@@ -101,7 +101,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 		case 1:
 			return getMenuCompletions(plugin, sender, args[0]);
 		case 2:
-			SMSMenu menu = SMSMenu.getMenu(args[0]);
+			SMSMenu menu = getMenu(sender, args[0]);
 			return getMenuItemCompletions(sender, menu, args[1]);
 		default:
 			showUsage(sender);

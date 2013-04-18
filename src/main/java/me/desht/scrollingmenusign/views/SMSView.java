@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 import me.desht.dhutils.AttributeCollection;
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
@@ -53,8 +52,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 /**
- * @author des
- *
+ * Represents a base menu view from which all concrete views will inherit.
  */
 public abstract class SMSView implements Observer, SMSPersistable, ConfigurationListener {
 	// operations which were player-specific (active submenu, scroll position...)
@@ -71,8 +69,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
 	// map (persistable - no World reference) location to view object for registered views
 	private static final Map<PersistableLocation, SMSView> allViewLocations = new HashMap<PersistableLocation, SMSView>();
-	// track the number we append to each new view name
-	private static final Map<String,Integer> viewIdx = new HashMap<String, Integer>();
 
 	private final SMSMenu menu;
 	private final Set<PersistableLocation> locations = new HashSet<PersistableLocation>();
@@ -84,6 +80,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	private boolean autosave;
 	private boolean dirty;
 	private int maxLocations;
+
 	// we can't use a Set here, since there are three possible values: 1) dirty, 2) clean, 3) unknown
 	private final Map<String,Boolean> dirtyPlayers = new HashMap<String,Boolean>();
 	// map a world name (which hasn't been loaded yet) to a list of x,y,z positions
@@ -114,33 +111,25 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		this.name = name;
 		this.menu = menu;
 		this.dirty = true;
-		this.autosave = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autosave", true);
+		this.autosave = true;
 		this.attributes = new AttributeCollection(this);
 		this.variables = new HashMap<String, String>();
 		this.maxLocations = 1;
 		this.menuStack = new HashMap<String, MenuStack>();
 
-		registerAttribute(OWNER, "", "Player who owns this view");
-		registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT, "Horizontal item positioning");
-		registerAttribute(ITEM_JUSTIFY, ViewJustification.DEFAULT, "Horizontal title positioning");
+		attributes.registerAttribute(OWNER, ScrollingMenuSign.CONSOLE_OWNER, "Player who owns this view");
+		attributes.registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT, "Horizontal item positioning");
+		attributes.registerAttribute(ITEM_JUSTIFY, ViewJustification.DEFAULT, "Horizontal title positioning");
 		attributes.registerAttribute(ACCESS, SMSAccessRights.ANY, "Who may use this view");
 	}
 
 	private String makeUniqueName(String base) {
-		Integer idx;
-		if (viewIdx.containsKey(base)) {
-			idx = viewIdx.get(base);
-		} else {
-			idx = 1;
-			viewIdx.put(base, 1);
-		}
-
+		int idx = 1;
 		String s = String.format("%s-%d", base, idx);
 		while (SMSView.checkForView(s)) {
 			idx++;
 			s = String.format("%s-%d", base, idx);
 		}
-		viewIdx.put(base, idx + 1);
 		return s;
 	}
 
@@ -214,7 +203,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * Get the player context for operations such as view scrolling, active submenu etc.  For
 	 * views which have a per-player context (e.g. maps), this is just the player name. For views
 	 * with a global context (e.g. signs), a global pseudo-player handle can be used.
-	 * 
+	 *<p>
 	 * Subclasses can override this as needed.
 	 * 
 	 * @param playerName
@@ -357,7 +346,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
-	 * Set an arbitrary string of tagged data on this view
+	 * Set an arbitrary string of tagged data on this view.
 	 * 
 	 * @param key	the variable name (must contain only alphanumeric or underscore)
 	 * @param val	the variable value (may contain any character)
@@ -497,13 +486,21 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		}
 
 		// temporarily disable validation while attributes are loaded from saved data
-		attributes.setConfigurationListener(null);
-		for (String k : node.getKeys(false)) {
-			if (!node.isConfigurationSection(k) && attributes.hasAttribute(k)) {
-				setAttribute(k, node.getString(k));
+		for (String key : node.getKeys(false)) {
+			if (!node.isConfigurationSection(key) && attributes.hasAttribute(key)) {
+				String val = node.getString(key);
+				try {
+					setAttribute(key, val);
+				} catch (SMSException e) {
+					LogUtils.warning("View " + getName() + ": can't set " + key + "='" + val + "': " + e.getMessage());
+				}
 			}
 		}
-		attributes.setConfigurationListener(this);
+		// ensure view has an owner (pre-2.0, views did not)
+		String owner = getAttributeAsString(OWNER);
+		if (owner.isEmpty()) {
+			setAttribute(OWNER, getNativeMenu().getOwner());
+		}
 
 		ConfigurationSection vars = node.getConfigurationSection("vars");
 		if (vars != null) {
@@ -643,6 +640,10 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 */
 	public int getMaxLocations() {
 		return maxLocations;
+	}
+
+	public String getOwnerName(CommandSender sender) {
+		return sender != null && sender instanceof Player ? sender.getName() : ScrollingMenuSign.CONSOLE_OWNER;
 	}
 
 	/**
@@ -931,10 +932,10 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (!hasOwnerPermission(player)) {
-				throw new SMSException("This view is private to someone else.");
+				throw new SMSException("That view is private to someone else.");
 			}
 			if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use." + getType())) {
-				throw new SMSException("You don't have permission to use this type of view.");
+				throw new SMSException("You don't have permission to use that type of view.");
 			}
 		}
 	}
@@ -948,7 +949,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any") && !isOwnedBy(player)) {
-				throw new SMSException("You may not modify or delete someone else's view.");
+				throw new SMSException("That view is owned by someone else.");
 			}
 		}
 	}
@@ -970,7 +971,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			viewName = node.getString("name");
 
 			Class<? extends SMSView> c = Class.forName(className).asSubclass(SMSView.class);
-			//			System.out.println("got class " + c.getName());
 			Constructor<? extends SMSView> ctor = c.getDeclaredConstructor(String.class, SMSMenu.class);
 			SMSView v = ctor.newInstance(viewName, SMSMenu.getMenu(node.getString("menu")));
 			v.thaw(node);
@@ -1054,10 +1054,16 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 */
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-		if (key.equals(ACCESS)) {
+		if (key.equals(OWNER)) {
+			if (newVal.toString().isEmpty()) {
+				throw new SMSException("Unowned views are not allowed");
+			}
+		} else if (key.equals(ACCESS)) {
 			SMSAccessRights access = (SMSAccessRights) newVal;
-			if (newVal != SMSAccessRights.ANY && getAttributeAsString(OWNER).isEmpty()) {
-				throw new DHUtilsException("Cannot set '" + key + "' to " + access + " without a view owner; set one first.");
+			if (access != SMSAccessRights.ANY && getAttributeAsString(OWNER).equals(ScrollingMenuSign.CONSOLE_OWNER)) {
+				throw new SMSException("View must be owned by a player to change access control to " + access);
+			} else if (access == SMSAccessRights.GROUP && ScrollingMenuSign.permission == null) {
+				throw new SMSException("Cannot use GROUP access control (no permission group support available)");
 			}
 		}
 	}

@@ -36,6 +36,7 @@ import me.desht.scrollingmenusign.enums.ViewJustification;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -409,20 +410,25 @@ public class SMSMapView extends SMSScrollableView {
 	 * @param mapId		ID of the map that will be used as a view
 	 * @return	The SMSMapView object that was just created
 	 * @throws SMSException if the given mapId is already a view
-	 */	
-	public static SMSMapView addMapToMenu(String viewName, SMSMenu menu, short mapId) throws SMSException {
+	 */
+	public static SMSMapView addMapToMenu(String viewName, SMSMenu menu, short mapId, CommandSender owner) throws SMSException {
 		if (SMSMapView.checkForMapId(mapId)) {
 			throw new SMSException("Map #" + mapId + " already has a menu view associated with it");
 		}
+		if (SMSMapView.usedByOtherPlugin(mapId)) {
+			throw new SMSException("Map #" + mapId + " is used by another plugin");
+		}
+
 		SMSMapView mapView = new SMSMapView(viewName, menu);
 		mapView.register();
+		mapView.setAttribute(OWNER, mapView.getOwnerName(owner));
 		mapView.setMapId(mapId);
 		mapView.update(menu, SMSMenuAction.REPAINT);
 
 		return mapView;
 	}
-	public static SMSMapView addMapToMenu(SMSMenu menu, short mapId) throws SMSException {
-		return addMapToMenu(null, menu, mapId);
+	public static SMSMapView addMapToMenu(SMSMenu menu, short mapId, CommandSender owner) throws SMSException {
+		return addMapToMenu(null, menu, mapId, owner);
 	}
 
 	/**
@@ -465,11 +471,8 @@ public class SMSMapView extends SMSScrollableView {
 	 * @return	True if it's used by someone else, false otherwise
 	 * @throws IllegalArgumentException if the given item is not a map
 	 */
-	public static boolean usedByOtherPlugin(ItemStack item) {
-		if (item.getType() != Material.MAP)
-			throw new IllegalArgumentException("Item is not a map: " + item.getType());
-
-		MapView mapView = Bukkit.getServer().getMap(item.getDurability());
+	public static boolean usedByOtherPlugin(short mapId) {
+		MapView mapView = Bukkit.getServer().getMap(mapId);
 
 		for (MapRenderer r : mapView.getRenderers()) {
 			if (!r.getClass().getPackage().getName().startsWith("org.bukkit")) {
@@ -528,6 +531,7 @@ public class SMSMapView extends SMSScrollableView {
 		}
 		Color c = g.getColor();
 		g.setColor(minecraftToJavaColor(7));
+		yPos++;
 		int lineY = yPos + 1 - lineHeight;
 		g.drawLine(x, lineY, x + width, lineY);
 		g.setColor(c);
@@ -562,18 +566,18 @@ public class SMSMapView extends SMSScrollableView {
 		if (item != null && config.getBoolean("sms.maps.show_tooltips")) {
 			String[] lore = item.getLore();
 			if (lore.length > 0) {
-				int y1 = lineHeight * (titleLines.size() + 2);
-				int x1 = x + 15;
+				int y1 = lineHeight * (titleLines.size() + 3);
+				int x1 = x + 10;
 				int y2 = y1 + lineHeight * lore.length + 1;
 				int x2 = x + width;
-				g.setColor(minecraftToJavaColor(0));
+				g.setColor(minecraftToJavaColor(14));
 				g.fillRect(x1, y1, x2 - x1, y2 - y1);
-				g.setColor(minecraftToJavaColor(15));
+				g.setColor(minecraftToJavaColor(6));
 				g.draw3DRect(x1, y1, x2 - x1, y2 - y1, true);
 				yPos = y2 - (2 + lineHeight * (lore.length - 1));
 				g.setClip(x1, y1, x2 - x1, y2 - y1);
 				for (String l : lore) {
-					g.setColor(minecraftToJavaColor(15));
+					g.setColor(minecraftToJavaColor(0));
 					drawText(g, x1 + 2, yPos, l);
 					yPos += lineHeight;
 				}
@@ -700,7 +704,7 @@ public class SMSMapView extends SMSScrollableView {
 		22,	// 11 bright cyan
 		18,	// 12 bright red
 		21, // 13 pink (much too blue)
-		42, // 14 bright yellow (too brown)
+		10, // 14 bright yellow (too brown)
 		34, // 15 white
 	};
 

@@ -27,21 +27,21 @@ public class ExpectViewCreation extends ExpectLocation {
 	public void doResponse(String playerName) {
 		SMSView view = null;
 
+		Player player = Bukkit.getPlayer(playerName);
 		try {
 			// TODO: code smell
 			if (arg.equals("sign")) {
-				view = SMSSignView.addSignToMenu(viewName, menu, getLocation());
+				view = SMSSignView.addSignToMenu(viewName, menu, getLocation(), player);
 			} else if (arg.equals("redstone")) {
-				view = SMSRedstoneView.addRedstoneViewToMenu(viewName, menu, getLocation()); 
+				view = SMSRedstoneView.addRedstoneViewToMenu(viewName, menu, getLocation(), player); 
 			} else if (arg.equals("multisign")) {
-				view = SMSMultiSignView.addSignToMenu(viewName, menu, getLocation());
+				view = SMSMultiSignView.addSignToMenu(viewName, menu, getLocation(), player);
 			}
 		} catch (SMSException e) {
 			throw new DHUtilsException(e.getMessage());
 		}
 
 		if (view != null) {
-			Player player = Bukkit.getPlayer(playerName);
 			if (player != null) {
 				MiscUtil.statusMessage(player, String.format("Added %s view &e%s&- to menu &e%s&-.",
 				                                             view.getType(), view.getName(), menu.getName()));

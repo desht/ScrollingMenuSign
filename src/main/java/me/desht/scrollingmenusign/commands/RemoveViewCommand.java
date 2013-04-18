@@ -5,6 +5,7 @@ import java.util.List;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.command.CommandSender;
@@ -34,7 +35,7 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 			view = SMSView.getTargetedView((Player) sender, true);
 		} else if (args.length == 1) {
 			// detaching a view by view name
-			view = SMSView.getView(args[0]);
+			view = getView(sender, args[0]);
 		} else if (hasOption("loc")) {
 			// detaching a view by location
 			try {
@@ -49,6 +50,12 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 		} else {
 			PermissionUtils.requirePerms(sender, "scrollingmenusign.use." + view.getType());
 			view.ensureAllowedToModify(sender);
+			if (sender instanceof Player) {
+				Player player = (Player)sender;
+				if (view == SMSMapView.getHeldMapView(player)) {
+					((SMSMapView)view).removeMapItemName(player.getItemInHand());
+				}
+			}
 			view.deletePermanent();
 			MiscUtil.statusMessage(sender, String.format("Removed &9%s&- view &e%s&- from menu &e%s&-.",
 			                                             view.getType(), view.getName(), view.getNativeMenu().getName()));

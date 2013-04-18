@@ -126,10 +126,10 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		if (item == null) {
 			return;
 		}
-		String selectedItem = ChatColor.stripColor(item.getLabel());
+//		String selectedItem = ChatColor.stripColor(item.getLabel());
 
 		for (Switch sw : switches) {
-			sw.setPowered(sw.getTrigger().equals(selectedItem));
+			sw.setPowered(sw.getTrigger().equals(item.getLabel()));
 		}
 	}
 
@@ -138,9 +138,9 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		if (item == null) {
 			return;
 		}
-		String selectedItem = ChatColor.stripColor(item.getLabel());
+//		String selectedItem = ChatColor.stripColor(item.getLabel());
 		for (Switch sw : switches) {
-			if (sw.getTrigger().equals(selectedItem)) {
+			if (sw.getTrigger().equals(item.getLabel())) {
 				sw.setPowered(!sw.getPowered());
 			}
 		}
@@ -151,10 +151,10 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		if (item == null) {
 			return;
 		}
-		String selectedItem = ChatColor.stripColor(item.getLabel());
+//		String selectedItem = ChatColor.stripColor(item.getLabel());
 		final List<Switch> affected = new ArrayList<Switch>();
 		for (Switch sw : switches) {
-			if (pulseAll || sw.getTrigger().equals(selectedItem)) {
+			if (pulseAll || sw.getTrigger().equals(item.getLabel())) {
 				sw.setPowered(true);
 				affected.add(sw);
 			}

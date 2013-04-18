@@ -7,7 +7,6 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.PoppableView;
@@ -39,8 +38,8 @@ public class ViewCommand extends SMSAbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		SMSView view = null;
-		if (args.length > 0 && !args[0].equals(".")) {
-			view = SMSView.getView(args[0]);
+		if (args.length > 0) {
+			view = getView(sender, args[0]);
 		} else {
 			notFromConsole(sender);
 			Player player = (Player)sender;
@@ -182,11 +181,4 @@ public class ViewCommand extends SMSAbstractCommand {
 		}
 	}
 
-	private SMSView getView(CommandSender sender, String viewName) {
-		if (viewName.equals(".") && sender instanceof Player) {
-			return SMSView.getTargetedView((Player) sender, true);
-		} else {
-			return SMSView.getView(viewName);
-		}
-	}
 }

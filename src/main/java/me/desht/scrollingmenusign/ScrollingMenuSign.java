@@ -42,6 +42,7 @@ import me.desht.scrollingmenusign.commands.RemoveMacroCommand;
 import me.desht.scrollingmenusign.commands.RemoveViewCommand;
 import me.desht.scrollingmenusign.commands.SaveCommand;
 import me.desht.scrollingmenusign.commands.SetConfigCommand;
+import me.desht.scrollingmenusign.commands.UndeleteMenuCommand;
 import me.desht.scrollingmenusign.commands.VarCommand;
 import me.desht.scrollingmenusign.commands.ViewCommand;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
@@ -59,6 +60,7 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -70,6 +72,7 @@ import org.mcstats.Metrics.Plotter;
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
 	public static final int BLOCK_TARGET_DIST = 4;
+	public static final String CONSOLE_OWNER = "[console]";
 
 	private static ScrollingMenuSign instance = null;
 
@@ -296,6 +299,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		cmds.registerCommand(new RemoveViewCommand());
 		cmds.registerCommand(new SaveCommand());
 		cmds.registerCommand(new SetConfigCommand());
+		cmds.registerCommand(new UndeleteMenuCommand());
 		cmds.registerCommand(new VarCommand());
 		cmds.registerCommand(new ViewCommand());
 	}

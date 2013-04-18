@@ -30,7 +30,7 @@ public class ListMenusCommand extends SMSAbstractCommand {
 
 		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
 		if (args.length > 0) {
-			SMSMenu menu = handler.getMenu(args[0]);
+			SMSMenu menu = getMenu(sender, args[0]);
 			listMenu(pager, menu, true);
 		} else {
 			List<SMSMenu> menus = handler.listMenus(true);

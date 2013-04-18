@@ -61,7 +61,7 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 				}
 			} else if (player.getItemInHand().getType() == Material.MAP) {
 				short id = player.getItemInHand().getDurability();
-				if (!SMSMapView.checkForMapId(id)) {
+				if (!SMSMapView.checkForMapId(id) && !SMSMapView.usedByOtherPlugin(id)) {
 					PermissionUtils.requirePerms(sender, "scrollingmenusign.use.map");
 					mapId = id;
 				}
@@ -72,10 +72,10 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 		SMSMenu menu = handler.createMenu(menuName, menuTitle, owner);
 
 		if (signLoc != null) {
-			SMSSignView.addSignToMenu(menu, signLoc);
+			SMSSignView.addSignToMenu(menu, signLoc, sender);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with sign view @ &f" + MiscUtil.formatLocation(signLoc));
 		} else if (mapId >= 0) {
-			SMSMapView mapView = SMSMapView.addMapToMenu(menu, mapId);
+			SMSMapView mapView = SMSMapView.addMapToMenu(menu, mapId, sender);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with map view &fmap_" + mapId);
 			Player player = (Player) sender;
 			mapView.setMapItemName(player.getItemInHand());

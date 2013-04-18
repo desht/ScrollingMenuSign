@@ -115,7 +115,7 @@ public class SMSListWidget extends GenericListWidget {
 		int nItems = view.getActiveMenuItemCount(sp.getName());
 		for (int i = 1; i <= nItems; i++) {
 			SMSMenuItem item = view.getActiveMenuItemAt(sp.getName(), i);
-			String lore = Joiner.on("//").join(item.getLore());
+			String lore = Joiner.on(" ").join(item.getLore());
 			addItem(new ListWidgetItem(defaultTextColor + view.variableSubs(item.getLabel()), showTooltips ? lore : ""));
 		}
 	}

@@ -121,11 +121,4 @@ public class MenuCommand extends SMSAbstractCommand {
 		}
 	}
 
-	private SMSMenu getMenu(CommandSender sender, String menuName) {
-		if (menuName.equals(".") && sender instanceof Player) {
-			return SMSView.getTargetedView((Player) sender, true).getActiveMenu(sender.getName());
-		} else {
-			return SMSMenu.getMenu(menuName);
-		}
-	}
 }

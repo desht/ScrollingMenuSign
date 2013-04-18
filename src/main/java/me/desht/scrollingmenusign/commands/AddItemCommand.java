@@ -34,7 +34,7 @@ public class AddItemCommand extends SMSAbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		String menuName = args[0];
 
-		SMSMenu menu = SMSMenu.getMenu(menuName);
+		SMSMenu menu = getMenu(sender, menuName);
 
 		if (args.length < 3 && menu.getDefaultCommand().isEmpty()) {
 			throw new SMSException(getUsage()[0]);
@@ -56,11 +56,11 @@ public class AddItemCommand extends SMSAbstractCommand {
 		SMSMenuItem newItem = new SMSMenuItem(menu, label, cmd, msg, iconMat, lore);
 		if (pos < 0) {
 			menu.addItem(newItem);
-			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- added to &e" + menuName);
+			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- added to &e" + menu.getName());
 		} else {
 			menu.insertItem(pos, newItem);
 			int actualPos = menu.indexOfItem(label);
-			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- inserted in &e" + menuName + "&- at position " + actualPos);
+			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- inserted in &e" + menu.getName() + "&- at position " + actualPos);
 		}
 
 		menu.notifyObservers(SMSMenuAction.REPAINT);

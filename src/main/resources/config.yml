@@ -1,5 +1,4 @@
 sms:
-    menuitem_separator: '|'
     actions:
         leftclick:
             normal: execute
@@ -51,7 +50,6 @@ sms:
         scrolldown: true
     redstoneoutput:
         pulseticks: 10
-    persistent_user_vars: false
     resource_base_url: ''
     log_commands: false
     command_log_file: ''

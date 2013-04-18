@@ -7,7 +7,6 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -28,8 +27,6 @@ import me.desht.scrollingmenusign.views.redout.Switch;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -121,13 +118,6 @@ public class SMSPlayerListener extends SMSListenerBase {
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 
-		// clear out user variables if not persistent
-		Configuration cfg = plugin.getConfig();
-		if (!cfg.getBoolean("sms.persistent_user_vars") && cfg.contains("uservar." + player.getName())) {
-			cfg.set("uservar." + player.getName(), null);
-			plugin.saveConfig();
-		}
-
 		MessagePager.deletePager(player);
 
 		SMSView.clearPlayer(player);
@@ -158,7 +148,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 			return false;
 		}
 
-		SMSView locView = block == null ? null : SMSView.getViewForLocation(block.getLocation());
+		SMSView clickedView = block == null ? null : SMSView.getViewForLocation(block.getLocation());
 
 		String playerName = player.getName();
 
@@ -195,13 +185,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 			// Holding an active map view
 			LogUtils.fine("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() +
 			              ", menu=" + mapView.getActiveMenu(player.getName()).getName());
-			Configuration cfg = plugin.getConfig();
-			if (block != null && block.getTypeId() == cfg.getInt("sms.maps.break_block_id")) {
-				// Hit the "break block" with active map - deactivate the map if it has a view on it
-				tryToDeactivateMap(block, player);
-			} else if (locView == null && block != null && block.getState() instanceof Sign) {
+			if (clickedView == null && block != null && (block.getType() == Material.WALL_SIGN || block.getType() == Material.SIGN_POST)) {
 				// Hit a non-active sign with an active map - try to make the sign into a view
-				tryToActivateSign(block, player, mapView);
+				tryToActivateSign(block, player, mapView.getActiveMenu(player.getName()));
 			} else {
 				SMSUserAction action = SMSUserAction.getAction(event);
 				if (action != null) {
@@ -211,31 +197,27 @@ public class SMSPlayerListener extends SMSListenerBase {
 			}
 		} else if (block != null) {
 			ItemStack heldItem = player.getItemInHand();
-			if (locView == null && block.getState() instanceof Sign && (heldItem == null || heldItem.getType() == Material.AIR)) {
-				// No view present at this location, but a left-click could create a new sign view if the sign's
-				// text is in the right format...
-				return tryToActivateSign(block, player);
-			} else if (locView != null && heldItem.getType() == Material.MAP && !SMSMapView.usedByOtherPlugin(player.getItemInHand())) {
+			if (clickedView != null && heldItem.getType() == Material.MAP) {
 				// Hit an existing view with a map - the map now becomes a view on the same menu
-				tryToActivateMap(block, player);
-			} else if (locView != null && heldItem.getType() == Material.BOOK_AND_QUILL) {
+				tryToActivateMap(clickedView, player);
+			} else if (clickedView != null && heldItem.getType() == Material.BOOK_AND_QUILL) {
 				// Hit an existing view with a book & quill - try to associate a written book with
 				// an inventory view on the view's menu
-				tryToAddInventoryView((SMSGlobalScrollableView) locView, player);
-			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK && isHittingViewWithSwitch(player, locView)) {
+				tryToAddInventoryView((SMSGlobalScrollableView) clickedView, player);
+			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK && isHittingViewWithSwitch(player, clickedView)) {
 				// Hit a globally scrollable view with a button or lever - adding it as a redstone output
-				tryToAddRedstoneOutput((SMSGlobalScrollableView) locView, player);
-			} else if (locView != null && locView instanceof SMSScrollableView) {
+				tryToAddRedstoneOutput((SMSGlobalScrollableView) clickedView, player);
+			} else if (clickedView != null && clickedView instanceof SMSScrollableView) {
 				// There's an interactable view at the targeted block
 				LogUtils.fine("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() +
-				              ", menu=" + locView.getActiveMenu(player.getName()).getName());
+				              ", menu=" + clickedView.getActiveMenu(player.getName()).getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
 				if (action != null) {
-					action.execute(player, locView);
+					action.execute(player, clickedView);
 				}
 				if (event.getAction() == Action.LEFT_CLICK_BLOCK && player.getGameMode() == GameMode.CREATIVE) {
 					// left clicking a sign in creative mode even once will blank the sign
-					locView.update(locView.getActiveMenu(player.getName()), SMSMenuAction.REPAINT);
+					clickedView.update(clickedView.getActiveMenu(player.getName()), SMSMenuAction.REPAINT);
 				}
 			} else {
 				return false;
@@ -252,6 +234,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 	 * @param view	the view that's been hit
 	 * @param player the player
 	 */
+	@SuppressWarnings("deprecation")
 	private void tryToAddInventoryView(SMSGlobalScrollableView view, Player player) {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.inventory");
 
@@ -260,58 +243,24 @@ public class SMSPlayerListener extends SMSListenerBase {
 		SMSView popView = SMSView.findView(menu, PoppableView.class);
 		if (popView == null) {
 			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
-			popView = SMSInventoryView.addInventoryViewToMenu(menu);
+			popView = SMSInventoryView.addInventoryViewToMenu(menu, player);
 			newView = true;
 		}
 		PopupBook popup = new PopupBook(player, popView);
-		player.setItemInHand(popup.toItemStack());
+		ItemStack stack = player.getItemInHand();
+		if (stack.getAmount() == 1) {
+			player.setItemInHand(popup.toItemStack());
+		} else {
+			player.setItemInHand(new ItemStack(stack.getType(), stack.getAmount() - 1));
+			player.getInventory().addItem(popup.toItemStack());
+			player.updateInventory();
+		}
 
 		if (newView) {
 			MiscUtil.statusMessage(player, String.format("Associated book with new %s view &e%s&-", popView.getType(), popView.getName()));
 		} else {
 			MiscUtil.statusMessage(player, String.format("Associated book with existing %s view &e%s&-", popView.getType(), popView.getName()));
 		}
-	}
-
-	/**
-	 * Try to activate a sign by punching it.  The sign needs to contain "[sms]"
-	 * on the first line, the menu name on the second line, and (only if a new menu
-	 * is to be created) the menu title on the third line. 
-	 * 
-	 * @param b
-	 * @param player
-	 * @return true if the sign can be activated, false otherwise
-	 * @throws SMSException
-	 */
-	private boolean tryToActivateSign(Block b, Player player) throws SMSException {
-		Sign sign = (Sign) b.getState();
-		if (!sign.getLine(0).equals("[sms]"))
-			return false;
-
-		String menuName = sign.getLine(1);
-		String title = MiscUtil.parseColourSpec(player, sign.getLine(2));
-		if (menuName.isEmpty())
-			return false;
-
-		SMSHandler handler = plugin.getHandler();
-		if (handler.checkMenu(menuName)) {
-			if (title.isEmpty()) {
-				PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
-				SMSMenu menu = handler.getMenu(menuName);
-				SMSView view = SMSSignView.addSignToMenu(menu, b.getLocation());
-				MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
-				                                             view.getName(), MiscUtil.formatLocation(b.getLocation()), menuName));
-			} else {
-				MiscUtil.errorMessage(player, "A menu called '" + menuName + "' already exists.");
-			}
-		} else if (title.length() > 0) {
-			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.create");
-			SMSMenu menu = plugin.getHandler().createMenu(menuName, title, player.getName());
-			SMSView view = SMSSignView.addSignToMenu(menu, b.getLocation());
-			MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to new menu &e%s&-.",
-			                                             view.getName(), MiscUtil.formatLocation(b.getLocation()), menuName));
-		}
-		return true;
 	}
 
 	/**
@@ -323,37 +272,16 @@ public class SMSPlayerListener extends SMSListenerBase {
 	 * @param mapView
 	 * @throws SMSException
 	 */
-	private void tryToActivateSign(Block block, Player player, SMSMapView mapView) throws SMSException {
+	private void tryToActivateSign(Block block, Player player, SMSMenu menu) throws SMSException {
 		if (!plugin.getConfig().getBoolean("sms.maps.transfer.to_sign")) {
 			return;
 		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.to.sign");
-		SMSMenu menu = mapView.getActiveMenu(player.getName());
-		SMSView view = SMSSignView.addSignToMenu(menu, block.getLocation());
+		SMSView view = SMSSignView.addSignToMenu(menu, block.getLocation(), player);
 		MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
 		                                             view.getName(), MiscUtil.formatLocation(block.getLocation()), menu.getName()));
-	}
-
-	/**
-	 * Try to deactivate an active map view by hitting glass with it.
-	 * 
-	 * @param block
-	 * @param player
-	 * @throws SMSException
-	 */
-	private void tryToDeactivateMap(Block block, Player player) throws SMSException {
-		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.break");
-		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
-		short mapId = player.getItemInHand().getDurability();
-		SMSMapView mapView = SMSMapView.getViewForId(mapId);
-		if (mapView != null) {
-			mapView.removeMapItemName(player.getItemInHand());
-			mapView.deletePermanent();
-			MiscUtil.statusMessage(player, String.format("Removed map view &e%s&- from menu &e%s&-.",
-			                                             mapView.getName(), mapView.getActiveMenu(player.getName()).getName()));
-		}
 	}
 
 	/**
@@ -363,20 +291,19 @@ public class SMSPlayerListener extends SMSListenerBase {
 	 * @param player
 	 * @throws SMSException
 	 */
-	private void tryToActivateMap(Block block, Player player) throws SMSException {
+	private void tryToActivateMap(SMSView view, Player player) throws SMSException {
 		if (!plugin.getConfig().getBoolean("sms.maps.transfer.from_sign")) {
+			return;
+		}
+		short mapId = player.getItemInHand().getDurability();
+		if (SMSMapView.usedByOtherPlugin(mapId)) {
 			return;
 		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.from.sign");
 
-		SMSView clickedView = SMSView.getViewForLocation(block.getLocation());
-		if (clickedView == null || !(clickedView instanceof SMSGlobalScrollableView))
-			return;
-
-		short mapId = player.getItemInHand().getDurability();
-		SMSMapView mapView = SMSMapView.addMapToMenu(clickedView.getActiveMenu(player.getName()), mapId);
+		SMSMapView mapView = SMSMapView.addMapToMenu(view.getActiveMenu(player.getName()), mapId, player);
 		mapView.setMapItemName(player.getItemInHand());
 
 		MiscUtil.statusMessage(player, String.format("Added new map view &e%s&- to menu &e%s&-.",
@@ -386,25 +313,26 @@ public class SMSPlayerListener extends SMSListenerBase {
 	/**
 	 * Try to associate a redstone output lever with the currently selected item of the given view.
 	 * 
-	 * @param locView
+	 * @param view
 	 * @param player
 	 */
-	private void tryToAddRedstoneOutput(SMSGlobalScrollableView locView, Player player) {
+	private void tryToAddRedstoneOutput(SMSGlobalScrollableView view, Player player) {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.create.switch");
-		SMSMenuItem item = locView.getActiveMenu(player.getName()).getItemAt(locView.getScrollPos());
+		view.ensureAllowedToModify(player);
+		SMSMenuItem item = view.getActiveMenuItemAt(player.getName(), view.getScrollPos());
 		if (item == null) return;
 
 		String trigger = item.getLabel();
 		MiscUtil.statusMessage(player, "Place your lever or hit an existing lever to add it as a");
 		MiscUtil.statusMessage(player, String.format("  redstone output on view &e%s&- / &e%s&-.",
-		                                             locView.getName(), trigger));
+		                                             view.getName(), trigger));
 		MiscUtil.statusMessage(player, "Change your held item to cancel.");
 
-		plugin.responseHandler.expect(player.getName(), new ExpectSwitchAddition(locView, trigger));
+		plugin.responseHandler.expect(player.getName(), new ExpectSwitchAddition(view, trigger));
 	}
 
-	private boolean isHittingViewWithSwitch(Player player, SMSView locView) {
-		if (!(locView instanceof SMSGlobalScrollableView))
+	private boolean isHittingViewWithSwitch(Player player, SMSView view) {
+		if (!(view instanceof SMSGlobalScrollableView))
 			return false;
 
 		return player.getItemInHand().getType() == Material.LEVER;

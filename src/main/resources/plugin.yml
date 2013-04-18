@@ -1,5 +1,5 @@
 name: ScrollingMenuSign
-description: Scrollable command menus with signs/maps/spout/redstone views
+description: Scrollable command menus with multiple view types
 author: desht
 website: http://dev.bukkit.org/server-mods/scrollingmenusign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
@@ -7,20 +7,20 @@ version: ${project.version}
 softdepend: [ Spout, Vault ]
 commands:
   sms:
-    description: Scrolling menu sign control
+    description: ScrollingMenuSign management
     usage: |
       /sms create <menu-name> <title>
       /sms delete [<menu-name>]
+      /sms undelete <menu-name>
       /sms list [<menu-name>]
       /sms menu <menu-name> <options...>
-      /sms add <menu-name> label command <options...>
-      /sms remove <menu-name> <@index|label>
-      /sms edit <menu-name> <@index|label> <options...>
+      /sms add <menu-name> <label> <command> <options...>
+      /sms remove <menu-name> <@index>|<label>
+      /sms edit <menu-name> <@index>|<label> <options...>
       /sms uses <menu-name> [<item>] <count>|clear [-global]
       /sms sync <menu-name> <options...>
       /sms break <options...>
       /sms view <view-name> <options...>
-      /sms page [<page-number|n|p>]
       /sms getcfg [<key>]
       /sms setcfg <key> <value>
       /sms macro <list|add|remove> <macro-name> ...
@@ -29,6 +29,7 @@ commands:
       /sms give map <map-id> <quantity> [<player>]
       /sms give book <view-name> <quantity> [<player>]
       /sms var [<var-name>] [<value>]
+      /sms page [<page-number|n|p>]
 permissions:
   scrollingmenusign.guest:
     description: Gives access to very basic SMS functionality (no permission elevation)
@@ -45,7 +46,7 @@ permissions:
       scrollingmenusign.execute: true
       scrollingmenusign.execute.elevated: true
   scrollingmenusign.poweruser:
-    description: Gives access to basic SMS functionality plus map and spout views
+    description: Gives access to basic SMS functionality plus map/spout/inventory views
     default: false
     children:
       scrollingmenusign.scroll: true
@@ -69,16 +70,14 @@ permissions:
       scrollingmenusign.use.spout: true
       scrollingmenusign.commands.create: true
       scrollingmenusign.commands.delete: true
+      scrollingmenusign.commands.undelete: true
       scrollingmenusign.commands.break: true
       scrollingmenusign.commands.sync: true
       scrollingmenusign.commands.add: true
       scrollingmenusign.commands.remove: true
-      scrollingmenusign.commands.save: true
-      scrollingmenusign.commands.reload: true
       scrollingmenusign.commands.macro: true
       scrollingmenusign.commands.getcfg: true
       scrollingmenusign.commands.list: true
-      scrollingmenusign.commands.give: true
       scrollingmenusign.commands.uses: true
       scrollingmenusign.commands.view: true
       scrollingmenusign.commands.var: true
@@ -88,7 +87,6 @@ permissions:
       scrollingmenusign.coloursigns: true
       scrollingmenusign.maps.to.sign: true
       scrollingmenusign.maps.from.sign: true
-      scrollingmenusign.create.redstonecontrol: true
       scrollingmenusign.create.switch: true
   scrollingmenusign.admin:
     description: Gives complete access to all SMS features
@@ -102,6 +100,7 @@ permissions:
       scrollingmenusign.use.spout: true
       scrollingmenusign.commands.create: true
       scrollingmenusign.commands.delete: true
+      scrollingmenusign.commands.undelete: true
       scrollingmenusign.commands.break: true
       scrollingmenusign.commands.sync: true
       scrollingmenusign.commands.add: true
@@ -221,6 +220,9 @@ permissions:
   scrollingmenusign.commands.page:
     description: Allows output data to be paged
     default: true
+  scrollingmenusign.commands.undelete:
+    description: Allows restoration of deleted menus
+    default: op
   scrollingmenusign.maps.from.sign:
     description: Allows map views to be copied from sign views
     default: op

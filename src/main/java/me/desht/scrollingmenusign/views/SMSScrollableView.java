@@ -206,11 +206,22 @@ public abstract class SMSScrollableView extends SMSView {
 	 * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationChanged(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	public void onConfigurationChanged(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
-		super.onConfigurationChanged(configurationManager, attribute, oldVal, newVal);
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+		super.onConfigurationChanged(configurationManager, key, oldVal, newVal);
 
-		if (attribute.equals(MAX_TITLE_LINES)) {
+		if (key.equals(MAX_TITLE_LINES)) {
 			setDirty(true);
+		}
+	}
+
+	@Override
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+		super.onConfigurationValidate(configurationManager, key, oldVal, newVal);
+
+		if (key.equals(MAX_TITLE_LINES)) {
+			if ((Integer)newVal > getHardMaxTitleLines() || (Integer)newVal < 0) {
+				throw new SMSException("Valid " + MAX_TITLE_LINES + " range for this view is 0-" + getHardMaxTitleLines() + ".");
+			}
 		}
 	}
 

@@ -19,6 +19,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.material.Attachable;
@@ -226,14 +227,15 @@ public class SMSRedstoneView extends SMSView {
 	 * @param loc	The location for the view.
 	 * @throws SMSException if the location is not suitable for this view
 	 */
-	public static SMSView addRedstoneViewToMenu(String viewName, SMSMenu menu, Location loc) throws SMSException {
+	public static SMSView addRedstoneViewToMenu(String viewName, SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
 		SMSView view = new SMSRedstoneView(viewName, menu);
 		view.addLocation(loc);
 		view.register();
+		view.setAttribute(OWNER, view.getOwnerName(owner));
 		return view;
 	}
-	public static SMSView addRedstoneViewToMenu(SMSMenu menu, Location loc) throws SMSException {
-		return addRedstoneViewToMenu(null, menu, loc);
+	public static SMSView addRedstoneViewToMenu(SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
+		return addRedstoneViewToMenu(null, menu, loc, owner);
 	}
 
 	/**

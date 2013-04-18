@@ -24,10 +24,10 @@ public class DeleteMenuCommand extends SMSAbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws SMSException {
 		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
-
 		SMSMenu menu = null;
+
 		if (args.length > 0) {
-			menu = handler.getMenu(args[0]);
+			menu = getMenu(sender, args[0]);
 		} else {
 			notFromConsole(sender);
 			Player player = (Player)sender;
@@ -36,7 +36,7 @@ public class DeleteMenuCommand extends SMSAbstractCommand {
 		}
 		menu.ensureAllowedToModify(sender);
 		handler.deleteMenu(menu.getName());
-		MiscUtil.statusMessage(sender, "Deleted menu &e" + menu.getName());
+		MiscUtil.statusMessage(sender, "Deleted menu &e" + menu.getName() + "&-.  Use &f/sms undelete " + menu.getName() + "&- to restore it.");
 
 		return true;
 	}

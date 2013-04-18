@@ -7,6 +7,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
@@ -14,6 +15,7 @@ import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSRedstoneView;
+import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
@@ -170,7 +172,9 @@ public class SMSBlockListener extends SMSListenerBase {
 	@EventHandler
 	public void onSignChanged(SignChangeEvent event) {
 		try {
-			if (event.getLine(0).equals("[smsred]")) {
+			if (event.getLine(0).equals("[sms]")) {
+				tryToActivateSign(event);
+			} else if (event.getLine(0).equals("[smsred]")) {
 				placeRedstoneControlSign(event);
 			} else if (event.getLine(0).equals("[smstooltip]")) {
 				placeTooltipSign(event);
@@ -261,5 +265,44 @@ public class SMSBlockListener extends SMSListenerBase {
 		}
 		gsv.addTooltipSign(b.getLocation());
 		return true;
+	}
+
+	private void tryToActivateSign(SignChangeEvent event) {
+		final Block b = event.getBlock();
+		final Player player = event.getPlayer();
+		String menuName = event.getLine(1);
+		if (menuName.isEmpty()) {
+			return;
+		}
+		String title = MiscUtil.parseColourSpec(player, event.getLine(2));
+
+		SMSHandler handler = plugin.getHandler();
+		SMSMenu menu = null;
+		if (handler.checkMenu(menuName)) {
+			if (title.isEmpty()) {
+				PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
+				menu = handler.getMenu(menuName);
+			} else {
+				throw new SMSException("A menu called '" + menuName + "' already exists.");
+			}
+		} else if (title.length() > 0) {
+			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.create");
+			menu = handler.createMenu(menuName, title, player.getName());
+		}
+
+		if (menu == null) {
+			throw new SMSException("No such menu '" + menuName + "'.");
+		}
+		final SMSMenu menu2 = menu;
+
+		// using the scheduler here because updating the sign from its SignChangeEvent handler doesn't work 
+		Bukkit.getScheduler().runTask(plugin, new Runnable() {
+			@Override
+			public void run() {
+				SMSView view = SMSSignView.addSignToMenu(menu2, b.getLocation(), player);
+				MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
+				                                             view.getName(), MiscUtil.formatLocation(b.getLocation()), menu2.getName()));
+			}
+		});
 	}
 }

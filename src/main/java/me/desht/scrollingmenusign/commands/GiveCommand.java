@@ -28,7 +28,7 @@ public class GiveCommand extends SMSAbstractCommand {
 		setPermissionNode("scrollingmenusign.commands.give");
 		setUsage(new String[] {
 				"/sms give map <menu-name|view-name|map-id> [<amount>] [<player>]",
-				"/sms give book <menu-name|view-name> [<amount>] [<player>]",	
+				"/sms give book <menu-name|view-name> [<amount>] [<player>]",
 		});
 	}
 
@@ -54,7 +54,7 @@ public class GiveCommand extends SMSAbstractCommand {
 		}
 
 		if (args[0].startsWith("m")) {
-			short mapId = getMapId(targetPlayer, args[1]);
+			short mapId = getMapId(sender, targetPlayer, args[1]);
 			giveMap(sender, targetPlayer, mapId, amount);
 		} else if (args[0].startsWith("b")) {
 			giveBook(sender, targetPlayer, args[1], amount);
@@ -64,8 +64,9 @@ public class GiveCommand extends SMSAbstractCommand {
 		return true;
 	}
 
-	private short getMapId(Player target, String argStr) {
+	private short getMapId(CommandSender sender, Player target, String argStr) {
 		short mapId;
+
 		try {
 			// first, see if it's a map ID
 			mapId = Short.parseShort(argStr);
@@ -79,15 +80,15 @@ public class GiveCommand extends SMSAbstractCommand {
 				mapId = ((SMSMapView) v).getMapView().getId();
 			} else {
 				// or perhaps a menu name?
-				SMSMenu menu = SMSMenu.getMenu(argStr);
+				SMSMenu menu = getMenu(sender, argStr);
 				SMSView v = SMSView.findView(menu, SMSMapView.class);
 				if (v == null) {
 					// this menu doesn't have a map view - make one!
 					mapId = Bukkit.createMap(target.getWorld()).getId();
-					v = SMSMapView.addMapToMenu(menu, mapId);
+					v = SMSMapView.addMapToMenu(menu, mapId, sender);
 				} else {
 					// menu has a map view already - use that map ID
-					mapId = ((SMSMapView) v).getMapView().getId();
+					mapId = ((SMSMapView)v).getMapView().getId();
 				}
 			}
 		}
@@ -108,7 +109,7 @@ public class GiveCommand extends SMSAbstractCommand {
 			SMSMenu menu = SMSMenu.getMenu(argStr);
 			view = SMSView.findView(menu, PoppableView.class);
 			if (view == null) {
-				view = SMSInventoryView.addInventoryViewToMenu(menu);
+				view = SMSInventoryView.addInventoryViewToMenu(menu, sender);
 			}
 		}
 

@@ -1,5 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.List;
+
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
@@ -42,7 +44,12 @@ public class VarCommand extends SMSAbstractCommand {
 			}
 			pager.showPage();
 			return true;
-		} 
+		}
+
+		if (args.length == 0) {
+			showUsage(sender);
+			return true;
+		}
 
 		String varSpec = args[0];
 
@@ -58,7 +65,7 @@ public class VarCommand extends SMSAbstractCommand {
 				int incr = args.length >= 2 ? Integer.parseInt(args[1]) : 1;
 				SMSVariables.set(sender, varSpec, Integer.toString(val + incr));
 				if (!quiet)
-					MiscUtil.statusMessage(sender, varSpec + " = '&e" + (val+incr) + "&-'");
+					MiscUtil.statusMessage(sender, varSpec + " = '&e" + (val+incr) + "&f'");
 			} catch (NumberFormatException e) {
 				throw new SMSException(e.getMessage() + ": not a number");
 			}
@@ -66,14 +73,19 @@ public class VarCommand extends SMSAbstractCommand {
 			// set the variable
 			SMSVariables.set(sender, varSpec, args[1]);
 			if (!quiet)
-				MiscUtil.statusMessage(sender, varSpec + " = '&e" + args[1] + "&-'");
+				MiscUtil.statusMessage(sender, varSpec + " = '&e" + args[1] + "&f'");
 		} else {
 			// just display the variable
 			String def = SMSVariables.isSet(sender, varSpec) ? "" : " &6(default)";
 			String val = SMSVariables.get(sender, varSpec);
-			MiscUtil.statusMessage(sender, varSpec + " = '&e" + val + "&-'" + def);
+			MiscUtil.statusMessage(sender, varSpec + " = '&e" + val + "&f'" + def);
 		}
 
 		return true;
+	}
+
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		showUsage(sender);
+		return noCompletions(sender);
 	}
 }

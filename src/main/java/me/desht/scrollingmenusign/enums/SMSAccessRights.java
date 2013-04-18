@@ -10,17 +10,12 @@ public enum SMSAccessRights {
 	OWNER, GROUP, ANY;
 
 	public boolean isAllowedToUse(Player player, String owner) {
-		switch (this) {
-		case ANY:
+		if (this == ANY || player.getName().equalsIgnoreCase(owner) || PermissionUtils.isAllowedTo(player, "scrollingmenusign.access.any")) {
 			return true;
-		case OWNER:
-			return player.getName().equalsIgnoreCase(owner) || PermissionUtils.isAllowedTo(player, "scrollingmenusign.access.any");
-		case GROUP:
+		}
+		if (this == GROUP) {
 			if (ScrollingMenuSign.permission == null) {
 				return false;
-			}
-			if (PermissionUtils.isAllowedTo(player, "scrollingmenusign.access.any")) {
-				return true;
 			}
 			String group = ScrollingMenuSign.permission.getPrimaryGroup(player.getWorld().getName(), owner);
 			boolean inGroup = ScrollingMenuSign.permission.playerInGroup(player.getWorld(), player.getName(), group);

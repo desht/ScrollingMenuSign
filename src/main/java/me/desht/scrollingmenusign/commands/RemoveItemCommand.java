@@ -34,11 +34,11 @@ public class RemoveItemCommand extends SMSAbstractCommand {
 		}
 
 		try {
-			SMSMenu menu = SMSMenu.getMenu(menuName);
+			SMSMenu menu = getMenu(sender, menuName);
 			menu.ensureAllowedToModify(sender);
 			menu.removeItem(item);
 			menu.notifyObservers(SMSMenuAction.REPAINT);
-			MiscUtil.statusMessage(sender, "Menu entry &f#" + item + "&- removed from &e" + menuName);
+			MiscUtil.statusMessage(sender, "Menu entry &f#" + item + "&- removed from &e" + menu.getName());
 		} catch (IndexOutOfBoundsException e) {
 			MiscUtil.errorMessage(sender, "Item index " + item + " out of range");
 		} catch (IllegalArgumentException e) {
