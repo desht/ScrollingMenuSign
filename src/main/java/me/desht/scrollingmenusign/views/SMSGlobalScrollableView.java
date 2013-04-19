@@ -19,6 +19,7 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.RedstoneOutputMode;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
@@ -89,7 +90,9 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public void update(Observable menu, Object arg) {
 		super.update(menu, arg);
 
-		updateTooltipSign();
+		if ((SMSMenuAction)arg == SMSMenuAction.REPAINT) {
+			updateTooltipSign();
+		}
 	}
 
 	public void addSwitch(Switch sw) {
