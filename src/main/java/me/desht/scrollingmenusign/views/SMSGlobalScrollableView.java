@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -82,6 +83,13 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		updateTooltipSign();
 
 		return menu;
+	}
+
+	@Override
+	public void update(Observable menu, Object arg) {
+		super.update(menu, arg);
+
+		updateTooltipSign();
 	}
 
 	public void addSwitch(Switch sw) {
