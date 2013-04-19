@@ -345,20 +345,18 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-		if (key.equalsIgnoreCase("access.any")) {
-			// redraw map views
-			repaintViews("map");
-		} else if (key.startsWith("actions.spout") && isSpoutEnabled()) {
+		if (key.startsWith("actions.spout") && isSpoutEnabled()) {
 			// reload & re-cache spout key definitions
 			SpoutUtils.loadKeyDefinitions();
 		} else if (key.startsWith("spout.") && isSpoutEnabled()) {
-			// catch-all for any setting which affects how spout views are drawn
+			// settings which affects how spout views are drawn
 			repaintViews("spout");
 		} else if (key.equalsIgnoreCase("command_log_file")) {
 			CommandParser.setLogFile(newVal.toString());
 		} else if (key.equalsIgnoreCase("log_level")) {
 			LogUtils.setLogLevel(newVal.toString());
-		} else if (key.startsWith("item_prefix.") || key.endsWith("_justify") || key.equals("max_title_lines")) {
+		} else if (key.startsWith("item_prefix.") || key.endsWith("_justify") || key.equals("max_title_lines") || key.startsWith("submenus.")) {
+			// settings which affect how all views are drawn
 			repaintViews(null);
 		} else if (key.equals("coloured_console")) {
 			MiscUtil.setColouredConsole((Boolean)newVal);

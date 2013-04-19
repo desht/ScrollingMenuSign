@@ -35,6 +35,7 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.SMSPersistable;
 import me.desht.scrollingmenusign.SMSPersistence;
+import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
@@ -284,13 +285,13 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		playerName = getPlayerContext(playerName);
 
 		SMSMenu activeMenu = getActiveMenu(playerName);
-		String prefix = activeMenu == getNativeMenu() ? "" : "->";	// TODO configurable
+		String prefix = activeMenu == getNativeMenu() ? "" : ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.title_prefix");
 		return prefix + activeMenu.getTitle();
 	}
 
 	/**
 	 * Get the number of items in the given player's currently active menu.  Note that for non-native menus,
-	 * this will be one greater than the actual menu size, because a synthetic "BACK" button will be added.
+	 * this will be one greater than the actual menu size, because a synthetic "BACK" button is added.
 	 * 
 	 * @param playerName
 	 * @return
@@ -316,17 +317,18 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 		SMSMenu activeMenu = getActiveMenu(playerName);
 		if (activeMenu != getNativeMenu() && pos == activeMenu.getItemCount() + 1) {
-			String label = ScrollingMenuSign.getInstance().getConfig().getString("sms.back_item.label", "BACK");
-			String mat = ScrollingMenuSign.getInstance().getConfig().getString("sms.back_item.material", "irondoor");
-			return new SMSMenuItem(activeMenu, ChatColor.BOLD + "<- " + label, "BACK", "", mat);
+			String label = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.label", "&l<- BACK");
+			String mat = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.material", "irondoor");
+			return new SMSMenuItem(activeMenu, MiscUtil.parseColourSpec(label), "BACK", "", mat);
 		} else {
 			return activeMenu.getItemAt(pos);
 		}
 	}
 
 	/**
-	 * Get the label for the menu item at the given position for the given player's currently active menu.
-	 * 
+	 * Get the label for the menu item at the given position for the given player's currently active menu.  View variable
+	 * substitution has been performed on the returned label.
+	 *
 	 * @param playerName
 	 * @param pos
 	 * @return
@@ -347,9 +349,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @param val	the variable value (may contain any character)
 	 */
 	public void setVariable(String key, String val) {
-		if (!key.matches("[A-Za-z0-9_]+")) {
-			throw new SMSException("Invalid variable name: " + key);
-		}
+		SMSValidate.isTrue(key.matches("[A-Za-z0-9_]+"), "Invalid variable name: " + key);
 		if (val == null) {
 			variables.remove(key);
 		} else {
@@ -364,12 +364,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * @return	the variable value
 	 */
 	public String getVariable(String key) {
-		if (!key.matches("[A-Za-z0-9_]+")) {
-			throw new SMSException("Invalid variable name: " + key);
-		}
-		if (!variables.containsKey(key)) {
-			throw new SMSException("View " + getName() + " has no variable: " + key);
-		}
+		SMSValidate.isTrue(key.matches("[A-Za-z0-9_]+"), "Invalid variable name: " + key);
+		SMSValidate.isTrue(variables.containsKey(key), "View " + getName() + " has no variable: " + key);
 		return variables.get(key);
 	}
 

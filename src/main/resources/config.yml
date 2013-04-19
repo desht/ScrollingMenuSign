@@ -58,7 +58,9 @@ sms:
     autocreate_views: true
     pager:
         lines: 0
-    back_item:
-        label: BACK
-        material: 324
+    submenus:
+        back_item:
+            label: '&l<- BACK'
+            material: 324
+        title_prefix: '->'
     coloured_console: true
