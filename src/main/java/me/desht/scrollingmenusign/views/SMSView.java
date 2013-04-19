@@ -113,8 +113,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		this.menuStack = new HashMap<String, MenuStack>();
 
 		attributes.registerAttribute(OWNER, ScrollingMenuSign.CONSOLE_OWNER, "Player who owns this view");
-		attributes.registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT, "Horizontal item positioning");
-		attributes.registerAttribute(ITEM_JUSTIFY, ViewJustification.DEFAULT, "Horizontal title positioning");
+		attributes.registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT, "Horizontal title positioning");
+		attributes.registerAttribute(ITEM_JUSTIFY, ViewJustification.DEFAULT, "Horizontal item positioning");
 		attributes.registerAttribute(ACCESS, SMSAccessRights.ANY, "Who may use this view");
 	}
 

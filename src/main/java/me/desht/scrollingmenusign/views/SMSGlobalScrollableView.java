@@ -130,6 +130,9 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		}
 	}
 
+	/**
+	 * Toggle the switch status for the currently selected menu item
+	 */
 	public void toggleSwitchPower() {
 		SMSMenuItem item = getActiveMenuItemAt(null, getScrollPos());
 		if (item == null) {
@@ -142,6 +145,24 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		}
 	}
 
+	/**
+	 * Set the switch status for the currently selected menu item on, and all others off.
+	 */
+	public void radioSwitchPower() {
+		SMSMenuItem item = getActiveMenuItemAt(null, getScrollPos());
+		if (item == null) {
+			return;
+		}
+		for (Switch sw : switches) {
+			sw.setPowered(sw.getTrigger().equals(item.getLabel()));
+		}
+	}
+
+	/**
+	 * Set the switch status for the selected menu item on for a given time, then off again.
+	 *
+	 * @param pulseAll if true, pulse the switch status for <em>all</em> switches
+	 */
 	public void pulseSwitchPower(boolean pulseAll) {
 		SMSMenuItem item = getActiveMenuItemAt(null, getScrollPos());
 		if (item == null) {
@@ -269,6 +290,8 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		case PULSEANY:
 			pulseSwitchPower(true);
 			break;
+		case RADIO:
+			radioSwitchPower();
 		default:
 			break;
 		}
