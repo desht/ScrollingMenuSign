@@ -59,6 +59,7 @@ import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -102,6 +103,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		configManager = new ConfigurationManager(this, this);
 		configManager.setPrefix("sms");
+
+		configCleanup();
 
 		MiscUtil.init(this);
 		MiscUtil.setColouredConsole(getConfig().getBoolean("sms.coloured_console"));
@@ -390,6 +393,26 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			} catch (Exception e) {
 				LogUtils.warning("can't load custom font " + f + ": " + e.getMessage());
 			}
+		}
+	}
+
+	private void configCleanup() {
+		String[] obsolete = new String[] {
+				"sms.break_block_id", "sms.autosave", "sms.menuitem_separator",
+				"sms.persistent_user_vars", "uservar",
+		};
+
+		boolean changed = false;
+		Configuration config = getConfig();
+		for (String k : obsolete) {
+			if (config.contains(k)) {
+				config.set(k, null);
+				LogUtils.info("removed obsolete config item: " + k);
+				changed = true;
+			}
+		}
+		if (changed) {
+			saveConfig();
 		}
 	}
 }
