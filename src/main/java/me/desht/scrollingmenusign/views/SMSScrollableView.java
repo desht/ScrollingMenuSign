@@ -16,6 +16,9 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+/**
+ * Represents the abstract base class for all scrollable views.  Provides per-player scroll positioning.
+ */
 public abstract class SMSScrollableView extends SMSView {
 	public static final String MAX_TITLE_LINES = "max_title_lines";
 
@@ -139,7 +142,7 @@ public abstract class SMSScrollableView extends SMSView {
 	 * Get the suggested line length in characters.  Default is 0 - subclasses should override this
 	 * as appropriate.  Line length of 0 will disable any splitting.
 	 * 
-	 * @return
+	 * @return the suggested line length
 	 */
 	protected int getLineLength() {
 		return 0;
@@ -148,7 +151,8 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Get the desired maximum number of title lines for this view.
-	 * @return
+	 * 
+	 * @return the maximum number of title lines to draw
 	 */
 	protected int getMaxTitleLines() {
 		int max = (Integer) getAttribute(MAX_TITLE_LINES);
@@ -157,7 +161,8 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Get the hard maximum on the number of title lines this view supports.  Override in subclasses.
-	 * @return
+	 * 
+	 * @return the hard limit for the maximum number of title lines
 	 */
 	protected int getHardMaxTitleLines() {
 		return 1;
@@ -166,7 +171,7 @@ public abstract class SMSScrollableView extends SMSView {
 	/**
 	 * Split the menu's title in the view's maximum line count, based on the view's suggested line length.
 	 * 
-	 * @return
+	 * @return a String list containing the split title
 	 */
 	public List<String> splitTitle(String playerName) {
 		String title = variableSubs(getActiveMenuTitle(playerName));

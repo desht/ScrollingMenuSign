@@ -58,7 +58,7 @@
                 <configuration>
                     <links>
                         <link>http://jd.bukkit.org/apidocs/</link>
-                        <link>http://jd.getspout.org/plugin/latest/</link>
+                        <link>http://jd.spout.org/legacy/</link>
                     </links>
                     <excludePackageNames>me.desht.scrollingmenusign.commands:me.desht.scrollingmenusign.util:me.desht.scrollingmenusign.expector:me.desht.scrollingmenusign.spout:me.desht.scrollingmenusign.listeners</excludePackageNames>
                 </configuration>

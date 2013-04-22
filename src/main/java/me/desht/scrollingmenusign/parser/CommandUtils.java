@@ -13,14 +13,22 @@ public class CommandUtils {
 	/**
 	 * High-level wrapper to run a command.  Return status is messaged to the calling command sender if necessary.
 	 * 
-	 * @param player	Player who is running the command
-	 * @param command	The command to be run
+	 * @param sender the command sender who is running the command
+	 * @param command the command to be run
 	 * @throws SMSException
 	 */
 	public static void executeCommand(CommandSender sender, String command) {
 		executeCommand(sender, command, null);
 	}
 
+	/**
+	 * High-level wrapper to run a command.  Return status is messaged to the calling command sender if necessary.
+	 * 
+	 * @param sender the command sender who is running the command
+	 * @param command the command to be run
+	 * @param view the view which triggered the execution of the command
+	 * @throws SMSException
+	 */
 	public static void executeCommand(CommandSender sender, String command, SMSView view) {
 		ParsedCommand pCmd = new CommandParser().executeCommand(sender, command, view);
 		// pCmd could be null if this was an empty command

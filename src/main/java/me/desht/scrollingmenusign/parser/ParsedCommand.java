@@ -10,6 +10,7 @@ import java.util.regex.PatternSyntaxException;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.commandlets.BaseCommandlet;
 import me.desht.scrollingmenusign.commandlets.CommandletManager;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.dhutils.Cost;
@@ -52,7 +53,7 @@ public class ParsedCommand {
 		rawCommand = new StringBuilder();
 
 		CommandletManager cmdlets = ScrollingMenuSign.getInstance().getCommandletManager();
-		
+
 		while (scanner.hasNext()) {
 			String token = scanner.next();
 
@@ -77,9 +78,9 @@ public class ParsedCommand {
 					args.add("\"" + token + "\"");
 				continue;
 			}
-			
+
 			rawCommand.append(token).append(" ");
-			
+
 			if (cmdlets.hasCommandlet(token)) {
 				// commandlet
 				command = token;
@@ -191,7 +192,7 @@ public class ParsedCommand {
 	 * Get the argument list for the command (including the command), split on quoted substrings
 	 * and/or whitespace.
 	 * 
-	 * @return
+	 * @return the argument list
 	 */
 	public String[] getQuotedArgs() {
 		return quotedArgs;
@@ -225,26 +226,26 @@ public class ParsedCommand {
 	public boolean isAffordable() {
 		return affordable;
 	}
-	
+
 	/**
 	 * Get the applicable status, i.e. whether the command costs actually make sense.  E.g. repairing an
 	 * item which doesn't have durability would not be applicable.
 	 * 
-	 * @return
+	 * @return true if the costs are applicable, false otherwise
 	 */
 	public boolean isApplicable() {
 		return applicable;
 	}
 
 	/**
-	 * Check if this command is a special "commandlet" registered with SMS.
+	 * Check if this command is a special "commandlet" registered with SMS.  {@link BaseCommandlet}
 	 * 
-	 * @return
+	 * @return true if this is a commandlet, false otherwise
 	 */
 	public boolean isCommandlet() {
 		return commandlet;
 	}
-	
+
 	/**
 	 * Get the details of the costs for this command.
 	 * 

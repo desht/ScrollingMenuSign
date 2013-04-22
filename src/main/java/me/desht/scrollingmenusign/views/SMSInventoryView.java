@@ -19,6 +19,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+/**
+ * This view uses Minecraft inventories and icons to draw menus.  With thanks to Nisovin: http://forums.bukkit.org/threads/icon-menu.108342/
+ */
 public class SMSInventoryView extends SMSView implements PoppableView, OptionClickEventHandler {
 
 	public static final String WIDTH = "width";
@@ -174,7 +177,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	 * Convenience method.
 	 * 
 	 * @param menu
-	 * @return
+	 * @return the newly-created view
 	 */
 	public static SMSInventoryView addInventoryViewToMenu(SMSMenu menu, CommandSender owner) {
 		return addInventoryViewToMenu(null, menu, owner);

@@ -91,8 +91,9 @@ public class SMSVariables implements SMSPersistable {
 	}
 
 	/**
-	 * Get a list of all variables fo
-	 * @return
+	 * Get a all variable names in this variable collection.
+	 * 
+	 * @return a set of the variable names in this collection
 	 */
 	public Set<String> getVariables() {
 		return variables.getKeys(false);
@@ -163,7 +164,7 @@ public class SMSVariables implements SMSPersistable {
 	 * Check if any variables are defined for the given player.
 	 * 
 	 * @param playerName
-	 * @return
+	 * @return true if variables are define for the player, false otherwise
 	 */
 	public static boolean hasVariables(String playerName) {
 		return allVariables.containsKey(playerName);
@@ -201,9 +202,9 @@ public class SMSVariables implements SMSPersistable {
 	 * Get the value of the given variable spec.  The spec may be a simple variable name or
 	 * a player name followed by a period, followed by the variable name.
 	 * 
-	 * @param playerName	Player who is retrieving the variable
-	 * @param varSpec		Variable specification
-	 * @return				The variable value, or null if not set
+	 * @param sender the command sender who is retrieving the variable
+	 * @param varSpec the variable specification
+	 * @return the variable value, or null if not set
 	 */
 	public static String get(CommandSender sender, String varSpec) {
 		return get(sender, varSpec, null);
@@ -213,21 +214,21 @@ public class SMSVariables implements SMSPersistable {
 	 * Get the value of the given variable spec.  The spec may be a simple variable name or
 	 * a player name followed by a period, followed by the variable name.
 	 * 
-	 * @param playerName	Player who is retrieving the variable
-	 * @param varSpec		Variable specification
-	 * @param def			Default value
-	 * @return				The variable value, or the default value if not set
+	 * @param sender the command sender who is retrieving the variable
+	 * @param varSpec the variable specification
+	 * @param defValue default value to use if the variable is not set
+	 * @return the variable value, or the default value if not set
 	 */
-	public static String get(CommandSender sender, String varSpec, String def) {
+	public static String get(CommandSender sender, String varSpec, String defValue) {
 		VarSpec vs = new VarSpec(sender, varSpec);
 
 		if (hasVariables(vs.playerName) && getVariables(vs.playerName, false).isSet(vs.varName)) {
 			return getVariables(vs.playerName, false).get(vs.varName);
 		} else {
 			if (hasVariables(DEFAULT_MARKER)) {
-				return getVariables(DEFAULT_MARKER, false).get(vs.varName, def);
+				return getVariables(DEFAULT_MARKER, false).get(vs.varName, defValue);
 			} else {
-				return def;
+				return defValue;
 			}
 		}
 	}
@@ -235,9 +236,9 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Set the given variable spec. to the given value.
 	 * 
-	 * @param playerName
-	 * @param varSpec
-	 * @param value
+	 * @param sender the command sender who is retrieving the variable
+	 * @param varSpec the variable specification
+	 * @param value	new value for the variable
 	 */
 	public static void set(CommandSender sender, String varSpec, String value) {
 		VarSpec vs = new VarSpec(sender, varSpec);
@@ -245,11 +246,13 @@ public class SMSVariables implements SMSPersistable {
 	}
 
 	/**
-	 * Check if the given variable spec. exists.
+	 * Check if the given variable specification exists.
+	 * <p>
+	 * A variable specification is either "<varname>" or "<playername>.<varname>"
 	 * 
-	 * @param playerName
-	 * @param varSpec
-	 * @return
+	 * @param sender the command sender to check
+	 * @param varSpec the variable specification 
+	 * @return true if the variable exists, false otherwise
 	 */
 	public static boolean isSet(CommandSender sender, String varSpec) {
 		VarSpec vs = new VarSpec(sender, varSpec);

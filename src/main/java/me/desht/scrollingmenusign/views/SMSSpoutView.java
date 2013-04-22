@@ -25,6 +25,9 @@ import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.gui.PopupScreen;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
+/**
+ * This view draws menus on a popped-up Spout view.
+ */
 public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 
 	// attributes
@@ -118,12 +121,12 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	 * Check if the given player has an active GUI (for any Spout view, not
 	 * necessarily this one).
 	 * 
-	 * @param sp	The Spout player to check for
-	 * @return		True if a GUI is currently popped up, false otherwise
+	 * @param player	the player to check for
+	 * @return true if a GUI is currently popped up, false otherwise
 	 */
 	@Override
-	public boolean hasActiveGUI(Player p) {
-		final SpoutPlayer sp = SpoutManager.getPlayer(p);
+	public boolean hasActiveGUI(Player player) {
+		final SpoutPlayer sp = SpoutManager.getPlayer(player);
 		if (!sp.isSpoutCraftEnabled())
 			return false;
 		PopupScreen popup = sp.getMainScreen().getActivePopup();
@@ -134,12 +137,12 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	 * Get the active GUI for the given player, if any (for any Spout view, not
 	 * necessarily this one).
 	 * 
-	 * @param sp	The Spout player to check for
-	 * @return		The GUI object if one is currently popped up, null otherwise
+	 * @param player	the player to check for
+	 * @return the GUI object if one is currently popped up, null otherwise
 	 */
 	@Override
-	public SMSPopup getActiveGUI(Player p) {
-		final SpoutPlayer sp = SpoutManager.getPlayer(p);
+	public SMSPopup getActiveGUI(Player player) {
+		final SpoutPlayer sp = SpoutManager.getPlayer(player);
 		if (!sp.isSpoutCraftEnabled())
 			return null;
 		PopupScreen popup = sp.getMainScreen().getActivePopup();

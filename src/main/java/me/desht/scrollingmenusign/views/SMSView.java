@@ -6,7 +6,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +41,6 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -132,7 +130,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Get the view's autosave status - will the view be automatically saved to disk when modified?
 	 * 
-	 * @return	true or false
+	 * @return true if the view will be autosaved, false otherwise
 	 */
 	public boolean isAutosave() {
 		return autosave;
@@ -141,7 +139,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Set the view's autosave status - will the view be automatically saved to disk when modified?
 	 * 
-	 * @param autosave	true or false
+	 * @param autosave true if the view will be autosaved, false otherwise
 	 */
 	public void setAutosave(boolean autosave) {
 		this.autosave = autosave;
@@ -177,8 +175,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Get the menu associated with this view.
 	 * 
-	 * @deprecated Use {@link getNativeMenu()}
-	 * @return	The SMSMenu object that this view is a view for.
+	 * @deprecated use {@link #getNativeMenu()}
+	 * @return the SMSMenu object that this view is a view for.
 	 */
 	@Deprecated
 	public SMSMenu getMenu() {
@@ -203,7 +201,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * Subclasses can override this as needed.
 	 * 
 	 * @param playerName
-	 * @return
+	 * @return the player context string
 	 */
 	protected String getPlayerContext(String playerName) {
 		return playerName;
@@ -227,8 +225,9 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
-	 * Push the given menu onto the view, making it the active menu as returned by {@link getActiveMenu()}
-	 * 
+	 * Push the given menu onto the view, making it the active menu as returned by {@link #getActiveMenu(String)}
+	 *
+	 * @param playerName name of the player to push the menu for
 	 * @param newActive the menu to make active
 	 */
 	public void pushMenu(String playerName, SMSMenu newActive) {
@@ -246,6 +245,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Pop the active menu off the view, making the previously active menu the new active menu.
 	 * 
+	 * @param playerName name of the player to pop the menu for
 	 * @return	the active menu that has just been popped off
 	 */
 	public SMSMenu popMenu(String playerName) {
@@ -269,7 +269,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Get the set of players who have a submenu open for this view.
 	 * 
-	 * @return
+	 * @return a set of players who have a submenu open for this view
 	 */
 	public Set<String> getSubmenuPlayers() {
 		return menuStack.keySet();
@@ -278,8 +278,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Get the title for the given player's currently active menu.
 	 * 
-	 * @param playerName
-	 * @return
+	 * @param playerName name of the player to check
+	 * @return title of the active menu
 	 */
 	public String getActiveMenuTitle(String playerName) {
 		playerName = getPlayerContext(playerName);
@@ -293,8 +293,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * Get the number of items in the given player's currently active menu.  Note that for non-native menus,
 	 * this will be one greater than the actual menu size, because a synthetic "BACK" button is added.
 	 * 
-	 * @param playerName
-	 * @return
+	 * @param playerName name of the player to check
+	 * @return the number of items in the active menu
 	 */
 	public int getActiveMenuItemCount(String playerName) {
 		playerName = getPlayerContext(playerName);
@@ -308,9 +308,9 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Get the menu item at the given position for the given player's currently active menu.
 	 * 
-	 * @param playerName
-	 * @param pos
-	 * @return
+	 * @param playerName name of the player to check
+	 * @param pos position in the active menu
+	 * @return the active menu item
 	 */
 	public SMSMenuItem getActiveMenuItemAt(String playerName, int pos) {
 		playerName = getPlayerContext(playerName);
@@ -327,11 +327,11 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 	/**
 	 * Get the label for the menu item at the given position for the given player's currently active menu.  View variable
-	 * substitution has been performed on the returned label.
+	 * substitution will have been performed on the returned label.
 	 *
-	 * @param playerName
-	 * @param pos
-	 * @return
+	 * @param playerName name of the player to check
+	 * @param pos position in the active menu
+	 * @return the label of the active menu item
 	 */
 	public String getActiveItemLabel(String playerName, int pos) {
 		playerName = getPlayerContext(playerName);
@@ -360,8 +360,8 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Get an arbitrary string of tagged data from this view
 	 * 
-	 * @param key	the variable name (must contain only alphanumeric or underscore)
-	 * @return	the variable value
+	 * @param key the variable name (must contain only alphanumeric or underscore)
+	 * @return the variable value
 	 */
 	public String getVariable(String key) {
 		SMSValidate.isTrue(key.matches("[A-Za-z0-9_]+"), "Invalid variable name: " + key);
@@ -381,7 +381,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 
 	/**
 	 * Get a list of all variable names for this view.
-	 * @return
+	 * @return a list of variable names for this view
 	 */
 	public Set<String> listVariables() {
 		return variables.keySet();
@@ -390,7 +390,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Get the justification for menu items in this view
 	 * 
-	 * @return
+	 * @return the justification for menu items in this view
 	 */
 	public ViewJustification getItemJustification() {
 		return getJustification("sms.item_justify", ITEM_JUSTIFY, ViewJustification.LEFT);
@@ -399,7 +399,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Get the justification for the menu title in this view
 	 * 
-	 * @return
+	 * @return the justification for the menu title in this view
 	 */
 	public ViewJustification getTitleJustification() {
 		return getJustification("sms.title_justify", TITLE_JUSTIFY, ViewJustification.CENTER);
@@ -460,9 +460,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	protected void thaw(ConfigurationSection node) throws SMSException {
 		List<Object> locs = (List<Object>) node.getList("locations");
 		for (Object o : locs) {
-			if (o instanceof Collection<?>) {
-				addOldStyleLocation((List<Object>) o);
-			} else if (o instanceof PersistableLocation) {
+			if (o instanceof PersistableLocation) {
 				PersistableLocation pl = (PersistableLocation) o;
 				try {
 					addLocation(pl.getLocation());
@@ -502,32 +500,11 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
-	 * Legacy method.  Supports loading of pre-1.3 view files.  Replaced by PersistableLocation
-	 * serialization.  Will be removed in a later release.
-	 * 
-	 * @param locList
-	 */
-	private void addOldStyleLocation(List<Object> locList) {
-		String worldName = (String)locList.get(0);
-		int x = (Integer) locList.get(1);
-		int y = (Integer) locList.get(2);
-		int z = (Integer) locList.get(3);
-		try {
-			World w = MiscUtil.findWorld(worldName);
-			addLocation(new Location(w, x, y, z));
-		} catch (IllegalArgumentException e) {
-			// world not loaded? we'll defer adding this location to the view for now
-			// perhaps the world will get loaded later
-			addDeferredLocation(worldName, new Vector(x, y, z));
-		}
-	}
-
-	/**
 	 * Mark a location (actually a world name and a x,y,z vector) as deferred - the world isn't
 	 * currently available.
 	 * 
-	 * @param worldName
-	 * @param v
+	 * @param worldName name of the world
+	 * @param v a vector describing the location
 	 */
 	private void addDeferredLocation(String worldName, Vector v) {
 		List<Vector> l = deferredLocations.get(worldName);
@@ -542,7 +519,7 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 * Get a list of the locations (x,y,z vectors) that have been deferred for the given world name.
 	 * 
 	 * @param worldName
-	 * @return
+	 * @return a list of vectors; the locations that have been deferred
 	 */
 	public List<Vector> getDeferredLocations(String worldName) {
 		return deferredLocations.get(worldName);
@@ -907,17 +884,18 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/**
 	 * Check if this view is owned by the given player.
 	 *
-	 * @param player
-	 * @return
+	 * @param player the player to check
+	 * @return true if the view is owned by the player, false otherwise
 	 */
 	public boolean isOwnedBy(Player player) {
 		return player.getName().equalsIgnoreCase(getAttributeAsString(OWNER));
 	}
 
 	/**
-	 * Require that the given player is allowed to use this view, and throw a SMSException if not.
+	 * Require that the given command sender is allowed to use this view, and throw a SMSException if not.
 	 *
-	 * @param player	The player to check
+	 * @param sender the command sender to check
+	 * @throws SMSException if the command sender is not allowed to use this view
 	 */
 	public void ensureAllowedToUse(CommandSender sender) {
 		if (sender instanceof Player) {
@@ -932,9 +910,10 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	}
 
 	/**
-	 * Require that the given player is allowed to modify this view, and throw a SMSException if not.
+	 * Require that the given command sender is allowed to modify this view, and throw a SMSException if not.
 	 *
-	 * @param player	The player to check
+	 * @param sender the command sender to check
+	 * @throws SMSException if the command sender is not allowed to modify this view
 	 */
 	public void ensureAllowedToModify(CommandSender sender) {
 		if (sender instanceof Player) {

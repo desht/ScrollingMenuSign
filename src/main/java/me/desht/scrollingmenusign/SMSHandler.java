@@ -40,7 +40,7 @@ public interface SMSHandler {
 	 * @param menuName	Name of the menu to delete
 	 * @param action	One of DO_NOTHING, BLANK_SIGNS, DESTROY_SIGNS
 	 * @throws SMSException	if the menu does not exist
-	 * @deprecated use {@link deleteMenu()}
+	 * @deprecated use {@link #deleteMenu(String)}
 	 */
 	@Deprecated
 	public void deleteMenu(String menuName, SMSMenuAction action) throws SMSException;
@@ -90,7 +90,7 @@ public interface SMSHandler {
 	/**
 	 * Run a command using the ScrollingMenuSign command parser/executor.
 	 * 
-	 * @param player	The player who is running the command
+	 * @param sender	The command sender who is running the command
 	 * @param command	The command string to be run
 	 * @return	A ParsedCommand object giving access to detailed information about the outcome of the command
 	 * @throws SMSException if the command string contains syntax errors

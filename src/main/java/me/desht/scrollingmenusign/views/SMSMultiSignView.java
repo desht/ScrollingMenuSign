@@ -27,6 +27,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.material.Sign;
 
+/**
+ * This view draws menus on a rectangular array of signs.
+ */
 public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 	private BlockFace facing;
@@ -253,9 +256,9 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * Get the location that position (x,y) in the view maps to.  (x, y) = (0, 0) is the top left sign.
 	 * x increases to the right, y increases downward.  This works regardless of sign orientation.
 	 * 
-	 * @param x
-	 * @param y
-	 * @return
+	 * @param x the X position, increasing rightwards
+	 * @param y the Y position, increasing downwards
+	 * @return location of the sign at the given position
 	 */
 	public Location getSignLocation(int x, int y) {
 		Location tl = topLeft.getLocation();
@@ -463,9 +466,11 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	/**
 	 * Convenience method.  Create a new multi-sign view at the given location.
 	 * 
-	 * @param menu
-	 * @param location
-	 * @return
+	 * @param viewName name for the new view
+	 * @param menu the menu to add the new view to
+	 * @param location location of one of the signs in the new view
+	 * @param owner owner of the new view
+	 * @return the newly-created view
 	 * @throws SMSException
 	 */
 	public static SMSView addSignToMenu(String viewName, SMSMenu menu, Location location, CommandSender owner) throws SMSException {
@@ -475,6 +480,16 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
+
+	/**
+	 * Convenience method.  Create a new multi-sign view at the given location.
+	 * 
+	 * @param menu the menu to add the view to
+	 * @param location location of one of the signs in the view
+	 * @param owner owner of the new view
+	 * @return the newly-created view
+	 * @throws SMSException
+	 */
 	public static SMSView addSignToMenu(SMSMenu menu, Location location, CommandSender owner) throws SMSException {
 		return addSignToMenu(null, menu, location, owner);
 	}

@@ -209,13 +209,6 @@ public class Switch implements Comparable<Switch> {
 		return s;
 	}
 
-	/**
-	 * Mark a switch configuration as a deferred load - we do this if the world is not (yet)
-	 * available.
-	 * 
-	 * @param view
-	 * @param conf
-	 */
 	public static void deferLoading(SMSGlobalScrollableView view, ConfigurationSection conf) {
 		conf.set("viewName", view.getName());
 		String world = conf.getString("world");
@@ -227,12 +220,6 @@ public class Switch implements Comparable<Switch> {
 		set.add(conf);
 	}
 
-	/**
-	 * Go ahead and try to load any deferred switches for the given world.   Called from the
-	 * WorldLoadEvent handler.
-	 * 
-	 * @param worldName
-	 */
 	public static void loadDeferred(World world) {
 		Set<ConfigurationSection> set = deferred.get(world.getName());
 		if (set == null) {

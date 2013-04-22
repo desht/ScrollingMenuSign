@@ -9,6 +9,13 @@ import org.bukkit.entity.Player;
 public enum SMSAccessRights {
 	OWNER, GROUP, ANY;
 
+	/**
+	 * Check if the given player is allowed to use an access-controlled object owned by the given owner.
+	 * 
+	 * @param player the player to check for
+	 * @param owner the name of the owner of the object
+	 * @return true if the player may use it, false otherwise
+	 */
 	public boolean isAllowedToUse(Player player, String owner) {
 		if (this == ANY || player.getName().equalsIgnoreCase(owner) || PermissionUtils.isAllowedTo(player, "scrollingmenusign.access.any")) {
 			return true;

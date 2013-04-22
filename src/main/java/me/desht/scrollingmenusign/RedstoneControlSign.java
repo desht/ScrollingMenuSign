@@ -85,7 +85,7 @@ public class RedstoneControlSign {
 	 * Get a new RedstoneControlSign for the given block and view object.  This is called when restoring
 	 * RedstoneControlSign from disk.
 	 * 
-	 * @param block	the block to check
+	 * @param loc	the location to check
 	 * @param view	the view this is associated with
 	 * @return the RedstoneControlSign at this block
 	 * @throws SMSException if there is no sign at this block or the sign is not valid

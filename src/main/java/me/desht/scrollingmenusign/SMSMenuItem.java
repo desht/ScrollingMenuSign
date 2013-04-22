@@ -118,7 +118,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 * Return the material used for this menu item's icon, in those views which
 	 * support icons.
 	 * 
-	 * @return
+	 * @return the material used for the menu item's icon
 	 */
 	public MaterialWithData getIconMaterial() {
 		return iconMaterial;
@@ -128,12 +128,18 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 * Get the lore (tooltip) for this menu item.  Note that not all view types necessarily support
 	 * display of lore.
 	 * 
-	 * @return
+	 * @return the lore for the menu item, as a String array
 	 */
 	public String[] getLore() {
 		return lore.toArray(new String[lore.size()]);
 	}
 
+	/**
+	 * Get the lore (tooltip) for this menu item.  Note that not all view types necessarily support
+	 * display of lore.
+	 * 
+	 * @return the lore for the menu item, as a list of String
+	 */
 	public List<String> getLoreAsList() {
 		return new ArrayList<String>(lore);
 	}

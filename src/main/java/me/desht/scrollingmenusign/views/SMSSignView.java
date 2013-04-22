@@ -17,8 +17,6 @@ import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
 
 /**
- * @author des
- *
  * This view draws menus on signs.
  */
 public class SMSSignView extends SMSGlobalScrollableView {

@@ -48,10 +48,7 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
 /**
- * @author des
- * 
- * With thanks to dumptruckman for MapActionMenu, upon which much of this is based
- * 
+ * This view draws menus on maps.  With thanks to dumptruckman for MapActionMenu, which provided inspiration for this.
  */
 public class SMSMapView extends SMSScrollableView {
 
@@ -468,9 +465,8 @@ public class SMSMapView extends SMSScrollableView {
 	 * Check to see if this map ID is used by another plugin, to avoid toe-stepping-upon...
 	 * The check is for any renderers on the map of a class outside the org.bukkit namespace.
 	 * 
-	 * @param item	The map item to check
-	 * @return	True if it's used by someone else, false otherwise
-	 * @throws IllegalArgumentException if the given item is not a map
+	 * @param mapId	ID of the map to check
+	 * @return true if it's used by someone else, false otherwise
 	 */
 	public static boolean usedByOtherPlugin(short mapId) {
 		MapView mapView = Bukkit.getServer().getMap(mapId);

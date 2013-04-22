@@ -660,9 +660,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	/**
-	 * Return a list of the deleted menu names.
+	 * Get a list of the deleted menu names.
 	 *
-	 * @return
+	 * @return a list of the deleted menu names
 	 */
 	public static List<String> listDeletedMenus() {
 		return new ArrayList<String>(deletedMenus.keySet());
@@ -761,7 +761,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	/**
 	 * Returns a printable representation of the number of uses remaining for this item, for the given player.
 	 * 
-	 * @param player	Player to retrieve the usage information for
+	 * @param sender	Command sender to retrieve the usage information for
 	 * @return			Formatted usage information
 	 */
 	@Override
@@ -805,19 +805,19 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	/**
-	 * Check if this view is owned by the given player.
+	 * Check if this menu is owned by the given player.
 	 *
-	 * @param player
-	 * @return
+	 * @param player the player to check
+	 * @return true if the menu is owned by the given player, false otherwise
 	 */
 	public boolean isOwnedBy(Player player) {
 		return player.getName().equalsIgnoreCase(getAttributes().get(OWNER).toString());
 	}
 
 	/**
-	 * Require that the given player is allowed to modify this menu, and throw a SMSException if not.
+	 * Require that the given command sender is allowed to modify this menu, and throw a SMSException if not.
 	 *
-	 * @param player	The player to check
+	 * @param sender	The command sender to check
 	 */
 	public void ensureAllowedToModify(CommandSender sender) {
 		if (sender instanceof Player) {

@@ -24,6 +24,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.material.Attachable;
 
+/**
+ * A view that tracks the redstone powered state of one or more blocks in the world and executes commands in
+ * response to changes in the state.
+ */
 public class SMSRedstoneView extends SMSView {
 
 	// attributes

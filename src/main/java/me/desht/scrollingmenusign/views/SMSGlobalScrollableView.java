@@ -39,11 +39,12 @@ import com.google.common.base.Joiner;
 /**
  * @author desht
  *
- * This is just like a SMSScrollableView but per-player scrolling/submenus is not used
- * here.
- * 
+ * This is just like a {@link SMSScrollableView} but maintains only a single player context
+ * for scroll position tracking.  Generally used as the base class for views implemented by 
+ * blocks in the world.
+ * <p>
  * It also maintains a set of output switches which are powered/unpowered depending on
- * the selected item in this view.
+ * the selected item in this view, and tracks the location of a possible tooltip sign.
  */
 public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
