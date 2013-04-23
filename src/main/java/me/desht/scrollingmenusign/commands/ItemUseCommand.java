@@ -26,7 +26,7 @@ public class ItemUseCommand extends SMSAbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		SMSMenu menu = SMSMenu.getMenu(args[0]);
+		SMSMenu menu = getMenu(sender, args[0]);
 		menu.ensureAllowedToModify(sender);
 
 		boolean isGlobal = getBooleanOption("global") || getBooleanOption("g");
