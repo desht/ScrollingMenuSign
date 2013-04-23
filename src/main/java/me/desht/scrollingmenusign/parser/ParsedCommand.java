@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,18 +65,23 @@ public class ParsedCommand {
 				if (token.endsWith(quote)) {
 					token = token.substring(1, token.length() - 1);
 				} else {
-					token = token.substring(1);
-					Pattern oldDelimiter = scanner.delimiter();
-					scanner.useDelimiter(quote);
-					token = token + scanner.next();
-					scanner.useDelimiter(oldDelimiter);
-					scanner.next(); // swallow the closing quote
+					try {
+						token = token.substring(1);
+						Pattern oldDelimiter = scanner.delimiter();
+						scanner.useDelimiter(quote);
+						token = token + scanner.next();
+						scanner.useDelimiter(oldDelimiter);
+						scanner.next(); // swallow the closing quote
+					} catch (NoSuchElementException e) {
+						LogUtils.warning("Detected mismatched quote in command [" + rawCommand + quote + token + "]");
+						throw new SMSException("Mismatched quote detected in command.");
+					}
 				}
-				rawCommand.append("\"").append(token).append("\" ");
+				rawCommand.append(quote).append(token).append(quote).append(" ");
 				if (command == null)
 					command = token;
 				else
-					args.add("\"" + token + "\"");
+					args.add(quote + token + quote);
 				continue;
 			}
 
