@@ -62,7 +62,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param l			Location of the menu's first sign (may be null)
 	 * @throws SMSException If there is already a menu at this location
 	 */
-	SMSMenu(String name, String title, String owner) {
+	public SMSMenu(String name, String title, String owner) {
 		this.name = name;
 		this.uses = new SMSRemainingUses(this);
 		this.attributes = new AttributeCollection(this);
@@ -790,7 +790,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-		// do nothing
+		if (key.equals(OWNER) && newVal.toString().isEmpty()) {
+			throw new SMSException("Owner may not be null");
+		}
 	}
 
 	@Override

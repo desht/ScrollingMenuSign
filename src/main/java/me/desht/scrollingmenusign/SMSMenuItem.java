@@ -44,7 +44,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		this.message = message;
 		try {
 			if (iconMaterialName == null || iconMaterialName.isEmpty())
-				iconMaterialName = ScrollingMenuSign.getInstance().getConfig().getString("sms.inv_view.default_icon", "stone");
+				iconMaterialName = getIconMaterialName();
 			this.iconMaterial = MaterialWithData.get(iconMaterialName);
 		} catch (IllegalArgumentException e) {
 			throw new SMSException("invalid material '" + iconMaterialName + "'");
@@ -65,7 +65,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		this.label = MiscUtil.parseColourSpec(node.getString("label"));
 		this.command = node.getString("command");
 		this.message = MiscUtil.parseColourSpec(node.getString("message"));
-		String defMat = ScrollingMenuSign.getInstance().getConfig().getString("sms.inv_view.default_icon", "stone");
+		String defMat = getIconMaterialName();
 		String iconMat = node.getString("icon", defMat);
 		this.iconMaterial = MaterialWithData.get(iconMat);
 		this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
@@ -77,6 +77,15 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		}
 	}
 
+	private String getIconMaterialName() {
+		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
+		if (plugin == null) {
+			return "stone";
+		} else {
+			return plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
+		}
+	}
+	
 	/**
 	 * Get the label for this menu item
 	 * 
