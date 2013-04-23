@@ -31,7 +31,6 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		this(menu, label, command, message, null);
 	}
 
-
 	public SMSMenuItem(SMSMenu menu, String label, String command, String message, String iconMaterialName) {
 		this(menu, label, command, message, iconMaterialName, new String[0]);
 	}
@@ -166,7 +165,8 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Executes the command for this item
 	 * 
-	 * @param sender		Command sender to execute the command for
+	 * @param sender the command sender who triggered the execution
+	 * @param view the view that triggered this execution
 	 * @throws SMSException	if the usage limit for this player is exhausted
 	 */
 	public void executeCommand(CommandSender sender, SMSView view) {
@@ -182,6 +182,12 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		CommandUtils.executeCommand(sender, cmd, view);
 	}
 
+	/**
+	 * Executes the command for this item
+	 * 
+	 * @param sender the command sender who triggered the execution
+	 * @throws SMSException	if the usage limit for this player is exhausted
+	 */
 	public void executeCommand(CommandSender sender) {
 		executeCommand(sender, null);
 	}
@@ -190,13 +196,16 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		String name = player.getName();
 		if (uses.hasLimitedUses(name)) {
 			String what = uses.getDescription();
-			if (uses.getRemainingUses(name) == 0) {
+			if (uses.getRemainingUses(name) <= 0) {
 				throw new SMSException("You can't use that " + what + " anymore.");
 			}
 			uses.use(name);
-			if (menu != null)
+			if (menu != null) {
 				menu.autosave();
-			MiscUtil.statusMessage(player, "&6[Uses remaining for this " + what + ": &e" + uses.getRemainingUses(name) + "&6]");
+			}
+			if ((Boolean) menu.getAttributes().get(SMSMenu.REPORT_USES)) {
+				MiscUtil.statusMessage(player, "&6[Uses remaining for this " + what + ": &e" + uses.getRemainingUses(name) + "&6]");
+			}
 		}
 	}
 
@@ -222,14 +231,13 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			// macro expansion
 			String macro = message.substring(1);
 			if (history.contains(macro)) {
-				LogUtils.warning("sendFeedback [" + macro + "]: recursion detected");
-				MiscUtil.errorMessage(player, "Recursive loop detected in macro " + macro + "!");
-				return;
+				LogUtils.warning("Recursive loop detected in macro [" + macro + "]!");
+				throw new SMSException("Recursive loop detected in macro [" + macro + "]!");
 			} else if (SMSMacro.hasMacro(macro)) {
 				history.add(macro);
 				sendFeedback(player, SMSMacro.getCommands(macro), history);
 			} else {
-				MiscUtil.errorMessage(player, "No such macro '" + macro + "'.");
+				throw new SMSException("No such macro [" + macro + "].");
 			}
 		} else {
 			MiscUtil.alertMessage(player, message);

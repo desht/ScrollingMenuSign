@@ -38,6 +38,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	public static final String OWNER = "owner";
 	public static final String TITLE = "title";
 	public static final String ACCESS = "access";
+	public static final String REPORT_USES = "report_uses";
 
 	private final String name;
 	private final List<SMSMenuItem> items = new ArrayList<SMSMenuItem>();
@@ -122,6 +123,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		attributes.registerAttribute(OWNER, "", "Player who owns this menu");
 		attributes.registerAttribute(TITLE, "", "The menu's displayed title");
 		attributes.registerAttribute(ACCESS, SMSAccessRights.ANY, "Who may use this menu");
+		attributes.registerAttribute(REPORT_USES, true, "Tell the player when remaining uses have changed?");
 	}
 
 	public Map<String, Object> freeze() {
