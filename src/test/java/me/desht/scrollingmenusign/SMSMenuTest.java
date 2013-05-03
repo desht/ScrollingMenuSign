@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class SMSMenuTest {
 	public SMSMenuTest() {
-		LogUtils.init(null);
+		LogUtils.init("SMSMenuTest");
 	}
 
 	@Test
