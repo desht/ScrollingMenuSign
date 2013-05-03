@@ -9,6 +9,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptEngineManager;
+
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.Cost;
@@ -21,6 +24,7 @@ import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.commandlets.CloseSubmenuCommandlet;
 import me.desht.scrollingmenusign.commandlets.CommandletManager;
 import me.desht.scrollingmenusign.commandlets.PopupCommandlet;
+import me.desht.scrollingmenusign.commandlets.ScriptCommandlet;
 import me.desht.scrollingmenusign.commandlets.SubmenuCommandlet;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
@@ -68,6 +72,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 import org.mcstats.Metrics.Graph;
 import org.mcstats.Metrics.Plotter;
+
+import com.google.common.base.Joiner;
 
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
@@ -139,6 +145,12 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		setupMetrics();
 
+		for (ScriptEngineFactory f : new ScriptEngineManager().getEngineFactories()) {
+			System.out.println("Engine: " + f.getEngineName() + ": " + f.getLanguageName() + " " + f.getLanguageVersion());
+			System.out.println("  " + Joiner.on(", ").join(f.getExtensions()));
+		}
+		System.out.println("PYTHON engine = " + new ScriptEngineManager().getEngineByName("python"));
+		
 		LogUtils.fine(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
 	}
 
@@ -310,6 +322,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		cmdlets.registerCommandlet(new PopupCommandlet());
 		cmdlets.registerCommandlet(new SubmenuCommandlet());
 		cmdlets.registerCommandlet(new CloseSubmenuCommandlet());
+		cmdlets.registerCommandlet(new ScriptCommandlet());
 	}
 
 	private void loadPersistedData() {
