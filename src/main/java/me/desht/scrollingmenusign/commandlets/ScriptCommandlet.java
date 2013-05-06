@@ -26,15 +26,22 @@ public class ScriptCommandlet extends BaseCommandlet {
 
 	@Override
 	public void execute(ScrollingMenuSign plugin, CommandSender sender, SMSView view, String cmd, String[] args) {
-		SMSValidate.isTrue(args.length >= 2, "Usage: " + cmd + " <script-name>");
+		SMSValidate.isTrue(args.length >= 2, "Usage: " + cmd + " <script-name> [<script-args>]");
 
-		ScriptEngineManager manager = new ScriptEngineManager();		
+		ScriptEngineManager manager = new ScriptEngineManager();
 		String scriptName = args[1];
 		int idx = scriptName.lastIndexOf('.');
 		String ext = scriptName.substring(idx + 1);
 		ScriptEngine engine = manager.getEngineByExtension(ext);
 		SMSValidate.notNull(engine, "no scripting engine for " + scriptName);
-		
+
+		if (args.length > 2) {
+			String[] scriptArgs = new String[args.length - 2];
+			for (int i = 0; i < scriptArgs.length; i++) {
+				scriptArgs[i] = args[i+2];
+			}
+			engine.put("args", scriptArgs);
+		}
 		engine.put("view", view);
 		engine.put("commandSender", sender);
 		File scriptFile = new File(DirectoryStructure.getScriptsFolder(), scriptName);
