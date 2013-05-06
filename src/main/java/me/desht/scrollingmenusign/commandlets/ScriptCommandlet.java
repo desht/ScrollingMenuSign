@@ -41,6 +41,8 @@ public class ScriptCommandlet extends BaseCommandlet {
 				scriptArgs[i] = args[i+2];
 			}
 			engine.put("args", scriptArgs);
+		} else {
+			engine.put("args", new String[0]);
 		}
 		engine.put("view", view);
 		engine.put("commandSender", sender);
