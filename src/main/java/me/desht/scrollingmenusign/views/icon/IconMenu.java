@@ -1,6 +1,8 @@
 package me.desht.scrollingmenusign.views.icon;
 
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ViewJustification;
@@ -25,13 +27,16 @@ public class IconMenu implements Listener, SMSPopup {
 	private static final int MAX_INVENTORY_ROWS = 6;
 
 	private final SMSInventoryView view;
+	private final String menuName;
 
 	private int size = 0;
 	private ItemStack[] optionIcons;
 	private String[] optionNames;
 
-	public IconMenu(SMSInventoryView view) {
+	public IconMenu(SMSInventoryView view, String menuName) {
 		this.view = view;
+		this.menuName = menuName;
+		LogUtils.fine("icon menu: register events: " + this + " view="+ view.getName());
 		Bukkit.getPluginManager().registerEvents(this, ScrollingMenuSign.getInstance());
 	}
 
@@ -46,7 +51,7 @@ public class IconMenu implements Listener, SMSPopup {
 
 	@Override
 	public boolean isPoppedUp(Player p) {
-		return p.getOpenInventory().getTitle().equals(getView().getActiveMenuTitle(p.getName()));		
+		return p.getOpenInventory().getTitle().equals(getView().getActiveMenuTitle(p.getName()));
 	}
 
 	@Override
@@ -138,18 +143,31 @@ public class IconMenu implements Listener, SMSPopup {
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	void onInventoryClick(InventoryClickEvent event) {
-		String playerName = event.getWhoClicked().getName();
-		String name = getView().variableSubs(getView().getActiveMenuTitle(playerName));
+		if (!(event.getWhoClicked() instanceof Player)) {
+			return;
+		}
+		Player player = (Player) event.getWhoClicked();
+		String playerName = player.getName();
+		String menuTitle = getView().variableSubs(getView().getActiveMenuTitle(playerName));
+		String activeMenuName = view.getActiveMenu(playerName).getName();
 
-		if (event.getInventory().getTitle().equals(name)) {
+		if (isPoppedUp(player) && event.getInventory().getTitle().equals(menuTitle) && menuName.equals(activeMenuName)) {
 			LogUtils.fine("InventoryClickEvent: player = " + playerName + ", view = " + getView().getName() +
-			              ", inventory name = " + event.getInventory().getTitle());
+			              ", inventory name = " + event.getInventory().getTitle() + ", icon menu = " + this);
 
 			event.setCancelled(true);
 			int slot = event.getRawSlot();
 			if (slot >= 0 && slot < size && optionNames[slot] != null) {
 				OptionClickEvent optionEvent = new OptionClickEvent((Player)event.getWhoClicked(), getMenuIndexForSlot(slot), optionNames[slot]);
-				view.onOptionClick(optionEvent);
+				try {
+					view.onOptionClick(optionEvent);
+				} catch (SMSException e) {
+					if (event.getWhoClicked() instanceof Player) {
+						MiscUtil.errorMessage((Player) event.getWhoClicked(), e.getMessage());
+					} else {
+						LogUtils.warning(event.getWhoClicked().getName() + ": " + e.getMessage());
+					}
+				}
 				if (optionEvent.willClose()) {
 					final Player p = (Player)event.getWhoClicked();
 					Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
@@ -166,11 +184,12 @@ public class IconMenu implements Listener, SMSPopup {
 	}
 
 	public void destroy() {
+		LogUtils.fine("icon menu: unregister events: " + this + " view="+ view.getName());
 		HandlerList.unregisterAll(this);
 	}
 
 	public interface OptionClickEventHandler {
-		public void onOptionClick(OptionClickEvent event);       
+		public void onOptionClick(OptionClickEvent event);
 	}
 
 	public class OptionClickEvent {

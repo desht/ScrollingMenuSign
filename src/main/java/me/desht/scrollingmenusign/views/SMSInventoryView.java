@@ -20,7 +20,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
- * This view uses Minecraft inventories and icons to draw menus.  With thanks to Nisovin: http://forums.bukkit.org/threads/icon-menu.108342/
+ * This view uses Minecraft inventories and icons to draw menus.
+ * With thanks to Nisovin: http://forums.bukkit.org/threads/icon-menu.108342/
  */
 public class SMSInventoryView extends SMSView implements PoppableView, OptionClickEventHandler {
 
@@ -37,7 +38,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 		registerAttribute(AUTOPOPDOWN, true, "Auto-popdown after item click?");
 
 		iconMenus = new HashMap<String, IconMenu>();
-		iconMenus.put(getNativeMenu().getName(), new IconMenu(this));
+		iconMenus.put(getNativeMenu().getName(), new IconMenu(this, getNativeMenu().getName()));
 
 		users = new HashMap<String, Set<String>>();
 	}
@@ -74,7 +75,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
 		if (playersUsing(menuName).isEmpty()) {
 			// this menu was not used by anyone else yet - create it
-			iconMenus.put(menuName, new IconMenu(this));
+			iconMenus.put(menuName, new IconMenu(this, menuName));
 		}
 		playersUsing(menuName).add(playerName);
 	}
