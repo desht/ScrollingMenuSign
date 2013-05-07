@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
@@ -34,6 +35,7 @@ public class ScriptCommandlet extends BaseCommandlet {
 		String ext = scriptName.substring(idx + 1);
 		ScriptEngine engine = manager.getEngineByExtension(ext);
 		SMSValidate.notNull(engine, "no scripting engine for " + scriptName);
+		LogUtils.fine("running script " + scriptName + " with " + engine.getFactory().getEngineName());
 
 		if (args.length > 2) {
 			String[] scriptArgs = new String[args.length - 2];
@@ -57,5 +59,4 @@ public class ScriptCommandlet extends BaseCommandlet {
 			throw new SMSException("script encountered an error (see server log)");
 		}
 	}
-
 }

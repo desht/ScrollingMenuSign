@@ -145,12 +145,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		setupMetrics();
 
-		for (ScriptEngineFactory f : new ScriptEngineManager().getEngineFactories()) {
-			System.out.println("Engine: " + f.getEngineName() + ": " + f.getLanguageName() + " " + f.getLanguageVersion());
-			System.out.println("  " + Joiner.on(", ").join(f.getExtensions()));
-		}
-		System.out.println("PYTHON engine = " + new ScriptEngineManager().getEngineByName("python"));
-		
 		LogUtils.fine(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
 	}
 
