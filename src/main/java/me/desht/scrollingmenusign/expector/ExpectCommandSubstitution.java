@@ -1,12 +1,12 @@
 package me.desht.scrollingmenusign.expector;
 
 import me.desht.dhutils.DHUtilsException;
+import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.responsehandler.ExpectBase;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

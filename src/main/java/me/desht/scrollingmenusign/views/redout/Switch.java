@@ -7,6 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PersistableLocation;
+import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
+import me.desht.scrollingmenusign.views.SMSView;
+
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,13 +23,6 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.material.Lever;
 import org.bukkit.material.Redstone;
-
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PersistableLocation;
-import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
-import me.desht.scrollingmenusign.views.SMSView;
 
 public class Switch implements Comparable<Switch> {
 	private static final Map<PersistableLocation,Switch> allSwitchLocs = new HashMap<PersistableLocation,Switch>();

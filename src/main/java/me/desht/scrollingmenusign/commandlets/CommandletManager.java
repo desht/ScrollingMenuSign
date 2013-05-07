@@ -3,9 +3,9 @@ package me.desht.scrollingmenusign.commandlets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+
+import org.apache.commons.lang.Validate;
 
 public class CommandletManager {
 	private final ScrollingMenuSign plugin;

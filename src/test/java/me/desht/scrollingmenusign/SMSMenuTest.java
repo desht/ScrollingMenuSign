@@ -1,7 +1,7 @@
 package me.desht.scrollingmenusign;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import me.desht.dhutils.LogUtils;
 
 import org.junit.Test;

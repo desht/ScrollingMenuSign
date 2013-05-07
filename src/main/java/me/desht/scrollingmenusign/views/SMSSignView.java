@@ -3,12 +3,12 @@ package me.desht.scrollingmenusign.views;
 import java.util.List;
 import java.util.Observable;
 
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
-import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

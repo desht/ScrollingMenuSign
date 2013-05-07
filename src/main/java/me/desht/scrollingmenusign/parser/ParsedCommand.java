@@ -8,16 +8,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import me.desht.dhutils.Cost;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.commandlets.BaseCommandlet;
 import me.desht.scrollingmenusign.commandlets.CommandletManager;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
-import me.desht.dhutils.Cost;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.PermissionUtils;
 
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;

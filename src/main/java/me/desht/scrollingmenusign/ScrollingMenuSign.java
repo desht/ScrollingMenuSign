@@ -9,9 +9,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
-
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.Cost;
@@ -72,8 +69,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 import org.mcstats.Metrics.Graph;
 import org.mcstats.Metrics.Plotter;
-
-import com.google.common.base.Joiner;
 
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
