@@ -85,7 +85,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			return plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
 		}
 	}
-	
+
 	/**
 	 * Get the label for this menu item
 	 * 

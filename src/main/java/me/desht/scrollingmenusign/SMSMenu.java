@@ -55,11 +55,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	/**
 	 * Construct a new menu
 	 *
-	 * @param plugin	Reference to the ScrollingMenuSign plugin
 	 * @param name			Name of the menu
 	 * @param title			Title of the menu
 	 * @param owner			Owner of the menu
-	 * @param l			Location of the menu's first sign (may be null)
 	 * @throws SMSException If there is already a menu at this location
 	 */
 	public SMSMenu(String name, String title, String owner) {
