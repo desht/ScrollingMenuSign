@@ -21,6 +21,7 @@ import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.commandlets.AfterCommandlet;
 import me.desht.scrollingmenusign.commandlets.CloseSubmenuCommandlet;
 import me.desht.scrollingmenusign.commandlets.CommandletManager;
+import me.desht.scrollingmenusign.commandlets.CooldownCommandlet;
 import me.desht.scrollingmenusign.commandlets.PopupCommandlet;
 import me.desht.scrollingmenusign.commandlets.ScriptCommandlet;
 import me.desht.scrollingmenusign.commandlets.SubmenuCommandlet;
@@ -310,6 +311,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	private void registerCommandlets() {
 		cmdlets.registerCommandlet(new AfterCommandlet());
+		cmdlets.registerCommandlet(new CooldownCommandlet());
 		cmdlets.registerCommandlet(new PopupCommandlet());
 		cmdlets.registerCommandlet(new SubmenuCommandlet());
 		cmdlets.registerCommandlet(new CloseSubmenuCommandlet());
