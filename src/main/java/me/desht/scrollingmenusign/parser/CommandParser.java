@@ -422,7 +422,7 @@ public class CommandParser {
 			// return status of a macro is the return status of the last command that was run
 			if (subCommand == null) {
 				cmd.setStatus(ReturnStatus.BAD_MACRO);
-				cmd.setLastError("Empty macro?");					
+				cmd.setLastError("Empty macro?");
 			} else {
 				cmd.setStatus(subCommand.getStatus());
 				cmd.setLastError(subCommand.getLastError());
@@ -438,7 +438,14 @@ public class CommandParser {
 	private void runCommandlet(CommandSender sender, SMSView view, ParsedCommand cmd) {
 		CommandletManager cmdlets = ScrollingMenuSign.getInstance().getCommandletManager();
 
-		cmdlets.getCommandlet(cmd.getCommand()).execute(cmdlets.getPlugin(), sender, view, cmd.getCommand(), cmd.getQuotedArgs());
+		boolean res = cmdlets.getCommandlet(cmd.getCommand()).execute(cmdlets.getPlugin(), sender, view, cmd.getCommand(), cmd.getQuotedArgs());
+		if (!res) {
+			// a commandlet returning false indicates the command should be treated as restricted
+			cmd.setStatus(ReturnStatus.RESTRICTED);
+			cmd.setRestricted(true);
+		} else {
+			cmd.setStatus(ReturnStatus.CMD_OK);
+		}
 	}
 
 	private void executeLowLevelCommand(CommandSender sender, ParsedCommand cmd, String command) {

@@ -35,23 +35,25 @@ public class ParsedCommand {
 	private boolean whisper;
 	private boolean chat;
 	private boolean macro;
-	private boolean commandStopped, macroStopped;
 	private boolean console;
 	private String lastError;
 	private StringBuilder rawCommand;
 	private String[] quotedArgs;
 	private boolean commandlet;
+	private StopCondition commandStopCondition;
+	private StopCondition macroStopCondition;
 
 	ParsedCommand (CommandSender sender, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
 		costs = new ArrayList<Cost>();
 		elevated = restricted = chat = whisper = macro = console = commandlet = false;
-		commandStopped = macroStopped = false;
 		affordable = applicable = true;
 		command = null;
 		status = ReturnStatus.UNKNOWN;
 		lastError = "no error";
 		rawCommand = new StringBuilder();
+		commandStopCondition = StopCondition.NONE;
+		macroStopCondition = StopCondition.NONE;
 
 		CommandletManager cmdlets = ScrollingMenuSign.getInstance().getCommandletManager();
 
@@ -126,11 +128,12 @@ public class ParsedCommand {
 				}
 			} else if (token.equals("$$$") && !restricted && affordable) {
 				// command terminator, and stop any macro too
-				macroStopped = commandStopped = !restricted && affordable;
+				commandStopCondition = StopCondition.ON_SUCCESS;
+				macroStopCondition = StopCondition.ON_SUCCESS;
 				break;
 			} else if (token.equals("$$")) {
 				// command terminator - run command and finish
-				commandStopped = !restricted && affordable;
+				commandStopCondition = StopCondition.ON_SUCCESS;
 				break;
 			} else if (token.startsWith("$") && command == null) {
 				// apply a cost or costs
@@ -152,7 +155,7 @@ public class ParsedCommand {
 				}
 			} else if (token.equals("&&")) {
 				// command separator - start another command IF this command is runnable
-				commandStopped = restricted || !affordable;
+				commandStopCondition = StopCondition.ON_FAIL;
 				break;
 			} else {
 				// just a plain string
@@ -225,6 +228,15 @@ public class ParsedCommand {
 	}
 
 	/**
+	 * Set the restriction status of this command.
+	 *
+	 * @param restricted
+	 */
+	public void setRestricted(boolean restricted) {
+		this.restricted = restricted;
+	}
+
+	/**
 	 * Get the affordable status, i.e. whether the command costs can be (have been) met by the player.
 	 * 
 	 * @return	true if the command is affordable, false otherwise
@@ -294,7 +306,7 @@ public class ParsedCommand {
 
 	/**
 	 * Check if this command calls a macro.
-	 * 
+	 *
 	 * @return	true if a macro is used, false otherwise
 	 */
 	public boolean isMacro() {
@@ -302,23 +314,41 @@ public class ParsedCommand {
 	}
 
 	/**
-	 * Check if the command sequence was stopped, i.e. $$ or $$$ was encountered following a command that actually ran (and
-	 * was not ignored due to a restriction or cost check)
-	 *  
-	 * @return	true if the command was stopped, false otherwise
+	 * Check if the command sequence should be stopped, i.e. $$ or $$$
+	 * was encountered following a command that actually ran (and was
+	 * not ignored due to a restriction or cost check), or && was
+	 * encountered following a command that did not run.
+	 * 
+	 * @return true if the command was stopped, false otherwise
 	 */
 	public boolean isCommandStopped() {
-		return commandStopped;
+		switch (commandStopCondition) {
+		case NONE: default:
+			return false;
+		case ON_FAIL:
+			return restricted || !affordable;
+		case ON_SUCCESS:
+			return !restricted && affordable;
+		}
 	}
 
 	/**
-	 * Check if a macro was stopped, i.e. $$$ was encountered following a command that actually ran (and
-	 * was not ignored due to a restriction or cost check)
+	 * Check if any enclosing macro should be stopped, i.e. $$ or $$$
+	 * was encountered following a command that actually ran (and was
+	 * not ignored due to a restriction or cost check), or && was
+	 * encountered following a command that did not run.
 	 * 
-	 * @return	true if a macro was stopped, false otherwise
+	 * @return true if a macro was stopped, false otherwise
 	 */
 	public boolean isMacroStopped() {
-		return macroStopped;
+		switch (macroStopCondition) {
+		case NONE: default:
+			return false;
+		case ON_FAIL:
+			return restricted || !affordable;
+		case ON_SUCCESS:
+			return !restricted && affordable;
+		}
 	}
 
 	/**
@@ -465,5 +495,7 @@ public class ParsedCommand {
 
 		return false;
 	}
+
+	public enum StopCondition { NONE, ON_SUCCESS, ON_FAIL };
 
 }

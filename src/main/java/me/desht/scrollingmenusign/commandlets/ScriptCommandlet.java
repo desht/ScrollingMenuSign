@@ -5,9 +5,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
+import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.DirectoryStructure;
@@ -25,7 +27,7 @@ public class ScriptCommandlet extends BaseCommandlet {
 	}
 
 	@Override
-	public void execute(ScrollingMenuSign plugin, CommandSender sender, SMSView view, String cmd, String[] args) {
+	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, SMSView view, String cmd, String[] args) {
 		SMSValidate.isTrue(args.length >= 2, "Usage: " + cmd + " <script-name> [<script-args>]");
 
 		ScriptEngineManager manager = new ScriptEngineManager();
@@ -36,20 +38,28 @@ public class ScriptCommandlet extends BaseCommandlet {
 		SMSValidate.notNull(engine, "no scripting engine for " + scriptName);
 		LogUtils.fine("running script " + scriptName + " with " + engine.getFactory().getEngineName());
 
+		Bindings bindings = new SimpleBindings();
 		if (args.length > 2) {
 			String[] scriptArgs = new String[args.length - 2];
 			for (int i = 0; i < scriptArgs.length; i++) {
 				scriptArgs[i] = args[i+2];
 			}
-			engine.put("args", scriptArgs);
+			bindings.put("args", scriptArgs);
 		} else {
-			engine.put("args", new String[0]);
+			bindings.put("args", new String[0]);
 		}
-		engine.put("view", view);
-		engine.put("commandSender", sender);
+		bindings.put("view", view);
+		bindings.put("commandSender", sender);
+		bindings.put("result", true);
 		File scriptFile = new File(DirectoryStructure.getScriptsFolder(), scriptName);
+		boolean retval = true;
 		try {
-			engine.eval(new BufferedReader(new FileReader(scriptFile)));
+			engine.eval(new BufferedReader(new FileReader(scriptFile)), bindings);
+			Object o = bindings.get("result");
+			if (o instanceof Boolean) {
+				retval = (Boolean) o;
+				LogUtils.fine("script " + scriptName + " returns: " + retval);
+			}
 		} catch (FileNotFoundException e) {
 			throw new SMSException("no such script " + scriptName);
 		} catch (ScriptException e) {
@@ -57,5 +67,6 @@ public class ScriptCommandlet extends BaseCommandlet {
 			LogUtils.warning("  " + e.getMessage());
 			throw new SMSException("script encountered an error (see server log)");
 		}
+		return retval;
 	}
 }

@@ -20,7 +20,7 @@ public class AfterCommandlet extends BaseCommandlet {
 	}
 
 	@Override
-	public void execute(ScrollingMenuSign plugin, final CommandSender sender, final SMSView view, String cmd, String[] args) {
+	public boolean execute(ScrollingMenuSign plugin, final CommandSender sender, final SMSView view, String cmd, String[] args) {
 		SMSValidate.isTrue(args.length >= 3, "Usage: " + cmd + " <delay> <command string>");
 
 		int delay;
@@ -38,5 +38,7 @@ public class AfterCommandlet extends BaseCommandlet {
 				CommandUtils.executeCommand(sender, command, view);
 			}
 		}, delay);
+		
+		return true;
 	}
 }
