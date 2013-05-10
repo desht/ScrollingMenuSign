@@ -73,7 +73,7 @@ public class MenuCommand extends SMSAbstractCommand {
 			pager.add(String.format(MessagePager.BULLET + "&e%s&f = &e%s", k, menu.getAttributes().get(k).toString()));
 		}
 		if (!menu.formatUses(sender).isEmpty()) {
-			pager.add("Uses: &c" + menu.formatUses(sender));
+			pager.add("Uses: &e" + menu.formatUses(sender));
 		}
 
 		String defIcon = MaterialWithData.get(plugin.getConfig().getString("sms.inv_view.default_icon", "stone")).toString();

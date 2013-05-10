@@ -180,8 +180,17 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 */
 	public void executeCommand(CommandSender sender, SMSView view) {
 		if (sender instanceof Player) {
-			checkRemainingUses(this.getUseLimits(), (Player) sender);
-			checkRemainingUses(menu.getUseLimits(), (Player) sender);
+			boolean itemUses = verifyRemainingUses(this, (Player) sender);
+			boolean menuUses = verifyRemainingUses(menu, (Player) sender);
+			if (itemUses) {
+				decrementRemainingUses(this, (Player) sender);
+			}
+			if (menuUses) {
+				decrementRemainingUses(menu, (Player) sender);
+			}
+			if (itemUses || menuUses) {
+				menu.autosave();
+			}
 		}
 		String cmd = getCommand();
 		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty() ) {
@@ -201,19 +210,38 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		executeCommand(sender, null);
 	}
 
-	private void checkRemainingUses(SMSRemainingUses uses, Player player) throws SMSException {
-		String name = player.getName();
-		if (uses.hasLimitedUses(name)) {
-			String what = uses.getDescription();
-			if (uses.getRemainingUses(name) <= 0) {
-				throw new SMSException("You can't use that " + what + " anymore.");
+	/**
+	 * Verify that the given object (item or menu) has not exhausted its usage limits.
+	 * 
+	 * @param useLimitable the menu or item to check
+	 * @param player the player to check
+	 * @return true if there is a valid usage limit, false if the item has no usage limits at all
+	 * @throws SMSException if the usage limits for the item were already exhausted
+	 */
+	private boolean verifyRemainingUses(SMSUseLimitable useLimitable, Player player) throws SMSException {
+		String playerName = player.getName();
+		SMSRemainingUses limits = useLimitable.getUseLimits();
+
+		if (limits.hasLimitedUses(playerName)) {
+			String desc = limits.getDescription();
+			if (limits.getRemainingUses(playerName) <= 0) {
+				throw new SMSException("You can't use that " + desc + " anymore.");
 			}
-			uses.use(name);
-			if (menu != null) {
-				menu.autosave();
-			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private void decrementRemainingUses(SMSUseLimitable useLimitable, Player player) {
+		String playerName = player.getName();
+		SMSRemainingUses limits = useLimitable.getUseLimits();
+
+		if (limits.hasLimitedUses(playerName)) {
+			String desc = limits.getDescription();
+			limits.use(playerName);
 			if ((Boolean) menu.getAttributes().get(SMSMenu.REPORT_USES)) {
-				MiscUtil.statusMessage(player, "&6[Uses remaining for this " + what + ": &e" + uses.getRemainingUses(name) + "&6]");
+				MiscUtil.statusMessage(player, "&6[Uses remaining for this " + desc + ": &e" + limits.getRemainingUses(playerName) + "&6]");
 			}
 		}
 	}
@@ -229,11 +257,11 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		}
 	}
 
-	private static void sendFeedback(Player player, String message) {
+	private void sendFeedback(Player player, String message) {
 		sendFeedback(player, message, new HashSet<String>());
 	}
 
-	private static void sendFeedback(Player player, String message, Set<String> history) {
+	private void sendFeedback(Player player, String message, Set<String> history) {
 		if (message == null || message.length() == 0)
 			return;
 		if (message.startsWith("%")) {
@@ -253,7 +281,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		}
 	}
 
-	private static void sendFeedback(Player player, List<String> messages, Set<String> history) {
+	private void sendFeedback(Player player, List<String> messages, Set<String> history) {
 		for (String m : messages) {
 			sendFeedback(player, m, history);
 		}

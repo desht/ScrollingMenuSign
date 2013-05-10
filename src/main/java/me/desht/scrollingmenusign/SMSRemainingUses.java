@@ -5,9 +5,9 @@ import java.util.Map;
 import org.bukkit.configuration.ConfigurationSection;
 
 public class SMSRemainingUses {
-	private static final String globalMax = "&GLOBAL";
-	private static final String global = "&GLOBALREMAINING";
-	private static final String perPlayerMax = "&PERPLAYER";
+	private static final String GLOBAL_MAX = "&GLOBAL";
+	private static final String GLOBAL_REMAINING = "&GLOBALREMAINING";
+	private static final String PER_PLAYER_MAX = "&PERPLAYER";
 
 	private final SMSUseLimitable attachedTo;
 	private final Map<String,Integer> uses = new HashMap<String, Integer>();
@@ -32,7 +32,7 @@ public class SMSRemainingUses {
 	 * @return			True if there are limitations, false if not
 	 */
 	public boolean hasLimitedUses(String player) {
-		return uses.containsKey(globalMax) || uses.containsKey(perPlayerMax);
+		return uses.containsKey(GLOBAL_MAX) || uses.containsKey(PER_PLAYER_MAX);
 	}
 
 	/**
@@ -42,10 +42,10 @@ public class SMSRemainingUses {
 	 * @return			The number of uses remaining (Integer.MAX_VALUE if there is no limit)
 	 */
 	public int getRemainingUses(String player) {
-		if (uses.containsKey(globalMax)) {
-			return uses.get(global);
-		} else if (uses.containsKey(perPlayerMax)) {
-			return uses.containsKey(player) ? uses.get(player) : uses.get(perPlayerMax);
+		if (uses.containsKey(GLOBAL_MAX)) {
+			return uses.get(GLOBAL_REMAINING);
+		} else if (uses.containsKey(PER_PLAYER_MAX)) {
+			return uses.containsKey(player) ? uses.get(player) : uses.get(PER_PLAYER_MAX);
 		} else {
 			return Integer.MAX_VALUE;
 		}
@@ -77,7 +77,7 @@ public class SMSRemainingUses {
 	 */
 	public void setUses(int useCount) {
 		uses.clear();
-		uses.put(perPlayerMax, useCount);
+		uses.put(PER_PLAYER_MAX, useCount);
 		autosave();
 	}
 
@@ -89,8 +89,8 @@ public class SMSRemainingUses {
 	 */
 	public void setGlobalUses(int useCount) {
 		uses.clear();
-		uses.put(globalMax, useCount);
-		uses.put(global, useCount);
+		uses.put(GLOBAL_MAX, useCount);
+		uses.put(GLOBAL_REMAINING, useCount);
 		autosave();
 	}
 
@@ -100,11 +100,11 @@ public class SMSRemainingUses {
 	 * @param player	Name of the player who used the menu/item
 	 */
 	public void use(String player) {
-		if (uses.containsKey(globalMax)) {
-			decrementUses(global);
+		if (uses.containsKey(GLOBAL_MAX)) {
+			decrementUses(GLOBAL_REMAINING);
 		} else {
 			if (!uses.containsKey(player))
-				uses.put(player, uses.get(perPlayerMax));
+				uses.put(player, uses.get(PER_PLAYER_MAX));
 			decrementUses(player);
 		}
 		autosave();
@@ -119,10 +119,10 @@ public class SMSRemainingUses {
 	 */
 	@Override
 	public String toString() {
-		if (uses.containsKey(globalMax)) {
-			return String.format("%d/%d (global)", uses.get(global), uses.get(globalMax));
-		} else if (uses.containsKey(perPlayerMax)) {
-			return String.format("%d (per-player)", uses.get(perPlayerMax));
+		if (uses.containsKey(GLOBAL_MAX)) {
+			return String.format("%d/%d (global)", uses.get(GLOBAL_REMAINING), uses.get(GLOBAL_MAX));
+		} else if (uses.containsKey(PER_PLAYER_MAX)) {
+			return String.format("%d (per-player)", uses.get(PER_PLAYER_MAX));
 		} else {
 			return "";
 		}
@@ -135,10 +135,10 @@ public class SMSRemainingUses {
 	 * @return			Formatted string
 	 */
 	public String toString(String player) {
-		if (uses.containsKey(globalMax)) {
-			return String.format("%d/%d (global)", uses.get(global), uses.get(globalMax));
-		} else if (uses.containsKey(perPlayerMax)) {
-			return String.format("%d/%d (per-player)", getRemainingUses(player), uses.get(perPlayerMax));
+		if (uses.containsKey(GLOBAL_MAX)) {
+			return String.format("%d/%d (global)", uses.get(GLOBAL_REMAINING), uses.get(GLOBAL_MAX));
+		} else if (uses.containsKey(PER_PLAYER_MAX)) {
+			return String.format("%d/%d (for %s)", getRemainingUses(player), uses.get(PER_PLAYER_MAX), player);
 		} else {
 			return "";
 		}
