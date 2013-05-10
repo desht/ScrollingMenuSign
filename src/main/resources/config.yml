@@ -16,7 +16,6 @@ sms:
             execute: key_return
             down: key_down
             up: key_up
-    autosave: true
     no_explosions: true
     no_physics: true
     no_destroy_signs: true
