@@ -178,8 +178,10 @@ public class SMSMapView extends SMSScrollableView {
 	public void setMapId(short id) {
 		mapView = Bukkit.getServer().getMap(id);
 		if (mapView == null) {
-			LogUtils.warning("No such map view for map ID " + id);
-			return;
+			// This could happen if the Minecraft map data has been lost.  Perhaps the SMS view files have
+			// been migrated to a new server?  Anyway, we can get a new Bukkit MapView for this SMS view.
+			mapView = Bukkit.getServer().createMap(Bukkit.getServer().getWorlds().get(0));
+			LogUtils.warning("View " + getName() + ": missing Bukkit MapView for map ID " + id + " - created new Bukkit MapView with ID " + mapView.getId());
 		}
 
 		for (MapRenderer r : mapView.getRenderers()) {
