@@ -89,7 +89,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	private boolean spoutEnabled = false;
 	private ConfigurationManager configManager;
 
-	public final ResponseHandler responseHandler = new ResponseHandler();
+	public final ResponseHandler responseHandler = new ResponseHandler(this);
 
 	@Override
 	public void onLoad() {
