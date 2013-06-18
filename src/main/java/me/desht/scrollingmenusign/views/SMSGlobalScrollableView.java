@@ -396,6 +396,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 			if (sb.length() > 0) sb.append(" ");
 			sb.append(word);
 		}
+		scanner.close();
 		if (i < 4) text[i] = sb.toString();
 
 		return text;
