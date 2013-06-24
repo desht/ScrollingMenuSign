@@ -184,11 +184,11 @@ public abstract class SMSScrollableView extends SMSView {
 			return result;
 		}
 
-		Scanner s = new Scanner(title);
+		Scanner scanner = new Scanner(title);
 		StringBuilder sb = new StringBuilder(title.length());
 		MarkupTracker markup = new MarkupTracker();
-		while (s.hasNext()) {
-			String word = s.next();
+		while (scanner.hasNext()) {
+			String word = scanner.next();
 			markup.update(MarkupTracker.findMarkup(word));
 			//			LogUtils.finer(getName() + ": buflen = " + sb.length() + " wordlen = " + word.length() + " line length = " + lineLength);
 			if (sb.length() + word.length() + 1 <= lineLength || result.size() >= maxLines - 1) {
@@ -202,6 +202,7 @@ public abstract class SMSScrollableView extends SMSView {
 				lineLength = getLineLength() - markup.toString().length();
 			}
 		}
+		scanner.close();
 		result.add(sb.toString());
 
 		return result;
