@@ -24,10 +24,10 @@
             <id>Plugin Metrics</id>
             <url>http://repo.mcstats.org/content/repositories/public</url>
         </repository>
-                <repository>
-			<id>Genesis-MC</id>
-			<url>http://jenkins.genesis-mc.com/plugin/repository/everything/</url>
-		</repository>
+        <repository>
+            <id>Genesis-MC</id>
+            <url>http://jenkins.genesis-mc.com/plugin/repository/everything/</url>
+        </repository>
     </repositories>
     <build>
         <finalName>${project.name}</finalName>
