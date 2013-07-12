@@ -9,6 +9,7 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
+import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.SMSInventoryView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSMultiSignView;
@@ -37,9 +38,10 @@ public class AddViewCommand extends SMSAbstractCommand {
 				"/sms sync <menu-name> -map <map-id>",
 				"/sms sync <menu-name> -spout",
 				"/sms sync <menu-name> -inv",
-				"  -viewname <name>  Choose a non-default view name"
+				"/sms sync <menu-name> -item",
+				"  [-viewname <name>]  Choose a non-default view name"
 		});
-		setOptions("map:i,sign,spout,redstone,multi,inventory,inv,viewname:s,loc:s");	
+		setOptions("map:i,sign,spout,redstone,multi,inventory,inv,item,viewname:s,loc:s");
 	}
 
 	@Override
@@ -72,6 +74,12 @@ public class AddViewCommand extends SMSAbstractCommand {
 			}
 		} else if (hasOption("inventory") || hasOption("inv")) {
 			view = SMSInventoryView.addInventoryViewToMenu(viewName, menu, sender);
+		} else if (hasOption("item")) {
+			notFromConsole(sender);
+			Player p = (Player)sender;
+			ActiveItem.makeActiveItem(p, menu);
+			MiscUtil.statusMessage(sender, "Your " + p.getItemInHand().getType() + " is now connected to " + menu.getName());
+			return true;
 		} else if (hasOption("multi") && loc != null) { 	// multi-sign view
 			view = SMSMultiSignView.addSignToMenu(viewName, menu, loc, sender);
 		} else if (hasOption("map")) {	// map view

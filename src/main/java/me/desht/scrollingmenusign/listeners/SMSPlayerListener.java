@@ -15,6 +15,7 @@ import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
+import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSInventoryView;
@@ -50,7 +51,8 @@ public class SMSPlayerListener extends SMSListenerBase {
 			// We're not interested in physical actions (pressure plate) here
 			return;
 		}
-		if (event.isCancelled() && SMSMapView.getHeldMapView(event.getPlayer()) == null && !PopupBook.holding(event.getPlayer())) {
+		if (event.isCancelled() && SMSMapView.getHeldMapView(event.getPlayer()) == null
+				&& !PopupBook.holding(event.getPlayer()) && !ActiveItem.holdingActiveItem(event.getPlayer())) {
 			// Work around weird Bukkit behaviour where all air-click events
 			// arrive cancelled by default.
 			return;
@@ -78,19 +80,24 @@ public class SMSPlayerListener extends SMSListenerBase {
 
 		try {
 			SMSView view = SMSView.getTargetedView(player);
-			if (view == null)
-				return;
-			LogUtils.fine(String.format("PlayerItemHeldChangeEvent @ %s, %s did %d->%d, menu = %s",
-			                            view.getName(), player.getName(),
-			                            event.getPreviousSlot(), event.getNewSlot(), view.getNativeMenu().getName()));
-			SMSUserAction action = SMSUserAction.getAction(event);
-			if (action != null) {
-				action.execute(player, view);
-				if ((action == SMSUserAction.SCROLLDOWN || action == SMSUserAction.SCROLLUP) &&
-						player.isSneaking() && event instanceof Cancellable) {
-					// Bukkit 1.5.1+ PlayerItemHeldEvent is now cancellable
-					((Cancellable) event).setCancelled(true);
+			SMSUserAction action = null;
+			if (view != null) {
+				LogUtils.fine(String.format("PlayerItemHeldChangeEvent @ %s, %s did %d->%d, menu = %s",
+				                            view.getName(), player.getName(),
+				                            event.getPreviousSlot(), event.getNewSlot(), view.getNativeMenu().getName()));
+				action = SMSUserAction.getAction(event);
+				if (action != null) {
+					action.execute(player, view);
 				}
+			} else {
+				if (ActiveItem.holdingActiveItem(player)) {
+					action = SMSUserAction.getAction(event);
+					ActiveItem.getActiveItem(player).processAction(player, action);
+				}
+			}
+			if ((action == SMSUserAction.SCROLLDOWN || action == SMSUserAction.SCROLLUP) && player.isSneaking() && event instanceof Cancellable) {
+				// Bukkit 1.5.1+ PlayerItemHeldEvent is now cancellable
+				((Cancellable) event).setCancelled(true);
 			}
 		} catch (SMSException e) {
 			LogUtils.warning(e.getMessage());
@@ -134,7 +141,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 		Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
 		SMSMapView mapView = SMSMapView.getHeldMapView(player);
-		PopupBook popupBook;
+		PopupBook popupBook = null;
+		ActiveItem activeItem = null;
+
 		try {
 			popupBook = PopupBook.get(player);
 		} catch (SMSException e) {
@@ -143,8 +152,12 @@ public class SMSPlayerListener extends SMSListenerBase {
 			return true;
 		}
 
+		if (ActiveItem.holdingActiveItem(player)) {
+			activeItem = ActiveItem.getActiveItem(player);
+		}
+
 		// If there is no mapView, book or selected block, there's nothing for us to do
-		if (block == null && mapView == null && popupBook == null) {
+		if (block == null && mapView == null && popupBook == null && activeItem == null) {
 			return false;
 		}
 
@@ -152,8 +165,8 @@ public class SMSPlayerListener extends SMSListenerBase {
 
 		String playerName = player.getName();
 
-		// left or right-clicking cancels any command substitution in progress
 		if (plugin.responseHandler.isExpecting(playerName, ExpectCommandSubstitution.class)) {
+			// left or right-clicking cancels any command substitution in progress
 			plugin.responseHandler.cancelAction(playerName, ExpectCommandSubstitution.class);
 			MiscUtil.alertMessage(player, "&6Command execution cancelled.");
 		} else if (plugin.responseHandler.isExpecting(playerName, ExpectViewCreation.class) && block != null) {
@@ -181,6 +194,10 @@ public class SMSPlayerListener extends SMSListenerBase {
 			// A popup written book - toggle the book's associated poppable view
 			popupBook.toggle();
 			player.setItemInHand(popupBook.toItemStack());
+		} else if (activeItem != null) {
+			LogUtils.fine("player interact event @ active item: " + activeItem);
+			SMSUserAction action = SMSUserAction.getAction(event);
+			activeItem.processAction(player, action);
 		} else if (mapView != null) {
 			// Holding an active map view
 			LogUtils.fine("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() +

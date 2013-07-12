@@ -289,6 +289,12 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		}
 	}
 
+	/**
+	 * Get the item at the given numeric index.
+	 *
+	 * @param index	1-based numeric index
+	 * @return	the menu item at that index or null if out of range
+	 */
 	public SMSMenuItem getItemAt(int index) {
 		return getItemAt(index, false);
 	}
