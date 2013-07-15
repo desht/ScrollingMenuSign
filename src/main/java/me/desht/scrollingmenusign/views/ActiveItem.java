@@ -5,6 +5,7 @@ import java.util.List;
 
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.scrollingmenusign.ItemGlow;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
@@ -13,7 +14,6 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 
 import org.bukkit.ChatColor;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -30,7 +30,13 @@ public class ActiveItem {
 	private final SMSMenu menu;
 	private int selectedItem;
 
-	private ActiveItem(ItemStack item) {
+	/**
+	 * Get the active item object from an item with existing active item metadata.
+	 *
+	 * @param item the item to retrieve the active item for
+	 * @throws SMSException if the item's metadata does not point to an active item
+	 */
+	public ActiveItem(ItemStack item) {
 		this.stack = item;
 		ItemMeta meta = item.getItemMeta();
 		List<String> lore = meta.getLore();
@@ -43,14 +49,20 @@ public class ActiveItem {
 				int sel = menu.indexOfItem(fields[1]);
 				selectedItem = sel == -1 ? 0 : sel;
 			} else {
-				throw new SMSException("Item is not linked to a SMS Menu");
+				throw new SMSException("Item is not an SMS active item");
 			}
 		} else {
-			throw new SMSException("Item is not linked to a SMS Menu");
+			throw new SMSException("Item is not an SMS active item");
 		}
 	}
 
-	private ActiveItem(ItemStack stack, SMSMenu menu) {
+	/**
+	 * Create a new active item object for the given itemstack and SMS menu.
+	 *
+	 * @param stack the item to turn into an active item
+	 * @param menu the menu to associate the item with
+	 */
+	public ActiveItem(ItemStack stack, SMSMenu menu) {
 		this.stack = stack;
 		this.menu = menu;
 		this.selectedItem = 1;
@@ -69,8 +81,7 @@ public class ActiveItem {
 		meta.setLore(lore);
 		stack.setItemMeta(meta);
 		if (ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
-			// fake glow; we'll use a flag enchantment here to signify that
-			stack.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 32);
+			ItemGlow.addGlow(stack);
 		}
 	}
 
@@ -114,6 +125,16 @@ public class ActiveItem {
 		return stack;
 	}
 
+	public void deactivate() {
+		ItemMeta meta = stack.getItemMeta();
+		meta.setDisplayName(null);
+		meta.setLore(null);
+		stack.setItemMeta(meta);
+		if (ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
+			ItemGlow.removeGlow(stack);
+		}
+	}
+
 	public void processAction(Player player, SMSUserAction action) {
 		switch (action) {
 		case EXECUTE:
@@ -138,13 +159,12 @@ public class ActiveItem {
 	}
 
 	/**
-	 * Check if the player is holding an active item object.
+	 * Check if the given item stack is an active item.
 	 *
-	 * @param player the player to check
-	 * @return true if the player is holding an active item, false otherwise
+	 * @param the item to check
+	 * @return true if the item is an active item, false otherwise
 	 */
-	public static boolean holdingActiveItem(Player player) {
-		ItemStack stack = player.getItemInHand();
+	public static boolean isActiveItem(ItemStack stack) {
 		ItemMeta meta = stack.getItemMeta();
 		if (meta == null || meta.getDisplayName() == null || !meta.getDisplayName().contains(SEPARATOR)) {
 			return false;
@@ -152,38 +172,6 @@ public class ActiveItem {
 		List<String> lore = meta.getLore();
 		if (lore == null || !lore.get(lore.size() - 1).startsWith(MENU_MARKER)) {
 			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Get the active item currently held by the player.
-	 *
-	 * @param player the player holding the item
-	 * @return the ActiveItem object
-	 * @throws SMSException if the player is not holding an active item
-	 */
-	public static ActiveItem getActiveItem(Player player) {
-		return new ActiveItem(player.getItemInHand());
-	}
-
-	public static ActiveItem makeActiveItem(Player player, SMSMenu menu) {
-		ActiveItem item = new ActiveItem(player.getItemInHand(), menu);
-		player.setItemInHand(item.toItemStack());
-		return item;
-	}
-
-	public static boolean deactivateItem(Player player) {
-		if (!holdingActiveItem(player)) {
-			return false;
-		}
-		ItemStack stack = player.getItemInHand();
-		ItemMeta meta = stack.getItemMeta();
-		meta.setDisplayName(null);
-		meta.setLore(null);
-		stack.setItemMeta(meta);
-		if (stack.getEnchantmentLevel(Enchantment.SILK_TOUCH) == 32) {
-			stack.removeEnchantment(Enchantment.SILK_TOUCH);
 		}
 		return true;
 	}
