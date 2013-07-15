@@ -28,6 +28,11 @@
             <id>Genesis-MC</id>
             <url>http://jenkins.genesis-mc.com/plugin/repository/everything/</url>
         </repository>
+        <repository>
+            <id>comphenix-rep</id>
+            <name>Comphenix Repository</name>
+            <url>http://repo.comphenix.net/content/groups/public</url>
+        </repository>
     </repositories>
     <build>
         <finalName>${project.name}</finalName>
@@ -147,6 +152,12 @@
             <artifactId>hamcrest-library</artifactId>
             <version>1.3</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>2.4.7</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>

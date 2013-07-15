@@ -9,6 +9,7 @@ import me.desht.dhutils.block.MaterialWithData;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.ChatColor;
@@ -36,8 +37,12 @@ public class MenuCommand extends SMSAbstractCommand {
 		} else {
 			notFromConsole(sender);
 			Player player = (Player) sender;
-			view = SMSView.getTargetedView(player, true);
-			menu = view.getActiveMenu(player.getName());
+			if (ActiveItem.holdingActiveItem(player)) {
+				menu = ActiveItem.getActiveItem(player).getMenu();
+			} else {
+				view = SMSView.getTargetedView(player, true);
+				menu = view.getActiveMenu(player.getName());
+			}
 		}
 
 		String attr;

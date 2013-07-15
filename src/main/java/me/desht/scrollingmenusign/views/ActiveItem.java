@@ -3,18 +3,20 @@ package me.desht.scrollingmenusign.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.SMSValidate;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
+
+import org.bukkit.ChatColor;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 /**
  * Represents an item linked to a SMS menu.  Not a traditional view, since all the
@@ -66,6 +68,18 @@ public class ActiveItem {
 		lore.add(MENU_MARKER + menu.getName());
 		meta.setLore(lore);
 		stack.setItemMeta(meta);
+		if (ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
+			// fake glow; we'll use a flag enchantment here to signify that
+			stack.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 32);
+		}
+	}
+
+	public SMSMenu getMenu() {
+		return menu;
+	}
+
+	public int getSelectedItemIndex() {
+		return selectedItem;
 	}
 
 	public void execute(Player player) {
@@ -74,7 +88,7 @@ public class ActiveItem {
 			throw new SMSException("This menu is owned by someone else");
 		}
 		SMSMenuItem item = menu.getItemAt(selectedItem);
-		System.out.println("execute " + item);
+		LogUtils.fine("ActiveItem: about to execute: " + item);
 		if (item != null) {
 			item.executeCommand(player);
 		} else {
@@ -132,7 +146,7 @@ public class ActiveItem {
 	public static boolean holdingActiveItem(Player player) {
 		ItemStack stack = player.getItemInHand();
 		ItemMeta meta = stack.getItemMeta();
-		if (meta.getDisplayName() == null || !meta.getDisplayName().contains(SEPARATOR)) {
+		if (meta == null || meta.getDisplayName() == null || !meta.getDisplayName().contains(SEPARATOR)) {
 			return false;
 		}
 		List<String> lore = meta.getLore();
@@ -159,4 +173,18 @@ public class ActiveItem {
 		return item;
 	}
 
+	public static boolean deactivateItem(Player player) {
+		if (!holdingActiveItem(player)) {
+			return false;
+		}
+		ItemStack stack = player.getItemInHand();
+		ItemMeta meta = stack.getItemMeta();
+		meta.setDisplayName(null);
+		meta.setLore(null);
+		stack.setItemMeta(meta);
+		if (stack.getEnchantmentLevel(Enchantment.SILK_TOUCH) == 32) {
+			stack.removeEnchantment(Enchantment.SILK_TOUCH);
+		}
+		return true;
+	}
 }

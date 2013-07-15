@@ -6,9 +6,11 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSValidate;
+import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -23,7 +25,7 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 				"/sms break <view-name>",
 				"/sms break -loc <x,y,z,world>",
 		});
-		setOptions(new String[] { "loc:s", "view:s"});
+		setOptions(new String[] { "loc:s", "view:s", "item"});
 	}
 
 	@Override
@@ -33,7 +35,17 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 		if (args.length == 0) {
 			// detaching a view that the player is looking at?
 			notFromConsole(sender);
-			view = SMSView.getTargetedView((Player) sender, true);
+			if (hasOption("item")) {
+				Player player = (Player)sender;
+				if (ActiveItem.deactivateItem(player)) {
+					MiscUtil.statusMessage(sender, "Deactivated held item: " + ChatColor.GOLD + player.getItemInHand().getType());
+					return true;
+				} else {
+					throw new SMSException("No active item to deactivate.");
+				}
+			} else {
+				view = SMSView.getTargetedView((Player) sender, true);
+			}
 		} else if (args.length == 1) {
 			// detaching a view by view name
 			view = getView(sender, args[0]);

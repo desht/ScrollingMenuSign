@@ -23,6 +23,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 public class AddViewCommand extends SMSAbstractCommand {
@@ -41,7 +43,7 @@ public class AddViewCommand extends SMSAbstractCommand {
 				"/sms sync <menu-name> -item",
 				"  [-viewname <name>]  Choose a non-default view name"
 		});
-		setOptions("map:i,sign,spout,redstone,multi,inventory,inv,item,viewname:s,loc:s");
+		setOptions("map:i,sign,spout,redstone,multi,inventory,inv,item,force,viewname:s,loc:s");
 	}
 
 	@Override
@@ -77,6 +79,11 @@ public class AddViewCommand extends SMSAbstractCommand {
 		} else if (hasOption("item")) {
 			notFromConsole(sender);
 			Player p = (Player)sender;
+			ItemStack stack = p.getItemInHand();
+			ItemMeta meta = stack.getItemMeta();
+			if (!hasOption("force") && meta != null && (meta.getDisplayName() != null || meta.getLore() != null)) {
+				throw new SMSException("This item already has custom metadata.  If you really want to override it, run this command again with the -force option");
+			}
 			ActiveItem.makeActiveItem(p, menu);
 			MiscUtil.statusMessage(sender, "Your " + p.getItemInHand().getType() + " is now connected to " + menu.getName());
 			return true;

@@ -72,6 +72,8 @@ import org.mcstats.Metrics;
 import org.mcstats.Metrics.Graph;
 import org.mcstats.Metrics.Plotter;
 
+import com.comphenix.protocol.ProtocolLibrary;
+
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
 	public static final int BLOCK_TARGET_DIST = 4;
@@ -90,6 +92,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	private ConfigurationManager configManager;
 
 	public final ResponseHandler responseHandler = new ResponseHandler(this);
+
+	private boolean protocolLibEnabled = false;
 
 	@Override
 	public void onLoad() {
@@ -117,6 +121,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		PluginManager pm = getServer().getPluginManager();
 		setupSpout(pm);
 		setupVault(pm);
+		setupProtocolLib(pm);
 
 		setupCustomFonts();
 
@@ -138,6 +143,9 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		if (spoutEnabled) {
 			SpoutUtils.precacheTextures();
+		}
+		if (protocolLibEnabled) {
+			ItemGlow.setupProtocolLibListener(this);
 		}
 
 		setupMetrics();
@@ -180,6 +188,10 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	public boolean isSpoutEnabled() {
 		return spoutEnabled;
+	}
+
+	public boolean isProtocolLibEnabled() {
+		return protocolLibEnabled;
 	}
 
 	public static ScrollingMenuSign getInstance() {
@@ -245,14 +257,14 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		Plugin spout = pm.getPlugin("Spout");
 		if (spout != null && spout.isEnabled()) {
 			spoutEnabled = true;
-			LogUtils.fine("Loaded Spout v" + spout.getDescription().getVersion());
+			LogUtils.fine("Hooked Spout v" + spout.getDescription().getVersion());
 		}
 	}
 
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
-		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			LogUtils.fine("Loaded Vault v" + vault.getDescription().getVersion());
+		if (vault != null && vault instanceof net.milkbowl.vault.Vault && vault.isEnabled()) {
+			LogUtils.fine("Hooked Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
 				LogUtils.warning("No economy plugin detected - economy command costs not available");
 			}
@@ -281,6 +293,14 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		}
 
 		return (permission != null);
+	}
+
+	private void setupProtocolLib(PluginManager pm) {
+		Plugin pLib = pm.getPlugin("ProtocolLib");
+		if (pLib != null && pLib instanceof ProtocolLibrary && pLib.isEnabled()) {
+			protocolLibEnabled = true;
+			LogUtils.fine("Hooked ProtocolLib v" + pLib.getDescription().getVersion());
+		}
 	}
 
 	private void registerCommands() {
