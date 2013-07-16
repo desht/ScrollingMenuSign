@@ -52,12 +52,6 @@ import org.bukkit.map.MapView;
  */
 public class SMSMapView extends SMSScrollableView {
 
-	private static final String[] NOT_OWNER = { "\u00a7oThis map belongs", "\u00a7oto someone else." };
-	private static final String[] NO_PERM = { "\u00a7oYou do not have", "\u00a7opermission to use", "\u00a7omap menus." };
-
-	// magic map X value used by the Courier plugin
-	public static final int COURIER_MAP_X = 2147087904;
-
 	private static final String CACHED_FILE_FORMAT = "png";
 
 	// attributes
@@ -74,6 +68,8 @@ public class SMSMapView extends SMSScrollableView {
 	private int lineSpacing;
 	private final List<MapRenderer> previousRenderers = new ArrayList<MapRenderer>();
 	private BufferedImage backgroundImage = null;
+
+	private static BufferedImage deniedImage = null;
 
 	private static Map<Short,SMSMapView> allMapViews = new HashMap<Short, SMSMapView>();
 
@@ -107,6 +103,23 @@ public class SMSMapView extends SMSScrollableView {
 		lineSpacing = 0;
 
 		mapRenderer = new SMSMapRenderer();
+	}
+
+	private BufferedImage getDeniedImage() {
+		if (deniedImage == null) {
+			URL u = getClass().getResource("/denied.png");
+			if (u != null) {
+				try {
+					deniedImage = ImageIO.read(u);
+					System.out.println("loaded denied image ok: " + deniedImage);
+				} catch (IOException e) {
+					LogUtils.warning("error loading access-denied image: " + e.getMessage());
+				}
+			} else {
+				LogUtils.warning("missing resource for access-denied image: " + u);
+			}
+		}
+		return deniedImage;
 	}
 
 	private void loadBackgroundImage() {
@@ -511,11 +524,13 @@ public class SMSMapView extends SMSScrollableView {
 		SMSMenu menu = getActiveMenu(player.getName());
 		Configuration config = ScrollingMenuSign.getInstance().getConfig();
 
-		if (!hasOwnerPermission(player)) {
-			drawMessage(g, NOT_OWNER);
-			return result;
-		} else if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
-			drawMessage(g, NO_PERM);
+		if (!hasOwnerPermission(player) || !PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
+			BufferedImage di = getDeniedImage();
+			if (di != null) {
+				g.drawImage(di, 0, 0, null);
+			} else {
+				drawMessage(g, new String[] { "Access Denied" });
+			}
 			return result;
 		}
 
