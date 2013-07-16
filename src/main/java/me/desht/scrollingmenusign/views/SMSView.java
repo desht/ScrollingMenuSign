@@ -31,7 +31,6 @@ import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.SMSPersistable;
 import me.desht.scrollingmenusign.SMSPersistence;
 import me.desht.scrollingmenusign.SMSValidate;
@@ -56,7 +55,7 @@ import org.bukkit.util.Vector;
 /**
  * Represents a base menu view from which all concrete views will inherit.
  */
-public abstract class SMSView implements Observer, SMSPersistable, ConfigurationListener {
+public abstract class SMSView extends CommandTrigger implements Observer, SMSPersistable, ConfigurationListener {
 	// operations which were player-specific (active submenu, scroll position...)
 	// need to be handled with a single global "player" here...
 	protected static final String GLOBAL_PSEUDO_PLAYER = "&&global";
@@ -171,6 +170,10 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.Freezable#getName()
 	 */
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.CommandTrigger#getName()
+	 */
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -194,20 +197,6 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 	 */
 	public SMSMenu getNativeMenu() {
 		return menu;
-	}
-
-	/**
-	 * Get the player context for operations such as view scrolling, active submenu etc.  For
-	 * views which have a per-player context (e.g. maps), this is just the player name. For views
-	 * with a global context (e.g. signs), a global pseudo-player handle can be used.
-	 *<p>
-	 * Subclasses can override this as needed.
-	 * 
-	 * @param playerName
-	 * @return the player context string
-	 */
-	protected String getPlayerContext(String playerName) {
-		return playerName;
 	}
 
 	/**
@@ -278,71 +267,10 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 		return menuStack.keySet();
 	}
 
-	/**
-	 * Get the title for the given player's currently active menu.
-	 * 
-	 * @param playerName name of the player to check
-	 * @return title of the active menu
-	 */
-	public String getActiveMenuTitle(String playerName) {
-		playerName = getPlayerContext(playerName);
-
-		SMSMenu activeMenu = getActiveMenu(playerName);
-		String prefix = activeMenu == getNativeMenu() ? "" : ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.title_prefix");
-		return prefix + activeMenu.getTitle();
-	}
-
-	/**
-	 * Get the number of items in the given player's currently active menu.  Note that for non-native menus,
-	 * this will be one greater than the actual menu size, because a synthetic "BACK" button is added.
-	 * 
-	 * @param playerName name of the player to check
-	 * @return the number of items in the active menu
-	 */
-	public int getActiveMenuItemCount(String playerName) {
-		playerName = getPlayerContext(playerName);
-
-		SMSMenu activeMenu = getActiveMenu(playerName);
-		int count = activeMenu.getItemCount();
-		if (activeMenu != getNativeMenu()) count++;	// adding a synthetic entry for the BACK item
-		return count;
-	}
-
-	/**
-	 * Get the menu item at the given position for the given player's currently active menu.
-	 * 
-	 * @param playerName name of the player to check
-	 * @param pos position in the active menu
-	 * @return the active menu item
-	 */
-	public SMSMenuItem getActiveMenuItemAt(String playerName, int pos) {
-		playerName = getPlayerContext(playerName);
-
-		SMSMenu activeMenu = getActiveMenu(playerName);
-		if (activeMenu != getNativeMenu() && pos == activeMenu.getItemCount() + 1) {
-			String label = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.label", "&l<- BACK");
-			String mat = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.material", "irondoor");
-			return new SMSMenuItem(activeMenu, MiscUtil.parseColourSpec(label), "BACK", "", mat);
-		} else {
-			return activeMenu.getItemAt(pos);
-		}
-	}
-
-	/**
-	 * Get the label for the menu item at the given position for the given player's currently active menu.  View variable
-	 * substitution will have been performed on the returned label.
-	 *
-	 * @param playerName name of the player to check
-	 * @param pos position in the active menu
-	 * @return the label of the active menu item
-	 */
+	@Override
 	public String getActiveItemLabel(String playerName, int pos) {
-		playerName = getPlayerContext(playerName);
-
-		String label = getActiveMenuItemAt(playerName, pos).getLabel();
-		if (label == null)
-			return null;
-		return variableSubs(label);
+		String label = super.getActiveItemLabel(playerName, pos);
+		return label == null ? null : variableSubs(label);
 	}
 
 	/**

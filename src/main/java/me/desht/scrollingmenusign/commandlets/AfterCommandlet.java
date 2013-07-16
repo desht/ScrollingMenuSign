@@ -6,7 +6,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.parser.CommandUtils;
-import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.CommandTrigger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -20,7 +20,7 @@ public class AfterCommandlet extends BaseCommandlet {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, final CommandSender sender, final SMSView view, String cmd, String[] args) {
+	public boolean execute(ScrollingMenuSign plugin, final CommandSender sender, final CommandTrigger trigger, String cmd, String[] args) {
 		SMSValidate.isTrue(args.length >= 3, "Usage: " + cmd + " <delay> <command string>");
 
 		int delay;
@@ -35,10 +35,10 @@ public class AfterCommandlet extends BaseCommandlet {
 		Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 			@Override
 			public void run() {
-				CommandUtils.executeCommand(sender, command, view);
+				CommandUtils.executeCommand(sender, command, trigger);
 			}
 		}, delay);
-		
+
 		return true;
 	}
 }

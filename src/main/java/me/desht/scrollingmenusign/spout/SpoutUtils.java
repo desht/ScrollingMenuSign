@@ -7,6 +7,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
+import me.desht.scrollingmenusign.views.CommandTrigger;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -61,9 +62,9 @@ public class SpoutUtils {
 		if (!sp.isSpoutCraftEnabled()) {
 			return false;
 		}
-		
+
 		LogUtils.fine("show spout text entry popup for " + player.getName() + ", prompt = " + prompt);
-		
+
 		// delaying this makes it play nicely with any spout view that might currently be showing
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
 			@Override
@@ -74,11 +75,11 @@ public class SpoutUtils {
 		return true;
 	}
 
-	public static void setupPasswordPrompt(Player player, String command, SMSView view) {
+	public static void setupPasswordPrompt(Player player, String command, CommandTrigger trigger) {
 		SpoutPlayer sp = (SpoutPlayer)player;
 		if (!sp.isSpoutCraftEnabled()) {
 			throw new SMSException("Password prompting is only supported when using Spoutcraft.");
 		}
-		ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command, view, true));
+		ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command, trigger, true));
 	}
 }

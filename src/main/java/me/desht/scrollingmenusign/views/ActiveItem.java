@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.ItemGlow;
 import me.desht.scrollingmenusign.SMSException;
@@ -18,16 +19,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.google.common.base.Joiner;
+
 /**
  * Represents an item linked to a SMS menu.  Not a traditional view, since all the
  * information needed is held in the item's metadata, not in a SMSView subclassed object.
  */
-public class ActiveItem {
+public class ActiveItem extends CommandTrigger {
 	private static final String MENU_MARKER = ChatColor.BLACK + "\u2637";
 	private static final String SEPARATOR = " \u2237 " + ChatColor.RESET;
+	private static final String SUBMENU_SEPARATOR = " \u25b6 ";
+	private static final String NO_ITEMS = ChatColor.ITALIC + "\u223c no entries";
 
 	private ItemStack stack;
-	private final SMSMenu menu;
+	private final List<SMSMenu> menus = new ArrayList<SMSMenu>();
 	private int selectedItem;
 
 	/**
@@ -42,12 +47,21 @@ public class ActiveItem {
 		List<String> lore = meta.getLore();
 		if (!lore.isEmpty() && meta.getDisplayName() != null) {
 			String last = lore.get(lore.size() - 1);
-			if (last.startsWith(MENU_MARKER)) {
-				menu = SMSMenu.getMenu(last.substring(MENU_MARKER.length()));
+			if (last.startsWith(MENU_MARKER) && last.length() > MENU_MARKER.length()) {
+				String[] menuPath = last.substring(MENU_MARKER.length()).split(SUBMENU_SEPARATOR);
+				for (String m : menuPath) {
+					menus.add(SMSMenu.getMenu(m));
+				}
 				String[] fields = meta.getDisplayName().split(SEPARATOR);
 				SMSValidate.isTrue(fields.length == 2, "Item name is not correctly formed");
-				int sel = menu.indexOfItem(fields[1]);
-				selectedItem = sel == -1 ? 0 : sel;
+				String backLabel = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.label", "&l<- BACK");
+				if (fields[1].equals(MiscUtil.parseColourSpec(backLabel))) {
+					// the fake "Back" entry is always last
+					selectedItem = getActiveMenuItemCount(null);
+				} else {
+					int sel = getActiveMenu().indexOfItem(fields[1]);
+					selectedItem = sel == -1 ? 1 : sel;
+				}
 			} else {
 				throw new SMSException("Item is not an SMS active item");
 			}
@@ -64,20 +78,28 @@ public class ActiveItem {
 	 */
 	public ActiveItem(ItemStack stack, SMSMenu menu) {
 		this.stack = stack;
-		this.menu = menu;
 		this.selectedItem = 1;
+		this.menus.add(menu);
 		buildItemStack();
 	}
 
 	private void buildItemStack() {
 		ItemMeta meta = stack.getItemMeta();
-		SMSMenuItem menuItem = menu.getItemAt(selectedItem);
-		meta.setDisplayName(menu.getTitle() + SEPARATOR + menuItem.getLabel());
+		SMSMenuItem menuItem = getActiveMenuItemAt(null, selectedItem);
 		List<String> lore = new ArrayList<String>();
-		for (String l : menuItem.getLore()) {
-			lore.add(l);
+		if (menuItem != null) {
+			meta.setDisplayName(getActiveMenuTitle(null) + SEPARATOR + menuItem.getLabel());
+			for (String l : menuItem.getLore()) {
+				lore.add(l);
+			}
+		} else {
+			meta.setDisplayName(getActiveMenuTitle(null) + SEPARATOR + NO_ITEMS);
 		}
-		lore.add(MENU_MARKER + menu.getName());
+		List<String> names = new ArrayList<String>(menus.size());
+		for (SMSMenu menu : menus) {
+			names.add(menu.getName());
+		}
+		lore.add(MENU_MARKER + Joiner.on(SUBMENU_SEPARATOR).join(names));
 		meta.setLore(lore);
 		stack.setItemMeta(meta);
 		if (ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
@@ -85,8 +107,21 @@ public class ActiveItem {
 		}
 	}
 
-	public SMSMenu getMenu() {
-		return menu;
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.CommandTrigger#getActiveMenu(java.lang.String)
+	 */
+	@Override
+	public SMSMenu getActiveMenu(String playerName) {
+		return menus.get(menus.size() - 1);
+	}
+
+	@Override
+	public SMSMenu getNativeMenu() {
+		return menus.get(0);
+	}
+
+	public SMSMenu getActiveMenu() {
+		return menus.get(menus.size() - 1);
 	}
 
 	public int getSelectedItemIndex() {
@@ -94,29 +129,32 @@ public class ActiveItem {
 	}
 
 	public void execute(Player player) {
+		if (getActiveMenuItemCount(null) == 0) {
+			return;
+		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.item");
-		if (!menu.hasOwnerPermission(player)) {
+		if (!getActiveMenu().hasOwnerPermission(player)) {
 			throw new SMSException("This menu is owned by someone else");
 		}
-		SMSMenuItem item = menu.getItemAt(selectedItem);
+		SMSMenuItem item = getActiveMenuItemAt(null, selectedItem);
 		LogUtils.fine("ActiveItem: about to execute: " + item);
 		if (item != null) {
-			item.executeCommand(player);
-		} else {
-			LogUtils.warning("index " + selectedItem + " out of range for " + menu.getName());
+			item.executeCommand(player, this);
+		} else  {
+			LogUtils.warning("index " + selectedItem + " out of range for " + getActiveMenu().getName());
 		}
 	}
 
 	public void scroll(Player player, int delta) {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.item");
-		if (!menu.hasOwnerPermission(player)) {
+		if (!getActiveMenu().hasOwnerPermission(player)) {
 			throw new SMSException("This menu is owned by someone else");
 		}
 		selectedItem += delta;
-		if (selectedItem > menu.getItemCount()) {
+		if (selectedItem > getActiveMenuItemCount(player.getName())) {
 			selectedItem = 1;
 		} else if (selectedItem < 1) {
-			selectedItem = menu.getItemCount();
+			selectedItem = getActiveMenuItemCount(player.getName());
 		}
 		buildItemStack();
 	}
@@ -155,7 +193,7 @@ public class ActiveItem {
 
 	@Override
 	public String toString() {
-		return "[" + stack.getType() + ":" + menu.getName() + "/" + selectedItem + "]";
+		return "[" + stack.getType() + ":" + getActiveMenu().getName() + "/" + selectedItem + "]";
 	}
 
 	/**
@@ -174,5 +212,26 @@ public class ActiveItem {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public void pushMenu(String playerName, SMSMenu newActive) {
+		menus.add(newActive);
+		selectedItem = 1;
+		buildItemStack();
+	}
+
+	@Override
+	public SMSMenu popMenu(String playerName) {
+		SMSMenu popped = getActiveMenu();
+		menus.remove(menus.size() - 1);
+		selectedItem = 1;
+		buildItemStack();
+		return popped;
+	}
+
+	@Override
+	public String getName() {
+		return "Active:" + stack.getType();
 	}
 }

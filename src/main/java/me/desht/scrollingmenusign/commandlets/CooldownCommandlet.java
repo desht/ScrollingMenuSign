@@ -14,7 +14,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.parser.CommandUtils;
-import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.CommandTrigger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -47,7 +47,7 @@ public class CooldownCommandlet extends BaseCommandlet implements Listener {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, SMSView view, String cmd, String[] args) {
+	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
 		SMSValidate.isTrue(args.length >= 4, "Usage: " + cmd + " <cooldown-name> <delay> <command string>");
 
 		String cooldownName = args[1];
@@ -64,7 +64,7 @@ public class CooldownCommandlet extends BaseCommandlet implements Listener {
 		if (isOnCooldown(sender, cooldownName, delay.getTotalDuration())) {
 			return false;
 		} else {
-			CommandUtils.executeCommand(sender, command, view);
+			CommandUtils.executeCommand(sender, command, trigger);
 			updateCooldown(sender, cooldownName);
 			return true;
 		}

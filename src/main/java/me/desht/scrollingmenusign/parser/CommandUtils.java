@@ -4,7 +4,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.CommandTrigger;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -26,11 +26,11 @@ public class CommandUtils {
 	 * 
 	 * @param sender the command sender who is running the command
 	 * @param command the command to be run
-	 * @param view the view which triggered the execution of the command
+	 * @param trigger the view which triggered the execution of the command
 	 * @throws SMSException
 	 */
-	public static void executeCommand(CommandSender sender, String command, SMSView view) {
-		ParsedCommand pCmd = new CommandParser().executeCommand(sender, command, view);
+	public static void executeCommand(CommandSender sender, String command, CommandTrigger trigger) {
+		ParsedCommand pCmd = new CommandParser().executeCommand(sender, command, trigger);
 		// pCmd could be null if this was an empty command
 		if (pCmd != null) {
 			switch(pCmd.getStatus()) {

@@ -1,7 +1,7 @@
 package me.desht.scrollingmenusign.commandlets;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.CommandTrigger;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.command.CommandSender;
@@ -14,10 +14,10 @@ public class CloseSubmenuCommandlet extends BaseCommandlet {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, SMSView view, String cmd, String[] args) {
+	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
 		Validate.isTrue(sender instanceof Player, "Not from the console!");
 		String playerName = ((Player)sender).getName();
-		view.popMenu(playerName);
+		trigger.popMenu(playerName);
 		return true;
 	}
 

@@ -16,6 +16,7 @@ import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.CommandTrigger;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.command.CommandSender;
@@ -27,7 +28,7 @@ public class ScriptCommandlet extends BaseCommandlet {
 	}
 
 	@Override
-	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, SMSView view, String cmd, String[] args) {
+	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
 		SMSValidate.isTrue(args.length >= 2, "Usage: " + cmd + " <script-name> [<script-args>]");
 
 		ScriptEngineManager manager = new ScriptEngineManager();
@@ -48,7 +49,8 @@ public class ScriptCommandlet extends BaseCommandlet {
 		} else {
 			bindings.put("args", new String[0]);
 		}
-		bindings.put("view", view);
+		bindings.put("view", trigger instanceof SMSView ? trigger : null);
+		bindings.put("trigger", trigger);
 		bindings.put("commandSender", sender);
 		bindings.put("result", true);
 		File scriptFile = new File(DirectoryStructure.getScriptsFolder(), scriptName);

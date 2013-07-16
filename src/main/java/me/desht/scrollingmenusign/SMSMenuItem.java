@@ -11,7 +11,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.scrollingmenusign.parser.CommandUtils;
-import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.CommandTrigger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -175,10 +175,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 * Executes the command for this item
 	 * 
 	 * @param sender the command sender who triggered the execution
-	 * @param view the view that triggered this execution
+	 * @param trigger the view that triggered this execution
 	 * @throws SMSException	if the usage limit for this player is exhausted
 	 */
-	public void executeCommand(CommandSender sender, SMSView view) {
+	public void executeCommand(CommandSender sender, CommandTrigger trigger) {
 		if (sender instanceof Player) {
 			boolean itemUses = verifyRemainingUses(this, (Player) sender);
 			boolean menuUses = verifyRemainingUses(menu, (Player) sender);
@@ -197,7 +197,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			cmd = menu.getDefaultCommand().replace("<LABEL>", ChatColor.stripColor(getLabel())).replace("<RAWLABEL>", getLabel());
 		}
 
-		CommandUtils.executeCommand(sender, cmd, view);
+		CommandUtils.executeCommand(sender, cmd, trigger);
 	}
 
 	/**

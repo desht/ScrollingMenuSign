@@ -1,7 +1,7 @@
 package me.desht.scrollingmenusign.commandlets;
 
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.CommandTrigger;
 
 import org.bukkit.command.CommandSender;
 
@@ -16,5 +16,5 @@ public abstract class BaseCommandlet {
 		return name;
 	}
 
-	public abstract boolean execute(ScrollingMenuSign plugin, CommandSender sender, SMSView view, String cmd, String[] args);
+	public abstract boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args);
 }
