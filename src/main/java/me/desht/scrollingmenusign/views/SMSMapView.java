@@ -111,7 +111,6 @@ public class SMSMapView extends SMSScrollableView {
 			if (u != null) {
 				try {
 					deniedImage = ImageIO.read(u);
-					System.out.println("loaded denied image ok: " + deniedImage);
 				} catch (IOException e) {
 					LogUtils.warning("error loading access-denied image: " + e.getMessage());
 				}

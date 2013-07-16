@@ -141,7 +141,6 @@ public class SMSPlayerListener extends SMSListenerBase {
 		if (entity.getType() == EntityType.ITEM_FRAME) {
 			ItemStack item = ((ItemFrame) entity).getItem();
 			if (item.getType() == Material.MAP && SMSMapView.checkForMapId(item.getDurability())) {
-				System.out.println("interact framed map view entity " + event.getRightClicked());
 				SMSUserAction action = SMSUserAction.getAction(event);
 				SMSMapView mapView = SMSMapView.getViewForId(item.getDurability());
 				try {
@@ -160,7 +159,6 @@ public class SMSPlayerListener extends SMSListenerBase {
 		if (entity instanceof ItemFrame && event.getRemover() instanceof Player) {
 			ItemStack item = ((ItemFrame)entity).getItem();
 			if (item.getType() == Material.MAP && SMSMapView.checkForMapId(item.getDurability())) {
-				System.out.println("try break framed map view entity " + event.getEntity());
 				SMSUserAction action = SMSUserAction.getAction(event);
 				SMSMapView mapView = SMSMapView.getViewForId(item.getDurability());
 				try {
