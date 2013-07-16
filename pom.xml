@@ -108,6 +108,13 @@
                     <include>config.yml</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>denied.png</include>
+                </includes>
+            </resource>
         </resources>
     </build>
     <dependencies>
