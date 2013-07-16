@@ -9,7 +9,9 @@ import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 
@@ -37,13 +39,14 @@ public enum SMSUserAction {
 	public static SMSUserAction getAction(PlayerItemHeldEvent event) {
 		int delta = event.getNewSlot() - event.getPreviousSlot();
 		StringBuilder key;
-		if (delta == -1 || delta == 8) {
-			key = new StringBuilder("sms.actions.wheelup.");
-		} else if (delta == 1 || delta == -8) {
-			key = new StringBuilder("sms.actions.wheeldown.");
-		} else {
+		if (delta == 0) {
 			return NONE;
+		} else if (delta >= 6) {
+			delta -= 9;
+		} else if (delta <= -6) {
+			delta += 9;
 		}
+		key = delta < 0 ? new StringBuilder("sms.actions.wheelup.") : new StringBuilder("sms.actions.wheeldown.");
 		return _makeAction(event.getPlayer(), key);
 	}
 
@@ -53,8 +56,16 @@ public enum SMSUserAction {
 			StringBuilder key = new StringBuilder("sms.actions.leftclick.");
 			return _makeAction(event.getPlayer(), key);
 		default:
-			return NONE;	
+			return NONE;
 		}
+	}
+
+	public static SMSUserAction getAction(PlayerInteractEntityEvent event) {
+		return _makeAction(event.getPlayer(), new StringBuilder("sms.actions.rightclick."));
+	}
+
+	public static SMSUserAction getAction(HangingBreakByEntityEvent event) {
+		return _makeAction((Player)event.getRemover(), new StringBuilder("sms.actions.leftclick."));
 	}
 
 	private static SMSUserAction _makeAction(Player player, StringBuilder key) {

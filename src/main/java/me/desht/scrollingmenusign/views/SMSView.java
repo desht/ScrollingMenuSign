@@ -47,6 +47,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -833,13 +836,30 @@ public abstract class SMSView implements Observer, SMSPersistable, Configuration
 			v = book.getView();
 		}
 
+		Block b = null;
 		if (v == null) {
 			// targeted view (sign/multisign/redstone)
 			try {
-				Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
+				b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
 				v =  getViewForLocation(b.getLocation());
 			} catch (IllegalStateException e) {
 				// the block iterator can throw this sometimes - we can ignore it
+			}
+		}
+
+		if (v == null && b != null) {
+			// maybe there's a map view item frame attached to the block we're looking at
+			for (Entity entity : player.getNearbyEntities(ScrollingMenuSign.BLOCK_TARGET_DIST, ScrollingMenuSign.BLOCK_TARGET_DIST, ScrollingMenuSign.BLOCK_TARGET_DIST)) {
+				if (entity.getType() == EntityType.ITEM_FRAME ) {
+					ItemFrame frame = (ItemFrame)entity;
+					if (frame.getItem().getType() != Material.MAP || !SMSMapView.checkForMapId(frame.getItem().getDurability())) {
+						continue;
+					}
+					if (frame.getLocation().getBlock().getRelative(frame.getAttachedFace()).equals(b)) {
+						v = SMSMapView.getViewForId(frame.getItem().getDurability());
+						break;
+					}
+				}
 			}
 		}
 

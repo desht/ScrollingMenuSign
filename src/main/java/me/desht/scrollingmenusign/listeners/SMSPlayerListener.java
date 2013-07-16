@@ -28,12 +28,17 @@ import me.desht.scrollingmenusign.views.redout.Switch;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -52,7 +57,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 			return;
 		}
 		if (event.isCancelled() && SMSMapView.getHeldMapView(event.getPlayer()) == null
-				&& !PopupBook.holding(event.getPlayer()) && !ActiveItem.holdingActiveItem(event.getPlayer())) {
+				&& !PopupBook.holding(event.getPlayer()) && !ActiveItem.isActiveItem(event.getPlayer().getItemInHand())) {
 			// Work around weird Bukkit behaviour where all air-click events
 			// arrive cancelled by default.
 			return;
@@ -90,9 +95,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 					action.execute(player, view);
 				}
 			} else {
-				if (ActiveItem.holdingActiveItem(player)) {
+				if (ActiveItem.isActiveItem(player.getItemInHand()) && player.isSneaking()) {
 					action = SMSUserAction.getAction(event);
-					ActiveItem.getActiveItem(player).processAction(player, action);
+					new ActiveItem(player.getItemInHand()).processAction(player, action);
 				}
 			}
 			if ((action == SMSUserAction.SCROLLDOWN || action == SMSUserAction.SCROLLUP) && player.isSneaking() && event instanceof Cancellable) {
@@ -130,8 +135,46 @@ public class SMSPlayerListener extends SMSListenerBase {
 		SMSView.clearPlayer(player);
 	}
 
+	@EventHandler
+	public void onEntityRightClicked(PlayerInteractEntityEvent event) {
+		Entity entity = event.getRightClicked();
+		if (entity.getType() == EntityType.ITEM_FRAME) {
+			ItemStack item = ((ItemFrame) entity).getItem();
+			if (item.getType() == Material.MAP && SMSMapView.checkForMapId(item.getDurability())) {
+				System.out.println("interact framed map view entity " + event.getRightClicked());
+				SMSUserAction action = SMSUserAction.getAction(event);
+				SMSMapView mapView = SMSMapView.getViewForId(item.getDurability());
+				try {
+					action.execute(event.getPlayer(), mapView);
+				} catch (SMSException e) {
+					MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
+				}
+				event.setCancelled(true);
+			}
+		}
+	}
+
+	@EventHandler
+	public void onEntityLeftClicked(HangingBreakByEntityEvent event) {
+		Entity entity = event.getEntity();
+		if (entity instanceof ItemFrame && event.getRemover() instanceof Player) {
+			ItemStack item = ((ItemFrame)entity).getItem();
+			if (item.getType() == Material.MAP && SMSMapView.checkForMapId(item.getDurability())) {
+				System.out.println("try break framed map view entity " + event.getEntity());
+				SMSUserAction action = SMSUserAction.getAction(event);
+				SMSMapView mapView = SMSMapView.getViewForId(item.getDurability());
+				try {
+					action.execute((Player)event.getRemover(), mapView);
+				} catch (SMSException e) {
+					MiscUtil.errorMessage((Player)event.getRemover(), e.getMessage());
+				}
+				event.setCancelled(true);
+			}
+		}
+	}
+
 	/**
-	 * Main handler for PlayerInterfact events.
+	 * Main handler for PlayerInteract events.
 	 * 
 	 * @param event		the event to handle
 	 * @return			true if the event has been handled and should be cancelled now, false otherwise
@@ -152,8 +195,8 @@ public class SMSPlayerListener extends SMSListenerBase {
 			return true;
 		}
 
-		if (ActiveItem.holdingActiveItem(player)) {
-			activeItem = ActiveItem.getActiveItem(player);
+		if (ActiveItem.isActiveItem(player.getItemInHand())) {
+			activeItem = new ActiveItem(player.getItemInHand());
 		}
 
 		// If there is no mapView, book or selected block, there's nothing for us to do
