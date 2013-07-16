@@ -37,8 +37,8 @@ public class MenuCommand extends SMSAbstractCommand {
 		} else {
 			notFromConsole(sender);
 			Player player = (Player) sender;
-			if (ActiveItem.holdingActiveItem(player)) {
-				menu = ActiveItem.getActiveItem(player).getMenu();
+			if (ActiveItem.isActiveItem(player.getItemInHand())) {
+				menu = new ActiveItem(player.getItemInHand()).getMenu();
 			} else {
 				view = SMSView.getTargetedView(player, true);
 				menu = view.getActiveMenu(player.getName());

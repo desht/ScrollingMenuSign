@@ -84,8 +84,9 @@ public class AddViewCommand extends SMSAbstractCommand {
 			if (!hasOption("force") && meta != null && (meta.getDisplayName() != null || meta.getLore() != null)) {
 				throw new SMSException("This item already has custom metadata.  If you really want to override it, run this command again with the -force option");
 			}
-			ActiveItem.makeActiveItem(p, menu);
-			MiscUtil.statusMessage(sender, "Your " + p.getItemInHand().getType() + " is now connected to " + menu.getName());
+			ActiveItem item = new ActiveItem(p.getItemInHand(), menu);
+			p.setItemInHand(item.toItemStack());
+			MiscUtil.statusMessage(sender, "Your &6" + p.getItemInHand().getType() + "&- is now an active item for &e" + menu.getName());
 			return true;
 		} else if (hasOption("multi") && loc != null) { 	// multi-sign view
 			view = SMSMultiSignView.addSignToMenu(viewName, menu, loc, sender);

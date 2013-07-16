@@ -145,7 +145,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			SpoutUtils.precacheTextures();
 		}
 		if (protocolLibEnabled) {
-			ItemGlow.setupProtocolLibListener(this);
+			ItemGlow.init(this);
 		}
 
 		setupMetrics();

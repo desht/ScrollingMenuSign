@@ -37,12 +37,11 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 			notFromConsole(sender);
 			if (hasOption("item")) {
 				Player player = (Player)sender;
-				if (ActiveItem.deactivateItem(player)) {
-					MiscUtil.statusMessage(sender, "Deactivated held item: " + ChatColor.GOLD + player.getItemInHand().getType());
-					return true;
-				} else {
-					throw new SMSException("No active item to deactivate.");
-				}
+				ActiveItem item = new ActiveItem(player.getItemInHand());
+				item.deactivate();
+				player.setItemInHand(item.toItemStack());
+				MiscUtil.statusMessage(sender, "Deactivated held item: " + ChatColor.GOLD + player.getItemInHand().getType());
+				return true;
 			} else {
 				view = SMSView.getTargetedView((Player) sender, true);
 			}
