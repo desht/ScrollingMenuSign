@@ -6,13 +6,16 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSValidate;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public class RemoveViewCommand extends SMSAbstractCommand {
@@ -25,7 +28,7 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 				"/sms break <view-name>",
 				"/sms break -loc <x,y,z,world>",
 		});
-		setOptions(new String[] { "loc:s", "view:s", "item"});
+		setOptions(new String[] { "loc:s", "view:s", "item", "frame" });
 	}
 
 	@Override
@@ -33,17 +36,30 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 		SMSView view = null;
 
 		if (args.length == 0) {
-			// detaching a view that the player is looking at?
 			notFromConsole(sender);
+			Player player = (Player)sender;
 			if (hasOption("item")) {
-				Player player = (Player)sender;
-				ActiveItem item = new ActiveItem(player.getItemInHand());
-				item.deactivate();
-				player.setItemInHand(item.toItemStack());
-				MiscUtil.statusMessage(sender, "Deactivated held item: " + ChatColor.GOLD + player.getItemInHand().getType());
-				return true;
+				// deactivating an active item
+					ActiveItem item = new ActiveItem(player.getItemInHand());
+					item.deactivate();
+					player.setItemInHand(item.toItemStack());
+					MiscUtil.statusMessage(sender, "Deactivated held item: " + ChatColor.GOLD + player.getItemInHand().getType());
+					return true;
+			} else if (hasOption("frame")) {
+				ItemFrame frame = SMSMapView.getMapFrame(player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST), player.getEyeLocation());
+				if (frame != null) {
+					ItemStack stack = frame.getItem();
+					SMSMapView mv = SMSMapView.getViewForId(stack.getDurability());
+					frame.getWorld().dropItem(player.getLocation(), stack);
+					frame.setItem(null);
+					MiscUtil.statusMessage(player, "Removed map for menu &e" + mv.getNativeMenu().getName() + "&- from the item frame.");
+					return true;
+				} else {
+					throw new SMSException("There is no item frame with a map view there.");
+				}
 			} else {
-				view = SMSView.getTargetedView((Player) sender, true);
+				// detaching a view that the player is looking at?
+				view = SMSView.getTargetedView(player, true);
 			}
 		} else if (args.length == 1) {
 			// detaching a view by view name

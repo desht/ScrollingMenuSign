@@ -136,7 +136,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 	}
 
 	@EventHandler
-	public void onEntityRightClicked(PlayerInteractEntityEvent event) {
+	public void onItemFrameRightClicked(PlayerInteractEntityEvent event) {
 		Entity entity = event.getRightClicked();
 		if (entity.getType() == EntityType.ITEM_FRAME) {
 			ItemStack item = ((ItemFrame) entity).getItem();
@@ -154,7 +154,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 	}
 
 	@EventHandler
-	public void onEntityLeftClicked(HangingBreakByEntityEvent event) {
+	public void onItemFrameLeftClicked(HangingBreakByEntityEvent event) {
 		Entity entity = event.getEntity();
 		if (entity instanceof ItemFrame && event.getRemover() instanceof Player) {
 			ItemStack item = ((ItemFrame)entity).getItem();

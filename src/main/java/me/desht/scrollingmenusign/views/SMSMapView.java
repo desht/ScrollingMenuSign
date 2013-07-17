@@ -25,6 +25,7 @@ import javax.imageio.ImageIO;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -35,10 +36,15 @@ import me.desht.scrollingmenusign.enums.ViewJustification;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -455,6 +461,31 @@ public class SMSMapView extends SMSScrollableView {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Get the item frame attached to the given block, if any, on the
+	 * side of the block facing most directly toward the given location
+	 * (typically a player's eye location).
+	 * <p>
+	 * The item frame must be holding a map which is a SMSMapView.
+	 *
+	 * @param block the block to check
+	 * @param viewerLoc the location to check from
+	 * @return the item frame object, or null if none was found
+	 */
+	public static ItemFrame getMapFrame(Block block, Location viewerLoc) {
+		BlockFace face = BlockUtil.getNearestFace(block, viewerLoc);
+		for (Entity entity : block.getWorld().getEntitiesByClass(ItemFrame.class)) {
+			ItemFrame frame = (ItemFrame)entity;
+			if (frame.getItem() == null || frame.getItem().getType() != Material.MAP || !checkForMapId(frame.getItem().getDurability())) {
+				continue;
+			}
+			if (frame.getLocation().getBlock().getRelative(frame.getAttachedFace()).equals(block) && frame.getAttachedFace() == face.getOppositeFace()) {
+				return frame;
+			}
+		}
+		return null;
 	}
 
 	@Override

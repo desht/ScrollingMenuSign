@@ -46,8 +46,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -748,54 +746,47 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 * Get the view the player is currently looking at, if any.
 	 * 
 	 * @param player	The player
-	 * @return	The view being looked at, or null if no view.
+	 * @param mustExist if true and no view is found, throw an exception
+	 * @return	The view being looked at, or null if no view is targeted
+	 * @throws SMSException if mustExist is true and no view is targeted
 	 */
-	public static SMSView getTargetedView(Player player, boolean complain) {
-		SMSView v = null;
+	public static SMSView getTargetedView(Player player, boolean mustExist) {
+		SMSView view = null;
 
 		if (player.getItemInHand().getType() == Material.MAP) {
-			// map
-			v = SMSMapView.getHeldMapView(player);
+			view = SMSMapView.getHeldMapView(player);
 		}
 
-		if (v == null && PopupBook.holding(player)) {
+		if (view == null && PopupBook.holding(player)) {
 			// popup book (spout/inventory)
 			PopupBook book = PopupBook.get(player);
-			v = book.getView();
+			view = book.getView();
 		}
 
 		Block b = null;
-		if (v == null) {
+		if (view == null) {
 			// targeted view (sign/multisign/redstone)
 			try {
 				b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
-				v =  getViewForLocation(b.getLocation());
+				view = getViewForLocation(b.getLocation());
 			} catch (IllegalStateException e) {
 				// the block iterator can throw this sometimes - we can ignore it
 			}
 		}
 
-		if (v == null && b != null) {
+		if (view == null && b != null) {
 			// maybe there's a map view item frame attached to the block we're looking at
-			for (Entity entity : player.getNearbyEntities(ScrollingMenuSign.BLOCK_TARGET_DIST, ScrollingMenuSign.BLOCK_TARGET_DIST, ScrollingMenuSign.BLOCK_TARGET_DIST)) {
-				if (entity.getType() == EntityType.ITEM_FRAME ) {
-					ItemFrame frame = (ItemFrame)entity;
-					if (frame.getItem().getType() != Material.MAP || !SMSMapView.checkForMapId(frame.getItem().getDurability())) {
-						continue;
-					}
-					if (frame.getLocation().getBlock().getRelative(frame.getAttachedFace()).equals(b)) {
-						v = SMSMapView.getViewForId(frame.getItem().getDurability());
-						break;
-					}
-				}
+			ItemFrame frame = SMSMapView.getMapFrame(b, player.getEyeLocation());
+			if (frame != null) {
+				view = SMSMapView.getViewForId(frame.getItem().getDurability());
 			}
 		}
 
-		if (v == null && complain) {
+		if (view == null && mustExist) {
 			throw new SMSException("You are not looking at a menu view.");
 		}
 
-		return v;
+		return view;
 	}
 
 	public static SMSView getTargetedView(Player player) {
