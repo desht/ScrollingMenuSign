@@ -23,7 +23,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.material.Sign;
 
@@ -112,16 +111,18 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	@Override
-	public void onDeletion() {
-		super.onDeletion();
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				org.bukkit.block.Sign s = getSign(x, y);
-				if (s != null) {
-					for (int i = 0; i < 4; i++) {
-						s.setLine(i, "");
+	public void onDeleted(boolean permanent) {
+		super.onDeleted(permanent);
+		if (permanent) {
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < height; y++) {
+					org.bukkit.block.Sign s = getSign(x, y);
+					if (s != null) {
+						for (int i = 0; i < 4; i++) {
+							s.setLine(i, "");
+						}
+						s.update();
 					}
-					s.update();
 				}
 			}
 		}
@@ -378,7 +379,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private Block scanOneDir(Block b, BlockFace dir) {
-		while (b.getType() == Material.WALL_SIGN && SMSView.getViewForLocation(b.getLocation()) == null) {
+		while (b.getType() == Material.WALL_SIGN && ScrollingMenuSign.getInstance().getViewManager().getViewForLocation(b.getLocation()) == null) {
 			Sign s = (Sign) b.getState().getData();
 			if (s.getFacing() != facing) {
 				break;
@@ -463,36 +464,6 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		return c >= '0' && c <= '9' || c >= 'a' && c <= 'f'	;
 	}
 
-	/**
-	 * Convenience method.  Create a new multi-sign view at the given location.
-	 * 
-	 * @param viewName name for the new view
-	 * @param menu the menu to add the new view to
-	 * @param location location of one of the signs in the new view
-	 * @param owner owner of the new view
-	 * @return the newly-created view
-	 * @throws SMSException
-	 */
-	public static SMSView addSignToMenu(String viewName, SMSMenu menu, Location location, CommandSender owner) throws SMSException {
-		SMSView view = new SMSMultiSignView(viewName, menu, location);
-		view.register();
-		view.setAttribute(OWNER, view.getOwnerName(owner));
-		view.update(menu, SMSMenuAction.REPAINT);
-		return view;
-	}
-
-	/**
-	 * Convenience method.  Create a new multi-sign view at the given location.
-	 * 
-	 * @param menu the menu to add the view to
-	 * @param location location of one of the signs in the view
-	 * @param owner owner of the new view
-	 * @return the newly-created view
-	 * @throws SMSException
-	 */
-	public static SMSView addSignToMenu(SMSMenu menu, Location location, CommandSender owner) throws SMSException {
-		return addSignToMenu(null, menu, location, owner);
-	}
 
 	@Override
 	protected int getLineLength() {

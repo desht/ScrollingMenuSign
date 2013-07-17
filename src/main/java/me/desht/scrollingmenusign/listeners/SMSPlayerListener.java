@@ -18,10 +18,8 @@ import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
-import me.desht.scrollingmenusign.views.SMSInventoryView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
-import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
@@ -56,7 +54,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 			// We're not interested in physical actions (pressure plate) here
 			return;
 		}
-		if (event.isCancelled() && SMSMapView.getHeldMapView(event.getPlayer()) == null
+		if (event.isCancelled() && plugin.getViewManager().getHeldMapView(event.getPlayer()) == null
 				&& !PopupBook.holding(event.getPlayer()) && !ActiveItem.isActiveItem(event.getPlayer().getItemInHand())) {
 			// Work around weird Bukkit behaviour where all air-click events
 			// arrive cancelled by default.
@@ -84,7 +82,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 		}
 
 		try {
-			SMSView view = SMSView.getTargetedView(player);
+			SMSView view = plugin.getViewManager().getTargetedView(player);
 			SMSUserAction action = null;
 			if (view != null) {
 				LogUtils.fine(String.format("PlayerItemHeldChangeEvent @ %s, %s did %d->%d, menu = %s",
@@ -132,7 +130,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 
 		MessagePager.deletePager(player);
 
-		SMSView.clearPlayer(player);
+		plugin.getViewManager().clearPlayer(player);
 	}
 
 	@EventHandler
@@ -140,9 +138,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 		Entity entity = event.getRightClicked();
 		if (entity.getType() == EntityType.ITEM_FRAME) {
 			ItemStack item = ((ItemFrame) entity).getItem();
-			if (item.getType() == Material.MAP && SMSMapView.checkForMapId(item.getDurability())) {
+			if (item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
 				SMSUserAction action = SMSUserAction.getAction(event);
-				SMSMapView mapView = SMSMapView.getViewForId(item.getDurability());
+				SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
 				try {
 					action.execute(event.getPlayer(), mapView);
 				} catch (SMSException e) {
@@ -158,9 +156,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 		Entity entity = event.getEntity();
 		if (entity instanceof ItemFrame && event.getRemover() instanceof Player) {
 			ItemStack item = ((ItemFrame)entity).getItem();
-			if (item.getType() == Material.MAP && SMSMapView.checkForMapId(item.getDurability())) {
+			if (item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
 				SMSUserAction action = SMSUserAction.getAction(event);
-				SMSMapView mapView = SMSMapView.getViewForId(item.getDurability());
+				SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
 				try {
 					action.execute((Player)event.getRemover(), mapView);
 				} catch (SMSException e) {
@@ -181,7 +179,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 	private boolean handleInteraction(PlayerInteractEvent event) throws SMSException { 
 		Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
-		SMSMapView mapView = SMSMapView.getHeldMapView(player);
+		SMSMapView mapView = plugin.getViewManager().getHeldMapView(player);
 		PopupBook popupBook = null;
 		ActiveItem activeItem = null;
 
@@ -202,7 +200,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 			return false;
 		}
 
-		SMSView clickedView = block == null ? null : SMSView.getViewForLocation(block.getLocation());
+		SMSView clickedView = block == null ? null : plugin.getViewManager().getViewForLocation(block.getLocation());
 
 		String playerName = player.getName();
 
@@ -298,10 +296,10 @@ public class SMSPlayerListener extends SMSListenerBase {
 
 		boolean newView = false;
 		SMSMenu menu = view.getActiveMenu(player.getName());
-		SMSView popView = SMSView.findView(menu, PoppableView.class);
+		SMSView popView = plugin.getViewManager().findView(menu, PoppableView.class);
 		if (popView == null) {
 			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
-			popView = SMSInventoryView.addInventoryViewToMenu(menu, player);
+			popView = plugin.getViewManager().addInventoryViewToMenu(menu, player);
 			newView = true;
 		}
 		PopupBook popup = new PopupBook(player, popView);
@@ -337,7 +335,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.to.sign");
-		SMSView view = SMSSignView.addSignToMenu(menu, block.getLocation(), player);
+		SMSView view = plugin.getViewManager().addSignToMenu(menu, block.getLocation(), player);
 		MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
 		                                             view.getName(), MiscUtil.formatLocation(block.getLocation()), menu.getName()));
 	}
@@ -354,14 +352,14 @@ public class SMSPlayerListener extends SMSListenerBase {
 			return;
 		}
 		short mapId = player.getItemInHand().getDurability();
-		if (SMSMapView.usedByOtherPlugin(mapId)) {
+		if (plugin.getViewManager().isMapUsedByOtherPlugin(mapId)) {
 			return;
 		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.from.sign");
 
-		SMSMapView mapView = SMSMapView.addMapToMenu(view.getActiveMenu(player.getName()), mapId, player);
+		SMSMapView mapView = plugin.getViewManager().addMapToMenu(view.getActiveMenu(player.getName()), mapId, player);
 		mapView.setMapItemName(player.getItemInHand());
 
 		MiscUtil.statusMessage(player, String.format("Added new map view &e%s&- to menu &e%s&-.",

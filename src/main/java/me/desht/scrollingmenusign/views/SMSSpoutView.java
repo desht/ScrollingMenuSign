@@ -18,7 +18,6 @@ import me.desht.scrollingmenusign.spout.SpoutViewPopup;
 import me.desht.scrollingmenusign.spout.TextEntryPopup;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.SpoutManager;
@@ -204,13 +203,15 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	}
 
 	@Override
-	public void onDeletion() {
-		super.onDeletion();
-		for (Entry<String, SpoutViewPopup> e : popups.entrySet()) {
-			if (e.getValue().isPoppedUp(null)) {
-				hideGUI(e.getValue().getPlayer());
+	public void onDeleted(boolean permanent) {
+		super.onDeleted(permanent);
+		if (permanent) {
+			for (Entry<String, SpoutViewPopup> e : popups.entrySet()) {
+				if (e.getValue().isPoppedUp(null)) {
+					hideGUI(e.getValue().getPlayer());
+				}
 			}
-		};
+		}
 	}
 
 	/* (non-Javadoc)
@@ -238,7 +239,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 				SMSSpoutKeyMap sp = new SMSSpoutKeyMap(newVal.toString());
 				if (keyMap.containsKey(sp.toString())) {
 					String otherView = keyMap.get(sp.toString());
-					if (SMSView.checkForView(otherView)) {
+					if (ScrollingMenuSign.getInstance().getViewManager().checkForView(otherView)) {
 						err = sp.toString() + " is already used as the hotkey for another view (" + keyMap.get(sp.toString()) + ")";
 					}
 				}
@@ -307,26 +308,6 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	}
 
 	/**
-	 * Convenience method.  Create a new spout view and add it to the given menu.
-	 * 
-	 * @param menu	the menu to add the view to
-	 * @param owner the owner of the view
-	 * @return		the view that was just created
-	 * @throws SMSException 
-	 */
-	public static SMSView addSpoutViewToMenu(SMSMenu menu, CommandSender owner) throws SMSException {
-		return addSpoutViewToMenu(null, menu, owner);
-	}
-
-	public static SMSView addSpoutViewToMenu(String viewName, SMSMenu menu, CommandSender owner) throws SMSException {
-		SMSView view = new SMSSpoutView(viewName, menu);
-		view.register();
-		view.setAttribute(OWNER, view.getOwnerName(owner));
-		view.update(menu, SMSMenuAction.REPAINT);
-		return view;
-	}
-
-	/**
 	 * A Spout keypress event was received.
 	 * 
 	 * @param sp		The Spout player who pressed the key(s)
@@ -342,12 +323,12 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 		}
 
 		String s = pressed.toString();
-
+		ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
 		String viewName = keyMap.get(s);
 		if (viewName != null) {
-			if (SMSView.checkForView(viewName)) {
+			if (vm.checkForView(viewName)) {
 				try {
-					SMSView v = SMSView.getView(viewName);
+					SMSView v = vm.getView(viewName);
 					if (v instanceof SMSSpoutView) {
 						if (!PermissionUtils.isAllowedTo(sp, "scrollingmenusign.use.spout"))
 							return false;

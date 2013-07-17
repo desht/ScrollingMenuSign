@@ -47,9 +47,9 @@ public class PopupBook {
 		}
 
 		SMSView wantedView = null;
-		if (!SMSView.checkForView(viewName)) {
+		if (!ScrollingMenuSign.getInstance().getViewManager().checkForView(viewName)) {
 			// the view could have been deleted - see if the menu has any other views of the same type
-			for (SMSView view : SMSView.listViews()) {
+			for (SMSView view : ScrollingMenuSign.getInstance().getViewManager().listViews()) {
 				if (view.getNativeMenu().getName().equals(menuName) && view.getType().equals(viewType)) {
 					wantedView = view;
 					break;
@@ -60,7 +60,7 @@ public class PopupBook {
 				bm.setPage(VIEW_NAME, wantedView.getName());
 			}
 		} else {
-			wantedView = SMSView.getView(viewName);
+			wantedView = ScrollingMenuSign.getInstance().getViewManager().getView(viewName);
 		}
 
 		SMSValidate.isTrue(wantedView != null && wantedView instanceof PoppableView, "Invalid view: " + viewName);

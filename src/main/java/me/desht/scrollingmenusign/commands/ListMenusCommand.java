@@ -59,7 +59,7 @@ public class ListMenusCommand extends SMSAbstractCommand {
 	}
 
 	private void listMenu(MessagePager pager, SMSMenu menu, boolean listViews) {
-		List<SMSView> views = SMSView.getViewsForMenu(menu, true);
+		List<SMSView> views = ScrollingMenuSign.getInstance().getViewManager().getViewsForMenu(menu, true);
 
 		ChatColor itemCol = menu.getItemCount() > 0 ? ChatColor.YELLOW : ChatColor.GOLD;
 		ChatColor viewCol = views.size() > 0 ? ChatColor.YELLOW : ChatColor.GOLD;

@@ -10,12 +10,7 @@ import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
 import me.desht.scrollingmenusign.views.ActiveItem;
-import me.desht.scrollingmenusign.views.SMSInventoryView;
 import me.desht.scrollingmenusign.views.SMSMapView;
-import me.desht.scrollingmenusign.views.SMSMultiSignView;
-import me.desht.scrollingmenusign.views.SMSRedstoneView;
-import me.desht.scrollingmenusign.views.SMSSignView;
-import me.desht.scrollingmenusign.views.SMSSpoutView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Location;
@@ -56,26 +51,24 @@ public class AddViewCommand extends SMSAbstractCommand {
 		Location loc = hasOption("loc") ? MiscUtil.parseLocation(getStringOption("loc")) : null;
 
 		if (hasOption("spout")) {		// spout view
-			if (smsPlugin.isSpoutEnabled())
-				view = SMSSpoutView.addSpoutViewToMenu(viewName, menu, sender);
-			else
-				throw new SMSException("Server is not Spout-enabled");
+			SMSValidate.isTrue(smsPlugin.isSpoutEnabled(), "Server is not Spout-enabled");
+			view = getViewManager(plugin).addSpoutViewToMenu(viewName, menu, sender);
 		} else if (hasOption("sign")) {			// sign view
 			if (loc == null) {
 				interactiveCreation(sender, viewName, menu, "sign");
 				return true;
 			} else {
-				view = SMSSignView.addSignToMenu(viewName, menu, loc, sender);
+				view = getViewManager(plugin).addSignToMenu(viewName, menu, loc, sender);
 			}
 		} else if (hasOption("redstone")) {
 			if (loc == null) {
 				interactiveCreation(sender, viewName, menu, "redstone");
 				return true;
 			} else {
-				view = SMSRedstoneView.addRedstoneViewToMenu(viewName, menu, loc, sender);
+				view = getViewManager(plugin).addRedstoneViewToMenu(viewName, menu, loc, sender);
 			}
 		} else if (hasOption("inventory") || hasOption("inv")) {
-			view = SMSInventoryView.addInventoryViewToMenu(viewName, menu, sender);
+			view = getViewManager(plugin).addInventoryViewToMenu(viewName, menu, sender);
 		} else if (hasOption("item")) {
 			notFromConsole(sender);
 			Player p = (Player)sender;
@@ -89,11 +82,11 @@ public class AddViewCommand extends SMSAbstractCommand {
 			MiscUtil.statusMessage(sender, "Your &6" + p.getItemInHand().getType() + "&- is now an active item for &e" + menu.getName());
 			return true;
 		} else if (hasOption("multi") && loc != null) { 	// multi-sign view
-			view = SMSMultiSignView.addSignToMenu(viewName, menu, loc, sender);
+			view = getViewManager(plugin).addMultiSignToMenu(viewName, menu, loc, sender);
 		} else if (hasOption("map")) {	// map view
 			try {
 				short mapId = (short) getIntOption("map");
-				view = SMSMapView.addMapToMenu(viewName, menu, mapId, sender);
+				view = getViewManager(plugin).addMapToMenu(viewName, menu, mapId, sender);
 			} catch (NumberFormatException e) {
 				throw new SMSException(e.getMessage());
 			}
@@ -108,15 +101,15 @@ public class AddViewCommand extends SMSAbstractCommand {
 			if (player.getItemInHand().getType() == Material.MAP) {		// map view?
 				PermissionUtils.requirePerms(sender, "scrollingmenusign.use.map");
 				short mapId = player.getItemInHand().getDurability();
-				view = SMSMapView.addMapToMenu(viewName, menu, mapId, sender);
+				view = getViewManager(plugin).addMapToMenu(viewName, menu, mapId, sender);
 				((SMSMapView) view).setMapItemName(player.getItemInHand());
 			} else {
 				try {
 					Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);		// sign view ?
 					if (hasOption("multi") && b.getType() == Material.WALL_SIGN) {
-						view = SMSMultiSignView.addSignToMenu(viewName, menu, b.getLocation(), sender);
+						view = getViewManager(plugin).addMultiSignToMenu(viewName, menu, b.getLocation(), sender);
 					} else if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
-						view = SMSSignView.addSignToMenu(viewName, menu, b.getLocation(), sender);
+						view = getViewManager(plugin).addSignToMenu(viewName, menu, b.getLocation(), sender);
 					}
 				} catch (IllegalStateException e) {
 					// ignore

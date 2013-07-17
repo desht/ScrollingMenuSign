@@ -10,6 +10,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.ViewManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -34,6 +35,7 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		SMSView view = null;
+		ViewManager viewManager = getViewManager(plugin);
 
 		if (args.length == 0) {
 			notFromConsole(sender);
@@ -46,10 +48,10 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 					MiscUtil.statusMessage(sender, "Deactivated held item: " + ChatColor.GOLD + player.getItemInHand().getType());
 					return true;
 			} else if (hasOption("frame")) {
-				ItemFrame frame = SMSMapView.getMapFrame(player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST), player.getEyeLocation());
+				ItemFrame frame = viewManager.getMapFrame(player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST), player.getEyeLocation());
 				if (frame != null) {
 					ItemStack stack = frame.getItem();
-					SMSMapView mv = SMSMapView.getViewForId(stack.getDurability());
+					SMSMapView mv = viewManager.getMapViewForId(stack.getDurability());
 					frame.getWorld().dropItem(player.getLocation(), stack);
 					frame.setItem(null);
 					MiscUtil.statusMessage(player, "Removed map for menu &e" + mv.getNativeMenu().getName() + "&- from the item frame.");
@@ -59,7 +61,7 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 				}
 			} else {
 				// detaching a view that the player is looking at?
-				view = SMSView.getTargetedView(player, true);
+				view = viewManager.getTargetedView(player, true);
 			}
 		} else if (args.length == 1) {
 			// detaching a view by view name
@@ -67,7 +69,7 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 		} else if (hasOption("loc")) {
 			// detaching a view by location
 			try {
-				view = SMSView.getViewForLocation(MiscUtil.parseLocation(getStringOption("loc"), sender));
+				view = viewManager.getViewForLocation(MiscUtil.parseLocation(getStringOption("loc"), sender));
 			} catch (IllegalArgumentException e) {
 				throw new SMSException(e.getMessage());
 			}
@@ -79,11 +81,11 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 
 		if (sender instanceof Player) {
 			Player player = (Player)sender;
-			if (view == SMSMapView.getHeldMapView(player)) {
+			if (view == viewManager.getHeldMapView(player)) {
 				((SMSMapView)view).removeMapItemName(player.getItemInHand());
 			}
 		}
-		view.deletePermanent();
+		viewManager.deleteView(view, true);
 		MiscUtil.statusMessage(sender, String.format("Removed &9%s&- view &e%s&- from menu &e%s&-.",
 		                                             view.getType(), view.getName(), view.getNativeMenu().getName()));
 

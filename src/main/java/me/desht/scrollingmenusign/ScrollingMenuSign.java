@@ -57,6 +57,7 @@ import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.ViewManager;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
@@ -87,6 +88,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
 	private final CommandManager cmds = new CommandManager(this);
 	private final CommandletManager cmdlets = new CommandletManager(this);
+	private final ViewManager viewManager = new ViewManager();
 
 	private boolean spoutEnabled = false;
 	private ConfigurationManager configManager;
@@ -206,6 +208,13 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		return configManager;
 	}
 
+	/**
+	 * @return the viewManager
+	 */
+	public ViewManager getViewManager() {
+		return viewManager;
+	}
+
 	private void setupMetrics() {
 		if (!getConfig().getBoolean("sms.mcstats")) {
 			return;
@@ -224,7 +233,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			graphM.addPlotter(new Plotter("Views") {
 				@Override
 				public int getValue() {
-					return SMSView.listViews().size();
+					return viewManager.listViews().size();
 				}
 			});
 			graphM.addPlotter(new Plotter("Macros") {
@@ -235,7 +244,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			});
 
 			Graph graphV = metrics.createGraph("View Types");
-			for (final Entry<String,Integer> e : SMSView.getViewCounts().entrySet()) {
+			for (final Entry<String,Integer> e : viewManager.getViewCounts().entrySet()) {
 				graphV.addPlotter(new Plotter(e.getKey()) {
 					@Override
 					public int getValue() {
@@ -393,7 +402,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	}
 
 	private void repaintViews(String type) {
-		for (SMSView v : SMSView.listViews()) {
+		for (SMSView v : viewManager.listViews()) {
 			if (type == null || v.getType().equals(type)) {
 				v.update(null, SMSMenuAction.REPAINT);
 			}

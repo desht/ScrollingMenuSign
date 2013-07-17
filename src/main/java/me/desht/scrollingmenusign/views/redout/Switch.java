@@ -11,6 +11,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -229,7 +230,7 @@ public class Switch implements Comparable<Switch> {
 		for (ConfigurationSection conf : set) {
 			String viewName = conf.getString("viewName");
 			try {
-				SMSView view = SMSView.getView(viewName);
+				SMSView view = ScrollingMenuSign.getInstance().getViewManager().getView(viewName);
 				new Switch((SMSGlobalScrollableView)view, conf);
 			} catch (SMSException e) {
 				LogUtils.warning("Unknown view " + viewName + " while loading deferred switch?");

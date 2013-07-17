@@ -14,7 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.command.CommandSender;
 
 /**
  * This view draws menus on signs.
@@ -88,14 +87,16 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	}
 
 	@Override
-	public void onDeletion() {
-		super.onDeletion();
-		Sign sign = getSign();
-		if (sign != null) {
-			for (int i = 0; i < 4; i++) {
-				sign.setLine(i, "");
+	public void onDeleted(boolean permanent) {
+		super.onDeleted(permanent);
+		if (permanent) {
+			Sign sign = getSign();
+			if (sign != null) {
+				for (int i = 0; i < 4; i++) {
+					sign.setLine(i, "");
+				}
+				sign.update();
 			}
-			sign.update();
 		}
 	}
 
@@ -198,26 +199,6 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		return (Sign) b.getState();
 	}
 
-	/**
-	 * Convenience routine.  Create and register a new SMSSignView object, and attach it to
-	 * the given menu.  A sign must already exist at the given location, and it must not be
-	 * an already-existing view.
-	 * 
-	 * @param menu	The menu to attach the new view to
-	 * @param loc	Location of the new view
-	 * @return		The newly-created view
-	 * @throws SMSException	if the given location is not a suitable location for a new view
-	 */
-	public static SMSView addSignToMenu(String viewName, SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
-		SMSView view = new SMSSignView(viewName, menu, loc);
-		view.register();
-		view.setAttribute(OWNER, view.getOwnerName(owner));
-		view.update(menu, SMSMenuAction.REPAINT);
-		return view;
-	}
-	public static SMSView addSignToMenu(SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
-		return addSignToMenu(null, menu, loc, owner);
-	}
 
 	@Override
 	public String toString() {

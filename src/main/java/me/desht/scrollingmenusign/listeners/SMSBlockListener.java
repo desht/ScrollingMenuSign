@@ -14,9 +14,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
-import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSRedstoneView;
-import me.desht.scrollingmenusign.views.SMSSignView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
@@ -47,7 +45,7 @@ public class SMSBlockListener extends SMSListenerBase {
 	public void onBlockDamage(BlockDamageEvent event) {
 		Block b = event.getBlock();
 		Location loc = b.getLocation();
-		SMSView view = SMSView.getViewForLocation(loc);
+		SMSView view = plugin.getViewManager().getViewForLocation(loc);
 		if (view == null)
 			return;
 
@@ -66,9 +64,9 @@ public class SMSBlockListener extends SMSListenerBase {
 		Player p = event.getPlayer();
 		Location loc = b.getLocation();
 
-		SMSView view = SMSView.getViewForLocation(loc);
+		SMSView view = plugin.getViewManager().getViewForLocation(loc);
 
-		if (SMSMapView.getHeldMapView(p) != null) {
+		if (plugin.getViewManager().getHeldMapView(p) != null) {
 			// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
 			event.setCancelled(true);
 			if (view != null) {
@@ -82,7 +80,8 @@ public class SMSBlockListener extends SMSListenerBase {
 			} else {
 				view.removeLocation(loc);
 				if (view.getLocations().size() == 0) {
-					view.deletePermanent();
+					plugin.getViewManager().deleteView(view, true);
+//					view.deletePermanent();
 				}
 				MiscUtil.statusMessage(p, String.format("%s block @ &f%s&- was removed from view &e%s&- (menu &e%s&-).", 
 				                                        b.getType().toString(), MiscUtil.formatLocation(loc),
@@ -112,7 +111,7 @@ public class SMSBlockListener extends SMSListenerBase {
 		Block b = event.getBlock();
 		Location loc = b.getLocation();
 
-		SMSView view = SMSView.getViewForLocation(loc);
+		SMSView view = plugin.getViewManager().getViewForLocation(loc);
 		if (view != null) {
 			LogUtils.fine("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getNativeMenu().getName());
 			if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
@@ -120,7 +119,8 @@ public class SMSBlockListener extends SMSListenerBase {
 			} else if (isAttachableDetached(b)) {
 				// attached to air? looks like the sign (or other attachable) has become detached
 				LogUtils.info("Attachable view block " + view.getName() + " @ " + loc + " has become detached: deleting");
-				view.deletePermanent();
+				plugin.getViewManager().deleteView(view, true);
+//				view.deletePermanent();
 			}
 		} else if (RedstoneControlSign.checkForSign(loc)) {
 			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
@@ -208,7 +208,7 @@ public class SMSBlockListener extends SMSListenerBase {
 		final Player player = event.getPlayer();
 
 		PermissionUtils.requirePerms(player, "scrollingmenusign.create.redstonecontrol");
-		SMSView view = SMSView.getView(event.getLine(1));
+		SMSView view = plugin.getViewManager().getView(event.getLine(1));
 		if (!(view instanceof SMSGlobalScrollableView)) {
 			throw new SMSException(view.getName() + " must be a globally scrollable view");
 		}
@@ -254,7 +254,7 @@ public class SMSBlockListener extends SMSListenerBase {
 
 	private boolean checkForGSView(Block b, BlockFace face) {
 		Location viewLoc = b.getRelative(face).getLocation();
-		SMSView view = SMSView.getViewForLocation(viewLoc);
+		SMSView view = plugin.getViewManager().getViewForLocation(viewLoc);
 		if (view == null || !(view instanceof SMSGlobalScrollableView)) {
 			return false;
 		}
@@ -290,7 +290,7 @@ public class SMSBlockListener extends SMSListenerBase {
 		Bukkit.getScheduler().runTask(plugin, new Runnable() {
 			@Override
 			public void run() {
-				SMSView view = SMSSignView.addSignToMenu(menu2, b.getLocation(), player);
+				SMSView view = plugin.getViewManager().addSignToMenu(menu2, b.getLocation(), player);
 				MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
 				                                             view.getName(), MiscUtil.formatLocation(b.getLocation()), menu2.getName()));
 			}

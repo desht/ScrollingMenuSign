@@ -50,7 +50,7 @@ public class RedstoneControlSign {
 		                   "Sign @ " + MiscUtil.formatLocation(sign.getBlock().getLocation()) + " is not a SMS redstone control sign");
 
 		if (view == null) {
-			SMSView baseView = SMSView.getView(sign.getLine(1));
+			SMSView baseView = ScrollingMenuSign.getInstance().getViewManager().getView(sign.getLine(1));
 			SMSValidate.isTrue(baseView instanceof SMSGlobalScrollableView, "view " + sign.getLine(1) + " is not a globally-scrollable view");
 			this.view = (SMSGlobalScrollableView) baseView;
 		} else {

@@ -7,10 +7,11 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.PoppableView;
-import me.desht.scrollingmenusign.views.SMSInventoryView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.ViewManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -66,26 +67,27 @@ public class GiveCommand extends SMSAbstractCommand {
 
 	private short getMapId(CommandSender sender, Player target, String argStr) {
 		short mapId;
+		ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
 
 		try {
 			// first, see if it's a map ID
 			mapId = Short.parseShort(argStr);
 		} catch (NumberFormatException e) {
 			// maybe it's a view name?
-			if (SMSView.checkForView(argStr)) {
-				SMSView v = SMSView.getView(argStr);
-				if (!(v instanceof SMSMapView)) {
-					throw new SMSException("View " + v.getName() + " is not a map view");
+			if (vm.checkForView(argStr)) {
+				SMSView view = vm.getView(argStr);
+				if (!(view instanceof SMSMapView)) {
+					throw new SMSException("View " + view.getName() + " is not a map view");
 				}
-				mapId = ((SMSMapView) v).getMapView().getId();
+				mapId = ((SMSMapView) view).getMapView().getId();
 			} else {
 				// or perhaps a menu name?
 				SMSMenu menu = getMenu(sender, argStr);
-				SMSView v = SMSView.findView(menu, SMSMapView.class);
+				SMSView v = vm.findView(menu, SMSMapView.class);
 				if (v == null) {
 					// this menu doesn't have a map view - make one!
 					mapId = Bukkit.createMap(target.getWorld()).getId();
-					v = SMSMapView.addMapToMenu(menu, mapId, sender);
+					v = ScrollingMenuSign.getInstance().getViewManager().addMapToMenu(menu, mapId, sender);
 				} else {
 					// menu has a map view already - use that map ID
 					mapId = ((SMSMapView)v).getMapView().getId();
@@ -99,17 +101,17 @@ public class GiveCommand extends SMSAbstractCommand {
 	@SuppressWarnings("deprecation")
 	private void giveBook(CommandSender sender, Player targetPlayer, String argStr, int amount) {
 		SMSView view;
-
-		if (SMSView.checkForView(argStr)) {
-			view = SMSView.getView(argStr);
+		ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
+		if (vm.checkForView(argStr)) {
+			view = vm.getView(argStr);
 			if (!(view instanceof PoppableView)) {
 				throw new SMSException("View '" + argStr + "' isn't a poppable view.");
 			}
 		} else {
 			SMSMenu menu = SMSMenu.getMenu(argStr);
-			view = SMSView.findView(menu, PoppableView.class);
+			view = vm.findView(menu, PoppableView.class);
 			if (view == null) {
-				view = SMSInventoryView.addInventoryViewToMenu(menu, sender);
+				view = vm.addInventoryViewToMenu(menu, sender);
 			}
 		}
 
@@ -135,7 +137,7 @@ public class GiveCommand extends SMSAbstractCommand {
 
 		ItemStack stack = new ItemStack(Material.MAP, amount);
 		stack.setDurability(mapId);
-		SMSMapView v = SMSMapView.getViewForId(mapId);
+		SMSMapView v = ScrollingMenuSign.getInstance().getViewManager().getMapViewForId(mapId);
 		if (v != null) {
 			v.setMapItemName(stack);
 		}

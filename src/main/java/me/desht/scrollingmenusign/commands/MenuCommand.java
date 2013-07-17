@@ -9,6 +9,7 @@ import me.desht.dhutils.block.MaterialWithData;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.SMSView;
 
@@ -40,7 +41,7 @@ public class MenuCommand extends SMSAbstractCommand {
 			if (ActiveItem.isActiveItem(player.getItemInHand())) {
 				menu = new ActiveItem(player.getItemInHand()).getActiveMenu();
 			} else {
-				view = SMSView.getTargetedView(player, true);
+				view = ScrollingMenuSign.getInstance().getViewManager().getTargetedView(player, true);
 				menu = view.getActiveMenu(player.getName());
 			}
 		}

@@ -20,7 +20,7 @@ public class PopupCommandlet extends BaseCommandlet {
 	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
 		Validate.isTrue(args.length >= 2, "Usage: " + cmd + " <view-name>");
 		Validate.isTrue(sender instanceof Player, "Not from the console!");
-		SMSView targetView = SMSView.getView(args[1]);
+		SMSView targetView = plugin.getViewManager().getView(args[1]);
 		SMSValidate.isTrue(targetView instanceof PoppableView, "View " + args[1] + " is not a poppable view");
 
 		((PoppableView)targetView).toggleGUI((Player)sender);

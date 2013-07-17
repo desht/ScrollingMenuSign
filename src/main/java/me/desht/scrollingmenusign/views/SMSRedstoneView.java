@@ -14,12 +14,12 @@ import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.material.Attachable;
@@ -218,24 +218,6 @@ public class SMSRedstoneView extends SMSView {
 		return curPower != newPower;
 	}
 
-	/**
-	 * Convenience method.  Create a new redstone view at the given location and add it 
-	 * to the given menu.
-	 * 
-	 * @param menu	The menu to add the view to.
-	 * @param loc	The location for the view.
-	 * @throws SMSException if the location is not suitable for this view
-	 */
-	public static SMSView addRedstoneViewToMenu(String viewName, SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
-		SMSView view = new SMSRedstoneView(viewName, menu);
-		view.addLocation(loc);
-		view.register();
-		view.setAttribute(OWNER, view.getOwnerName(owner));
-		return view;
-	}
-	public static SMSView addRedstoneViewToMenu(SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
-		return addRedstoneViewToMenu(null, menu, loc, owner);
-	}
 
 	/**
 	 * Get the redstone view at the given location, if any.
@@ -243,8 +225,8 @@ public class SMSRedstoneView extends SMSView {
 	 * @param loc	The location to check
 	 * @return	The view if any exists, null otherwise
 	 */
-	public static SMSRedstoneView getRedstoneViewForLocation(Location loc) {
-		SMSView v = SMSView.getViewForLocation(loc);
+	private static SMSRedstoneView getRedstoneViewForLocation(Location loc) {
+		SMSView v = ScrollingMenuSign.getInstance().getViewManager().getViewForLocation(loc);
 		if (v != null && v instanceof SMSRedstoneView) {
 			return (SMSRedstoneView) v;
 		} else {

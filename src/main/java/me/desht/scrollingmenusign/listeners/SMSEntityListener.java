@@ -26,7 +26,7 @@ public class SMSEntityListener extends SMSListenerBase {
 		Iterator<Block>	iter = event.blockList().iterator();
 		while (iter.hasNext()) {
 			Location loc = iter.next().getLocation();
-			SMSView view = SMSView.getViewForLocation(loc);
+			SMSView view = plugin.getViewManager().getViewForLocation(loc);
 			if (view == null)
 				continue;
 
@@ -37,7 +37,8 @@ public class SMSEntityListener extends SMSListenerBase {
 				iter.remove();
 			} else {
 				LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
-				view.deletePermanent();
+				plugin.getViewManager().deleteView(view, true);
+//				view.deletePermanent();
 			}
 		}
 	}

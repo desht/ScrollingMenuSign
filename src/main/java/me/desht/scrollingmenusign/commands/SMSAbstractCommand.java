@@ -11,6 +11,7 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.ViewManager;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,12 +34,13 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 	protected List<String> getMenuCompletions(Plugin plugin, CommandSender sender, String prefix) {
 		List<String> res = new ArrayList<String>();
 		if (sender instanceof Player && prefix.isEmpty()) {
-			if (SMSView.getTargetedView((Player) sender) != null) {
+			if (((ScrollingMenuSign)plugin).getViewManager().getTargetedView((Player) sender) != null) {
 				// player has a view targeted - add "." as the first item
 				// "." is a convenience for "currently targeted menu"
 				res.add(".");
 			}
-		}		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
+		}
+		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
 		List<SMSMenu> menus = handler.listMenus(true);
 		for (SMSMenu menu : menus) {
 			if (prefix.isEmpty() || menu.getName().startsWith(prefix))
@@ -51,14 +53,14 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 		List<String> res = new ArrayList<String>();
 
 		if (sender instanceof Player && prefix.isEmpty()) {
-			if (SMSView.getTargetedView((Player) sender) != null) {
+			if (ScrollingMenuSign.getInstance().getViewManager().getTargetedView((Player) sender) != null) {
 				// player has a view targeted - add "." as the first item
 				// "." is a convenience for "currently targeted view"
 				res.add(".");
 			}
 		}
 
-		List<SMSView> views = SMSView.listViews();
+		List<SMSView> views = ScrollingMenuSign.getInstance().getViewManager().listViews();
 		for (SMSView view : views) {
 			if (prefix.isEmpty() || view.getName().startsWith(prefix))
 				res.add(view.getName());
@@ -94,7 +96,7 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 
 	protected SMSMenu getMenu(CommandSender sender, String menuName) {
 		if (menuName.equals(".") && sender instanceof Player) {
-			return SMSView.getTargetedView((Player) sender, true).getActiveMenu(sender.getName());
+			return ScrollingMenuSign.getInstance().getViewManager().getTargetedView((Player) sender, true).getActiveMenu(sender.getName());
 		} else {
 			return SMSMenu.getMenu(menuName);
 		}
@@ -102,9 +104,9 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 
 	protected SMSView getView(CommandSender sender, String viewName) {
 		if (viewName.equals(".") && sender instanceof Player) {
-			return SMSView.getTargetedView((Player) sender, true);
+			return ScrollingMenuSign.getInstance().getViewManager().getTargetedView((Player) sender, true);
 		} else {
-			return SMSView.getView(viewName);
+			return ScrollingMenuSign.getInstance().getViewManager().getView(viewName);
 		}
 	}
 
@@ -118,4 +120,7 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 		return count;
 	}
 
+	protected ViewManager getViewManager(Plugin plugin) {
+		return ((ScrollingMenuSign)plugin).getViewManager();
+	}
 }

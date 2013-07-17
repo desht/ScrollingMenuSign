@@ -693,7 +693,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @return	The menu name, or null if there is no menu sign at the location
 	 */
 	static String getMenuNameAt(Location loc) {
-		SMSView v = SMSView.getViewForLocation(loc);
+		SMSView v = ScrollingMenuSign.getInstance().getViewManager().getViewForLocation(loc);
 		return v == null ? null : v.getNativeMenu().getName();
 	}
 

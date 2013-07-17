@@ -8,7 +8,6 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSMapView;
-import me.desht.scrollingmenusign.views.SMSSignView;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -60,7 +59,7 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 				}
 			} else if (player.getItemInHand().getType() == Material.MAP) {
 				short id = player.getItemInHand().getDurability();
-				if (!SMSMapView.checkForMapId(id) && !SMSMapView.usedByOtherPlugin(id)) {
+				if (!getViewManager(plugin).checkForMapId(id) && !getViewManager(plugin).isMapUsedByOtherPlugin(id)) {
 					PermissionUtils.requirePerms(sender, "scrollingmenusign.use.map");
 					mapId = id;
 				}
@@ -71,10 +70,10 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 		SMSMenu menu = handler.createMenu(menuName, menuTitle, owner);
 
 		if (signLoc != null) {
-			SMSSignView.addSignToMenu(menu, signLoc, sender);
+			getViewManager(plugin).addSignToMenu(menu, signLoc, sender);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with sign view @ &f" + MiscUtil.formatLocation(signLoc));
 		} else if (mapId >= 0) {
-			SMSMapView mapView = SMSMapView.addMapToMenu(menu, mapId, sender);
+			SMSMapView mapView = getViewManager(plugin).addMapToMenu(menu, mapId, sender);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with map view &fmap_" + mapId);
 			Player player = (Player) sender;
 			mapView.setMapItemName(player.getItemInHand());

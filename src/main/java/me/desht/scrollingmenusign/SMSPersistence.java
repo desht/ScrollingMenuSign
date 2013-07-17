@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.ViewManager;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -91,14 +92,16 @@ public class SMSPersistence {
 	}
 
 	public static void saveMenusAndViews() {
+		ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
+
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			save(menu);
 		}
-		for (SMSView view : SMSView.listViews()) {
+		for (SMSView view : vm.listViews()) {
 			save(view);
 		}
 		LogUtils.fine("saved " + SMSMenu.listMenus().size() + " menus and " +
-				SMSView.listViews().size() + " views to file.");
+				vm.listViews().size() + " views to file.");
 	}
 
 	public static void saveMacros() {
@@ -134,21 +137,23 @@ public class SMSPersistence {
 	}
 
 	public static void loadViews() {
-		for (SMSView view : SMSView.listViews()) {
-			view.deleteTemporary();
+		ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
+
+		for (SMSView view : vm.listViews()) {
+			vm.deleteView(view, false);
 		}
 
 		for (File f : DirectoryStructure.getViewsFolder().listFiles(ymlFilter)) {
 			LogUtils.finer("loading view: " + f);
 			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
-			SMSView view = SMSView.load(conf);
+			SMSView view = vm.loadView(conf);
 			if (view != null) {
 				view.getNativeMenu().addObserver(view);
 				view.update(view.getNativeMenu(), SMSMenuAction.REPAINT);
 			}
 		}
 
-		LogUtils.fine("Loaded " + SMSView.listViews().size() + " views from file.");
+		LogUtils.fine("Loaded " + vm.listViews().size() + " views from file.");
 	}
 
 	/**

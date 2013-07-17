@@ -89,9 +89,9 @@ public class SMSSpoutKeyListener extends SMSListenerBase {
 			view = ((SpoutViewPopup) popup).getView();
 		}
 
-		// check if user is targetting any other kind of view
+		// check if user is targeting any other kind of view
 		if (view == null) {
-			view = SMSView.getTargetedView(player);
+			view = ScrollingMenuSign.getInstance().getViewManager().getTargetedView(player);
 		}
 
 		return view;

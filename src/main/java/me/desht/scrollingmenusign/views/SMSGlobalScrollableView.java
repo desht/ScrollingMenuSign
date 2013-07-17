@@ -310,18 +310,20 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	@Override
-	public void onDeletion() {
-		super.onDeletion();
-		if (tooltipSign != null) {
-			Block b = tooltipSign.getBlock();
-			if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
-				Sign sign = (Sign) b.getState();
-				for (int i = 0; i < 4; i++) {
-					sign.setLine(i, "");
+	public void onDeleted(boolean permanent) {
+		super.onDeleted(permanent);
+		if (permanent) {
+			if (tooltipSign != null) {
+				Block b = tooltipSign.getBlock();
+				if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
+					Sign sign = (Sign) b.getState();
+					for (int i = 0; i < 4; i++) {
+						sign.setLine(i, "");
+					}
+					sign.update();
 				}
-				sign.update();
+				removeTooltipSign();
 			}
-			removeTooltipSign();
 		}
 	}
 

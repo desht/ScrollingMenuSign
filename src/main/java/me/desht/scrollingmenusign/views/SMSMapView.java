@@ -15,7 +15,6 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -25,7 +24,6 @@ import javax.imageio.ImageIO;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -36,15 +34,9 @@ import me.desht.scrollingmenusign.enums.ViewJustification;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -77,8 +69,6 @@ public class SMSMapView extends SMSScrollableView {
 
 	private static BufferedImage deniedImage = null;
 
-	private static Map<Short,SMSMapView> allMapViews = new HashMap<Short, SMSMapView>();
-
 	/**
 	 * Create a new map view on the given menu.  The view name is chosen automatically.
 	 * 
@@ -108,7 +98,7 @@ public class SMSMapView extends SMSScrollableView {
 		height = 128;
 		lineSpacing = 0;
 
-		mapRenderer = new SMSMapRenderer();
+		mapRenderer = new SMSMapRenderer(this);
 	}
 
 	private BufferedImage getDeniedImage() {
@@ -207,8 +197,6 @@ public class SMSMapView extends SMSScrollableView {
 			mapView.removeRenderer(r);
 		}
 		mapView.addRenderer(getMapRenderer());
-
-		allMapViews.put(mapView.getId(), this);
 
 		loadBackgroundImage();
 
@@ -383,10 +371,9 @@ public class SMSMapView extends SMSScrollableView {
 	}
 
 	@Override
-	public void onDeletion() {
-		super.onDeletion();
-		if (mapView != null) {
-			allMapViews.remove(mapView.getId());
+	public void onDeleted(boolean permanent) {
+		super.onDeleted(permanent);
+		if (permanent && mapView != null) {
 			mapView.removeRenderer(getMapRenderer());
 			for (MapRenderer r : previousRenderers) {
 				mapView.addRenderer(r);
@@ -401,92 +388,7 @@ public class SMSMapView extends SMSScrollableView {
 		return "map id: " + (mapView == null ? "NONE" : mapView.getId());
 	}
 
-	/**
-	 * Given a map ID, return the map view object for that ID, if any.
-	 * 
-	 * @param mapId	The ID of the map
-	 * @return	The SMSMapView object for the ID, or null if this map ID isn't used for a SMSMapView
-	 */
-	public static SMSMapView getViewForId(short mapId) {
-		return allMapViews.get(mapId);
-	}
 
-	/**
-	 * Check if the given map ID is used for a SMSMapView
-	 * 
-	 * @param mapId	The ID of the map
-	 * @return	true if the ID is used for a SMSMapView, false otherwise
-	 */
-	public static boolean checkForMapId(short mapId) {
-		return allMapViews.containsKey(mapId);
-	}
-
-	/**
-	 * Convenience routine.  Add the given mapId as a view on the given menu.
-	 * 
-	 * @param menu	The menu to add the view to
-	 * @param mapId		ID of the map that will be used as a view
-	 * @return	The SMSMapView object that was just created
-	 * @throws SMSException if the given mapId is already a view
-	 */
-	public static SMSMapView addMapToMenu(String viewName, SMSMenu menu, short mapId, CommandSender owner) throws SMSException {
-		if (SMSMapView.checkForMapId(mapId)) {
-			throw new SMSException("Map #" + mapId + " already has a menu view associated with it");
-		}
-		if (SMSMapView.usedByOtherPlugin(mapId)) {
-			throw new SMSException("Map #" + mapId + " is used by another plugin");
-		}
-
-		SMSMapView mapView = new SMSMapView(viewName, menu);
-		mapView.register();
-		mapView.setAttribute(OWNER, mapView.getOwnerName(owner));
-		mapView.setMapId(mapId);
-		mapView.update(menu, SMSMenuAction.REPAINT);
-
-		return mapView;
-	}
-	public static SMSMapView addMapToMenu(SMSMenu menu, short mapId, CommandSender owner) throws SMSException {
-		return addMapToMenu(null, menu, mapId, owner);
-	}
-
-	/**
-	 * Convenience routine.  Get the map view that the player is holding, if any.
-	 * 
-	 * @param player	The player to check for
-	 * @return			A SMSMapView object if the player is holding one, null otherwise
-	 */
-	public static SMSMapView getHeldMapView(Player player) {
-		if (player.getItemInHand().getType() == Material.MAP) {
-			return getViewForId(player.getItemInHand().getDurability());
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Get the item frame attached to the given block, if any, on the
-	 * side of the block facing most directly toward the given location
-	 * (typically a player's eye location).
-	 * <p>
-	 * The item frame must be holding a map which is a SMSMapView.
-	 *
-	 * @param block the block to check
-	 * @param viewerLoc the location to check from
-	 * @return the item frame object, or null if none was found
-	 */
-	public static ItemFrame getMapFrame(Block block, Location viewerLoc) {
-		BlockFace face = BlockUtil.getNearestFace(block, viewerLoc);
-		for (Entity entity : block.getWorld().getEntitiesByClass(ItemFrame.class)) {
-			ItemFrame frame = (ItemFrame)entity;
-			if (frame.getItem() == null || frame.getItem().getType() != Material.MAP || !checkForMapId(frame.getItem().getDurability())) {
-				continue;
-			}
-			if (frame.getLocation().getBlock().getRelative(frame.getAttachedFace()).equals(block) && frame.getAttachedFace() == face.getOppositeFace()) {
-				return frame;
-			}
-		}
-		return null;
-	}
 
 	@Override
 	public String getType() {
@@ -506,24 +408,7 @@ public class SMSMapView extends SMSScrollableView {
 		}
 	}
 
-	/**
-	 * Check to see if this map ID is used by another plugin, to avoid toe-stepping-upon...
-	 * The check is for any renderers on the map of a class outside the org.bukkit namespace.
-	 * 
-	 * @param mapId	ID of the map to check
-	 * @return true if it's used by someone else, false otherwise
-	 */
-	public static boolean usedByOtherPlugin(short mapId) {
-		MapView mapView = Bukkit.getServer().getMap(mapId);
 
-		for (MapRenderer r : mapView.getRenderers()) {
-			if (!r.getClass().getPackage().getName().startsWith("org.bukkit")) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 
 	@Override
 	protected int getHardMaxTitleLines() {
@@ -762,9 +647,19 @@ public class SMSMapView extends SMSScrollableView {
 		return colors[mcColor];
 	}
 
-	private class SMSMapRenderer extends MapRenderer {
-		public SMSMapRenderer() {
+	public class SMSMapRenderer extends MapRenderer {
+		private final SMSMapView view;
+
+		public SMSMapRenderer(SMSMapView view) {
 			super(true);
+			this.view = view;
+		}
+
+		/**
+		 * @return the view
+		 */
+		public SMSMapView getView() {
+			return view;
 		}
 
 		@Override

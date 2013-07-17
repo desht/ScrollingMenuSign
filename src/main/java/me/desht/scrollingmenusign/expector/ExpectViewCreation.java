@@ -4,10 +4,9 @@ import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.views.SMSMultiSignView;
-import me.desht.scrollingmenusign.views.SMSRedstoneView;
-import me.desht.scrollingmenusign.views.SMSSignView;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.ViewManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -26,16 +25,16 @@ public class ExpectViewCreation extends ExpectLocation {
 	@Override
 	public void doResponse(String playerName) {
 		SMSView view = null;
-
+		ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
 		Player player = Bukkit.getPlayer(playerName);
 		try {
 			// TODO: code smell
 			if (arg.equals("sign")) {
-				view = SMSSignView.addSignToMenu(viewName, menu, getLocation(), player);
+				view = vm.addSignToMenu(viewName, menu, getLocation(), player);
 			} else if (arg.equals("redstone")) {
-				view = SMSRedstoneView.addRedstoneViewToMenu(viewName, menu, getLocation(), player); 
+				view = vm.addRedstoneViewToMenu(viewName, menu, getLocation(), player); 
 			} else if (arg.equals("multisign")) {
-				view = SMSMultiSignView.addSignToMenu(viewName, menu, getLocation(), player);
+				view = vm.addMultiSignToMenu(viewName, menu, getLocation(), player);
 			}
 		} catch (SMSException e) {
 			throw new DHUtilsException(e.getMessage());

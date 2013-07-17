@@ -43,7 +43,7 @@ public class ViewCommand extends SMSAbstractCommand {
 		} else {
 			notFromConsole(sender);
 			Player player = (Player)sender;
-			view = SMSView.getTargetedView(player);
+			view = getViewManager(plugin).getTargetedView(player);
 		}
 
 		if (view == null) {

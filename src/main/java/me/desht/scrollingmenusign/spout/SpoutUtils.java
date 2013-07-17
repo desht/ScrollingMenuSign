@@ -47,7 +47,7 @@ public class SpoutUtils {
 	 * This must be called from onEnable(), after views have been loaded.
 	 */
 	public static void precacheTextures() {
-		for (SMSView v : SMSView.listViews()) {
+		for (SMSView v : ScrollingMenuSign.getInstance().getViewManager().listViews()) {
 			if (v instanceof SMSSpoutView) {
 				String url = v.getAttributeAsString(SMSSpoutView.TEXTURE);
 				if (!url.isEmpty()) {
