@@ -2,9 +2,10 @@ package me.desht.scrollingmenusign.views;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.ItemGlow;
 import me.desht.scrollingmenusign.SMSException;
@@ -33,7 +34,7 @@ public class ActiveItem extends CommandTrigger {
 
 	private ItemStack stack;
 	private final List<SMSMenu> menus = new ArrayList<SMSMenu>();
-	private int selectedItem;
+	private final List<Integer> selected = new ArrayList<Integer>();
 
 	/**
 	 * Get the active item object from an item with existing active item metadata.
@@ -48,19 +49,12 @@ public class ActiveItem extends CommandTrigger {
 		if (!lore.isEmpty() && meta.getDisplayName() != null) {
 			String last = lore.get(lore.size() - 1);
 			if (last.startsWith(MENU_MARKER) && last.length() > MENU_MARKER.length()) {
+				SMSValidate.isTrue(meta.getDisplayName().contains(SEPARATOR), "Item name is not correctly formed");
 				String[] menuPath = last.substring(MENU_MARKER.length()).split(SUBMENU_SEPARATOR);
-				for (String m : menuPath) {
-					menus.add(SMSMenu.getMenu(m));
-				}
-				String[] fields = meta.getDisplayName().split(SEPARATOR);
-				SMSValidate.isTrue(fields.length == 2, "Item name is not correctly formed");
-				String backLabel = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.label", "&l<- BACK");
-				if (fields[1].equals(MiscUtil.parseColourSpec(backLabel))) {
-					// the fake "Back" entry is always last
-					selectedItem = getActiveMenuItemCount(null);
-				} else {
-					int sel = getActiveMenu().indexOfItem(fields[1]);
-					selectedItem = sel == -1 ? 1 : sel;
+				for (String menuName : menuPath) {
+					String[] f = menuName.split(":");
+					menus.add(SMSMenu.getMenu(f[0]));
+					selected.add(Integer.parseInt(f[1]));
 				}
 			} else {
 				throw new SMSException("Item is not an SMS active item");
@@ -78,17 +72,17 @@ public class ActiveItem extends CommandTrigger {
 	 */
 	public ActiveItem(ItemStack stack, SMSMenu menu) {
 		this.stack = stack;
-		this.selectedItem = 1;
 		this.menus.add(menu);
+		this.selected.add(1);
 		buildItemStack();
 	}
 
 	private void buildItemStack() {
 		ItemMeta meta = stack.getItemMeta();
-		SMSMenuItem menuItem = getActiveMenuItemAt(null, selectedItem);
+		SMSMenuItem menuItem = getActiveMenuItemAt(null, getSelectedItem());
 		List<String> lore = new ArrayList<String>();
 		if (menuItem != null) {
-			meta.setDisplayName(getActiveMenuTitle(null) + SEPARATOR + menuItem.getLabel());
+			meta.setDisplayName(variableSubs(getActiveMenuTitle(null)) + SEPARATOR + variableSubs(menuItem.getLabel()));
 			for (String l : menuItem.getLore()) {
 				lore.add(l);
 			}
@@ -96,8 +90,8 @@ public class ActiveItem extends CommandTrigger {
 			meta.setDisplayName(getActiveMenuTitle(null) + SEPARATOR + NO_ITEMS);
 		}
 		List<String> names = new ArrayList<String>(menus.size());
-		for (SMSMenu menu : menus) {
-			names.add(menu.getName());
+		for (int i = 0; i < menus.size(); i++) {
+			names.add(menus.get(i).getName() + ':' + selected.get(i));
 		}
 		lore.add(MENU_MARKER + Joiner.on(SUBMENU_SEPARATOR).join(names));
 		meta.setLore(lore);
@@ -124,8 +118,12 @@ public class ActiveItem extends CommandTrigger {
 		return menus.get(menus.size() - 1);
 	}
 
-	public int getSelectedItemIndex() {
-		return selectedItem;
+	public int getSelectedItem() {
+		return selected.get(selected.size() - 1);
+	}
+
+	public void setSelectedItem(int idx) {
+		selected.set(selected.size() - 1, idx);
 	}
 
 	public void execute(Player player) {
@@ -136,12 +134,12 @@ public class ActiveItem extends CommandTrigger {
 		if (!getActiveMenu().hasOwnerPermission(player)) {
 			throw new SMSException("This menu is owned by someone else");
 		}
-		SMSMenuItem item = getActiveMenuItemAt(null, selectedItem);
+		SMSMenuItem item = getActiveMenuItemAt(null, getSelectedItem());
 		LogUtils.fine("ActiveItem: about to execute: " + item);
 		if (item != null) {
 			item.executeCommand(player, this);
 		} else  {
-			LogUtils.warning("index " + selectedItem + " out of range for " + getActiveMenu().getName());
+			LogUtils.warning("index " + getSelectedItem() + " out of range for " + getActiveMenu().getName());
 		}
 	}
 
@@ -150,11 +148,11 @@ public class ActiveItem extends CommandTrigger {
 		if (!getActiveMenu().hasOwnerPermission(player)) {
 			throw new SMSException("This menu is owned by someone else");
 		}
-		selectedItem += delta;
-		if (selectedItem > getActiveMenuItemCount(player.getName())) {
-			selectedItem = 1;
-		} else if (selectedItem < 1) {
-			selectedItem = getActiveMenuItemCount(player.getName());
+		setSelectedItem(getSelectedItem() + delta);
+		if (getSelectedItem() > getActiveMenuItemCount(player.getName())) {
+			setSelectedItem(1);
+		} else if (getSelectedItem() < 1) {
+			setSelectedItem(getActiveMenuItemCount(player.getName()));
 		}
 		buildItemStack();
 	}
@@ -193,7 +191,7 @@ public class ActiveItem extends CommandTrigger {
 
 	@Override
 	public String toString() {
-		return "[" + stack.getType() + ":" + getActiveMenu().getName() + "/" + selectedItem + "]";
+		return "[" + stack.getType() + ":" + getActiveMenu().getName() + "/" + getSelectedItem() + "]";
 	}
 
 	/**
@@ -217,7 +215,7 @@ public class ActiveItem extends CommandTrigger {
 	@Override
 	public void pushMenu(String playerName, SMSMenu newActive) {
 		menus.add(newActive);
-		selectedItem = 1;
+		selected.add(1);
 		buildItemStack();
 	}
 
@@ -225,7 +223,7 @@ public class ActiveItem extends CommandTrigger {
 	public SMSMenu popMenu(String playerName) {
 		SMSMenu popped = getActiveMenu();
 		menus.remove(menus.size() - 1);
-		selectedItem = 1;
+		selected.remove(selected.size() - 1);
 		buildItemStack();
 		return popped;
 	}
@@ -233,5 +231,17 @@ public class ActiveItem extends CommandTrigger {
 	@Override
 	public String getName() {
 		return "Active:" + stack.getType();
+	}
+
+	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
+	private String variableSubs(String text) {
+		Matcher m = viewVarSubPat.matcher(text);
+		StringBuffer sb = new StringBuffer(text.length());
+		while (m.find()) {
+			String repl = m.group(2);
+			m.appendReplacement(sb, Matcher.quoteReplacement(repl));
+		}
+		m.appendTail(sb);
+		return sb.toString();
 	}
 }
