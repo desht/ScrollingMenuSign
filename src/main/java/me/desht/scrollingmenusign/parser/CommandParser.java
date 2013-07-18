@@ -129,8 +129,9 @@ public class CommandParser {
 		StringBuffer sb = new StringBuffer(command.length());
 		while (m.find()) {
 			String repl = SMSVariables.get(player, m.group(1));
-			if (repl == null)
+			if (repl == null && m.groupCount() > 1 && m.group(2) != null) {
 				repl = m.group(2).substring(1);
+			}
 			if (repl == null) {
 				missing.add(m.group(1));
 			} else {
