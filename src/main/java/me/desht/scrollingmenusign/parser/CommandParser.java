@@ -248,6 +248,8 @@ public class CommandParser {
 		// make any view-specific substitutions
 		if (trigger instanceof SMSView) {
 			command = viewVarSubs((SMSView) trigger, command);
+		} else {
+			command = viewVarSubs(null, command);
 		}
 
 		Scanner scanner = new Scanner(command);
