@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.Cost;
+import me.desht.dhutils.ItemGlow;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;

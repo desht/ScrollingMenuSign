@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.desht.dhutils.ItemGlow;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.scrollingmenusign.ItemGlow;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
@@ -33,8 +33,7 @@ public class ActiveItem extends CommandTrigger {
 	private static final String NO_ITEMS = ChatColor.ITALIC + "\u223c no entries";
 
 	private ItemStack stack;
-	private final List<SMSMenu> menus = new ArrayList<SMSMenu>();
-	private final List<Integer> selected = new ArrayList<Integer>();
+	private final List<MenuPos> menus = new ArrayList<MenuPos>();
 
 	/**
 	 * Get the active item object from an item with existing active item metadata.
@@ -46,21 +45,17 @@ public class ActiveItem extends CommandTrigger {
 		this.stack = item;
 		ItemMeta meta = item.getItemMeta();
 		List<String> lore = meta.getLore();
-		if (!lore.isEmpty() && meta.getDisplayName() != null) {
-			String last = lore.get(lore.size() - 1);
-			if (last.startsWith(MENU_MARKER) && last.length() > MENU_MARKER.length()) {
-				SMSValidate.isTrue(meta.getDisplayName().contains(SEPARATOR), "Item name is not correctly formed");
-				String[] menuPath = last.substring(MENU_MARKER.length()).split(SUBMENU_SEPARATOR);
-				for (String menuName : menuPath) {
-					String[] f = menuName.split(":");
-					menus.add(SMSMenu.getMenu(f[0]));
-					selected.add(Integer.parseInt(f[1]));
-				}
-			} else {
-				throw new SMSException("Item is not an SMS active item");
-			}
-		} else {
-			throw new SMSException("Item is not an SMS active item");
+
+		SMSValidate.isTrue(!lore.isEmpty() && meta.getDisplayName() != null, "Item is not an SMS active item");
+		String last = lore.get(lore.size() - 1);
+		SMSValidate.isTrue(last.startsWith(MENU_MARKER) && last.length() > MENU_MARKER.length(), "Item is not an SMS active item");
+		SMSValidate.isTrue(meta.getDisplayName().contains(SEPARATOR), "Item name is not correctly formed");
+
+		String[] menuPath = last.substring(MENU_MARKER.length()).split(SUBMENU_SEPARATOR);
+		for (String menuName : menuPath) {
+			String[] f = menuName.split(":");
+			SMSValidate.isTrue(f.length == 2 && f[1].matches("^\\d+$"),  "Item lore is not correctly formed");
+			menus.add(new MenuPos(SMSMenu.getMenu(f[0]), Integer.parseInt(f[1])));
 		}
 	}
 
@@ -72,8 +67,7 @@ public class ActiveItem extends CommandTrigger {
 	 */
 	public ActiveItem(ItemStack stack, SMSMenu menu) {
 		this.stack = stack;
-		this.menus.add(menu);
-		this.selected.add(1);
+		this.menus.add(new MenuPos(menu, 1));
 		buildItemStack();
 	}
 
@@ -91,13 +85,13 @@ public class ActiveItem extends CommandTrigger {
 		}
 		List<String> names = new ArrayList<String>(menus.size());
 		for (int i = 0; i < menus.size(); i++) {
-			names.add(menus.get(i).getName() + ':' + selected.get(i));
+			names.add(menus.get(i).menu.getName() + ':' + menus.get(i).pos);
 		}
 		lore.add(MENU_MARKER + Joiner.on(SUBMENU_SEPARATOR).join(names));
 		meta.setLore(lore);
 		stack.setItemMeta(meta);
 		if (ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
-			ItemGlow.addGlow(stack);
+			ItemGlow.setGlowing(stack, true);
 		}
 	}
 
@@ -106,24 +100,24 @@ public class ActiveItem extends CommandTrigger {
 	 */
 	@Override
 	public SMSMenu getActiveMenu(String playerName) {
-		return menus.get(menus.size() - 1);
+		return menus.get(menus.size() - 1).menu;
 	}
 
 	@Override
 	public SMSMenu getNativeMenu() {
-		return menus.get(0);
+		return menus.get(0).menu;
 	}
 
 	public SMSMenu getActiveMenu() {
-		return menus.get(menus.size() - 1);
+		return menus.get(menus.size() - 1).menu;
 	}
 
 	public int getSelectedItem() {
-		return selected.get(selected.size() - 1);
+		return menus.get(menus.size() - 1).pos;
 	}
 
 	public void setSelectedItem(int idx) {
-		selected.set(selected.size() - 1, idx);
+		menus.get(menus.size() - 1).pos = idx;
 	}
 
 	public void execute(Player player) {
@@ -167,7 +161,7 @@ public class ActiveItem extends CommandTrigger {
 		meta.setLore(null);
 		stack.setItemMeta(meta);
 		if (ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
-			ItemGlow.removeGlow(stack);
+			ItemGlow.setGlowing(stack, false);
 		}
 	}
 
@@ -214,8 +208,7 @@ public class ActiveItem extends CommandTrigger {
 
 	@Override
 	public void pushMenu(String playerName, SMSMenu newActive) {
-		menus.add(newActive);
-		selected.add(1);
+		menus.add(new MenuPos(newActive, 1));
 		buildItemStack();
 	}
 
@@ -223,7 +216,6 @@ public class ActiveItem extends CommandTrigger {
 	public SMSMenu popMenu(String playerName) {
 		SMSMenu popped = getActiveMenu();
 		menus.remove(menus.size() - 1);
-		selected.remove(selected.size() - 1);
 		buildItemStack();
 		return popped;
 	}
@@ -243,5 +235,15 @@ public class ActiveItem extends CommandTrigger {
 		}
 		m.appendTail(sb);
 		return sb.toString();
+	}
+
+	private class MenuPos {
+		private final SMSMenu menu;
+		private int pos;
+
+		private MenuPos(SMSMenu menu, int pos) {
+			this.menu = menu;
+			this.pos = pos;
+		}
 	}
 }
