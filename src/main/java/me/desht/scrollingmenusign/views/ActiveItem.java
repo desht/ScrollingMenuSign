@@ -103,23 +103,46 @@ public class ActiveItem extends CommandTrigger {
 		return menus.get(menus.size() - 1).menu;
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.CommandTrigger#getNativeMenu()
+	 */
 	@Override
 	public SMSMenu getNativeMenu() {
 		return menus.get(0).menu;
 	}
 
+	/**
+	 * Get the active menu for this ActiveItem object.
+	 *
+	 * @return the active menu
+	 */
 	public SMSMenu getActiveMenu() {
 		return menus.get(menus.size() - 1).menu;
 	}
 
+	/**
+	 * Get the currently selected item index for the active menu.
+	 *
+	 * @return the item index
+	 */
 	public int getSelectedItem() {
 		return menus.get(menus.size() - 1).pos;
 	}
 
+	/**
+	 * Change the currenty selected item index for the active menu.
+	 *
+	 * @param idx the new item index
+	 */
 	public void setSelectedItem(int idx) {
 		menus.get(menus.size() - 1).pos = idx;
 	}
 
+	/**
+	 * Execute the currently selected menu item for this ActiveItem object.
+	 *
+	 * @param player the player who is executing the menu item
+	 */
 	public void execute(Player player) {
 		if (getActiveMenuItemCount(null) == 0) {
 			return;
@@ -137,6 +160,12 @@ public class ActiveItem extends CommandTrigger {
 		}
 	}
 
+	/**
+	 * Scroll the menu for this ActiveItem object.
+	 *
+	 * @param player the player who is scrolling the menu
+	 * @param delta the number of slots to scroll forward or backward by
+	 */
 	public void scroll(Player player, int delta) {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.item");
 		if (!getActiveMenu().hasOwnerPermission(player)) {
@@ -151,10 +180,19 @@ public class ActiveItem extends CommandTrigger {
 		buildItemStack();
 	}
 
+	/**
+	 * Retrieve the ItemStack for this ActiveItem
+	 *
+	 * @return
+	 */
 	public ItemStack toItemStack() {
 		return stack;
 	}
 
+	/**
+	 * Deactivate this ActiveItem.  Subequent calls to {@link #toItemStack()} will
+	 * return an ItemStack with no special meta data.
+	 */
 	public void deactivate() {
 		ItemMeta meta = stack.getItemMeta();
 		meta.setDisplayName(null);
@@ -165,6 +203,12 @@ public class ActiveItem extends CommandTrigger {
 		}
 	}
 
+	/**
+	 * Process the given action on this ActiveItem for the given player.
+	 *
+	 * @param player the player who is carrying out the action
+	 * @param action the action to carry out
+	 */
 	public void processAction(Player player, SMSUserAction action) {
 		switch (action) {
 		case EXECUTE:
@@ -189,7 +233,7 @@ public class ActiveItem extends CommandTrigger {
 	}
 
 	/**
-	 * Check if the given item stack is an active item.
+	 * Check if the given item stack is an ActiveItem.
 	 *
 	 * @param the item to check
 	 * @return true if the item is an active item, false otherwise
@@ -206,12 +250,18 @@ public class ActiveItem extends CommandTrigger {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.CommandTrigger#pushMenu(java.lang.String, me.desht.scrollingmenusign.SMSMenu)
+	 */
 	@Override
 	public void pushMenu(String playerName, SMSMenu newActive) {
 		menus.add(new MenuPos(newActive, 1));
 		buildItemStack();
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.CommandTrigger#popMenu(java.lang.String)
+	 */
 	@Override
 	public SMSMenu popMenu(String playerName) {
 		SMSMenu popped = getActiveMenu();
@@ -220,6 +270,9 @@ public class ActiveItem extends CommandTrigger {
 		return popped;
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.scrollingmenusign.views.CommandTrigger#getName()
+	 */
 	@Override
 	public String getName() {
 		return "Active:" + stack.getType();
