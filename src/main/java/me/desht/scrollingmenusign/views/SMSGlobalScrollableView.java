@@ -242,12 +242,11 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
 		ConfigurationSection sw = node.getConfigurationSection("switches");
 		if (sw != null) {
-
 			for (String k : sw.getKeys(false)) {
 				ConfigurationSection conf = node.getConfigurationSection("switches." + k);
 				try {
-					new Switch(this, conf);
-				} catch (IllegalArgumentException e) {
+					addSwitch(new Switch(this, conf));
+				} catch (SMSException e) {
 					// world not loaded
 					Switch.deferLoading(this, conf);
 				}

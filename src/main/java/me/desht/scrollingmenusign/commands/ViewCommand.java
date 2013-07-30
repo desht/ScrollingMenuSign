@@ -48,7 +48,7 @@ public class ViewCommand extends SMSAbstractCommand {
 
 		if (view == null) {
 			// maybe the player's looking at an output switch
-			if (lookingAtSwitch(sender)) {
+			if (lookingAtSwitch((ScrollingMenuSign) plugin, sender)) {
 				return true;
 			} else {
 				MiscUtil.errorMessage(sender, "No suitable view found.");
@@ -141,13 +141,14 @@ public class ViewCommand extends SMSAbstractCommand {
 		pager.showPage();
 	}
 
-	private boolean lookingAtSwitch(CommandSender sender) {
+	private boolean lookingAtSwitch(ScrollingMenuSign plugin, CommandSender sender) {
 		if (!(sender instanceof Player)) {
 			return false;
 		}
 		try {
 			Block b = ((Player) sender).getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
-			Switch sw = Switch.getSwitchAt(b.getLocation());
+			Switch sw = plugin.getLocationManager().getInteractableAt(b.getLocation(), Switch.class);
+//			Switch sw = Switch.getSwitchAt(b.getLocation());
 			if (sw != null) {
 				MiscUtil.statusMessage(sender, String.format("Output switch @ &e%s&- for view &e%s&- / &e%s&-",
 				                                             MiscUtil.formatLocation(sw.getLocation()),

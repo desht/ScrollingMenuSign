@@ -19,7 +19,9 @@ public class ExpectSwitchAddition extends ExpectLocation {
 	@Override
 	public void doResponse(String playerName) {
 		Switch sw = new Switch(view, trigger, getLocation());
+		view.addSwitch(sw);
 		view.updateSwitchPower();
+		view.autosave();
 
 		Player player = Bukkit.getPlayer(playerName);
 		if (player != null) {

@@ -62,10 +62,13 @@ import me.desht.scrollingmenusign.views.ViewManager;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.material.Attachable;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -76,6 +79,10 @@ import org.mcstats.Metrics.Plotter;
 
 import com.comphenix.protocol.ProtocolLibrary;
 
+/**
+ * @author des
+ *
+ */
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
 	public static final int BLOCK_TARGET_DIST = 4;
@@ -90,6 +97,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	private final CommandManager cmds = new CommandManager(this);
 	private final CommandletManager cmdlets = new CommandletManager(this);
 	private final ViewManager viewManager = new ViewManager();
+	private final LocationManager locationManager = new LocationManager();
 
 	private boolean spoutEnabled = false;
 	private ConfigurationManager configManager;
@@ -214,6 +222,13 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	 */
 	public ViewManager getViewManager() {
 		return viewManager;
+	}
+
+	/**
+	 * @return the locationManager
+	 */
+	public LocationManager getLocationManager() {
+		return locationManager;
 	}
 
 	private void setupMetrics() {
@@ -449,6 +464,24 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		}
 		if (changed) {
 			saveConfig();
+		}
+	}
+
+	/**
+	 * Check if the given block is an attachable material, and if so, if the block it's
+	 * attached to can actually hold it.
+	 *
+	 * @param b the block to check
+	 * @return false if the block is still attached OK, true if it has become detached
+	 */
+	public boolean isAttachableDetached(Block b) {
+		BlockState bs = b.getState();
+		if (bs.getData() instanceof Attachable) {
+			Attachable a = (Attachable)	bs.getData();
+			Block attachedBlock = b.getRelative(a.getAttachedFace());
+			return !attachedBlock.getType().isSolid();
+		} else {
+			return false;
 		}
 	}
 }

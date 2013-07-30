@@ -3,13 +3,16 @@ package me.desht.scrollingmenusign;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bukkit.Location;
-
 import me.desht.dhutils.PersistableLocation;
 
+import org.bukkit.Location;
+
+/**
+ * Track the location of every block which is managed by SMS.
+ */
 public class LocationManager {
-	private Map<PersistableLocation, SMSInteractableBlock> locationMap;
-	
+	private final Map<PersistableLocation, SMSInteractableBlock> locationMap;
+
 	public LocationManager() {
 		locationMap = new HashMap<PersistableLocation, SMSInteractableBlock>();
 	}
@@ -28,7 +31,7 @@ public class LocationManager {
 
 	public <T> T getInteractableAt(Location loc, Class<T> c) {
 		Object o = locationMap.get(new PersistableLocation(loc));
-		if (c.isAssignableFrom(o.getClass())) {
+		if (o != null && c.isAssignableFrom(o.getClass())) {
 			return c.cast(o);
 		} else {
 			return null;

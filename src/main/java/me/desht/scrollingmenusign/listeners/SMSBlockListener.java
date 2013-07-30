@@ -8,6 +8,7 @@ import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
+import me.desht.scrollingmenusign.SMSInteractableBlock;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -16,14 +17,12 @@ import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.scrollingmenusign.views.redout.Switch;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -32,7 +31,6 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.material.Attachable;
 import org.bukkit.material.Sign;
 
 public class SMSBlockListener extends SMSListenerBase {
@@ -65,6 +63,7 @@ public class SMSBlockListener extends SMSListenerBase {
 		Location loc = b.getLocation();
 
 		SMSView view = plugin.getViewManager().getViewForLocation(loc);
+		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(loc);
 
 		if (plugin.getViewManager().getHeldMapView(p) != null) {
 			// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
@@ -72,6 +71,8 @@ public class SMSBlockListener extends SMSListenerBase {
 			if (view != null) {
 				view.update(view.getActiveMenu(p.getName()), SMSMenuAction.REPAINT);
 			}
+		} else if (iBlock != null) {
+			iBlock.processEvent(plugin, event);
 		} else if (view != null) {
 			LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getNativeMenu().getName());
 			if (plugin.getConfig().getBoolean("sms.no_destroy_signs")) {
@@ -87,12 +88,6 @@ public class SMSBlockListener extends SMSListenerBase {
 				                                        b.getType().toString(), MiscUtil.formatLocation(loc),
 				                                        view.getName(), view.getNativeMenu().getName()));
 			}
-		} else if (Switch.getSwitchAt(loc) != null) {
-			Switch sw = Switch.getSwitchAt(loc);
-			sw.delete();
-			MiscUtil.statusMessage(p, String.format("Output switch @ &f%s&- was removed from view &e%s / %s.",
-			                                        MiscUtil.formatLocation(loc),
-			                                        sw.getView().getName(), sw.getTrigger()));
 		} else if (RedstoneControlSign.checkForSign(loc)) {
 			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
 			rcSign.delete();
@@ -112,11 +107,15 @@ public class SMSBlockListener extends SMSListenerBase {
 		Location loc = b.getLocation();
 
 		SMSView view = plugin.getViewManager().getViewForLocation(loc);
-		if (view != null) {
+		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(loc);
+
+		if (iBlock != null) {
+			iBlock.processEvent(plugin, event);
+		} else if (view != null) {
 			LogUtils.fine("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getNativeMenu().getName());
 			if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
 				event.setCancelled(true);
-			} else if (isAttachableDetached(b)) {
+			} else if (plugin.isAttachableDetached(b)) {
 				// attached to air? looks like the sign (or other attachable) has become detached
 				LogUtils.info("Attachable view block " + view.getName() + " @ " + loc + " has become detached: deleting");
 				plugin.getViewManager().deleteView(view, true);
@@ -135,22 +134,11 @@ public class SMSBlockListener extends SMSListenerBase {
 				rcSign.setLastPowerLevel(b.getBlockPower());
 			}
 		} else if (SMSGlobalScrollableView.getViewForTooltipLocation(loc) != null) {
-			if (isAttachableDetached(b)) {
+			if (plugin.isAttachableDetached(b)) {
 				SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(loc);
 				LogUtils.info("Tooltip sign for " + gsv.getName() + " @ " + loc + " has become detached: deleting");
 				gsv.removeTooltipSign();
 			}
-		}
-	}
-
-	private boolean isAttachableDetached(Block b) {
-		BlockState bs = b.getState();
-		if (bs instanceof Attachable) {
-			Attachable a = (Attachable)	b.getState().getData();
-			Block attachedBlock = b.getRelative(a.getAttachedFace());
-			return !attachedBlock.getType().isSolid();
-		} else {
-			return false;
 		}
 	}
 
@@ -187,12 +175,15 @@ public class SMSBlockListener extends SMSListenerBase {
 	public void onBlockRedstoneChange(BlockRedstoneEvent event) {
 		Block b = event.getBlock();
 		Location loc = b.getLocation();
+		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(loc);
 
 		// redstone views
 		SMSRedstoneView.processRedstoneEvent(event);
 
 		// redstone control for sign views etc.
-		if (RedstoneControlSign.checkForSign(b.getLocation())) {
+		if (iBlock != null) {
+			iBlock.processEvent(plugin, event);
+		} else if (RedstoneControlSign.checkForSign(b.getLocation())) {
 			try {
 				LogUtils.fine("redstone control: " + b + " current=" + event.getNewCurrent() + " power=" + b.getBlockPower());
 				RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);

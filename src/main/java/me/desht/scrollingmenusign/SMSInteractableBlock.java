@@ -9,8 +9,8 @@ import org.bukkit.event.block.BlockRedstoneEvent;
  * Represents any block which can feed Bukkit event information into SMS.
  */
 public interface SMSInteractableBlock {
-	public void processEvent(BlockDamageEvent event);
-	public void processEvent(BlockBreakEvent event);
-	public void processEvent(BlockPhysicsEvent event);
-	public void processEvent(BlockRedstoneEvent event);
+	public void processEvent(ScrollingMenuSign plugin, BlockDamageEvent event);
+	public void processEvent(ScrollingMenuSign plugin, BlockBreakEvent event);
+	public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event);
+	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event);
 }

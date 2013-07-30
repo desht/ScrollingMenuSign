@@ -1,9 +1,7 @@
 package me.desht.scrollingmenusign.views.redout;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,24 +9,25 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSInteractableBlock;
+import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
-import me.desht.scrollingmenusign.views.SMSView;
 
-import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.material.Lever;
 import org.bukkit.material.Redstone;
 
-public class Switch implements Comparable<Switch> {
-	private static final Map<PersistableLocation,Switch> allSwitchLocs = new HashMap<PersistableLocation,Switch>();
-	private static final Map<String, Switch> allSwitches = new HashMap<String,Switch>();
-
+public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	private static Map<String, Set<ConfigurationSection>> deferred = new HashMap<String, Set<ConfigurationSection>>();
 
 	private final SMSGlobalScrollableView view;
@@ -36,33 +35,27 @@ public class Switch implements Comparable<Switch> {
 	private final String trigger;
 	private final String name;
 
-	public Switch(SMSGlobalScrollableView view, String trigger, Location location) {
+	public Switch(SMSGlobalScrollableView view, String trigger, Location loc) {
 		this.view = view;
-		this.location = new PersistableLocation(location);
+		this.location = new PersistableLocation(loc);
 		this.trigger = trigger;
-		this.name = makeUniqueName(view.getName());
+		this.name = makeUniqueName(loc);
 
-		initCommon();
+		ScrollingMenuSign.getInstance().getLocationManager().registerLocation(loc, this);
 	}
 
 	public Switch(SMSGlobalScrollableView view, ConfigurationSection conf) throws SMSException {
 		String worldName = conf.getString("world");
 		World w = Bukkit.getWorld(worldName);
-		Validate.notNull(w, "World not available");
+		SMSValidate.notNull(w, "World not available");
 
 		this.view = view;
 		Location loc = new Location(w, conf.getInt("x"), conf.getInt("y"), conf.getInt("z"));
 		this.location = new PersistableLocation(loc);
 		this.trigger = MiscUtil.parseColourSpec(conf.getString("trigger"));
-		this.name = makeUniqueName(view.getName());
+		this.name = makeUniqueName(loc);
 
-		initCommon();
-	}
-
-	private void initCommon() {
-		allSwitches.put(name, this);
-		allSwitchLocs.put(location, this);
-		view.addSwitch(this);
+		ScrollingMenuSign.getInstance().getLocationManager().registerLocation(loc, this);
 	}
 
 	/**
@@ -105,9 +98,8 @@ public class Switch implements Comparable<Switch> {
 	 * Remove this switch from its owning view.
 	 */
 	public void delete() {
-		allSwitches.remove(name);
-		allSwitchLocs.remove(location);
 		view.removeSwitch(this);
+		ScrollingMenuSign.getInstance().getLocationManager().unregisterLocation(getLocation());
 	}
 
 	/**
@@ -153,40 +145,6 @@ public class Switch implements Comparable<Switch> {
 		b.setData(lever.getData(), true);
 	}
 
-	/**
-	 * Retrieve the switch with the given name
-	 * 
-	 * @param name	The desired name
-	 * @return	The Switch object, or null if no switch by this name exists
-	 */
-	public static Switch getSwitch(String name) {
-		return allSwitches.get(name);
-	}
-
-	/**
-	 * Retrieve the switch at the given location
-	 * 
-	 * @param loc	Location to chekc
-	 * @return	The Switch object, or null if no switch at this location
-	 */
-	public static Switch getSwitchAt(Location loc) {
-		return allSwitchLocs.get(new PersistableLocation(loc));
-	}
-
-	public static List<Switch> getSwitches() {
-		return new ArrayList<Switch>(allSwitchLocs.values());
-	}
-
-	/**
-	 * Check if a switch by the given name exists
-	 * 
-	 * @param name	The name to check
-	 * @return	true if a switch of this name exists, false otherwise
-	 */
-	public static boolean checkForSwitch(String name) {
-		return allSwitches.containsKey(name);
-	}
-
 	public Map<String,Object> freeze() {
 		Map<String, Object> map = new HashMap<String, Object>();
 
@@ -199,15 +157,8 @@ public class Switch implements Comparable<Switch> {
 		return map;
 	}
 
-	private static String makeUniqueName(String base) {
-		int idx = 1;
-
-		String s = String.format("%s-%d", base, idx);
-		while (Switch.checkForSwitch(s)) {
-			idx++;
-			s = String.format("%s-%d", base, idx);
-		}
-		return s;
+	private String makeUniqueName(Location loc) {
+		return String.format("%s-%d-%d-%d", loc.getWorld().getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 	}
 
 	public static void deferLoading(SMSGlobalScrollableView view, ConfigurationSection conf) {
@@ -230,12 +181,9 @@ public class Switch implements Comparable<Switch> {
 		for (ConfigurationSection conf : set) {
 			String viewName = conf.getString("viewName");
 			try {
-				SMSView view = ScrollingMenuSign.getInstance().getViewManager().getView(viewName);
-				new Switch((SMSGlobalScrollableView)view, conf);
+				SMSGlobalScrollableView view = (SMSGlobalScrollableView) ScrollingMenuSign.getInstance().getViewManager().getView(viewName);
+				view.addSwitch(new Switch(view, conf));
 			} catch (SMSException e) {
-				LogUtils.warning("Unknown view " + viewName + " while loading deferred switch?");
-			} catch (IllegalArgumentException e) {
-				// really shouldn't happen
 				LogUtils.warning("Can't load  deferred switch for view " + viewName + ": " + e.getMessage());
 			}
 		}
@@ -246,5 +194,34 @@ public class Switch implements Comparable<Switch> {
 	@Override
 	public int compareTo(Switch other) {
 		return name.compareTo(other.getName());
+	}
+
+	@Override
+	public void processEvent(ScrollingMenuSign plugin, BlockDamageEvent event) {
+		// ignore
+	}
+
+	@Override
+	public void processEvent(ScrollingMenuSign plugin, BlockBreakEvent event) {
+		MiscUtil.statusMessage(event.getPlayer(),
+		                       String.format("Output switch @ &f%s&- was removed from view &e%s / %s.",
+		                                     MiscUtil.formatLocation(event.getBlock().getLocation()),
+		                                     getView().getName(), getTrigger()));
+		delete();
+	}
+
+	@Override
+	public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
+		if (plugin.getConfig().getBoolean("sms.no_physics")) {
+			event.setCancelled(true);
+		} else if (plugin.isAttachableDetached(event.getBlock())) {
+			LogUtils.info("Redstone output switch @ " + location + " (for " + getView().getName() + ") has become detached: deleting");
+			delete();
+		}
+	}
+
+	@Override
+	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event) {
+		// ignore
 	}
 }
