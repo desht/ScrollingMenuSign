@@ -7,9 +7,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Map.Entry;
+
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.block.BlockUtil;
+import me.desht.scrollingmenusign.PopupBook;
+import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSPersistence;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.views.SMSMapView.SMSMapRenderer;
+import me.desht.scrollingmenusign.views.SMSView.MenuStack;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -26,26 +37,14 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.util.Vector;
 
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.PersistableLocation;
-import me.desht.dhutils.block.BlockUtil;
-import me.desht.scrollingmenusign.PopupBook;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSPersistence;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.scrollingmenusign.views.SMSMapView.SMSMapRenderer;
-import me.desht.scrollingmenusign.views.SMSView.MenuStack;
-
 public class ViewManager {
 	// map view name to view object for registered views
 	private final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
-	// map (persistable - no World reference) location to view object for registered views
-	private final Map<PersistableLocation, SMSView> allViewLocations = new HashMap<PersistableLocation, SMSView>();
 
-	public ViewManager() {
+	private final ScrollingMenuSign plugin;
 
+	public ViewManager(ScrollingMenuSign plugin) {
+		this.plugin = plugin;
 	}
 
 	/**
@@ -104,7 +103,7 @@ public class ViewManager {
 		}
 		allViewNames.put(view.getName(), view);
 		for (Location l : view.getLocations()) {
-			allViewLocations.put(new PersistableLocation(l), view);
+			plugin.getLocationManager().registerLocation(l, view);
 		}
 		view.getNativeMenu().addObserver(view);
 		view.autosave();
@@ -129,7 +128,7 @@ public class ViewManager {
 		}
 		allViewNames.remove(view.getName());
 		for (Location l : view.getLocations()) {
-			allViewLocations.remove(new PersistableLocation(l));
+			plugin.getLocationManager().unregisterLocation(l);
 		}
 	}
 
@@ -142,11 +141,11 @@ public class ViewManager {
 	}
 
 	public void registerLocation(Location loc, SMSView view) {
-		allViewLocations.put(new PersistableLocation(loc), view);
+		plugin.getLocationManager().registerLocation(loc, view);
 	}
 
 	public void unregisterLocation(Location loc) {
-		allViewLocations.remove(new PersistableLocation(loc));
+		plugin.getLocationManager().unregisterLocation(loc);
 	}
 
 	/**
@@ -198,7 +197,7 @@ public class ViewManager {
 	 * @return		The SMSView object at that location, or null if there is none
 	 */
 	public SMSView getViewForLocation(Location loc) {
-		return allViewLocations.get(new PersistableLocation(loc));
+		return plugin.getLocationManager().getInteractableAt(loc, SMSView.class);
 	}
 
 	/**

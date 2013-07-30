@@ -1,16 +1,13 @@
 package me.desht.scrollingmenusign.views;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
@@ -19,25 +16,20 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockRedstoneEvent;
-import org.bukkit.material.Attachable;
 
 /**
  * A view that tracks the redstone powered state of one or more blocks in the world and executes commands in
  * response to changes in the state.
  */
 public class SMSRedstoneView extends SMSView {
-
 	// attributes
 	public static final String POWERTOGGLE = "powertoggle";
 	public static final String POWEROFF = "poweroff";
 	public static final String POWERON = "poweron";
 	public static final String PLAYERRADIUS = "playerradius";
 	public static final String AFFECTONLYNEAREST = "affectonlynearest";
-
-	private final Map<PersistableLocation,Boolean> powered = new HashMap<PersistableLocation, Boolean>();
 
 	public SMSRedstoneView(String name, SMSMenu menu) {
 		super(name, menu);
@@ -73,22 +65,6 @@ public class SMSRedstoneView extends SMSView {
 	public String toString() {
 		Location[] locs = getLocationsArray();
 		return "redstone @ " + (locs.length == 0 ? "NONE" : MiscUtil.formatLocation(locs[0]));
-	}
-
-	private void handlePowerChange(Location loc, int newCurrent) {
-		boolean curPower = isPowered(loc);
-		boolean newPower = newCurrent > 0;
-
-		if (newPower && !curPower) {
-			execute(loc, POWERON);
-		} else if (curPower && !newPower) {
-			execute(loc, POWEROFF);
-		}
-		if (curPower != newPower) {
-			execute(loc, POWERTOGGLE);
-		}
-
-		setPowered(loc, newPower);
 	}
 
 	private void execute(Location loc, String attr) {
@@ -164,46 +140,6 @@ public class SMSRedstoneView extends SMSView {
 		return res;
 	}
 
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.views.SMSView#addLocation(org.bukkit.Location)
-	 */
-	@Override
-	public void addLocation(Location loc) throws SMSException {
-		powered.put(new PersistableLocation(loc), loc.getBlock().isBlockPowered() || loc.getBlock().isBlockIndirectlyPowered());
-
-		super.addLocation(loc);
-	}
-
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.views.SMSView#removeLocation(org.bukkit.Location)
-	 */
-	@Override
-	public void removeLocation(Location loc) {
-		powered.remove(new PersistableLocation(loc));
-
-		super.removeLocation(loc);
-	}
-
-	/**
-	 * Check if the view believe the given location is currently powered
-	 * 
-	 * @param loc	The location to check
-	 * @return		true if the location is considered powered, false otherwise
-	 */
-	public boolean isPowered(Location loc) {
-		return powered.get(new PersistableLocation(loc));
-	}
-
-	/**
-	 * Record the current location as being powered or not
-	 * 
-	 * @param loc		The location to record
-	 * @param power		The power level
-	 */
-	public void setPowered(Location loc, boolean power) {
-		powered.put(new PersistableLocation(loc), power);
-	}
-
 	/**
 	 * Check if the power level for the given location has changed
 	 * 
@@ -218,76 +154,24 @@ public class SMSRedstoneView extends SMSView {
 		return curPower != newPower;
 	}
 
+	@Override
+	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event) {
+		Block b = event.getBlock();
 
-	/**
-	 * Get the redstone view at the given location, if any.
-	 * 
-	 * @param loc	The location to check
-	 * @return	The view if any exists, null otherwise
-	 */
-	private static SMSRedstoneView getRedstoneViewForLocation(Location loc) {
-		SMSView v = ScrollingMenuSign.getInstance().getViewManager().getViewForLocation(loc);
-		if (v != null && v instanceof SMSRedstoneView) {
-			return (SMSRedstoneView) v;
-		} else {
-			return null;
+		LogUtils.fine("block redstone event @ " + b.getLocation() + ", view = "
+				+ getName() + ", menu = " + getNativeMenu().getName()
+				+ ", current = " + event.getOldCurrent() + "->"  + event.getNewCurrent());
+		
+		if (event.getNewCurrent() > event.getOldCurrent()) {
+			execute(b.getLocation(), POWERON);
+		} else if (event.getOldCurrent() > event.getNewCurrent()) {
+			execute(b.getLocation(), POWEROFF);
+		}
+		if (event.getOldCurrent() != event.getNewCurrent()) {
+			execute(b.getLocation(), POWERTOGGLE);
 		}
 	}
-
-	/**
-	 * Process a BlockRedstoneEvent that just occurred.  The event's block is assumed to have already
-	 * been verified as belonging to a redstone view.
-	 * 
-	 * @param event		The event that just occurred
-	 */
-	public static void processRedstoneEvent(BlockRedstoneEvent event) {
-		Block block = event.getBlock();
-
-		// the block itself could be a view
-		checkNeighbour(event, BlockFace.SELF);
-
-		//		System.out.println("redstone event: " + block.getLocation() + " : "+ event.getOldCurrent() + " -> " + event.getNewCurrent());
-		switch (block.getType()) {
-		case REDSTONE_WIRE:
-			// check the block below and the 4 blocks adjacent
-			checkNeighbour(event, BlockFace.DOWN);
-			checkNeighbour(event, BlockFace.NORTH);
-			checkNeighbour(event, BlockFace.SOUTH);
-			checkNeighbour(event, BlockFace.EAST);
-			checkNeighbour(event, BlockFace.WEST);
-			break;
-		case REDSTONE_TORCH_OFF:
-		case REDSTONE_TORCH_ON:
-			// check the block above
-			checkNeighbour(event, BlockFace.UP);
-			break;
-		case STONE_BUTTON:
-		case LEVER:
-			// check the attached block
-			BlockFace face = ((Attachable) block.getState().getData()).getAttachedFace();
-			checkNeighbour(event, face);
-			break;
-		case WOOD_PLATE:
-		case STONE_PLATE:
-			// check the block below
-			checkNeighbour(event, BlockFace.DOWN);
-		default:
-			break;
-		}
-	}
-
-	private static void checkNeighbour(BlockRedstoneEvent event, BlockFace face) {
-		Block block = event.getBlock();
-		Block neighbour = block.getRelative(face);
-		SMSRedstoneView rv = getRedstoneViewForLocation(neighbour.getLocation());
-
-		if (rv != null && rv.hasPowerChanged(neighbour.getLocation(), event.getNewCurrent())) {
-			LogUtils.fine("block redstone event @ " + neighbour.getLocation() + ", view = " +
-					rv.getName() + ", menu = " + rv.getNativeMenu().getName() + ", new current = " + event.getNewCurrent());
-			rv.handlePowerChange(neighbour.getLocation(), event.getNewCurrent());
-		}
-	}
-
+	
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
 	 */

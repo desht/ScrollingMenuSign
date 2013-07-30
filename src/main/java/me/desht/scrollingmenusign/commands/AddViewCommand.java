@@ -46,6 +46,10 @@ public class AddViewCommand extends SMSAbstractCommand {
 		ScrollingMenuSign smsPlugin = (ScrollingMenuSign) plugin;
 
 		SMSView view = null;
+		if (args.length == 0) {
+			showUsage(sender);
+			return true;
+		}
 		SMSMenu menu = SMSMenu.getMenu(args[0]);
 		String viewName = getStringOption("viewname");
 		Location loc = hasOption("loc") ? MiscUtil.parseLocation(getStringOption("loc")) : null;

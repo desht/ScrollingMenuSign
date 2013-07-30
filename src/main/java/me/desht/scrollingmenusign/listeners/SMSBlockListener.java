@@ -2,7 +2,6 @@ package me.desht.scrollingmenusign.listeners;
 
 import me.desht.dhutils.BlockFaceUtil;
 import me.desht.dhutils.DHUtilsException;
-import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.RedstoneControlSign;
@@ -15,7 +14,6 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
-import me.desht.scrollingmenusign.views.SMSRedstoneView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Bukkit;
@@ -42,17 +40,11 @@ public class SMSBlockListener extends SMSListenerBase {
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockDamage(BlockDamageEvent event) {
 		Block b = event.getBlock();
-		Location loc = b.getLocation();
-		SMSView view = plugin.getViewManager().getViewForLocation(loc);
-		if (view == null)
-			return;
 
-		SMSMenu menu = view.getNativeMenu();
-		LogUtils.fine("block damage event @ " + MiscUtil.formatLocation(loc) + ", view = " + view.getName() + ", menu=" + menu.getName());
-		Player player = event.getPlayer();
-		if (plugin.getConfig().getBoolean("sms.no_destroy_signs") ||
-				!menu.isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
-			event.setCancelled(true);
+		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(b.getLocation());
+
+		if (iBlock != null) {
+			iBlock.processEvent(plugin, event);
 		}
 	}
 
@@ -60,85 +52,29 @@ public class SMSBlockListener extends SMSListenerBase {
 	public void onBlockBreak(BlockBreakEvent event) {
 		Block b = event.getBlock();
 		Player p = event.getPlayer();
-		Location loc = b.getLocation();
 
-		SMSView view = plugin.getViewManager().getViewForLocation(loc);
-		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(loc);
+		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(b.getLocation());
 
 		if (plugin.getViewManager().getHeldMapView(p) != null) {
 			// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
 			event.setCancelled(true);
-			if (view != null) {
+			if (iBlock != null && iBlock instanceof SMSView) {
+				SMSView view = (SMSView) iBlock;
 				view.update(view.getActiveMenu(p.getName()), SMSMenuAction.REPAINT);
 			}
 		} else if (iBlock != null) {
 			iBlock.processEvent(plugin, event);
-		} else if (view != null) {
-			LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + view.getName() + ", menu=" + view.getNativeMenu().getName());
-			if (plugin.getConfig().getBoolean("sms.no_destroy_signs")) {
-				event.setCancelled(true);
-				view.update(view.getActiveMenu(p.getName()), SMSMenuAction.REPAINT);
-			} else {
-				view.removeLocation(loc);
-				if (view.getLocations().size() == 0) {
-					plugin.getViewManager().deleteView(view, true);
-					//					view.deletePermanent();
-				}
-				MiscUtil.statusMessage(p, String.format("%s block @ &f%s&- was removed from view &e%s&- (menu &e%s&-).", 
-				                                        b.getType().toString(), MiscUtil.formatLocation(loc),
-				                                        view.getName(), view.getNativeMenu().getName()));
-			}
-//		} else if (RedstoneControlSign.checkForSign(loc)) {
-//			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
-//			rcSign.delete();
-//			MiscUtil.statusMessage(p, String.format("Redstone control sign @ &f%s&- was removed from view &e%s&-.",
-//			                                        MiscUtil.formatLocation(loc), rcSign.getView().getName()));
-		} else if (SMSGlobalScrollableView.getViewForTooltipLocation(loc) != null) {
-			SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(loc);
-			gsv.removeTooltipSign();
-			MiscUtil.statusMessage(p, String.format("Tooltip sign @ &f%s&- was removed from view &e%s&-.",
-			                                        MiscUtil.formatLocation(loc), gsv.getName()));
 		}
 	}
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		Block b = event.getBlock();
-		Location loc = b.getLocation();
 
-		SMSView view = plugin.getViewManager().getViewForLocation(loc);
-		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(loc);
+		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(b.getLocation());
 
 		if (iBlock != null) {
 			iBlock.processEvent(plugin, event);
-		} else if (view != null) {
-			LogUtils.fine("block physics event @ " + loc + ", view = " + view.getName() + ", menu=" + view.getNativeMenu().getName());
-			if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
-				event.setCancelled(true);
-			} else if (plugin.isAttachableDetached(b)) {
-				// attached to air? looks like the sign (or other attachable) has become detached
-				LogUtils.info("Attachable view block " + view.getName() + " @ " + loc + " has become detached: deleting");
-				plugin.getViewManager().deleteView(view, true);
-				//				view.deletePermanent();
-			}
-//		} else if (RedstoneControlSign.checkForSign(loc)) {
-//			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
-//			if (!rcSign.isAttached()) {
-//				rcSign.delete();
-//				LogUtils.info("Redstone control sign for " + rcSign.getView().getName() + " @ " + loc + " has become detached: deleting");
-//			} else {
-//				LogUtils.fine("block physics event @ " + b + " power=" + b.getBlockPower() + " prev-power=" + rcSign.getLastPowerLevel());
-//				if (b.getBlockPower() > 0 && b.getBlockPower() > rcSign.getLastPowerLevel()) {
-//					rcSign.processActions();
-//				}
-//				rcSign.setLastPowerLevel(b.getBlockPower());
-//			}
-		} else if (SMSGlobalScrollableView.getViewForTooltipLocation(loc) != null) {
-			if (plugin.isAttachableDetached(b)) {
-				SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(loc);
-				LogUtils.info("Tooltip sign for " + gsv.getName() + " @ " + loc + " has become detached: deleting");
-				gsv.removeTooltipSign();
-			}
 		}
 	}
 
@@ -173,26 +109,11 @@ public class SMSBlockListener extends SMSListenerBase {
 
 	@EventHandler
 	public void onBlockRedstoneChange(BlockRedstoneEvent event) {
-//		Block b = event.getBlock();
-//		Location loc = b.getLocation();
 		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(event.getBlock().getLocation());
-
-		// redstone views
-		SMSRedstoneView.processRedstoneEvent(event);
 
 		if (iBlock != null) {
 			iBlock.processEvent(plugin, event);
-		} 
-//		else if (RedstoneControlSign.checkForSign(b.getLocation())) {
-//			try {
-//				LogUtils.fine("redstone control: " + b + " current=" + event.getNewCurrent() + " power=" + b.getBlockPower());
-//				RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
-//				rcSign.setLastPowerLevel(b.getBlockPower());
-//			} catch (SMSException e) {
-//				LogUtils.warning(e.getMessage());
-//				RedstoneControlSign.getSignAt(loc).delete();
-//			}
-//		}
+		}
 	}
 
 	private void placeRedstoneControlSign(SignChangeEvent event) {
@@ -251,7 +172,7 @@ public class SMSBlockListener extends SMSListenerBase {
 			event.setLine(i, text[i]);
 		}
 		MiscUtil.statusMessage(event.getPlayer(), String.format("Tooltip sign @ &f%s&- has been added to view &e%s&-.",
-		                                                        MiscUtil.formatLocation(b.getLocation()), gsv.getName()));
+				MiscUtil.formatLocation(b.getLocation()), gsv.getName()));
 	}
 
 	private SMSGlobalScrollableView checkForGSView(Block b, BlockFace... faces) {
@@ -296,7 +217,7 @@ public class SMSBlockListener extends SMSListenerBase {
 			public void run() {
 				SMSView view = plugin.getViewManager().addSignToMenu(menu2, b.getLocation(), player);
 				MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
-				                                             view.getName(), MiscUtil.formatLocation(b.getLocation()), menu2.getName()));
+						view.getName(), MiscUtil.formatLocation(b.getLocation()), menu2.getName()));
 			}
 		});
 	}

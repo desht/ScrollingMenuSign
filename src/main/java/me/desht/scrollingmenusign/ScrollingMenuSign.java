@@ -96,7 +96,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	private final SMSHandlerImpl handler = new SMSHandlerImpl();
 	private final CommandManager cmds = new CommandManager(this);
 	private final CommandletManager cmdlets = new CommandletManager(this);
-	private final ViewManager viewManager = new ViewManager();
+	private final ViewManager viewManager = new ViewManager(this);
 	private final LocationManager locationManager = new LocationManager();
 
 	private boolean spoutEnabled = false;

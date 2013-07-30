@@ -24,6 +24,7 @@ import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSInteractableBlock;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistable;
 import me.desht.scrollingmenusign.SMSPersistence;
@@ -35,15 +36,20 @@ import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.util.Vector;
 
 /**
  * Represents a base menu view from which all concrete views will inherit.
  */
-public abstract class SMSView extends CommandTrigger implements Observer, SMSPersistable, ConfigurationListener {
+public abstract class SMSView extends CommandTrigger implements Observer, SMSPersistable, ConfigurationListener, SMSInteractableBlock {
 	// operations which were player-specific (active submenu, scroll position...)
 	// need to be handled with a single global "player" here...
 	protected static final String GLOBAL_PSEUDO_PLAYER = "&&global";
@@ -738,6 +744,61 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 */
 	public void clearPlayerForView(Player player) {
 		// does nothing by default: override in subclasses
+	}
+
+	public void processEvent(ScrollingMenuSign plugin, BlockDamageEvent event) {
+		Block b = event.getBlock();
+		Player player = event.getPlayer();
+
+		SMSMenu menu = getNativeMenu();
+		LogUtils.fine("block damage event @ " + MiscUtil.formatLocation(b.getLocation()) + ", view = " + getName() + ", menu=" + menu.getName());
+		
+		if (plugin.getConfig().getBoolean("sms.no_destroy_signs") || 
+				!menu.isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
+			event.setCancelled(true);
+		}
+	}
+
+	public void processEvent(ScrollingMenuSign plugin, BlockBreakEvent event) {
+		Player player = event.getPlayer();
+		Block b = event.getBlock();
+
+		LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
+
+		if (plugin.getConfig().getBoolean("sms.no_destroy_signs")) {
+			event.setCancelled(true);
+			update(getActiveMenu(player.getName()), SMSMenuAction.REPAINT);
+		} else {
+			removeLocation(b.getLocation());
+			if (getLocations().isEmpty()) {
+				plugin.getViewManager().deleteView(this, true);
+			}
+			MiscUtil.statusMessage(player,
+					String.format("%s block @ &f%s&- was removed from view &e%s&- (menu &e%s&-).",
+							b.getType(), MiscUtil.formatLocation(b.getLocation()), getName(), getNativeMenu().getName()));
+		}
+	}
+
+	public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
+		Block b = event.getBlock();
+
+		LogUtils.fine("block physics event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
+		if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
+			event.setCancelled(true);
+		} else if (plugin.isAttachableDetached(b)) {
+			// attached to air? looks like the sign (or other attachable) has become detached
+			// NOTE: for multi-block views, the loss of *any* block due to physics causes the view to be removed
+			LogUtils.info("Attachable view block " + getName() + " @ " + b.getLocation() + " has become detached: deleting");
+			plugin.getViewManager().deleteView(this, true);
+		}
+	}
+
+	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event) {
+		Block b = event.getBlock();
+
+		LogUtils.fine("block redstone event @ " + b.getLocation() + ", view = "
+				+ getName() + ", menu = " + getNativeMenu().getName()
+				+ ", current = " + event.getOldCurrent() + "->"  + event.getNewCurrent());
 	}
 
 	/**
