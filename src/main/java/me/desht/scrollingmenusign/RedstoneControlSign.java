@@ -21,13 +21,14 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.util.Vector;
 
-public class RedstoneControlSign {
-	private static final Map<PersistableLocation, RedstoneControlSign> allSigns = new HashMap<PersistableLocation, RedstoneControlSign>();
-
+public class RedstoneControlSign implements SMSInteractableBlock {
 	private static final Map<String, Set<Vector>> deferred = new HashMap<String, Set<Vector>>();
 
 	private final PersistableLocation location;
@@ -59,20 +60,19 @@ public class RedstoneControlSign {
 
 		String line23 = sign.getLine(2) + " " + sign.getLine(3);
 		for (String action : line23.split("\\s+")) {
-			parseAction(action);
+			parseAction(action, sign);
 		}
 
 		lastPowerLevel = sign.getBlock().getBlockPower();
 
 		this.view.addControlSign(this);
-		this.view.autosave();
 	}
 
 	/**
 	 * Get a new RedstoneControlSign for the given location.  The block must contain a sign, of which
 	 * the first line must read "[smsred]" in red text, and the second line must contain the name of
 	 * a globally-scrollable view.
-	 * 
+	 *
 	 * @param loc	The location to check for
 	 * @return	The RedstoneControlSign at that location.
 	 * @throws SMSException if there is no sign at this block or the sign is not valid
@@ -84,7 +84,7 @@ public class RedstoneControlSign {
 	/**
 	 * Get a new RedstoneControlSign for the given block and view object.  This is called when restoring
 	 * RedstoneControlSign from disk.
-	 * 
+	 *
 	 * @param loc	the location to check
 	 * @param view	the view this is associated with
 	 * @return the RedstoneControlSign at this block
@@ -94,11 +94,13 @@ public class RedstoneControlSign {
 		Block block = loc.getBlock();
 		SMSValidate.isTrue(block.getType() == Material.WALL_SIGN || block.getType() == Material.SIGN_POST,
 				"Block @ " + MiscUtil.formatLocation(block.getLocation()) + " does not contain a sign");
-		PersistableLocation pLoc = new PersistableLocation(loc);
-		if (!allSigns.containsKey(pLoc)) {
-			allSigns.put(pLoc, new RedstoneControlSign((Sign) block.getState(), view));
+
+		LocationManager lm = ScrollingMenuSign.getInstance().getLocationManager();
+		RedstoneControlSign rcs = lm.getInteractableAt(loc, RedstoneControlSign.class);
+		if (rcs == null) {
+			lm.registerLocation(loc, new RedstoneControlSign((Sign) block.getState(), view));
 		}
-		return allSigns.get(pLoc);
+		return rcs;
 	}
 
 	/**
@@ -141,21 +143,8 @@ public class RedstoneControlSign {
 	 * Delete this control sign, detaching it from its view.
 	 */
 	public void delete() {
-		allSigns.remove(location);
+		ScrollingMenuSign.getInstance().getLocationManager().unregisterLocation(location.getLocation());
 		view.removeControlSign(this);
-		view.autosave();
-	}
-
-	public boolean isAttached() {
-		Block b = getlocation().getBlock();
-		BlockState bs = b.getState();
-
-		if (bs instanceof Sign) {
-			org.bukkit.material.Sign s = (org.bukkit.material.Sign) bs.getData();
-			Block attached = b.getRelative(s.getAttachedFace());
-			return attached.getType() != Material.AIR;
-		}
-		return true;
 	}
 
 	/**
@@ -178,24 +167,12 @@ public class RedstoneControlSign {
 	}
 
 	/**
-	 * Retrieve the org.bukkit.block.Sign object from this control sign.
-	 * 
-	 * @return	the Sign object
-	 */
-	private Sign getSignBlock() {
-		Block b = location.getLocation().getBlock();
-		SMSValidate.isTrue(b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST, "block " + b + " is not a Sign!");
-		return (Sign)b.getState();
-	}
-
-	/**
 	 * Parse the action definitions in the given string.  This would be taken from lines 3 & 4 of
 	 * the sign.
 	 * 
 	 * @param action	The action string, containing a whitespace-separate list of location/action pairs.
 	 */
-	private void parseAction(String action) {
-		Sign sign = getSignBlock();
+	private void parseAction(String action, Sign sign) {
 		org.bukkit.material.Sign signData = (org.bukkit.material.Sign) sign.getData();
 
 		SMSValidate.isTrue(action.length() == 2,
@@ -241,26 +218,6 @@ public class RedstoneControlSign {
 	}
 
 	/**
-	 * Check if there is a RedstoneControlSign at the given location.
-	 * 
-	 * @param loc the location to check for
-	 * @return	true if there is a control sign there, false otherwise
-	 */
-	public static boolean checkForSign(Location loc) {
-		return allSigns.containsKey(new PersistableLocation(loc));
-	}
-
-	/**
-	 * Get the existing control sign at the given loc, if any.
-	 * 
-	 * @param loc	The location to check for
-	 * @return	The control sign object, or null if no control is at the given location.
-	 */
-	public static RedstoneControlSign getSignAt(Location loc) {
-		return allSigns.get(new PersistableLocation(loc));
-	}
-
-	/**
 	 * Mark a control sign as deferred - do this if the world isn't loaded at this point.
 	 * 
 	 * @param worldName	The name of the world
@@ -300,6 +257,41 @@ public class RedstoneControlSign {
 		return sb.toString();
 	}
 
+	@Override
+	public void processEvent(ScrollingMenuSign plugin, BlockDamageEvent event) {
+		// ignore
+	}
+
+	@Override
+	public void processEvent(ScrollingMenuSign plugin, BlockBreakEvent event) {
+		MiscUtil.statusMessage(event.getPlayer(),
+		                       String.format("Redstone control sign @ &f%s&- was removed from view &e%s&-.",
+		                                     MiscUtil.formatLocation(event.getBlock().getLocation()), getView().getName()));
+		delete();
+	}
+
+	@Override
+	public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
+		Block b = event.getBlock();
+		if (!plugin.getConfig().getBoolean("sms.no_physics") && plugin.isAttachableDetached(b)) {
+			delete();
+			LogUtils.info("Redstone control sign for " + getView().getName() + " @ " + location + " has become detached: deleting");
+		} else {
+			LogUtils.fine("block physics event @ " + b + " power=" + b.getBlockPower() + " prev-power=" + getLastPowerLevel());
+			if (b.getBlockPower() > 0 && b.getBlockPower() > getLastPowerLevel()) {
+				processActions();
+			}
+			setLastPowerLevel(b.getBlockPower());
+		}
+	}
+
+	@Override
+	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event) {
+		Block b = event.getBlock();
+		LogUtils.fine("redstone control: " + b + " current=" + event.getNewCurrent() + " power=" + b.getBlockPower());
+		setLastPowerLevel(b.getBlockPower());
+	}
+
 	private class Action {
 		BlockFace face;
 		Block block;
@@ -311,7 +303,7 @@ public class RedstoneControlSign {
 			this.action = action;
 			LogUtils.fine("redstone control: create power-on action: " + block + " = " + action);
 		}
-
+	
 		@Override
 		public String toString() {
 			return face + "=" + action.getShortDesc();

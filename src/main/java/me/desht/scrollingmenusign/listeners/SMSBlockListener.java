@@ -88,11 +88,11 @@ public class SMSBlockListener extends SMSListenerBase {
 				                                        b.getType().toString(), MiscUtil.formatLocation(loc),
 				                                        view.getName(), view.getNativeMenu().getName()));
 			}
-		} else if (RedstoneControlSign.checkForSign(loc)) {
-			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
-			rcSign.delete();
-			MiscUtil.statusMessage(p, String.format("Redstone control sign @ &f%s&- was removed from view &e%s&-.",
-			                                        MiscUtil.formatLocation(loc), rcSign.getView().getName()));
+//		} else if (RedstoneControlSign.checkForSign(loc)) {
+//			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
+//			rcSign.delete();
+//			MiscUtil.statusMessage(p, String.format("Redstone control sign @ &f%s&- was removed from view &e%s&-.",
+//			                                        MiscUtil.formatLocation(loc), rcSign.getView().getName()));
 		} else if (SMSGlobalScrollableView.getViewForTooltipLocation(loc) != null) {
 			SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(loc);
 			gsv.removeTooltipSign();
@@ -121,18 +121,18 @@ public class SMSBlockListener extends SMSListenerBase {
 				plugin.getViewManager().deleteView(view, true);
 				//				view.deletePermanent();
 			}
-		} else if (RedstoneControlSign.checkForSign(loc)) {
-			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
-			if (!rcSign.isAttached()) {
-				rcSign.delete();
-				LogUtils.info("Redstone control sign for " + rcSign.getView().getName() + " @ " + loc + " has become detached: deleting");
-			} else {
-				LogUtils.fine("block physics event @ " + b + " power=" + b.getBlockPower() + " prev-power=" + rcSign.getLastPowerLevel());
-				if (b.getBlockPower() > 0 && b.getBlockPower() > rcSign.getLastPowerLevel()) {
-					rcSign.processActions();
-				}
-				rcSign.setLastPowerLevel(b.getBlockPower());
-			}
+//		} else if (RedstoneControlSign.checkForSign(loc)) {
+//			RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
+//			if (!rcSign.isAttached()) {
+//				rcSign.delete();
+//				LogUtils.info("Redstone control sign for " + rcSign.getView().getName() + " @ " + loc + " has become detached: deleting");
+//			} else {
+//				LogUtils.fine("block physics event @ " + b + " power=" + b.getBlockPower() + " prev-power=" + rcSign.getLastPowerLevel());
+//				if (b.getBlockPower() > 0 && b.getBlockPower() > rcSign.getLastPowerLevel()) {
+//					rcSign.processActions();
+//				}
+//				rcSign.setLastPowerLevel(b.getBlockPower());
+//			}
 		} else if (SMSGlobalScrollableView.getViewForTooltipLocation(loc) != null) {
 			if (plugin.isAttachableDetached(b)) {
 				SMSGlobalScrollableView gsv = SMSGlobalScrollableView.getViewForTooltipLocation(loc);
@@ -173,26 +173,26 @@ public class SMSBlockListener extends SMSListenerBase {
 
 	@EventHandler
 	public void onBlockRedstoneChange(BlockRedstoneEvent event) {
-		Block b = event.getBlock();
-		Location loc = b.getLocation();
-		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(loc);
+//		Block b = event.getBlock();
+//		Location loc = b.getLocation();
+		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(event.getBlock().getLocation());
 
 		// redstone views
 		SMSRedstoneView.processRedstoneEvent(event);
 
-		// redstone control for sign views etc.
 		if (iBlock != null) {
 			iBlock.processEvent(plugin, event);
-		} else if (RedstoneControlSign.checkForSign(b.getLocation())) {
-			try {
-				LogUtils.fine("redstone control: " + b + " current=" + event.getNewCurrent() + " power=" + b.getBlockPower());
-				RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
-				rcSign.setLastPowerLevel(b.getBlockPower());
-			} catch (SMSException e) {
-				LogUtils.warning(e.getMessage());
-				RedstoneControlSign.getSignAt(loc).delete();
-			}
-		}
+		} 
+//		else if (RedstoneControlSign.checkForSign(b.getLocation())) {
+//			try {
+//				LogUtils.fine("redstone control: " + b + " current=" + event.getNewCurrent() + " power=" + b.getBlockPower());
+//				RedstoneControlSign rcSign = RedstoneControlSign.getControlSign(loc);
+//				rcSign.setLastPowerLevel(b.getBlockPower());
+//			} catch (SMSException e) {
+//				LogUtils.warning(e.getMessage());
+//				RedstoneControlSign.getSignAt(loc).delete();
+//			}
+//		}
 	}
 
 	private void placeRedstoneControlSign(SignChangeEvent event) {

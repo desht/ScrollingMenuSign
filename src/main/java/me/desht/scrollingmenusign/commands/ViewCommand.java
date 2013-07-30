@@ -148,7 +148,6 @@ public class ViewCommand extends SMSAbstractCommand {
 		try {
 			Block b = ((Player) sender).getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
 			Switch sw = plugin.getLocationManager().getInteractableAt(b.getLocation(), Switch.class);
-//			Switch sw = Switch.getSwitchAt(b.getLocation());
 			if (sw != null) {
 				MiscUtil.statusMessage(sender, String.format("Output switch @ &e%s&- for view &e%s&- / &e%s&-",
 				                                             MiscUtil.formatLocation(sw.getLocation()),
