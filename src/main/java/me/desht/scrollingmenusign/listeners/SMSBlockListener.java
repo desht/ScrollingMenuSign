@@ -121,9 +121,7 @@ public class SMSBlockListener extends SMSListenerBase {
 
 		PermissionUtils.requirePerms(player, "scrollingmenusign.create.redstonecontrol");
 		SMSView view = plugin.getViewManager().getView(event.getLine(1));
-		if (!(view instanceof SMSGlobalScrollableView)) {
-			throw new SMSException(view.getName() + " must be a globally scrollable view");
-		}
+		SMSValidate.isTrue(view instanceof SMSGlobalScrollableView, view.getName() + " must be a globally scrollable view");
 		event.setLine(0, ChatColor.RED + "[smsred]");
 		final Block block = event.getBlock();
 
