@@ -426,7 +426,7 @@ public class ViewManager {
 
 		SMSMapView mapView = new SMSMapView(viewName, menu);
 		registerView(mapView);
-		mapView.setAttribute(SMSView.OWNER, mapView.getOwnerName(owner));
+		mapView.setAttribute(SMSView.OWNER, mapView.makeOwnerName(owner));
 		mapView.setMapId(mapId);
 		mapView.update(menu, SMSMenuAction.REPAINT);
 
@@ -509,7 +509,7 @@ public class ViewManager {
 	public SMSInventoryView addInventoryViewToMenu(String viewName, SMSMenu menu, CommandSender owner) {
 		SMSInventoryView view = new SMSInventoryView(viewName, menu);
 		registerView(view);
-		view.setAttribute(SMSView.OWNER, view.getOwnerName(owner));
+		view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
 		view.update(view.getNativeMenu(), SMSMenuAction.REPAINT);
 		return view;
 	}
@@ -527,7 +527,7 @@ public class ViewManager {
 	public SMSView addMultiSignToMenu(String viewName, SMSMenu menu, Location location, CommandSender owner) throws SMSException {
 		SMSView view = new SMSMultiSignView(viewName, menu, location);
 		registerView(view);
-		view.setAttribute(SMSView.OWNER, view.getOwnerName(owner));
+		view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
@@ -557,7 +557,7 @@ public class ViewManager {
 		SMSView view = new SMSRedstoneView(viewName, menu);
 		view.addLocation(loc);
 		registerView(view);
-		view.setAttribute(SMSView.OWNER, view.getOwnerName(owner));
+		view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
 		return view;
 	}
 
@@ -579,7 +579,7 @@ public class ViewManager {
 	public SMSView addSignToMenu(String viewName, SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
 		SMSView view = new SMSSignView(viewName, menu, loc);
 		registerView(view);
-		view.setAttribute(SMSView.OWNER, view.getOwnerName(owner));
+		view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
@@ -603,7 +603,7 @@ public class ViewManager {
 	public SMSView addSpoutViewToMenu(String viewName, SMSMenu menu, CommandSender owner) throws SMSException {
 		SMSView view = new SMSSpoutView(viewName, menu);
 		registerView(view);
-		view.setAttribute(SMSView.OWNER, view.getOwnerName(owner));
+		view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
