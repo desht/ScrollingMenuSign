@@ -24,6 +24,7 @@ import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSInteractableBlock;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSPersistable;
 import me.desht.scrollingmenusign.SMSPersistence;
@@ -35,15 +36,20 @@ import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.util.Vector;
 
 /**
  * Represents a base menu view from which all concrete views will inherit.
  */
-public abstract class SMSView extends CommandTrigger implements Observer, SMSPersistable, ConfigurationListener {
+public abstract class SMSView extends CommandTrigger implements Observer, SMSPersistable, ConfigurationListener, SMSInteractableBlock {
 	// operations which were player-specific (active submenu, scroll position...)
 	// need to be handled with a single global "player" here...
 	protected static final String GLOBAL_PSEUDO_PLAYER = "&&global";
@@ -53,11 +59,6 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	public static final String ITEM_JUSTIFY = "item_justify";
 	public static final String TITLE_JUSTIFY = "title_justify";
 	public static final String ACCESS = "access";
-
-//	// map view name to view object for registered views
-//	private static final Map<String, SMSView> allViewNames = new HashMap<String, SMSView>();
-//	// map (persistable - no World reference) location to view object for registered views
-//	private static final Map<PersistableLocation, SMSView> allViewLocations = new HashMap<PersistableLocation, SMSView>();
 
 	private final SMSMenu menu;
 	private final Set<PersistableLocation> locations = new HashSet<PersistableLocation>();
@@ -72,7 +73,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	// we can't use a Set here, since there are three possible values: 1) dirty, 2) clean, 3) unknown
 	private final Map<String,Boolean> dirtyPlayers = new HashMap<String,Boolean>();
-	// map a world name (which hasn't been loaded yet) to a list of x,y,z positions
+	// map a world name (for a world which hasn't been loaded yet) to a list of x,y,z positions
 	private final Map<String,List<Vector>> deferredLocations = new HashMap<String, List<Vector>>();
 
 	/**
@@ -90,9 +91,6 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		if (name == null) {
 			name = makeUniqueName(menu.getName());
 		}
-//		} else if (checkForView(name)) {
-//			throw new SMSException("A view named '" + name + "' already exists.");
-//		}
 		this.name = name;
 		this.menu = menu;
 		this.dirty = true;
@@ -150,10 +148,8 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		if (m == getNativeMenu()) {
 			if (action == SMSMenuAction.DELETE_PERM) {
 				ScrollingMenuSign.getInstance().getViewManager().deleteView(this, true);
-//				deletePermanent();
 			} else if (action == SMSMenuAction.DELETE_TEMP) {
 				ScrollingMenuSign.getInstance().getViewManager().deleteView(this, false);
-//				deleteTemporary();
 			}
 		}
 	}
@@ -170,17 +166,6 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	}
 
 	/**
-	 * Get the menu associated with this view.
-	 * 
-	 * @deprecated use {@link #getNativeMenu()}
-	 * @return the SMSMenu object that this view is a view for.
-	 */
-	@Deprecated
-	public SMSMenu getMenu() {
-		return menu;
-	}
-
-	/**
 	 * Get the native menu associated with the view.  The native menu is the menu that
 	 * the view was originally created for.
 	 * 
@@ -192,7 +177,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get the currently active menu for this view for the given player.  This is not necessarily the
-	 * same as the view's native menu, if the player has a submenu open.
+	 * same as the view's native menu, if the player has a submenu open in this view.
 	 * 
 	 * @return the active SMSMenu object for this view
 	 */
@@ -471,7 +456,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	}
 
 	/**
-	 * Set the "dirty" status for this view - whether or not a repaint is needed for all players.
+	 * Set the global "dirty" status for this view - whether or not a repaint is needed for all players.
 	 * 
 	 * @param dirty	true if a repaint is needed, false otherwise
 	 */
@@ -483,7 +468,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	}
 
 	/**
-	 * Set the "dirty" status for this view - whether or not a repaint is needed for the given player.
+	 * Set the per-player "dirty" status for this view - whether or not a repaint is needed for the given player.
 	 * 
 	 * @param playerName	The player to check for
 	 * @param dirty		Whether or not a repaint is needed
@@ -536,7 +521,13 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		return maxLocations;
 	}
 
-	public String getOwnerName(CommandSender sender) {
+	/**
+	 * Build the name of the player (or possibly the console) which owns this view.
+	 * 
+	 * @param sender
+	 * @return
+	 */
+	String makeOwnerName(CommandSender sender) {
 		return sender != null && sender instanceof Player ? sender.getName() : ScrollingMenuSign.CONSOLE_OWNER;
 	}
 
@@ -586,52 +577,6 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 			SMSPersistence.save(this);
 	}
 
-//	/**
-//	 * Register this view in the global view list and get it saved to disk.
-//	 */
-//	public void register() {
-//		allViewNames.put(getName(), this);
-//		for (Location l : getLocations()) {
-//			allViewLocations.put(new PersistableLocation(l), this);
-//		}
-//
-//		getNativeMenu().addObserver(this);
-//
-//		autosave();
-//	}
-//
-//	private void unregister() {
-//		getNativeMenu().deleteObserver(this);
-//		for (String playerName : menuStack.keySet()) {
-//			MenuStack mst = menuStack.get(playerName);
-//			for (WeakReference<SMSMenu> ref : mst.stack) {
-//				SMSMenu m = ref.get();
-//				if (m != null) m.deleteObserver(this);
-//			}
-//		}
-//		allViewNames.remove(getName());
-//		for (Location l : getLocations()) {
-//			allViewLocations.remove(new PersistableLocation(l));
-//		}
-//	}
-//
-//	/**
-//	 * Temporarily delete a view.  The view is deactivated and in-memory objects are dereferenced,
-//	 * but the saved view data is not removed from disk.
-//	 */
-//	public void deleteTemporary() {
-//		unregister();
-//	}
-//
-//	/**
-//	 * Permanently delete a view.  The view is deactivated and purged from persisted storage on disk.
-//	 */
-//	public void deletePermanent() {
-//		onDeleted();
-//		unregister();
-//		SMSPersistence.unPersist(this);
-//	}
-
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.SMSPersistable#getSaveFolder()
 	 */
@@ -639,175 +584,8 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		return DirectoryStructure.getViewsFolder();
 	}
 
-//	/**
-//	 * Check to see if the name view exists
-//	 * 
-//	 * @param name	The view name
-//	 * @return		true if the named view exists, false otherwise
-//	 */
-//	public static boolean checkForView(String name) {
-//		return allViewNames.containsKey(name);
-//	}
-//
-//	/**
-//	 * Get all known view objects as a List
-//	 * 
-//	 * @return	A list of all known views
-//	 */
-//	public static List<SMSView> listViews() {
-//		return new ArrayList<SMSView>(allViewNames.values());
-//	}
-//
-//	/**
-//	 * Get all known view objects as a Java array
-//	 * 
-//	 * @return	An array of all known views
-//	 */
-//	public static SMSView[] getViewsAsArray() {
-//		return allViewNames.values().toArray(new SMSView[allViewNames.size()]);
-//	}
-//
-//	/**
-//	 * Get the named SMSView object
-//	 * 
-//	 * @param name	The view name
-//	 * @return		The SMSView object of that name
-//	 * @throws SMSException	if there is no such view with the given name
-//	 */
-//	public static SMSView getView(String name) throws SMSException {
-//		if (!checkForView(name))
-//			throw new SMSException("No such view: " + name);
-//
-//		return allViewNames.get(name);
-//	}
-//
-//	/**
-//	 * Get the view object at the given location, if any.
-//	 * 
-//	 * @param loc	The location to check
-//	 * @return		The SMSView object at that location, or null if there is none
-//	 */
-//	public static SMSView getViewForLocation(Location loc) {
-//		return allViewLocations.get(new PersistableLocation(loc));
-//	}
-//
-//	/**
-//	 * Find all the views for the given menu.
-//	 * 
-//	 * @param menu	The menu object to check
-//	 * @return	A list of SMSView objects which are views for that menu
-//	 */
-//	public static List<SMSView> getViewsForMenu(SMSMenu menu) {
-//		return getViewsForMenu(menu, false);
-//	}
-//
-//	/**
-//	 *  Find all the views for the given menu, optionally sorting the resulting list.
-//	 *  
-//	 * @param menu	The menu object to check
-//	 * @param isSorted	If true, sort the returned view list by view name
-//	 * @return	A list of SMSView objects which are views for that menu
-//	 */
-//	public static List<SMSView> getViewsForMenu(SMSMenu menu, boolean isSorted) {
-//		if (isSorted) {
-//			SortedSet<String> sorted = new TreeSet<String>(allViewNames.keySet());
-//			List<SMSView> res = new ArrayList<SMSView>();
-//			for (String name : sorted) {
-//				SMSView v = allViewNames.get(name);
-//				if (v.getNativeMenu() == menu) {
-//					res.add(v);
-//				}
-//			}
-//			return res;
-//		} else {
-//			return new ArrayList<SMSView>(allViewNames.values());
-//		}
-//	}
-//
-//	/**
-//	 * Get a count of views used, keyed by view type.  Used for metrics gathering.
-//	 * 
-//	 * @return	a map of type -> count of views of that type 
-//	 */
-//	public static Map<String,Integer> getViewCounts() {
-//		Map<String,Integer> map = new HashMap<String, Integer>();
-//		for (Entry<String,SMSView> e : allViewNames.entrySet()) {
-//			String type = e.getValue().getType();
-//			if (!map.containsKey(type)) {
-//				map.put(type, 1);
-//			} else {
-//				map.put(type, map.get(type) + 1);
-//			}
-//		}
-//		return map;
-//	}
-//
-//	/**
-//	 * Get the view the player is currently looking at, if any.
-//	 * 
-//	 * @param player	The player
-//	 * @param mustExist if true and no view is found, throw an exception
-//	 * @return	The view being looked at, or null if no view is targeted
-//	 * @throws SMSException if mustExist is true and no view is targeted
-//	 */
-//	public static SMSView getTargetedView(Player player, boolean mustExist) {
-//		SMSView view = null;
-//
-//		if (player.getItemInHand().getType() == Material.MAP) {
-//			view = SMSMapView.getHeldMapView(player);
-//		}
-//
-//		if (view == null && PopupBook.holding(player)) {
-//			// popup book (spout/inventory)
-//			PopupBook book = PopupBook.get(player);
-//			view = book.getView();
-//		}
-//
-//		Block b = null;
-//		if (view == null) {
-//			// targeted view (sign/multisign/redstone)
-//			try {
-//				b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
-//				view = getViewForLocation(b.getLocation());
-//			} catch (IllegalStateException e) {
-//				// the block iterator can throw this sometimes - we can ignore it
-//			}
-//		}
-//
-//		if (view == null && b != null) {
-//			// maybe there's a map view item frame attached to the block we're looking at
-//			ItemFrame frame = SMSMapView.getMapFrame(b, player.getEyeLocation());
-//			if (frame != null) {
-//				view = SMSMapView.getViewForId(frame.getItem().getDurability());
-//			}
-//		}
-//
-//		if (view == null && mustExist) {
-//			throw new SMSException("You are not looking at a menu view.");
-//		}
-//
-//		return view;
-//	}
-//
-//	public static SMSView getTargetedView(Player player) {
-//		return getTargetedView(player, false);
-//	}
-//
-//	public static SMSView findView(SMSMenu menu) {
-//		return findView(menu, null);
-//	}
-//
-//	public static SMSView findView(SMSMenu menu, Class<?> c) {
-//		for (SMSView view : listViews()) {
-//			if (view.getNativeMenu() == menu && (c == null || c.isAssignableFrom(view.getClass()))) {
-//				return view;
-//			}
-//		}
-//		return null;
-//	}
-
 	/**
-	 * Check if the given player has access right for this view.
+	 * Check if the given player has access rights for this view.
 	 *
 	 * @param player	The player to check
 	 * @return	True if the player may use this view, false if not
@@ -862,53 +640,6 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 			}
 		}
 	}
-
-//	/**
-//	 * Instantiate a new view from a saved config file
-//	 * 
-//	 * @param node	The configuration
-//	 * @return	The view object
-//	 */
-//	public static SMSView load(ConfigurationSection node) {
-//		String viewName = null;
-//		try {
-//			SMSPersistence.mustHaveField(node, "class");
-//			SMSPersistence.mustHaveField(node, "name");
-//			SMSPersistence.mustHaveField(node, "menu");
-//
-//			String className = node.getString("class");
-//			viewName = node.getString("name");
-//
-//			Class<? extends SMSView> c = Class.forName(className).asSubclass(SMSView.class);
-//			Constructor<? extends SMSView> ctor = c.getDeclaredConstructor(String.class, SMSMenu.class);
-//			SMSView v = ctor.newInstance(viewName, SMSMenu.getMenu(node.getString("menu")));
-//			v.thaw(node);
-//			v.register();
-//			return v;
-//		} catch (ClassNotFoundException e) {
-//			loadError(viewName, e);
-//		} catch (SMSException e) {
-//			loadError(viewName, e);
-//		} catch (InstantiationException e) {
-//			loadError(viewName, e);
-//		} catch (IllegalAccessException e) {
-//			loadError(viewName, e);
-//		} catch (SecurityException e) {
-//			loadError(viewName, e);
-//		} catch (NoSuchMethodException e) {
-//			loadError(viewName, e);
-//		} catch (IllegalArgumentException e) {
-//			loadError(viewName, e);
-//		} catch (InvocationTargetException e) {
-//			loadError(viewName, e.getCause());
-//		}
-//		return null;
-//	}
-//
-//	private static void loadError(String viewName, Throwable e) {
-//		LogUtils.warning("Caught " + e.getClass().getName() + " while loading view " + viewName);
-//		LogUtils.warning("  Exception message: " + e.getMessage());
-//	}
 
 	protected void registerAttribute(String attr, Object def, String desc) {
 		attributes.registerAttribute(attr, def, desc);
@@ -981,7 +712,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 * Erase the view's contents and perform any housekeeping; called when it's about to be deleted.
 	 */
 	public void onDeleted(boolean permanent) {
-		// override in subclasses
+		// does nothing by default: override in subclasses
 	}
 
 	/**
@@ -991,7 +722,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 * @param player	The player who did the execution
 	 */
 	public void onExecuted(Player player) {
-		// does nothing
+		// does nothing by default: override in subclasses
 	}
 
 	/**
@@ -1002,20 +733,8 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 * @param action	The scroll direction: SCROLLDOWN or SCROLLUP
 	 */
 	public void onScrolled(Player player, SMSUserAction action) {
-		// does nothing
+		// does nothing by default: override in subclasses
 	}
-
-//	/**
-//	 * Called automatically when a player logs out.  Call the clearPlayerForView() method on all
-//	 * known views.
-//	 * 
-//	 * @param player
-//	 */
-//	public static void clearPlayer(Player player) {
-//		for (SMSView v : listViews()) {
-//			v.clearPlayerForView(player);
-//		}
-//	}
 
 	/**
 	 * Called automatically when a player logs out.  Perform any cleardown work to remove player
@@ -1024,33 +743,68 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 * @param player	The player who logged out
 	 */
 	public void clearPlayerForView(Player player) {
+		// does nothing by default: override in subclasses
 	}
 
-//	/**
-//	 * Load any deferred locations for the given world.  This is called by the WorldLoadEvent handler.
-//	 * 
-//	 * @param world	The world that's just been loaded.
-//	 */
-//	public static void loadDeferred(World world) {
-//		for (SMSView view : listViews()) {
-//			List<Vector> l = view.getDeferredLocations(world.getName());	
-//			if (l == null) {
-//				continue;
-//			}
-//
-//			for (Vector vec : l) {
-//				try {
-//					view.addLocation(new Location(world, vec.getBlockX(), vec.getBlockY(), vec.getBlockZ()));
-//					LogUtils.fine("added loc " + world.getName() + ", " + vec + " to view " + view.getName());
-//				} catch (SMSException e) {
-//					LogUtils.warning("Can't add location " + world.getName() + ", " + vec + " to view " + view.getName());
-//					LogUtils.warning("  Exception message: " + e.getMessage());
-//				}
-//			}
-//			l.clear();
-//		}
-//	}
+	public void processEvent(ScrollingMenuSign plugin, BlockDamageEvent event) {
+		Block b = event.getBlock();
+		Player player = event.getPlayer();
 
+		SMSMenu menu = getNativeMenu();
+		LogUtils.fine("block damage event @ " + MiscUtil.formatLocation(b.getLocation()) + ", view = " + getName() + ", menu=" + menu.getName());
+		
+		if (plugin.getConfig().getBoolean("sms.no_destroy_signs") || 
+				!menu.isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
+			event.setCancelled(true);
+		}
+	}
+
+	public void processEvent(ScrollingMenuSign plugin, BlockBreakEvent event) {
+		Player player = event.getPlayer();
+		Block b = event.getBlock();
+
+		LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
+
+		if (plugin.getConfig().getBoolean("sms.no_destroy_signs")) {
+			event.setCancelled(true);
+			update(getActiveMenu(player.getName()), SMSMenuAction.REPAINT);
+		} else {
+			removeLocation(b.getLocation());
+			if (getLocations().isEmpty()) {
+				plugin.getViewManager().deleteView(this, true);
+			}
+			MiscUtil.statusMessage(player,
+					String.format("%s block @ &f%s&- was removed from view &e%s&- (menu &e%s&-).",
+							b.getType(), MiscUtil.formatLocation(b.getLocation()), getName(), getNativeMenu().getName()));
+		}
+	}
+
+	public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
+		Block b = event.getBlock();
+
+		LogUtils.fine("block physics event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
+		if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
+			event.setCancelled(true);
+		} else if (plugin.isAttachableDetached(b)) {
+			// attached to air? looks like the sign (or other attachable) has become detached
+			// NOTE: for multi-block views, the loss of *any* block due to physics causes the view to be removed
+			LogUtils.info("Attachable view block " + getName() + " @ " + b.getLocation() + " has become detached: deleting");
+			plugin.getViewManager().deleteView(this, true);
+		}
+	}
+
+	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event) {
+		Block b = event.getBlock();
+
+		LogUtils.fine("block redstone event @ " + b.getLocation() + ", view = "
+				+ getName() + ", menu = " + getNativeMenu().getName()
+				+ ", current = " + event.getOldCurrent() + "->"  + event.getNewCurrent());
+	}
+
+	/**
+	 * Represents a stack of menus, for submenu support.  The currently-active
+	 * menu is at the top of the stack.
+	 */
 	public class MenuStack {
 		final Deque<WeakReference<SMSMenu>> stack;
 

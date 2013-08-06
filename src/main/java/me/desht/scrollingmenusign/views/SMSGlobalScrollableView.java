@@ -18,6 +18,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.TooltipSign;
 import me.desht.scrollingmenusign.enums.RedstoneOutputMode;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
@@ -37,11 +38,9 @@ import org.bukkit.util.Vector;
 import com.google.common.base.Joiner;
 
 /**
- * @author desht
- *
  * This is just like a {@link SMSScrollableView} but maintains only a single player context
  * for scroll position tracking.  Generally used as the base class for views implemented by 
- * blocks in the world.
+ * blocks in the world, such as sign views.
  * <p>
  * It also maintains a set of output switches which are powered/unpowered depending on
  * the selected item in this view, and tracks the location of a possible tooltip sign.
@@ -53,8 +52,6 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
 	private final Set<Switch> switches = new HashSet<Switch>();
 	private final Set<RedstoneControlSign> controlSigns = new HashSet<RedstoneControlSign>();
-
-	private static final Map<PersistableLocation,SMSGlobalScrollableView> tooltipLocs = new HashMap<PersistableLocation, SMSGlobalScrollableView>();
 
 	private PersistableLocation tooltipSign;
 	private BukkitTask pulseResetTask;
@@ -270,7 +267,8 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
 		tooltipSign = (PersistableLocation) node.get("tooltip");
 		if (tooltipSign != null) {
-			tooltipLocs.put(tooltipSign, this);
+			Location loc = tooltipSign.getLocation();
+			ScrollingMenuSign.getInstance().getLocationManager().registerLocation(loc, new TooltipSign(this));
 		}
 	}
 
@@ -350,7 +348,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public void addTooltipSign(Location loc) {
 		tooltipSign = new PersistableLocation(loc);
 		tooltipSign.setSavePitchAndYaw(false);
-		tooltipLocs.put(tooltipSign, this);
+		ScrollingMenuSign.getInstance().getLocationManager().registerLocation(loc, new TooltipSign(this));
 		autosave();
 	}
 
@@ -359,8 +357,9 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	public void removeTooltipSign() {
-		tooltipLocs.remove(tooltipSign);
+		ScrollingMenuSign.getInstance().getLocationManager().unregisterLocation(tooltipSign.getLocation());
 		tooltipSign = null;
+		
 		autosave();
 	}
 
@@ -401,10 +400,6 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		if (i < 4) text[i] = sb.toString();
 
 		return text;
-	}
-
-	public static SMSGlobalScrollableView getViewForTooltipLocation(Location loc) {
-		return tooltipLocs.get(new PersistableLocation(loc));
 	}
 
 }
