@@ -10,6 +10,42 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <url>http://dev.bukkit.org/server-mods/scrollingmenusign</url>
+
+    <scm>
+      <connection>scm:git:git://github.com/desht/ScrollingMenuSign.git</connection>
+      <developerConnection>scm:git:git@github.com:desht/ScrollingMenuSign.git</developerConnection>
+      <url>https://github.com/desht/ScrollingMenuSign</url>
+    </scm>
+
+    <distributionManagement>
+      <repository>
+        <id>dropbox</id>
+        <url>file://${user.home}/Dropbox/Public/maven-repo</url>
+      </repository>
+    </distributionManagement>
+
+    <licenses>
+      <license>
+        <name>GNU GENERAL PUBLIC LICENSE - Version 2, June 1991</name>
+        <url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
+        <distribution>repo</distribution>
+      </license>
+    </licenses>
+
+    <developers>
+      <developer>
+        <id>desht</id>
+        <name>Des Herriott</name>
+        <email>des.herriott@gmail.com</email>
+        <url>http://github.com/desht</url>
+        <roles>
+          <role>developer</role>
+          <role>maintainer</role>
+        </roles>
+        <timezone>1</timezone>
+      </developer>
+    </developers>
+
     <repositories>
         <repository>
             <id>bukkit-repo</id>
@@ -24,14 +60,22 @@
             <id>Plugin Metrics</id>
             <url>http://repo.mcstats.org/content/repositories/public</url>
         </repository>
-        <repository>
+        <!-- <repository>
             <id>Genesis-MC</id>
             <url>http://jenkins.genesis-mc.com/plugin/repository/everything/</url>
+        </repository> -->
+        <repository>
+            <id>DH Dropbox</id>
+            <url>http://dl.dropboxusercontent.com/u/12467600/maven-repo</url>
         </repository>
         <repository>
             <id>comphenix-rep</id>
             <name>Comphenix Repository</name>
             <url>http://repo.comphenix.net/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>vault-repo</id>
+            <url>http://ci.herocraftonline.com/plugin/repository/everything</url>
         </repository>
     </repositories>
     <build>
@@ -147,7 +191,7 @@
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>Vault</artifactId>
-            <version>1.2.24-SNAPSHOT</version>
+            <version>1.2.27</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
