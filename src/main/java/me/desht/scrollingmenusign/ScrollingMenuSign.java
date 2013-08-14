@@ -26,6 +26,7 @@ import me.desht.scrollingmenusign.commandlets.CooldownCommandlet;
 import me.desht.scrollingmenusign.commandlets.PopupCommandlet;
 import me.desht.scrollingmenusign.commandlets.ScriptCommandlet;
 import me.desht.scrollingmenusign.commandlets.SubmenuCommandlet;
+import me.desht.scrollingmenusign.commandlets.QuickMessageCommandlet;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
 import me.desht.scrollingmenusign.commands.AddViewCommand;
@@ -361,6 +362,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		cmdlets.registerCommandlet(new SubmenuCommandlet());
 		cmdlets.registerCommandlet(new CloseSubmenuCommandlet());
 		cmdlets.registerCommandlet(new ScriptCommandlet());
+		cmdlets.registerCommandlet(new QuickMessageCommandlet());
 	}
 
 	private void loadPersistedData() {

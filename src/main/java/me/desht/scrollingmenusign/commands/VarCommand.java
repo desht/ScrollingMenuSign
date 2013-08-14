@@ -72,8 +72,9 @@ public class VarCommand extends SMSAbstractCommand {
 		} else if (args.length >= 2) {
 			// set the variable
 			SMSVariables.set(sender, varSpec, args[1]);
-			if (!quiet)
+			if (!quiet) {
 				MiscUtil.statusMessage(sender, varSpec + " = '&e" + args[1] + "&f'");
+			}
 		} else {
 			// just display the variable
 			String def = SMSVariables.isSet(sender, varSpec) ? "" : " &6(default)";
