@@ -238,6 +238,9 @@ permissions:
   scrollingmenusign.use.map:
     description: Allows usage of map views
     default: op
+  scrollingmenusign.use.map.framed:
+    description: Allow use of map views when in an item frame
+    default: true
   scrollingmenusign.use.sign:
     description: Allows usage of sign views
     default: true

@@ -101,6 +101,18 @@ public class SMSMapView extends SMSScrollableView {
 		mapRenderer = new SMSMapRenderer(this);
 	}
 
+	@Override
+	protected boolean isTypeUsable(Player player) {
+		SMSMapView mv = ScrollingMenuSign.getInstance().getViewManager().getHeldMapView(player);
+		if (mv != null && mv.getMapView().getId() == mapView.getId()) {
+			// player is holding this map
+			return super.isTypeUsable(player);
+		} else {
+			// not holding this map? must be in an item frame
+			return PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map.framed");
+		}
+	}
+
 	private BufferedImage getDeniedImage() {
 		if (deniedImage == null) {
 			URL u = getClass().getResource("/denied.png");
@@ -439,7 +451,7 @@ public class SMSMapView extends SMSScrollableView {
 		SMSMenu menu = getActiveMenu(player.getName());
 		Configuration config = ScrollingMenuSign.getInstance().getConfig();
 
-		if (!hasOwnerPermission(player) || !PermissionUtils.isAllowedTo(player, "scrollingmenusign.use.map")) {
+		if (!hasOwnerPermission(player) || !isTypeUsable(player)) {
 			BufferedImage di = getDeniedImage();
 			if (di != null) {
 				g.drawImage(di, 0, 0, null);

@@ -220,7 +220,6 @@ public class SMSPlayerListener extends SMSListenerBase {
 				MiscUtil.statusMessage(player, "&6View creation cancelled.");
 			}
 		} else if (plugin.responseHandler.isExpecting(playerName, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block) ) {
-//			Switch sw = Switch.getSwitchAt(block.getLocation());
 			Switch sw = plugin.getLocationManager().getInteractableAt(block.getLocation(), Switch.class);
 			if (sw == null) {
 				ExpectSwitchAddition swa = plugin.responseHandler.getAction(playerName, ExpectSwitchAddition.class);

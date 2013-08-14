@@ -620,10 +620,14 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 			if (!hasOwnerPermission(player)) {
 				throw new SMSException("That view is private to someone else.");
 			}
-			if (!PermissionUtils.isAllowedTo(player, "scrollingmenusign.use." + getType())) {
+			if (!isTypeUsable(player)) {
 				throw new SMSException("You don't have permission to use that type of view.");
 			}
 		}
+	}
+
+	protected boolean isTypeUsable(Player player) {
+		return PermissionUtils.isAllowedTo(player, "scrollingmenusign.use." + getType());
 	}
 
 	/**
