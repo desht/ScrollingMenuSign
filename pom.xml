@@ -60,14 +60,14 @@
             <id>Plugin Metrics</id>
             <url>http://repo.mcstats.org/content/repositories/public</url>
         </repository>
-        <!-- <repository>
+        <repository>
             <id>Genesis-MC</id>
             <url>http://jenkins.genesis-mc.com/plugin/repository/everything/</url>
-        </repository> -->
-        <repository>
+        </repository>
+        <!-- <repository>
             <id>DH Dropbox</id>
             <url>http://dl.dropboxusercontent.com/u/12467600/maven-repo</url>
-        </repository>
+        </repository> -->
         <repository>
             <id>comphenix-rep</id>
             <name>Comphenix Repository</name>
