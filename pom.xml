@@ -135,7 +135,7 @@
                                 </relocation>
                                 <relocation>
                                     <pattern>org.mcstats</pattern>
-                                    <shadedPattern>me.desht.mcstats</shadedPattern>
+                                    <shadedPattern>me.desht.scrollingmenusign.mcstats</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
