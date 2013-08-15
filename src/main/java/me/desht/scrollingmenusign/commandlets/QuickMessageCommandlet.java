@@ -27,9 +27,9 @@ public class QuickMessageCommandlet extends BaseCommandlet {
 		SMSValidate.isTrue(args[1].matches("^\\d+$"), "Invalid numeric quantity: " + args[1]);
 		int duration = Integer.parseInt(args[1]);
 		String msg = Joiner.on(" ").join(Arrays.copyOfRange(args, 2, args.length));
-		ItemMessage im = new ItemMessage(plugin, (Player)sender);
+		ItemMessage im = new ItemMessage(plugin);
 		im.setFormats(ChatColor.RED + "\u258b " + ChatColor.RESET + "%s", "  %s");
-		im.sendMessage(MiscUtil.parseColourSpec(msg), duration);
+		im.sendMessage((Player)sender, MiscUtil.parseColourSpec(msg), duration);
 		return true;
 	}
 
