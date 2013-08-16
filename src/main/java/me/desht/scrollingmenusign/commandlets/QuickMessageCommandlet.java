@@ -22,7 +22,7 @@ public class QuickMessageCommandlet extends BaseCommandlet {
 
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
-		SMSValidate.isTrue(args.length >= 3, "Usage: " + cmd + " <message>");
+		SMSValidate.isTrue(args.length >= 3, "Usage: " + cmd + " <duration> <message>");
 		SMSValidate.isTrue(sender instanceof Player, "Not from the console!");
 		SMSValidate.isTrue(args[1].matches("^\\d+$"), "Invalid numeric quantity: " + args[1]);
 		int duration = Integer.parseInt(args[1]);
