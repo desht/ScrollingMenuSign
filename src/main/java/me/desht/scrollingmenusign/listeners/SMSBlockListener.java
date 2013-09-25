@@ -145,7 +145,7 @@ public class SMSBlockListener extends SMSListenerBase {
 
 		// check up, down, left, right for a global scrollable view
 		Block b = event.getBlock();
-		Sign sign = new Sign(b.getType(), b.getData());
+		Sign sign = (Sign) b.getState().getData();
 		BlockFace left = BlockUtil.getLeft(sign.getAttachedFace());
 		BlockFace toCheck = null;
 		if (!event.getLine(1).isEmpty()) {

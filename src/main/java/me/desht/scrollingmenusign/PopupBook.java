@@ -8,6 +8,7 @@ import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Effect;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -156,8 +157,8 @@ public class PopupBook {
 	 * @param p
 	 */
 	public static void destroy(Player p) {
-		p.setItemInHand(new ItemStack(0));
+		p.setItemInHand(new ItemStack(Material.AIR));
 		MiscUtil.statusMessage(p, "Your book suddenly vanishes in a puff of smoke!");
-		p.playEffect(p.getLocation().add(p.getLocation().getDirection()), Effect.SMOKE, 4);
+		p.playEffect(p.getLocation().add(p.getLocation().getDirection()), Effect.SMOKE, BlockFace.UP);
 	}
 }
