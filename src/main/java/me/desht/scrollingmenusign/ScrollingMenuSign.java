@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -15,6 +16,8 @@ import me.desht.dhutils.Cost;
 import me.desht.dhutils.ItemGlow;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MetaFaker;
+import me.desht.dhutils.MetaFaker.MetadataFilter;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.commands.CommandManager;
@@ -24,9 +27,9 @@ import me.desht.scrollingmenusign.commandlets.CloseSubmenuCommandlet;
 import me.desht.scrollingmenusign.commandlets.CommandletManager;
 import me.desht.scrollingmenusign.commandlets.CooldownCommandlet;
 import me.desht.scrollingmenusign.commandlets.PopupCommandlet;
+import me.desht.scrollingmenusign.commandlets.QuickMessageCommandlet;
 import me.desht.scrollingmenusign.commandlets.ScriptCommandlet;
 import me.desht.scrollingmenusign.commandlets.SubmenuCommandlet;
-import me.desht.scrollingmenusign.commandlets.QuickMessageCommandlet;
 import me.desht.scrollingmenusign.commands.AddItemCommand;
 import me.desht.scrollingmenusign.commands.AddMacroCommand;
 import me.desht.scrollingmenusign.commands.AddViewCommand;
@@ -58,6 +61,7 @@ import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
 import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.ViewManager;
 import net.milkbowl.vault.economy.Economy;
@@ -69,6 +73,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Attachable;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -106,6 +112,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	public final ResponseHandler responseHandler = new ResponseHandler(this);
 
 	private boolean protocolLibEnabled = false;
+	private MetaFaker faker;
 
 	@Override
 	public void onLoad() {
@@ -158,6 +165,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		}
 		if (protocolLibEnabled) {
 			ItemGlow.init(this);
+			setupItemMetaFaker();
 		}
 
 		setupMetrics();
@@ -176,6 +184,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		for (SMSMacro macro : SMSMacro.listMacros()) {
 			macro.deleteTemporary();
 		}
+
+		faker.shutdown();
 
 		economy = null;
 		permission = null;
@@ -327,6 +337,23 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			protocolLibEnabled = true;
 			LogUtils.fine("Hooked ProtocolLib v" + pLib.getDescription().getVersion());
 		}
+	}
+
+	private void setupItemMetaFaker() {
+		faker = new MetaFaker(this, new MetadataFilter() {
+			@Override
+			public ItemMeta filter(ItemMeta itemMeta, Player player) {
+				if (ActiveItem.isActiveItem(itemMeta)) {
+					List<String> newLore = new ArrayList<String>(itemMeta.getLore());
+					newLore.remove(newLore.size() - 1);
+					ItemMeta newMeta = itemMeta.clone();
+					newMeta.setLore(newLore);
+					return newMeta;
+				} else {
+					return null;
+				}
+			}
+		});
 	}
 
 	private void registerCommands() {

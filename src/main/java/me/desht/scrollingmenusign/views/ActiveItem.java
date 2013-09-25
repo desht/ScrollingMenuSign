@@ -244,7 +244,10 @@ public class ActiveItem extends CommandTrigger {
 	 * @return true if the item is an active item, false otherwise
 	 */
 	public static boolean isActiveItem(ItemStack stack) {
-		ItemMeta meta = stack.getItemMeta();
+		return isActiveItem(stack.getItemMeta());
+	}
+
+	public static boolean isActiveItem(ItemMeta meta) {
 		if (meta == null || meta.getDisplayName() == null || !meta.getDisplayName().contains(SEPARATOR)) {
 			return false;
 		}
