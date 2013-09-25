@@ -16,6 +16,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -38,12 +39,14 @@ public class ActiveItem extends CommandTrigger {
 	/**
 	 * Get the active item object from an item with existing active item metadata.
 	 *
-	 * @param item the item to retrieve the active item for
+	 * @param stack the item to retrieve the active item for
 	 * @throws SMSException if the item's metadata does not point to an active item
 	 */
-	public ActiveItem(ItemStack item) {
-		this.stack = item;
-		ItemMeta meta = item.getItemMeta();
+	public ActiveItem(ItemStack stack) {
+		SMSValidate.isTrue(stack.getType() != Material.AIR, "You can't create an active item from air!");
+		this.stack = stack;
+		ItemMeta meta = stack.getItemMeta();
+		SMSValidate.notNull(meta, "There was a problem getting item metadata for your " + stack.getType());
 		List<String> lore = meta.getLore();
 
 		SMSValidate.isTrue(!lore.isEmpty() && meta.getDisplayName() != null, "Item is not an SMS active item");
@@ -66,6 +69,7 @@ public class ActiveItem extends CommandTrigger {
 	 * @param menu the menu to associate the item with
 	 */
 	public ActiveItem(ItemStack stack, SMSMenu menu) {
+		SMSValidate.isTrue(stack.getType() != Material.AIR, "You can't create an active item from air!");
 		this.stack = stack;
 		this.menus.add(new MenuPos(menu, 1));
 		buildItemStack();
@@ -73,6 +77,7 @@ public class ActiveItem extends CommandTrigger {
 
 	private void buildItemStack() {
 		ItemMeta meta = stack.getItemMeta();
+		SMSValidate.notNull(meta, "There was a problem getting item metadata for your " + stack.getType());
 		SMSMenuItem menuItem = getActiveMenuItemAt(null, getSelectedItem());
 		List<String> lore = new ArrayList<String>();
 		if (menuItem != null) {
