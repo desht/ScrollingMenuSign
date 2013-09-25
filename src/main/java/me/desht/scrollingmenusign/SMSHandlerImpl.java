@@ -6,15 +6,16 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.parser.ParsedCommand;
+import me.desht.scrollingmenusign.views.ViewManager;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
 public class SMSHandlerImpl implements SMSHandler {
-	
+
 	SMSHandlerImpl() {
 	}
-	
+
 	@Override
 	public SMSMenu createMenu(String name, String title, String owner) {
 		SMSMenu menu;
@@ -27,19 +28,6 @@ public class SMSHandlerImpl implements SMSHandler {
 		SMSMenu.registerMenu(name, menu, false);
 		return menu;
 	}
-
-//	@Override
-//	public SMSMenu createMenu(String name, SMSMenu otherMenu, String owner) {
-//		SMSMenu menu;
-//		try {
-//			menu = new SMSMenu(otherMenu, name, owner);
-//		} catch (SMSException e) {
-//			// should not get here
-//			return null;
-//		}
-//		SMSMenu.registerMenu(name, menu, false);
-//		return menu;
-//	}
 
 	@Override
 	public SMSMenu getMenu(String name) throws SMSException {
@@ -85,5 +73,10 @@ public class SMSHandlerImpl implements SMSHandler {
 	@Override
 	public ParsedCommand executeCommand(CommandSender sender, String command) throws SMSException {
 		return new CommandParser().executeCommand(sender, command);
+	}
+
+	@Override
+	public ViewManager getViewManager() {
+		return ScrollingMenuSign.getInstance().getViewManager();
 	}
 }

@@ -4,6 +4,8 @@ import java.util.List;
 
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.ParsedCommand;
+import me.desht.scrollingmenusign.views.ViewManager;
+import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -96,4 +98,10 @@ public interface SMSHandler {
 	 * @throws SMSException if the command string contains syntax errors
 	 */
 	public ParsedCommand executeCommand(CommandSender sender, String command) throws SMSException;
+
+	/**
+	 * Get the view manager object, which allows views to be created and/or deleted.
+	 * @return the view manager
+	 */
+	public ViewManager getViewManager();
 }
