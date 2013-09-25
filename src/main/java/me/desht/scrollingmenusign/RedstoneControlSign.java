@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.desht.dhutils.BlockFaceUtil;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -193,10 +193,10 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 			face = signData.getFacing().getOppositeFace();
 			break;
 		case 'l':	// left
-			face = BlockFaceUtil.getLeft(signData.getFacing().getOppositeFace());
+			face = BlockUtil.getLeft(signData.getFacing().getOppositeFace());
 			break;
 		case 'r':	// right
-			face = BlockFaceUtil.getLeft(signData.getFacing());
+			face = BlockUtil.getLeft(signData.getFacing());
 			break;
 		default:
 			throw new SMSException("Invalid redstone control direction '" + action.charAt(0) + "'");	

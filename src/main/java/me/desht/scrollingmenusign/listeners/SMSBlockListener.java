@@ -1,9 +1,9 @@
 package me.desht.scrollingmenusign.listeners;
 
-import me.desht.dhutils.BlockFaceUtil;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
@@ -146,7 +146,7 @@ public class SMSBlockListener extends SMSListenerBase {
 		// check up, down, left, right for a global scrollable view
 		Block b = event.getBlock();
 		Sign sign = new Sign(b.getType(), b.getData());
-		BlockFace left = BlockFaceUtil.getLeft(sign.getAttachedFace());
+		BlockFace left = BlockUtil.getLeft(sign.getAttachedFace());
 		BlockFace toCheck = null;
 		if (!event.getLine(1).isEmpty()) {
 			switch (Character.toLowerCase(event.getLine(1).charAt(0))) {
