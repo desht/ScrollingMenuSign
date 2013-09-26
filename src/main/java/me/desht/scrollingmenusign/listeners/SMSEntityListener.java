@@ -38,7 +38,6 @@ public class SMSEntityListener extends SMSListenerBase {
 			} else {
 				LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
 				plugin.getViewManager().deleteView(view, true);
-//				view.deletePermanent();
 			}
 		}
 	}

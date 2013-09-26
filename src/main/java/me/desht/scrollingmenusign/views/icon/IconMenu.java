@@ -134,13 +134,6 @@ public class IconMenu implements Listener, SMSPopup {
 		}
 	}
 
-	//	@EventHandler
-	//	void onInventoryClose(InventoryCloseEvent event) {
-	//		String playerName = event.getPlayer().getName();
-	//		LogUtils.fine("InventoryCloseEvent: player = " + playerName + ", view = " + getView().getName() +
-	//		              ", inventory name = " + event.getInventory().getTitle());
-	//	}
-
 	@EventHandler(priority=EventPriority.MONITOR)
 	void onInventoryClick(InventoryClickEvent event) {
 		if (!(event.getWhoClicked() instanceof Player)) {

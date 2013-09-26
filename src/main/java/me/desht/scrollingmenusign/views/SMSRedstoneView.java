@@ -161,7 +161,7 @@ public class SMSRedstoneView extends SMSView {
 		LogUtils.fine("block redstone event @ " + b.getLocation() + ", view = "
 				+ getName() + ", menu = " + getNativeMenu().getName()
 				+ ", current = " + event.getOldCurrent() + "->"  + event.getNewCurrent());
-		
+
 		if (event.getNewCurrent() > event.getOldCurrent()) {
 			execute(b.getLocation(), POWERON);
 		} else if (event.getOldCurrent() > event.getNewCurrent()) {
@@ -171,7 +171,7 @@ public class SMSRedstoneView extends SMSView {
 			execute(b.getLocation(), POWERTOGGLE);
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
 	 */

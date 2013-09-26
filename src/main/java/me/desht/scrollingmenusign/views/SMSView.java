@@ -756,7 +756,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 		SMSMenu menu = getNativeMenu();
 		LogUtils.fine("block damage event @ " + MiscUtil.formatLocation(b.getLocation()) + ", view = " + getName() + ", menu=" + menu.getName());
-		
+
 		if (plugin.getConfig().getBoolean("sms.no_destroy_signs") || 
 				!menu.isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
 			event.setCancelled(true);
@@ -778,8 +778,8 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 				plugin.getViewManager().deleteView(this, true);
 			}
 			MiscUtil.statusMessage(player,
-					String.format("%s block @ &f%s&- was removed from view &e%s&- (menu &e%s&-).",
-							b.getType(), MiscUtil.formatLocation(b.getLocation()), getName(), getNativeMenu().getName()));
+			                       String.format("%s block @ &f%s&- was removed from view &e%s&- (menu &e%s&-).",
+			                                     b.getType(), MiscUtil.formatLocation(b.getLocation()), getName(), getNativeMenu().getName()));
 		}
 	}
 

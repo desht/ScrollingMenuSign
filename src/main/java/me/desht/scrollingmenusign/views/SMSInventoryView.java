@@ -165,15 +165,6 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 		}
 	}
 
-//	@Override
-//	public void deleteTemporary() {
-//		for (IconMenu iconMenu : iconMenus.values()) {
-//			iconMenu.destroy();
-//		}
-//		super.deleteTemporary();
-//	}
-
-
 	@Override
 	public String toString() {
 		return "inventory: " + users.size() + " using " + iconMenus.size() + " menus";

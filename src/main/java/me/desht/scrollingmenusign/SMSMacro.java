@@ -15,7 +15,6 @@ import org.bukkit.configuration.ConfigurationSection;
  *
  */
 public class SMSMacro implements SMSPersistable {
-	//	private static Configuration cmdSet;
 	private final static Map<String, SMSMacro> allMacros = new HashMap<String, SMSMacro>();
 
 	private final String macroName;

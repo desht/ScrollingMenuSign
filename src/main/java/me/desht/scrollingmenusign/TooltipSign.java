@@ -46,7 +46,7 @@ public class TooltipSign implements SMSInteractableBlock {
 
 	@Override
 	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event) {
-		// ignore
+		// ignore - tooltip signs don't care about redstone signals
 	}
 
 }

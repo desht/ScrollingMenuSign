@@ -204,14 +204,10 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 
 		SMSUserAction userAction;
 		switch (Character.toLowerCase(action.charAt(1))) {
-		case 'x':	// execute
-			userAction = SMSUserAction.EXECUTE; break;
-		case 'u':	// execute
-			userAction = SMSUserAction.SCROLLUP; break;
-		case 'd':	// execute
-			userAction = SMSUserAction.SCROLLDOWN; break;
-		default:
-			throw new SMSException("Invalid redstone control action '" + action.charAt(1) + "'");
+		case 'x': userAction = SMSUserAction.EXECUTE; break;
+		case 'u': userAction = SMSUserAction.SCROLLUP; break;
+		case 'd': userAction = SMSUserAction.SCROLLDOWN; break;
+		default: throw new SMSException("Invalid redstone control action '" + action.charAt(1) + "'");
 		}
 
 		actions.add(new Action(face, sign.getBlock().getRelative(face), userAction));
