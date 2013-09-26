@@ -19,6 +19,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -140,9 +141,11 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	}
 
 	private void setLeverPowered(Block b, boolean powered) {
-		Lever lever = (Lever) b.getState().getData();
+		BlockState bs = b.getState();
+		Lever lever = (Lever) bs.getData();
 		lever.setPowered(powered);
-		b.setData(lever.getData(), true);
+		bs.setData(lever);
+		bs.update();
 	}
 
 	public Map<String,Object> freeze() {
