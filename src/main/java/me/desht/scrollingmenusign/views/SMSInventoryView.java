@@ -6,9 +6,11 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
 
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
+import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.icon.IconMenu;
@@ -26,6 +28,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
 	public static final String WIDTH = "width";
 	public static final String AUTOPOPDOWN = "autopopdown";
+	public static final String SPACING = "spacing";
 
 	private final Map<String, IconMenu> iconMenus;	// map menu name to the icon menu object
 	private final Map<String, Set<String>> users;	// map menu name to list of players using it
@@ -35,6 +38,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
 		registerAttribute(WIDTH, 9, "Number of icons per inventory row");
 		registerAttribute(AUTOPOPDOWN, true, "Auto-popdown after item click?");
+		registerAttribute(SPACING, 1, "Distance (in slots) between each icon");
 
 		iconMenus = new HashMap<String, IconMenu>();
 		iconMenus.put(getNativeMenu().getName(), new IconMenu(this, getNativeMenu().getName()));
@@ -162,6 +166,16 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 			}, 2L);
 		} else {
 			event.setWillClose((Boolean)getAttribute(AUTOPOPDOWN));
+		}
+	}
+
+	@Override
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+		super.onConfigurationValidate(configurationManager, key, oldVal, newVal);
+		if (key.equals(SPACING)) {
+			SMSValidate.isTrue((Integer)newVal >= 1, "Spacing must be 1 or more");
+		} else if (key.equals(WIDTH)) {
+			SMSValidate.isTrue((Integer)newVal >= 1 && (Integer)newVal <= 9, "Width must be in the range 1 .. 9");
 		}
 	}
 
