@@ -185,7 +185,9 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			macro.deleteTemporary();
 		}
 
-		faker.shutdown();
+		if (faker != null) {
+			faker.shutdown();
+		}
 
 		economy = null;
 		permission = null;
