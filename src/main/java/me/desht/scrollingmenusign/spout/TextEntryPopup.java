@@ -21,7 +21,7 @@ import org.getspout.spoutapi.gui.TextField;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class TextEntryPopup extends SMSGenericPopup {
-	private static final Map<String,TextEntryPopup> allPopups = new HashMap<String, TextEntryPopup>();
+	private static final Map<String, TextEntryPopup> allPopups = new HashMap<String, TextEntryPopup>();
 	private static final Set<String> visiblePopups = new HashSet<String>();
 
 	private static final String LABEL_COLOUR = ChatColor.YELLOW.toString();
@@ -46,9 +46,9 @@ public class TextEntryPopup extends SMSGenericPopup {
 
 		textField = new GenericTextField();
 		textField.setX(x).setY(y).setWidth(width).setHeight(20);
-		textField.setFocus(true	);
+		textField.setFocus(true);
 		textField.setMaximumCharacters(0);
-		y+= textField.getHeight() + 5;
+		y += textField.getHeight() + 5;
 
 		okButton = new TextEntryButton("OK");
 		okButton.setX(x).setY(y).setHeight(BUTTON_HEIGHT);

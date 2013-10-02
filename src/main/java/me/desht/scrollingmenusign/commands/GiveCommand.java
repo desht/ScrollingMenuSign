@@ -27,7 +27,7 @@ public class GiveCommand extends SMSAbstractCommand {
 	public GiveCommand() {
 		super("sms give", 2, 4);
 		setPermissionNode("scrollingmenusign.commands.give");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms give map <menu-name|view-name|map-id> [<amount>] [<player>]",
 				"/sms give book <menu-name|view-name> [<amount>] [<player>]",
 		});
@@ -90,7 +90,7 @@ public class GiveCommand extends SMSAbstractCommand {
 					ScrollingMenuSign.getInstance().getViewManager().addMapToMenu(menu, mapId, sender);
 				} else {
 					// menu has a map view already - use that map ID
-					mapId = ((SMSMapView)v).getMapView().getId();
+					mapId = ((SMSMapView) v).getMapView().getId();
 				}
 			}
 		}
@@ -154,11 +154,11 @@ public class GiveCommand extends SMSAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		switch (args.length) {
-		case 1:
-			return filterPrefix(sender, Arrays.asList("book", "map"), args[0]);
-		default:
-			showUsage(sender);
-			return noCompletions(sender);
+			case 1:
+				return filterPrefix(sender, Arrays.asList("book", "map"), args[0]);
+			default:
+				showUsage(sender);
+				return noCompletions(sender);
 		}
 	}
 }

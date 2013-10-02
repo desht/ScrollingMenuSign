@@ -42,11 +42,11 @@ public class ListMacroCommand extends SMSAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		switch (args.length) {
-		case 1:
-			return getMacroCompletions(sender, args[0]);
-		default:
-			showUsage(sender);
-			return noCompletions(sender);
+			case 1:
+				return getMacroCompletions(sender, args[0]);
+			default:
+				showUsage(sender);
+				return noCompletions(sender);
 		}
 	}
 }

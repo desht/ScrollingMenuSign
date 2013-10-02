@@ -15,13 +15,13 @@ public class VarCommand extends SMSAbstractCommand {
 	public VarCommand() {
 		super("sms var", 1, 4);
 		setPermissionNode("scrollingmenusign.commands.var");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms var -l [<player>]",
 				"/sms var [-q] [<player>.]<variable> [<value>]",
 				"/sms var [-q] -d [<player>.]<variable>",
 				"/sms var [-q] -i [<player>.]<variable> [<amount>]",
 		});
-		setOptions(new String[] { "q", "l", "d", "i" });
+		setOptions(new String[]{"q", "l", "d", "i"});
 		setQuotedArgs(true);
 	}
 
@@ -65,7 +65,7 @@ public class VarCommand extends SMSAbstractCommand {
 				int incr = args.length >= 2 ? Integer.parseInt(args[1]) : 1;
 				SMSVariables.set(sender, varSpec, Integer.toString(val + incr));
 				if (!quiet)
-					MiscUtil.statusMessage(sender, varSpec + " = '&e" + (val+incr) + "&f'");
+					MiscUtil.statusMessage(sender, varSpec + " = '&e" + (val + incr) + "&f'");
 			} catch (NumberFormatException e) {
 				throw new SMSException(e.getMessage() + ": not a number");
 			}

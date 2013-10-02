@@ -171,7 +171,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		setupMetrics();
 
-		LogUtils.fine(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!" );
+		LogUtils.fine(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!");
 	}
 
 	@Override
@@ -194,7 +194,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		permission = null;
 		setInstance(null);
 
-		LogUtils.fine(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!" );
+		LogUtils.fine(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!");
 	}
 
 	@Override
@@ -274,7 +274,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			});
 
 			Graph graphV = metrics.createGraph("View Types");
-			for (final Entry<String,Integer> e : viewManager.getViewCounts().entrySet()) {
+			for (final Entry<String, Integer> e : viewManager.getViewCounts().entrySet()) {
 				graphV.addPlotter(new Plotter(e.getKey()) {
 					@Override
 					public int getValue() {
@@ -301,7 +301,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	}
 
 	private void setupVault(PluginManager pm) {
-		Plugin vault =  pm.getPlugin("Vault");
+		Plugin vault = pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault && vault.isEnabled()) {
 			LogUtils.fine("Hooked Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
@@ -319,7 +319,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
 		if (economyProvider != null) {
 			economy = economyProvider.getProvider();
-            EconomyCost.setEconomy(economy);
+			EconomyCost.setEconomy(economy);
 		}
 
 		return economy != null;
@@ -445,7 +445,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			// settings which affect how all views are drawn
 			repaintViews(null);
 		} else if (key.equals("coloured_console")) {
-			MiscUtil.setColouredConsole((Boolean)newVal);
+			MiscUtil.setColouredConsole((Boolean) newVal);
 		}
 	}
 
@@ -480,7 +480,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	}
 
 	private void configCleanup() {
-		String[] obsolete = new String[] {
+		String[] obsolete = new String[]{
 				"sms.break_block_id", "sms.autosave", "sms.menuitem_separator",
 				"sms.persistent_user_vars", "uservar",
 		};
@@ -509,7 +509,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	public boolean isAttachableDetached(Block b) {
 		BlockState bs = b.getState();
 		if (bs.getData() instanceof Attachable) {
-			Attachable a = (Attachable)	bs.getData();
+			Attachable a = (Attachable) bs.getData();
 			Block attachedBlock = b.getRelative(a.getAttachedFace());
 			return !attachedBlock.getType().isSolid();
 		} else {

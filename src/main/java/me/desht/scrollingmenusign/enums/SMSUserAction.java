@@ -21,16 +21,16 @@ public enum SMSUserAction {
 	public static SMSUserAction getAction(PlayerInteractEvent event) {
 		StringBuilder key;
 		switch (event.getAction()) {
-		case RIGHT_CLICK_BLOCK:
-		case RIGHT_CLICK_AIR:
-			key = new StringBuilder("sms.actions.rightclick.");
-			break;
-		case LEFT_CLICK_BLOCK:
-		case LEFT_CLICK_AIR:
-			key = new StringBuilder("sms.actions.leftclick.");
-			break;
-		default:
-			return NONE;
+			case RIGHT_CLICK_BLOCK:
+			case RIGHT_CLICK_AIR:
+				key = new StringBuilder("sms.actions.rightclick.");
+				break;
+			case LEFT_CLICK_BLOCK:
+			case LEFT_CLICK_AIR:
+				key = new StringBuilder("sms.actions.leftclick.");
+				break;
+			default:
+				return NONE;
 		}
 
 		return _makeAction(event.getPlayer(), key);
@@ -52,11 +52,11 @@ public enum SMSUserAction {
 
 	public static SMSUserAction getAction(PlayerAnimationEvent event) {
 		switch (event.getAnimationType()) {
-		case ARM_SWING:
-			StringBuilder key = new StringBuilder("sms.actions.leftclick.");
-			return _makeAction(event.getPlayer(), key);
-		default:
-			return NONE;
+			case ARM_SWING:
+				StringBuilder key = new StringBuilder("sms.actions.leftclick.");
+				return _makeAction(event.getPlayer(), key);
+			default:
+				return NONE;
 		}
 	}
 
@@ -65,13 +65,13 @@ public enum SMSUserAction {
 	}
 
 	public static SMSUserAction getAction(HangingBreakByEntityEvent event) {
-		return _makeAction((Player)event.getRemover(), new StringBuilder("sms.actions.leftclick."));
+		return _makeAction((Player) event.getRemover(), new StringBuilder("sms.actions.leftclick."));
 	}
 
 	private static SMSUserAction _makeAction(Player player, StringBuilder key) {
 		if (player.isSneaking())
 			key.append("sneak");
-		else 
+		else
 			key.append("normal");
 
 		String s = ScrollingMenuSign.getInstance().getConfig().getString(key.toString(), "none");
@@ -95,43 +95,51 @@ public enum SMSUserAction {
 		String playerName = player == null ? "CONSOLE" : player.getName();
 		SMSMenu menu = sview.getActiveMenu(playerName);
 		switch (this) {
-		case EXECUTE:
-			SMSMenuItem item = sview.getActiveMenuItemAt(playerName, sview.getScrollPos(playerName));
-			if (item != null) {
-				item.executeCommand(player, view);
-				item.feedbackMessage(player);
-				view.onExecuted(player);
-			}
-			break;
-		case SCROLLDOWN:
-			sview.scrollDown(playerName);
-			sview.update(menu, SMSMenuAction.SCROLLED);
-			sview.onScrolled(player, SCROLLDOWN);
-			break;
-		case SCROLLUP:
-			sview.scrollUp(playerName);
-			sview.update(menu, SMSMenuAction.SCROLLED);
-			sview.onScrolled(player, SCROLLUP);
-			break;
-		default:
-			break;
+			case EXECUTE:
+				SMSMenuItem item = sview.getActiveMenuItemAt(playerName, sview.getScrollPos(playerName));
+				if (item != null) {
+					item.executeCommand(player, view);
+					item.feedbackMessage(player);
+					view.onExecuted(player);
+				}
+				break;
+			case SCROLLDOWN:
+				sview.scrollDown(playerName);
+				sview.update(menu, SMSMenuAction.SCROLLED);
+				sview.onScrolled(player, SCROLLDOWN);
+				break;
+			case SCROLLUP:
+				sview.scrollUp(playerName);
+				sview.update(menu, SMSMenuAction.SCROLLED);
+				sview.onScrolled(player, SCROLLUP);
+				break;
+			default:
+				break;
 		}
 	}
 
 	public String getPermissionNode() {
 		switch (this) {
-		case EXECUTE: return "scrollingmenusign.execute";
-		case SCROLLDOWN: case SCROLLUP: return "scrollingmenusign.scroll";
-		default: return null;
+			case EXECUTE:
+				return "scrollingmenusign.execute";
+			case SCROLLDOWN:
+			case SCROLLUP:
+				return "scrollingmenusign.scroll";
+			default:
+				return null;
 		}
 	}
 
 	public String getShortDesc() {
 		switch (this) {
-		case EXECUTE: return "X";
-		case SCROLLUP: return "U";
-		case SCROLLDOWN: return "D";
-		default: return "N";
+			case EXECUTE:
+				return "X";
+			case SCROLLUP:
+				return "U";
+			case SCROLLDOWN:
+				return "D";
+			default:
+				return "N";
 		}
 	}
 }

@@ -87,7 +87,7 @@ public class DirectoryStructure {
 	public static File getFontsFolder() {
 		return fontsDir;
 	}
-	
+
 	public static File getScriptsFolder() {
 		return scriptsDir;
 	}

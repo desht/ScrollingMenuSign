@@ -43,7 +43,7 @@ public class ParsedCommand {
 	private StopCondition commandStopCondition;
 	private StopCondition macroStopCondition;
 
-	ParsedCommand (CommandSender sender, Scanner scanner) throws SMSException {
+	ParsedCommand(CommandSender sender, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
 		costs = new ArrayList<Cost>();
 		elevated = restricted = chat = whisper = macro = console = commandlet = false;
@@ -140,14 +140,14 @@ public class ParsedCommand {
 				for (String c : token.substring(1).split(";")) {
 					if (!c.isEmpty()) {
 						try {
-                            Cost cost = Cost.parse(c);
+							Cost cost = Cost.parse(c);
 							costs.add(cost);
-                            if (!cost.isAffordable((Player) sender)) {
-                                affordable = false;
-                            }
-                            if (!cost.isApplicable((Player) sender)) {
-                                applicable = false;
-                            }
+							if (!cost.isAffordable((Player) sender)) {
+								affordable = false;
+							}
+							if (!cost.isApplicable((Player) sender)) {
+								applicable = false;
+							}
 						} catch (IllegalArgumentException e) {
 							throw new SMSException(e.getMessage() + ": bad cost");
 						}
@@ -166,8 +166,8 @@ public class ParsedCommand {
 			}
 		}
 
-        List<String> strings = MiscUtil.splitQuotedString(rawCommand.toString());
-        quotedArgs = strings.toArray(new String[strings.size()]);
+		List<String> strings = MiscUtil.splitQuotedString(rawCommand.toString());
+		quotedArgs = strings.toArray(new String[strings.size()]);
 
 		if (!(sender instanceof Player) && command != null && command.startsWith("/")) {
 			console = true;
@@ -183,7 +183,7 @@ public class ParsedCommand {
 	 * Get the name of the command, i.e. the first word of the command string with any special
 	 * leading characters removed.
 	 *
-	 * @return	The command name
+	 * @return The command name
 	 */
 	public String getCommand() {
 		return command;
@@ -192,7 +192,7 @@ public class ParsedCommand {
 	/**
 	 * Get the argument list for the command (excluding the command), split on whitespace.
 	 *
-	 * @return	The command's arguments
+	 * @return The command's arguments
 	 */
 	public List<String> getArgs() {
 		return args;
@@ -212,7 +212,7 @@ public class ParsedCommand {
 	 * Get the elevation status, i.e. whether the command should be (has been) run with permissions checks
 	 * bypassed.
 	 *
-	 * @return	true if elevated, false otherwise
+	 * @return true if elevated, false otherwise
 	 */
 	public boolean isElevated() {
 		return elevated;
@@ -240,7 +240,7 @@ public class ParsedCommand {
 	/**
 	 * Get the affordable status, i.e. whether the command costs can be (have been) met by the player.
 	 *
-	 * @return	true if the command is affordable, false otherwise
+	 * @return true if the command is affordable, false otherwise
 	 */
 	public boolean isAffordable() {
 		return affordable;
@@ -268,7 +268,7 @@ public class ParsedCommand {
 	/**
 	 * Get the details of the costs for this command.
 	 *
-	 * @return	a List of Cost objects
+	 * @return a List of Cost objects
 	 */
 	public List<Cost> getCosts() {
 		return costs;
@@ -277,7 +277,7 @@ public class ParsedCommand {
 	/**
 	 * Get the return status from actually running the command.
 	 *
-	 * @return	the return status
+	 * @return the return status
 	 */
 	public ReturnStatus getStatus() {
 		return status;
@@ -308,7 +308,7 @@ public class ParsedCommand {
 	/**
 	 * Check if this command calls a macro.
 	 *
-	 * @return	true if a macro is used, false otherwise
+	 * @return true if a macro is used, false otherwise
 	 */
 	public boolean isMacro() {
 		return macro;
@@ -324,12 +324,13 @@ public class ParsedCommand {
 	 */
 	public boolean isCommandStopped() {
 		switch (commandStopCondition) {
-		case NONE: default:
-			return false;
-		case ON_FAIL:
-			return restricted || !affordable;
-		case ON_SUCCESS:
-			return !restricted && affordable;
+			case NONE:
+			default:
+				return false;
+			case ON_FAIL:
+				return restricted || !affordable;
+			case ON_SUCCESS:
+				return !restricted && affordable;
 		}
 	}
 
@@ -343,12 +344,13 @@ public class ParsedCommand {
 	 */
 	public boolean isMacroStopped() {
 		switch (macroStopCondition) {
-		case NONE: default:
-			return false;
-		case ON_FAIL:
-			return restricted || !affordable;
-		case ON_SUCCESS:
-			return !restricted && affordable;
+			case NONE:
+			default:
+				return false;
+			case ON_FAIL:
+				return restricted || !affordable;
+			case ON_SUCCESS:
+				return !restricted && affordable;
 		}
 	}
 
@@ -364,7 +366,7 @@ public class ParsedCommand {
 	/**
 	 * Get the last error message that was generated from running the command.
 	 *
-	 * @return	The error text
+	 * @return The error text
 	 */
 	public String getLastError() {
 		return lastError;
@@ -381,8 +383,8 @@ public class ParsedCommand {
 	/**
 	 * Get the argument at the given index.
 	 *
-	 * @param index		Index of the argument to get
-	 * @return			The argument
+	 * @param index Index of the argument to get
+	 * @return The argument
 	 */
 	public String arg(int index) {
 		return args.get(index);
@@ -405,21 +407,21 @@ public class ParsedCommand {
 		String checkTerm = parts[1];
 
 		switch (checkType.charAt(0)) {
-		case 'g':
-			return ScrollingMenuSign.permission != null && ScrollingMenuSign.permission.playerInGroup(player, checkTerm);
-		case 'p':
-			return player.getName().equalsIgnoreCase(checkTerm);
-		case 'w':
-			return player.getWorld().getName().equalsIgnoreCase(checkTerm);
-		case 'n':
-			return PermissionUtils.isAllowedTo(player, checkTerm);
-		case 'i':
-			return isHoldingObject(player, checkTerm);
-		case 'v':
-			return variableTest(player, checkType, checkTerm);
-		default:
-			LogUtils.warning("Unknown check type: " + check);
-			return false;
+			case 'g':
+				return ScrollingMenuSign.permission != null && ScrollingMenuSign.permission.playerInGroup(player, checkTerm);
+			case 'p':
+				return player.getName().equalsIgnoreCase(checkTerm);
+			case 'w':
+				return player.getWorld().getName().equalsIgnoreCase(checkTerm);
+			case 'n':
+				return PermissionUtils.isAllowedTo(player, checkTerm);
+			case 'i':
+				return isHoldingObject(player, checkTerm);
+			case 'v':
+				return variableTest(player, checkType, checkTerm);
+			default:
+				LogUtils.warning("Unknown check type: " + check);
+				return false;
 		}
 	}
 
@@ -472,7 +474,7 @@ public class ParsedCommand {
 					return p.matcher(value).matches();
 				} else if (forceNumeric) {
 					return Double.parseDouble(value) == Double.parseDouble(testValue);
-				} else 	if (caseInsensitive) {
+				} else if (caseInsensitive) {
 					return value.equalsIgnoreCase(testValue);
 				} else {
 					return value.equals(testValue);
@@ -497,6 +499,6 @@ public class ParsedCommand {
 		return false;
 	}
 
-	public enum StopCondition { NONE, ON_SUCCESS, ON_FAIL }
+	public enum StopCondition {NONE, ON_SUCCESS, ON_FAIL}
 
 }

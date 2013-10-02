@@ -40,15 +40,15 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	/**
 	 * Construct a new RedstoneControlSign for the given Sign and view.  Private constructor - use getControlSign().
 	 *
-	 * @param sign	the Sign
-	 * @param view	the globally-scrollable view
+	 * @param sign the Sign
+	 * @param view the globally-scrollable view
 	 * @throws SMSException if the sign text is any way invalid
 	 */
 	private RedstoneControlSign(Sign sign, SMSGlobalScrollableView view) {
 		this.location = new PersistableLocation(sign.getLocation());
 
 		SMSValidate.isTrue(sign.getLine(0).equals(ChatColor.RED + "[smsred]"),
-		                   "Sign @ " + MiscUtil.formatLocation(sign.getBlock().getLocation()) + " is not a SMS redstone control sign");
+				"Sign @ " + MiscUtil.formatLocation(sign.getBlock().getLocation()) + " is not a SMS redstone control sign");
 
 		if (view == null) {
 			SMSView baseView = ScrollingMenuSign.getInstance().getViewManager().getView(sign.getLine(1));
@@ -73,9 +73,9 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	 * the first line must read "[smsred]" in red text, and the second line must contain the name of
 	 * a globally-scrollable view.
 	 *
-	 * @param loc	The location to check for
-	 * @return	The RedstoneControlSign at that location.
+	 * @param loc The location to check for
 	 * @throws SMSException if there is no sign at this block or the sign is not valid
+	 * @return The RedstoneControlSign at that location.
 	 */
 	public static RedstoneControlSign getControlSign(Location loc) {
 		return getControlSign(loc, null);
@@ -85,8 +85,8 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	 * Get a new RedstoneControlSign for the given block and view object.  This is called when restoring
 	 * RedstoneControlSign from disk.
 	 *
-	 * @param loc	the location to check
-	 * @param view	the view this is associated with
+	 * @param loc  the location to check
+	 * @param view the view this is associated with
 	 * @return the RedstoneControlSign at this block
 	 * @throws SMSException if there is no sign at this block or the sign is not valid
 	 */
@@ -106,7 +106,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	/**
 	 * Get the last-recorded power level for this control sign.
 	 *
-	 * @return	the last-recorded power level
+	 * @return the last-recorded power level
 	 */
 	public int getLastPowerLevel() {
 		return lastPowerLevel;
@@ -124,7 +124,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	/**
 	 * Get the location of this control sign.
 	 *
-	 * @return	the control sign location
+	 * @return the control sign location
 	 */
 	public Location getlocation() {
 		return location.getLocation();
@@ -133,7 +133,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	/**
 	 * Get the view that this control sign is attached to.
 	 *
-	 * @return	the view object
+	 * @return the view object
 	 */
 	public SMSGlobalScrollableView getView() {
 		return view;
@@ -170,44 +170,51 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	 * Parse the action definitions in the given string.  This would be taken from lines 3 & 4 of
 	 * the sign.
 	 *
-	 * @param action	The action string, containing a whitespace-separate list of location/action pairs.
+	 * @param action The action string, containing a whitespace-separate list of location/action pairs.
 	 */
 	private void parseAction(String action, Sign sign) {
 		org.bukkit.material.Sign signData = (org.bukkit.material.Sign) sign.getData();
 
 		SMSValidate.isTrue(action.length() == 2,
-				"Invalid redstone control spec. '" + action +  "' for sign @ " +  MiscUtil.formatLocation(sign.getBlock().getLocation()));
+				"Invalid redstone control spec. '" + action + "' for sign @ " + MiscUtil.formatLocation(sign.getBlock().getLocation()));
 
 		BlockFace face;
 		switch (Character.toLowerCase(action.charAt(0))) {
-		case 'o':	// over
-			face = BlockFace.UP;
-			break;
-		case 'u':	// under
-			face = BlockFace.DOWN;
-			break;
-		case 'f':	// front
-			face = signData.getFacing();
-			break;
-		case 'b':	// back
-			face = signData.getFacing().getOppositeFace();
-			break;
-		case 'l':	// left
-			face = BlockUtil.getLeft(signData.getFacing().getOppositeFace());
-			break;
-		case 'r':	// right
-			face = BlockUtil.getLeft(signData.getFacing());
-			break;
-		default:
-			throw new SMSException("Invalid redstone control direction '" + action.charAt(0) + "'");
+			case 'o':    // over
+				face = BlockFace.UP;
+				break;
+			case 'u':    // under
+				face = BlockFace.DOWN;
+				break;
+			case 'f':    // front
+				face = signData.getFacing();
+				break;
+			case 'b':    // back
+				face = signData.getFacing().getOppositeFace();
+				break;
+			case 'l':    // left
+				face = BlockUtil.getLeft(signData.getFacing().getOppositeFace());
+				break;
+			case 'r':    // right
+				face = BlockUtil.getLeft(signData.getFacing());
+				break;
+			default:
+				throw new SMSException("Invalid redstone control direction '" + action.charAt(0) + "'");
 		}
 
 		SMSUserAction userAction;
 		switch (Character.toLowerCase(action.charAt(1))) {
-		case 'x': userAction = SMSUserAction.EXECUTE; break;
-		case 'u': userAction = SMSUserAction.SCROLLUP; break;
-		case 'd': userAction = SMSUserAction.SCROLLDOWN; break;
-		default: throw new SMSException("Invalid redstone control action '" + action.charAt(1) + "'");
+			case 'x':
+				userAction = SMSUserAction.EXECUTE;
+				break;
+			case 'u':
+				userAction = SMSUserAction.SCROLLUP;
+				break;
+			case 'd':
+				userAction = SMSUserAction.SCROLLDOWN;
+				break;
+			default:
+				throw new SMSException("Invalid redstone control action '" + action.charAt(1) + "'");
 		}
 
 		actions.add(new Action(face, sign.getBlock().getRelative(face), userAction));
@@ -216,8 +223,8 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	/**
 	 * Mark a control sign as deferred - do this if the world isn't loaded at this point.
 	 *
-	 * @param worldName	The name of the world
-	 * @param pos	a Vector representing the position of the sign
+	 * @param worldName The name of the world
+	 * @param pos       a Vector representing the position of the sign
 	 */
 	public static void deferLoading(String worldName, Vector pos) {
 		if (!deferred.containsKey(worldName)) {
@@ -230,7 +237,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	 * Load any deferred control signs for the given world.  Called from the
 	 * WorldLoadEvent handler.
 	 *
-	 * @param world	The world that's been loaded
+	 * @param world The world that's been loaded
 	 */
 	public static void loadDeferred(World world) {
 		String worldName = world.getName();
@@ -261,8 +268,8 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	@Override
 	public void processEvent(ScrollingMenuSign plugin, BlockBreakEvent event) {
 		MiscUtil.statusMessage(event.getPlayer(),
-		                       String.format("Redstone control sign @ &f%s&- was removed from view &e%s&-.",
-		                                     MiscUtil.formatLocation(event.getBlock().getLocation()), getView().getName()));
+				String.format("Redstone control sign @ &f%s&- was removed from view &e%s&-.",
+						MiscUtil.formatLocation(event.getBlock().getLocation()), getView().getName()));
 		delete();
 	}
 
@@ -290,10 +297,10 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 
 	private class Action {
 		private final BlockFace face;
-        private final Block block;
-        private final SMSUserAction action;
+		private final Block block;
+		private final SMSUserAction action;
 
-		Action (BlockFace face, Block block, SMSUserAction action) {
+		Action(BlockFace face, Block block, SMSUserAction action) {
 			this.face = face;
 			this.block = block;
 			this.action = action;

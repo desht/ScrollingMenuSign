@@ -58,7 +58,7 @@ public class SpoutUtils {
 	}
 
 	public static boolean showTextEntryPopup(final Player player, final String prompt) {
-		final SpoutPlayer sp = (SpoutPlayer)player;
+		final SpoutPlayer sp = (SpoutPlayer) player;
 		if (!sp.isSpoutCraftEnabled()) {
 			return false;
 		}
@@ -76,7 +76,7 @@ public class SpoutUtils {
 	}
 
 	public static void setupPasswordPrompt(Player player, String command, CommandTrigger trigger) {
-		SpoutPlayer sp = (SpoutPlayer)player;
+		SpoutPlayer sp = (SpoutPlayer) player;
 		if (!sp.isSpoutCraftEnabled()) {
 			throw new SMSException("Password prompting is only supported when using Spoutcraft.");
 		}

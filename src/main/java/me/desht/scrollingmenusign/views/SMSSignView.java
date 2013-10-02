@@ -22,11 +22,11 @@ public class SMSSignView extends SMSGlobalScrollableView {
 
 	/**
 	 * Create a new sign view object.
-	 * 
-	 * @param name	Unique name for this view.
-	 * @param menu	The SMSMenu object to attach this view to.
-	 * @param loc	The location of this view's sign
-	 * @throws SMSException	if the given location is not suitable for this view
+	 *
+	 * @param name Unique name for this view.
+	 * @param menu The SMSMenu object to attach this view to.
+	 * @param loc  The location of this view's sign
+	 * @throws SMSException if the given location is not suitable for this view
 	 */
 	public SMSSignView(String name, SMSMenu menu, Location loc) throws SMSException {
 		super(name, menu);
@@ -37,9 +37,9 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	 * Create a new sign view object with no registered location.  A location
 	 * which contains a sign must be added with @see #addLocation(Location) before
 	 * this view is useful.
-	 * 
-	 * @param name	Unique name for this view.
-	 * @param menu	The SMSMenu object to attach this view to.
+	 *
+	 * @param name Unique name for this view.
+	 * @param menu The SMSMenu object to attach this view to.
 	 */
 	public SMSSignView(String name, SMSMenu menu) {
 		super(name, menu);
@@ -48,10 +48,10 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	/**
 	 * Create a new sign view object.  Equivalent to calling SMSSignView(null, menu, loc).  The
 	 * view's name will be automatically generated, based on the menu name.
-	 * 
-	 * @param menu	The SMSMenu object to attach this view to.
-	 * @param loc	The location of this view's sign
-	 * @throws SMSException	if the given location is not suitable for this view
+	 *
+	 * @param menu The SMSMenu object to attach this view to.
+	 * @param loc  The location of this view's sign
+	 * @throws SMSException if the given location is not suitable for this view
 	 */
 	public SMSSignView(SMSMenu menu, Location loc) throws SMSException {
 		this(null, menu, loc);
@@ -78,11 +78,12 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		super.update(menu, arg);
 
 		switch ((SMSMenuAction) arg) {
-		case REPAINT: case SCROLLED:
-			repaintAll();
-			break;
-		default:
-			break;
+			case REPAINT:
+			case SCROLLED:
+				repaintAll();
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -124,7 +125,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 
 		// line 2-4 are the menu items around the current menu position
 		// line 3 is the current position
-		String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
+		String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%");
 		String prefixSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
 
 		ViewJustification ij = getItemJustification();
@@ -156,7 +157,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	}
 
 	private String getLine4Item(int pos) {
-		if (getActiveMenuItemCount(null) < 2) 
+		if (getActiveMenuItemCount(null) < 2)
 			return "";
 
 		int nextPos = pos + 1;
@@ -170,22 +171,25 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		int l = 15 - prefix.length();
 		String s = "";
 		switch (just) {
-		case LEFT:
-			s =  prefix + "%1$-" + l + "s"; break;
-		case CENTER:
-			s = prefix + "%1$s"; break;
-		case RIGHT:
-			s = prefix + "%1$" + l + "s"; break;
-		default:
-			break;
+			case LEFT:
+				s = prefix + "%1$-" + l + "s";
+				break;
+			case CENTER:
+				s = prefix + "%1$s";
+				break;
+			case RIGHT:
+				s = prefix + "%1$" + l + "s";
+				break;
+			default:
+				break;
 		}
 		return MiscUtil.parseColourSpec(s);
 	}
 
 	/**
 	 * Get the actual Bukkit Sign object for this view.
-	 * 
-	 * @return	The Sign object
+	 *
+	 * @return The Sign object
 	 */
 	private Sign getSign() {
 		if (getLocations().isEmpty())

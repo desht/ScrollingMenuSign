@@ -10,7 +10,10 @@ import org.bukkit.event.block.BlockRedstoneEvent;
  */
 public interface SMSInteractableBlock {
 	public void processEvent(ScrollingMenuSign plugin, BlockDamageEvent event);
+
 	public void processEvent(ScrollingMenuSign plugin, BlockBreakEvent event);
+
 	public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event);
+
 	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event);
 }

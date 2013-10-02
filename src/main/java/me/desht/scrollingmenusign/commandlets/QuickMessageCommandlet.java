@@ -30,7 +30,7 @@ public class QuickMessageCommandlet extends BaseCommandlet {
 		if (plugin.isProtocolLibEnabled()) {
 			ItemMessage im = new ItemMessage(plugin);
 			im.setFormats(ChatColor.RED + "\u258b " + ChatColor.RESET + "%s", "  %s");
-			im.sendMessage((Player)sender, MiscUtil.parseColourSpec(msg), duration);
+			im.sendMessage((Player) sender, MiscUtil.parseColourSpec(msg), duration);
 		} else {
 			sender.sendMessage(MiscUtil.parseColourSpec(msg));
 		}

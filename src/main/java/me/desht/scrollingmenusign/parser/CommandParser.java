@@ -44,7 +44,7 @@ public class CommandParser {
 	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)(=.*?)?>");
 	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
 
-	private enum RunMode { CHECK_PERMS, EXECUTE }
+	private enum RunMode {CHECK_PERMS, EXECUTE}
 
 	private static Logger cmdLogger = null;
 
@@ -87,35 +87,35 @@ public class CommandParser {
 	/**
 	 * Parse and run a command string via the SMS command engine
 	 *
-	 * @param sender		Player who is running the command
-	 * @param command		The command to be run
-     * @param trigger       The command trigger
-	 * @return	The parsed command object, which gives access to details on how the command ran
+	 * @param sender  Player who is running the command
+	 * @param command The command to be run
+	 * @param trigger The command trigger
 	 * @throws SMSException if there was any problem running the command
+	 * @return The parsed command object, which gives access to details on how the command ran
 	 */
 	public ParsedCommand executeCommand(CommandSender sender, String command, CommandTrigger trigger) {
-        return handleCommandString(sender, trigger, command, RunMode.EXECUTE);
+		return handleCommandString(sender, trigger, command, RunMode.EXECUTE);
 	}
 
-    /**
-     * Parse and run a command string via the SMS command engine
-     *
-     * @param sender Player who is running the command
-     * @param command The command to be run
-     * @return The parsed command object, which gives access to details on how the command ran
-     * @throws SMSException if there was any problem running the command
-     */
+	/**
+	 * Parse and run a command string via the SMS command engine
+	 *
+	 * @param sender  Player who is running the command
+	 * @param command The command to be run
+	 * @return The parsed command object, which gives access to details on how the command ran
+	 * @throws SMSException if there was any problem running the command
+	 */
 	public ParsedCommand executeCommand(CommandSender sender, String command) {
-        return handleCommandString(sender, null, command, RunMode.EXECUTE);
+		return handleCommandString(sender, null, command, RunMode.EXECUTE);
 	}
 
 	/**
 	 * Check that the given player has permission to create a menu entry with the given command.
 	 *
-	 * @param player	Player who is creating the menu item
-	 * @param command	The command to be run
-	 * @return	true if the player is allowed to create this item, false otherwise
+	 * @param player  Player who is creating the menu item
+	 * @param command The command to be run
 	 * @throws SMSException
+	 * @return true if the player is allowed to create this item, false otherwise
 	 */
 	public boolean verifyCreationPerms(Player player, String command) throws SMSException {
 		ParsedCommand cmd = handleCommandString(player, null, command, RunMode.CHECK_PERMS);
@@ -126,10 +126,10 @@ public class CommandParser {
 	/**
 	 * Substitute any user-defined variables (/sms var) in the command
 	 *
-	 * @param player	The player running the command
-	 * @param command	The command string
-	 * @param missing	(returned) a set of variable names with no definitions
-	 * @return	The substituted command string
+	 * @param player  The player running the command
+	 * @param command The command string
+	 * @param missing (returned) a set of variable names with no definitions
+	 * @return The substituted command string
 	 */
 	private String userVarSubs(Player player, String command, Set<String> missing) {
 		Matcher m = userVarSubPat.matcher(command);
@@ -152,7 +152,7 @@ public class CommandParser {
 	/**
 	 * Substitute any view-specific variable in the command
 	 *
-	 * @param view the view
+	 * @param view    the view
 	 * @param command the command string
 	 * @return the substituted command string
 	 */
@@ -170,7 +170,7 @@ public class CommandParser {
 	/**
 	 * Carry out all the predefined substitutions
 	 *
-	 * @param player the player to do the substitutions for
+	 * @param player  the player to do the substitutions for
 	 * @param trigger the command trigger
 	 * @param command the command string
 	 * @return the substituted command string
@@ -206,8 +206,8 @@ public class CommandParser {
 				LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
 				repl = "<" + key + ">";
 			}
-            repl = repl.replace("$", "\\$");
-            m.appendReplacement(sb, repl);
+			repl = repl.replace("$", "\\$");
+			m.appendReplacement(sb, repl);
 		}
 		m.appendTail(sb);
 		return sb.toString();
@@ -216,10 +216,10 @@ public class CommandParser {
 	/**
 	 * Handle one command string, which may contain multiple commands (chained with && or $$)
 	 *
-	 * @param sender the command sender
+	 * @param sender  the command sender
 	 * @param trigger the command trigger
 	 * @param command the command string
-	 * @param mode the run mode
+	 * @param mode    the run mode
 	 * @return a ParsedCommand object
 	 * @throws SMSException
 	 */
@@ -274,22 +274,22 @@ public class CommandParser {
 			cmd = new ParsedCommand(sender, scanner);
 
 			switch (mode) {
-			case EXECUTE:
-				execute(sender, trigger, cmd);
-				logCommandUsage(sender, cmd);
-				break;
-			case CHECK_PERMS:
-				cmd.setStatus(ReturnStatus.CMD_OK);
-				if ((cmd.isElevated() || cmd.isConsole()) && !PermissionUtils.isAllowedTo(sender, "scrollingmenusign.create.elevated")) {
-					cmd.setStatus(ReturnStatus.NO_PERMS);
-					return cmd;
-				} else if (!cmd.getCosts().isEmpty() && !PermissionUtils.isAllowedTo(sender, "scrollingmenusign.create.cost")) {
-					cmd.setStatus(ReturnStatus.NO_PERMS);
-					return cmd;
-				}
-				break;
-			default:
-				throw new IllegalArgumentException("unexpected run mode for parseCommandString()");
+				case EXECUTE:
+					execute(sender, trigger, cmd);
+					logCommandUsage(sender, cmd);
+					break;
+				case CHECK_PERMS:
+					cmd.setStatus(ReturnStatus.CMD_OK);
+					if ((cmd.isElevated() || cmd.isConsole()) && !PermissionUtils.isAllowedTo(sender, "scrollingmenusign.create.elevated")) {
+						cmd.setStatus(ReturnStatus.NO_PERMS);
+						return cmd;
+					} else if (!cmd.getCosts().isEmpty() && !PermissionUtils.isAllowedTo(sender, "scrollingmenusign.create.cost")) {
+						cmd.setStatus(ReturnStatus.NO_PERMS);
+						return cmd;
+					}
+					break;
+				default:
+					throw new IllegalArgumentException("unexpected run mode for parseCommandString()");
 			}
 		}
 
@@ -323,7 +323,7 @@ public class CommandParser {
 		}
 
 		if (sender instanceof Player) {
-            Cost.apply((Player) sender, cmd.getCosts());
+			Cost.apply((Player) sender, cmd.getCosts());
 		}
 
 		if (cmd.getCommand() == null || cmd.getCommand().isEmpty()) {
@@ -364,7 +364,7 @@ public class CommandParser {
 				return;
 			}
 			if (sender instanceof Player) {
-				executeElevated((Player)sender, cmd, command);
+				executeElevated((Player) sender, cmd, command);
 			} else {
 				executeLowLevelCommand(sender, cmd, command);
 			}
@@ -414,7 +414,7 @@ public class CommandParser {
 			LogUtils.warning("Recursion detected and stopped in macro " + macroName);
 			cmd.setStatus(ReturnStatus.WOULD_RECURSE);
 			cmd.setLastError("Recursion detected and stopped in macro " + macroName);
-        } else if (SMSMacro.hasMacro(macroName)) {
+		} else if (SMSMacro.hasMacro(macroName)) {
 			macroHistory.add(macroName);
 			ParsedCommand subCommand = null;
 			String allArgs = Joiner.on(" ").join(cmd.getArgs());
@@ -435,10 +435,10 @@ public class CommandParser {
 				cmd.setStatus(subCommand.getStatus());
 				cmd.setLastError(subCommand.getLastError());
 			}
-        } else {
+		} else {
 			cmd.setStatus(ReturnStatus.BAD_MACRO);
 			cmd.setLastError("Unknown macro " + macroName + ".");
-        }
+		}
 	}
 
 	private void runCommandlet(CommandSender sender, CommandTrigger trigger, ParsedCommand cmd) {
@@ -462,10 +462,10 @@ public class CommandParser {
 				// chat events, and dispatchCommand() does not work for those.  So we'll try running the command
 				// via player.chat().  Sadly, player.chat() doesn't tell us if the command was found or not.
 				cmd.setStatus(ReturnStatus.UNKNOWN);
-				((Player)sender).chat(command);
+				((Player) sender).chat(command);
 			}
 		} else if (sender instanceof Player) {
-			((Player)sender).chat(MiscUtil.parseColourSpec(command));
+			((Player) sender).chat(MiscUtil.parseColourSpec(command));
 		} else {
 			LogUtils.info("Chat: " + command);
 		}

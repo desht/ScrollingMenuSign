@@ -1,4 +1,5 @@
 package me.desht.scrollingmenusign;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ public class SMSRemainingUses {
 	private static final String PER_PLAYER_MAX = "&PERPLAYER";
 
 	private final SMSUseLimitable attachedTo;
-	private final Map<String,Integer> uses = new HashMap<String, Integer>();
+	private final Map<String, Integer> uses = new HashMap<String, Integer>();
 
 	SMSRemainingUses(SMSUseLimitable lim) {
 		this.attachedTo = lim;
@@ -28,8 +29,8 @@ public class SMSRemainingUses {
 	/**
 	 * Check if this usage item limits uses.
 	 *
-	 * @param player	The player name to check for
-	 * @return			True if there are limitations, false if not
+	 * @param player The player name to check for
+	 * @return True if there are limitations, false if not
 	 */
 	public boolean hasLimitedUses(String player) {
 		return uses.containsKey(GLOBAL_MAX) || uses.containsKey(PER_PLAYER_MAX);
@@ -38,8 +39,8 @@ public class SMSRemainingUses {
 	/**
 	 * Return the remaining uses for the player.
 	 *
-	 * @param player	The player name to check for
-	 * @return			The number of uses remaining (Integer.MAX_VALUE if there is no limit)
+	 * @param player The player name to check for
+	 * @return The number of uses remaining (Integer.MAX_VALUE if there is no limit)
 	 */
 	public int getRemainingUses(String player) {
 		if (uses.containsKey(GLOBAL_MAX)) {
@@ -62,7 +63,7 @@ public class SMSRemainingUses {
 	/**
 	 * Clear usage limits for the given player.
 	 *
-	 * @param player	The player name to remove usage limits for
+	 * @param player The player name to remove usage limits for
 	 */
 	public void clearUses(String player) {
 		uses.remove(player);
@@ -73,7 +74,7 @@ public class SMSRemainingUses {
 	 * Set the usage limits per player.  This is the total number of times an item/menu can be
 	 * used by each player.
 	 *
-	 * @param useCount	The usage limit
+	 * @param useCount The usage limit
 	 */
 	public void setUses(int useCount) {
 		uses.clear();
@@ -97,7 +98,7 @@ public class SMSRemainingUses {
 	/**
 	 * Record a usage event against this item.
 	 *
-	 * @param player	Name of the player who used the menu/item
+	 * @param player Name of the player who used the menu/item
 	 */
 	public void use(String player) {
 		if (uses.containsKey(GLOBAL_MAX)) {
@@ -131,8 +132,8 @@ public class SMSRemainingUses {
 	/**
 	 * Return a formatted description of the total and remaining usage for the given player.
 	 *
-	 * @param player	The player name
-	 * @return			Formatted string
+	 * @param player The player name
+	 * @return Formatted string
 	 */
 	public String toString(String player) {
 		if (uses.containsKey(GLOBAL_MAX)) {

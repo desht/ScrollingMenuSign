@@ -74,10 +74,10 @@ public class GetConfigCommand extends SMSAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		switch (args.length) {
-		case 1:
-			return getConfigCompletions(sender, ScrollingMenuSign.getInstance().getConfig().getConfigurationSection("sms"), args[0]);
-		default:
-			return noCompletions(sender);
+			case 1:
+				return getConfigCompletions(sender, ScrollingMenuSign.getInstance().getConfig().getConfigurationSection("sms"), args[0]);
+			default:
+				return noCompletions(sender);
 		}
 	}
 }

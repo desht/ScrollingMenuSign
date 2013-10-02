@@ -11,9 +11,9 @@ public enum SMSAccessRights {
 
 	/**
 	 * Check if the given player is allowed to use an access-controlled object owned by the given owner.
-	 * 
+	 *
 	 * @param player the player to check for
-	 * @param owner the name of the owner of the object
+	 * @param owner  the name of the owner of the object
 	 * @return true if the player may use it, false otherwise
 	 */
 	public boolean isAllowedToUse(Player player, String owner) {

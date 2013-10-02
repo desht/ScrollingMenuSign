@@ -14,14 +14,14 @@ public class ItemUseCommand extends SMSAbstractCommand {
 	public ItemUseCommand() {
 		super("sms uses", 2, 4);
 		setPermissionNode("scrollingmenusign.commands.uses");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms uses <menu> <item> <count> [-global]",
 				"/sms uses <menu> <item> clear",
 				"/sms uses <menu> <count> [-global]",
 				"/sms uses <menu> clear",
 		});
 		setQuotedArgs(true);
-		setOptions(new String[] { "global", "g" });
+		setOptions(new String[]{"global", "g"});
 	}
 
 	@Override
@@ -44,11 +44,11 @@ public class ItemUseCommand extends SMSAbstractCommand {
 				if (isGlobal) {
 					item.getUseLimits().setGlobalUses(count);
 					MiscUtil.statusMessage(sender, "Set GLOBAL use limit for item &e" + item.getLabel()
-					                       + "&- to " + count + ".");
+							+ "&- to " + count + ".");
 				} else {
 					item.getUseLimits().setUses(count);
 					MiscUtil.statusMessage(sender, "Set PER-PLAYER use limit for item &e" + item.getLabel()
-					                       + "&- to " + count + ".");
+							+ "&- to " + count + ".");
 				}
 			}
 		} else if (args.length == 2) {
@@ -61,11 +61,11 @@ public class ItemUseCommand extends SMSAbstractCommand {
 				if (isGlobal) {
 					menu.getUseLimits().setGlobalUses(count);
 					MiscUtil.statusMessage(sender, "Set GLOBAL use limit for menu &e" + menu.getName()
-					                       + "&- to " + count + ".");
+							+ "&- to " + count + ".");
 				} else {
 					menu.getUseLimits().setUses(count);
 					MiscUtil.statusMessage(sender, "Set PER-PLAYER use limit for menu &e" + menu.getName()
-					                       + "&- to " + count + ".");
+							+ "&- to " + count + ".");
 				}
 			}
 		}
@@ -76,11 +76,11 @@ public class ItemUseCommand extends SMSAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		switch (args.length) {
-		case 1:
-			return getMenuCompletions(plugin, sender, args[0]);
-		default:
-			showUsage(sender);
-			return noCompletions(sender);
+			case 1:
+				return getMenuCompletions(plugin, sender, args[0]);
+			default:
+				showUsage(sender);
+				return noCompletions(sender);
 		}
 	}
 }

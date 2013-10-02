@@ -10,16 +10,20 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
  */
 public abstract class CommandTrigger {
 	public abstract void pushMenu(String playerName, SMSMenu newActive);
+
 	public abstract SMSMenu popMenu(String playerName);
+
 	public abstract SMSMenu getNativeMenu();
+
 	public abstract SMSMenu getActiveMenu(String playerName);
+
 	public abstract String getName();
 
 	/**
 	 * Get the player context for operations such as view scrolling, active submenu etc.  For
 	 * views which have a per-player context (e.g. maps), this is just the player name. For views
 	 * with a global context (e.g. signs), a global pseudo-player handle can be used.
-	 *<p>
+	 * <p/>
 	 * Subclasses should override this as needed.
 	 *
 	 * @param playerName name of the player to check for
@@ -55,7 +59,7 @@ public abstract class CommandTrigger {
 
 		SMSMenu activeMenu = getActiveMenu(playerName);
 		int count = activeMenu.getItemCount();
-		if (activeMenu != getNativeMenu()) count++;	// adding a synthetic entry for the BACK item
+		if (activeMenu != getNativeMenu()) count++;    // adding a synthetic entry for the BACK item
 		return count;
 	}
 
@@ -63,7 +67,7 @@ public abstract class CommandTrigger {
 	 * Get the menu item at the given position for the given player's currently active menu.
 	 *
 	 * @param playerName name of the player to check
-	 * @param pos position in the active menu
+	 * @param pos        position in the active menu
 	 * @return the active menu item
 	 */
 	public SMSMenuItem getActiveMenuItemAt(String playerName, int pos) {
@@ -84,7 +88,7 @@ public abstract class CommandTrigger {
 	 * substitution will have been performed on the returned label.
 	 *
 	 * @param playerName name of the player to check
-	 * @param pos position in the active menu
+	 * @param pos        position in the active menu
 	 * @return the label of the active menu item
 	 */
 	public String getActiveItemLabel(String playerName, int pos) {

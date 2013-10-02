@@ -19,7 +19,7 @@ public class AddItemCommand extends SMSAbstractCommand {
 	public AddItemCommand() {
 		super("sms add", 2);
 		setPermissionNode("scrollingmenusign.commands.add");
-		setUsage(new String[] { 
+		setUsage(new String[]{
 				"/sms add <menu-name> <label> [<command>] [<options...>]",
 				"Options (-at takes integer, all others take string):",
 				"  -at         Position to add the new item at",
@@ -28,7 +28,7 @@ public class AddItemCommand extends SMSAbstractCommand {
 				"  -lore       The lore for the item (line delimiter '\\\\')",
 		});
 		setQuotedArgs(true);
-		setOptions(new String[] { "at:i", "feedback:s", "icon:s", "lore:s" });
+		setOptions(new String[]{"at:i", "feedback:s", "icon:s", "lore:s"});
 	}
 
 	@Override
@@ -50,8 +50,8 @@ public class AddItemCommand extends SMSAbstractCommand {
 		String iconMat = hasOption("icon") ? getStringOption("icon") : plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
 		String[] lore = hasOption("lore") ? getStringOption("lore").split("\\\\\\\\") : new String[0];
 
-		SMSValidate.isFalse(sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd), 
-		                    "You do not have permission to add that kind of command.");
+		SMSValidate.isFalse(sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd),
+				"You do not have permission to add that kind of command.");
 
 		SMSMenuItem newItem = new SMSMenuItem(menu, label, cmd, msg, iconMat, lore);
 		if (pos < 0) {

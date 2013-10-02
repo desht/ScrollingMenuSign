@@ -25,14 +25,14 @@ public class ViewCommand extends SMSAbstractCommand {
 	public ViewCommand() {
 		super("sms view", 0, 3);
 		setPermissionNode("scrollingmenusign.commands.view");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms view",
 				"/sms view <view-name> [<attribute|$var>] [<new-value>]",
 				"/sms view <view-name> -d [<$var>]",
 				"/sms view <view-name> -popup"
 		});
 		setQuotedArgs(true);
-		setOptions(new String[] { "popup", "d:s" });
+		setOptions(new String[]{"popup", "d:s"});
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class ViewCommand extends SMSAbstractCommand {
 			view = getView(sender, args[0]);
 		} else {
 			notFromConsole(sender);
-			Player player = (Player)sender;
+			Player player = (Player) sender;
 			view = getViewManager(plugin).getTargetedView(player);
 		}
 
@@ -109,9 +109,9 @@ public class ViewCommand extends SMSAbstractCommand {
 	private void showViewDetails(CommandSender sender, SMSView view) {
 		MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
 		pager.add(String.format("View &6%s&f (%s) :",
-		                        view.getName(), view.toString()));
+				view.getName(), view.toString()));
 		pager.add(String.format("Native menu: &6%s&f, Active menu: &6%s",
-		                        view.getNativeMenu().getName(), view.getActiveMenu(sender.getName()).getName()));
+				view.getNativeMenu().getName(), view.getActiveMenu(sender.getName()).getName()));
 		for (String k : view.listAttributeKeys(true)) {
 			pager.add(String.format(MessagePager.BULLET + "&e%s&f = &e%s", k, view.getAttributeAsString(k, "")));
 		}
@@ -122,18 +122,18 @@ public class ViewCommand extends SMSAbstractCommand {
 			SMSGlobalScrollableView gsv = (SMSGlobalScrollableView) view;
 			int nSwitches = gsv.getSwitches().size();
 			if (nSwitches > 0) {
-				String s = nSwitches > 1 ? "s"	: "";
+				String s = nSwitches > 1 ? "s" : "";
 				pager.add("&f" + nSwitches + "&- redstone output" + s + ":");
-				for (Switch sw: MiscUtil.asSortedList(gsv.getSwitches())) {
+				for (Switch sw : MiscUtil.asSortedList(gsv.getSwitches())) {
 					pager.add(String.format(MessagePager.BULLET + "&e%s&f @ &e%s",
-					                        sw.getTrigger(), MiscUtil.formatLocation(sw.getLocation())));
+							sw.getTrigger(), MiscUtil.formatLocation(sw.getLocation())));
 				}
 			}
 			int nCtrlSigns = gsv.getControlSigns().size();
 			if (nCtrlSigns > 0) {
-				String s = nCtrlSigns > 1 ? "s"	: "";
+				String s = nCtrlSigns > 1 ? "s" : "";
 				pager.add("&f" + nCtrlSigns + "&- redstone control sign" + s + ":");
-				for (RedstoneControlSign sign: gsv.getControlSigns()) {
+				for (RedstoneControlSign sign : gsv.getControlSigns()) {
 					pager.add(String.format(MessagePager.BULLET + "&e%s&-", sign));
 				}
 			}
@@ -150,8 +150,8 @@ public class ViewCommand extends SMSAbstractCommand {
 			Switch sw = plugin.getLocationManager().getInteractableAt(b.getLocation(), Switch.class);
 			if (sw != null) {
 				MiscUtil.statusMessage(sender, String.format("Output switch @ &e%s&- for view &e%s&- / &e%s&-",
-				                                             MiscUtil.formatLocation(sw.getLocation()),
-				                                             sw.getView().getName(), sw.getTrigger()));
+						MiscUtil.formatLocation(sw.getLocation()),
+						sw.getView().getName(), sw.getTrigger()));
 				return true;
 			}
 		} catch (IllegalStateException e) {
@@ -164,20 +164,20 @@ public class ViewCommand extends SMSAbstractCommand {
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		SMSView view;
 		switch (args.length) {
-		case 1:
-			return getViewCompletions(sender, args[0]);
-		case 2:
-			view = getView(sender, args[0]);
-			return filterPrefix(sender, view.getAttributes().listAttributeKeys(false), args[1]);
-		case 3:
-			view = getView(sender, args[0]);
-			Object o = view.getAttribute(args[1]);
-			String desc = view.getAttributes().getDescription(args[1]);
-			if (!desc.isEmpty())
-				desc = ChatColor.GRAY.toString() + ChatColor.ITALIC + " [" + desc + "]";
-			return getConfigValueCompletions(sender, args[1], o, desc, args[2]);
-		default:
-			return noCompletions(sender);
+			case 1:
+				return getViewCompletions(sender, args[0]);
+			case 2:
+				view = getView(sender, args[0]);
+				return filterPrefix(sender, view.getAttributes().listAttributeKeys(false), args[1]);
+			case 3:
+				view = getView(sender, args[0]);
+				Object o = view.getAttribute(args[1]);
+				String desc = view.getAttributes().getDescription(args[1]);
+				if (!desc.isEmpty())
+					desc = ChatColor.GRAY.toString() + ChatColor.ITALIC + " [" + desc + "]";
+				return getConfigValueCompletions(sender, args[1], o, desc, args[2]);
+			default:
+				return noCompletions(sender);
 		}
 	}
 

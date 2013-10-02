@@ -86,8 +86,8 @@ public class SMSPlayerListener extends SMSListenerBase {
 			SMSUserAction action = null;
 			if (view != null) {
 				LogUtils.fine(String.format("PlayerItemHeldChangeEvent @ %s, %s did %d->%d, menu = %s",
-				                            view.getName(), player.getName(),
-				                            event.getPreviousSlot(), event.getNewSlot(), view.getNativeMenu().getName()));
+						view.getName(), player.getName(),
+						event.getPreviousSlot(), event.getNewSlot(), view.getNativeMenu().getName()));
 				action = SMSUserAction.getAction(event);
 				if (action != null) {
 					action.execute(player, view);
@@ -109,7 +109,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 		}
 	}
 
-	@EventHandler(priority=EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
 		if (plugin.responseHandler.isExpecting(player.getName(), ExpectCommandSubstitution.class)) {
@@ -155,14 +155,14 @@ public class SMSPlayerListener extends SMSListenerBase {
 	public void onItemFrameLeftClicked(HangingBreakByEntityEvent event) {
 		Entity entity = event.getEntity();
 		if (entity instanceof ItemFrame && event.getRemover() instanceof Player) {
-			ItemStack item = ((ItemFrame)entity).getItem();
+			ItemStack item = ((ItemFrame) entity).getItem();
 			if (item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
 				SMSUserAction action = SMSUserAction.getAction(event);
 				SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
 				try {
-					action.execute((Player)event.getRemover(), mapView);
+					action.execute((Player) event.getRemover(), mapView);
 				} catch (SMSException e) {
-					MiscUtil.errorMessage((Player)event.getRemover(), e.getMessage());
+					MiscUtil.errorMessage((Player) event.getRemover(), e.getMessage());
 				}
 				event.setCancelled(true);
 			}
@@ -172,9 +172,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 	/**
 	 * Main handler for PlayerInteract events.
 	 *
-	 * @param event		the event to handle
-	 * @return			true if the event has been handled and should be cancelled now, false otherwise
-	 * @throws SMSException	for any error that should be reported to the player
+	 * @param event the event to handle
+	 * @throws SMSException for any error that should be reported to the player
+	 * @return true if the event has been handled and should be cancelled now, false otherwise
 	 */
 	private boolean handleInteraction(PlayerInteractEvent event) throws SMSException {
 		Player player = event.getPlayer();
@@ -219,7 +219,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 				c.cancelAction();
 				MiscUtil.statusMessage(player, "&6View creation cancelled.");
 			}
-		} else if (plugin.responseHandler.isExpecting(playerName, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block) ) {
+		} else if (plugin.responseHandler.isExpecting(playerName, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block)) {
 			Switch sw = plugin.getLocationManager().getInteractableAt(block.getLocation(), Switch.class);
 			if (sw == null) {
 				ExpectSwitchAddition swa = plugin.responseHandler.getAction(playerName, ExpectSwitchAddition.class);
@@ -227,7 +227,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 				swa.handleAction();
 			} else {
 				MiscUtil.statusMessage(player, String.format("&6Lever is an output switch already (&e%s / %s&-).",
-				                                             sw.getView().getName(), sw.getTrigger()));
+						sw.getView().getName(), sw.getTrigger()));
 			}
 		} else if (popupBook != null) {
 			// A popup written book - toggle the book's associated poppable view
@@ -240,7 +240,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 		} else if (mapView != null) {
 			// Holding an active map view
 			LogUtils.fine("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() +
-			              ", menu=" + mapView.getActiveMenu(player.getName()).getName());
+					", menu=" + mapView.getActiveMenu(player.getName()).getName());
 			if (clickedView == null && block != null && (block.getType() == Material.WALL_SIGN || block.getType() == Material.SIGN_POST)) {
 				// Hit a non-active sign with an active map - try to make the sign into a view
 				tryToActivateSign(block, player, mapView.getActiveMenu(player.getName()));
@@ -266,7 +266,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 			} else if (clickedView != null && clickedView instanceof SMSScrollableView) {
 				// There's an interactable view at the targeted block
 				LogUtils.fine("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() +
-				              ", menu=" + clickedView.getActiveMenu(player.getName()).getName());
+						", menu=" + clickedView.getActiveMenu(player.getName()).getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
 				if (action != null) {
 					action.execute(player, clickedView);
@@ -287,7 +287,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 	 * if it doesn't already have one, then convert the book & quill into a written popup book for the
 	 * inventory view.
 	 *
-	 * @param view	the view that's been hit
+	 * @param view   the view that's been hit
 	 * @param player the player
 	 */
 	@SuppressWarnings("deprecation")
@@ -323,9 +323,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 	 * Try to activate a sign by hitting it with an active map.  The map's menu will be "transferred"
 	 * to the sign.
 	 *
-	 * @param block the block being hit
+	 * @param block  the block being hit
 	 * @param player the player doing the hitting
-	 * @param menu the menu to add the sign to
+	 * @param menu   the menu to add the sign to
 	 * @throws SMSException
 	 */
 	private void tryToActivateSign(Block block, Player player, SMSMenu menu) throws SMSException {
@@ -337,13 +337,13 @@ public class SMSPlayerListener extends SMSListenerBase {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.to.sign");
 		SMSView view = plugin.getViewManager().addSignToMenu(menu, block.getLocation(), player);
 		MiscUtil.statusMessage(player, String.format("Added new sign view &e%s&- @ &f%s&- to menu &e%s&-.",
-		                                             view.getName(), MiscUtil.formatLocation(block.getLocation()), menu.getName()));
+				view.getName(), MiscUtil.formatLocation(block.getLocation()), menu.getName()));
 	}
 
 	/**
 	 * Try to activate a map by hitting an active sign view with it.
 	 *
-	 * @param view the view for the sign
+	 * @param view   the view for the sign
 	 * @param player the player doing the hitting
 	 * @throws SMSException
 	 */
@@ -363,13 +363,13 @@ public class SMSPlayerListener extends SMSListenerBase {
 		mapView.setMapItemName(player.getItemInHand());
 
 		MiscUtil.statusMessage(player, String.format("Added new map view &e%s&- to menu &e%s&-.",
-		                                             mapView.getName(), mapView.getActiveMenu(player.getName()).getName()));
+				mapView.getName(), mapView.getActiveMenu(player.getName()).getName()));
 	}
 
 	/**
 	 * Try to associate a redstone output lever with the currently selected item of the given view.
 	 *
-	 * @param view the view
+	 * @param view   the view
 	 * @param player the player adding the output
 	 */
 	private void tryToAddRedstoneOutput(SMSGlobalScrollableView view, Player player) {
@@ -381,18 +381,18 @@ public class SMSPlayerListener extends SMSListenerBase {
 		String trigger = item.getLabel();
 		MiscUtil.statusMessage(player, "Place your lever or hit an existing lever to add it as a");
 		MiscUtil.statusMessage(player, String.format("  redstone output on view &e%s&- / &e%s&-.",
-		                                             view.getName(), trigger));
+				view.getName(), trigger));
 		MiscUtil.statusMessage(player, "Change your held item to cancel.");
 
 		plugin.responseHandler.expect(player.getName(), new ExpectSwitchAddition(view, trigger));
 	}
 
 	private boolean isHittingViewWithSwitch(Player player, SMSView view) {
-        return view instanceof SMSGlobalScrollableView && player.getItemInHand().getType() == Material.LEVER;
-    }
+		return view instanceof SMSGlobalScrollableView && player.getItemInHand().getType() == Material.LEVER;
+	}
 
 	private boolean isHittingLeverWithSwitch(Player player, Block block) {
-        return block != null && block.getType() == Material.LEVER && player.getItemInHand().getType() == Material.LEVER;
-    }
+		return block != null && block.getType() == Material.LEVER && player.getItemInHand().getType() == Material.LEVER;
+	}
 
 }

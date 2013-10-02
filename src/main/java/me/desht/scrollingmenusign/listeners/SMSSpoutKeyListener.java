@@ -49,7 +49,7 @@ public class SMSSpoutKeyListener extends SMSListenerBase {
 		if (event.getScreenType() != ScreenType.GAME_SCREEN && event.getScreenType() != ScreenType.CUSTOM_SCREEN)
 			return;
 		// and if there's a custom screen up belonging to another plugin, we stop here too
-		PopupScreen s  = player.getMainScreen().getActivePopup();
+		PopupScreen s = player.getMainScreen().getActivePopup();
 		if (s != null && !(s instanceof SMSGenericPopup))
 			return;
 
@@ -61,11 +61,11 @@ public class SMSSpoutKeyListener extends SMSListenerBase {
 
 			// otherwise, check for use of the scroll/execute keys on a targeted view
 			SMSView view = findViewForPlayer(player);
-			if (view != null) {	
+			if (view != null) {
 				SMSUserAction action = getAction(pressed);
 				LogUtils.fine("spout keypress event: keys pressed = " + pressed
-				              + ", view = " + view.getName() + ", menu = " + view.getActiveMenu(player.getName()).getName()
-				              + ", action = " + action);
+						+ ", view = " + view.getName() + ", menu = " + view.getActiveMenu(player.getName()).getName()
+						+ ", action = " + action);
 				action.execute(player, view);
 			}
 		} catch (SMSException e) {

@@ -28,7 +28,7 @@ public class ListMenusCommand extends SMSAbstractCommand {
 
 		MessagePager pager = MessagePager.getPager(sender).clear();
 
-		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
+		SMSHandler handler = ((ScrollingMenuSign) plugin).getHandler();
 		if (args.length > 0) {
 			SMSMenu menu = getMenu(sender, args[0]);
 			listMenu(pager, menu, true);
@@ -66,9 +66,9 @@ public class ListMenusCommand extends SMSAbstractCommand {
 		String ms = menu.getItemCount() == 1 ? "" : "s";
 		String vs = views.size() == 1 ? "" : "s";
 		String message = String.format(MessagePager.BULLET + " %s \"%s" + ChatColor.WHITE + "\" %s[%d item%s] %s[%d view%s]",
-		                               menu.getName(), menu.getTitle(), itemCol, 
-		                               menu.getItemCount(), ms,
-		                               viewCol.toString(), views.size(), vs);
+				menu.getName(), menu.getTitle(), itemCol,
+				menu.getItemCount(), ms,
+				viewCol.toString(), views.size(), vs);
 		List<String> lines = new ArrayList<String>();
 		lines.add(message);
 		if (listViews) {

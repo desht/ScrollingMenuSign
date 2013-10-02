@@ -23,7 +23,7 @@ public class SMSEntityListener extends SMSListenerBase {
 	public void onEntityExplode(EntityExplodeEvent event) {
 		boolean noExplode = plugin.getConfig().getBoolean("sms.no_explosions", false);
 
-		Iterator<Block>	iter = event.blockList().iterator();
+		Iterator<Block> iter = event.blockList().iterator();
 		while (iter.hasNext()) {
 			Location loc = iter.next().getLocation();
 			SMSView view = plugin.getViewManager().getViewForLocation(loc);

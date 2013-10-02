@@ -16,13 +16,13 @@ public class SMSListTexture extends GenericTexture {
 
 	public SMSListTexture(SMSPopup popup) {
 		this.popup = popup;
-		
+
 		setDrawAlphaChannel(true);
-		setPriority(RenderPriority.Highest);	// put it behind the list widget
-		
+		setPriority(RenderPriority.Highest);    // put it behind the list widget
+
 		updateURL();
 	}
-	
+
 	public void updateURL() {
 		try {
 			String textureName = popup.getView().getAttributeAsString(SMSSpoutView.TEXTURE);

@@ -20,10 +20,9 @@ import org.bukkit.entity.Player;
 
 /**
  * @author desht
- *
  */
 public class SMSVariables implements SMSPersistable {
-	private static final Map<String,SMSVariables> allVariables = new HashMap<String, SMSVariables>();
+	private static final Map<String, SMSVariables> allVariables = new HashMap<String, SMSVariables>();
 
 	private static final String DEFAULT_MARKER = "*";
 
@@ -33,7 +32,7 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Private constructor.
 	 *
-	 * @param playerName	The player who owns these variables
+	 * @param playerName The player who owns these variables
 	 */
 	private SMSVariables(String playerName) {
 		this.playerName = playerName;
@@ -51,8 +50,8 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Set the given variable to the given value
 	 *
-	 * @param varName	the variable name
-	 * @param value		the value
+	 * @param varName the variable name
+	 * @param value   the value
 	 */
 	public void set(String varName, String value) {
 		variables.set(varName, value);
@@ -62,8 +61,8 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Get the value of the given variable
 	 *
-	 * @param varName	the variable name
-	 * @return	the value, or null if the variable does not exist
+	 * @param varName the variable name
+	 * @return the value, or null if the variable does not exist
 	 */
 	public String get(String varName) {
 		return variables.getString(varName);
@@ -72,9 +71,9 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Get the value of the given variable
 	 *
-	 * @param varName	the variable name
-	 * @param def	default value
-	 * @return	the value, or null if the variable does not exist
+	 * @param varName the variable name
+	 * @param def     default value
+	 * @return the value, or null if the variable does not exist
 	 */
 	public String get(String varName, String def) {
 		return variables.getString(varName, def);
@@ -83,8 +82,8 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Checks if the given variable exists.
 	 *
-	 * @param varName	the variable name
-	 * @return	true if it exists, false otherwise
+	 * @param varName the variable name
+	 * @return true if it exists, false otherwise
 	 */
 	public boolean isSet(String varName) {
 		return variables.contains(varName);
@@ -133,7 +132,7 @@ public class SMSVariables implements SMSPersistable {
 	 */
 	@Override
 	public Map<String, Object> freeze() {
-		Map<String,Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		for (String key : getVariables()) {
 			map.put(key, get(key));
 		}
@@ -145,9 +144,9 @@ public class SMSVariables implements SMSPersistable {
 	 * a new empty SMSVariables collection will be created iff autoCreate is true, otherwise
 	 * an exception will be thrown.
 	 *
-	 * @param playerName	the player's name
-	 * @return	an SMSVariables collection of variables for the player
+	 * @param playerName the player's name
 	 * @throws SMSException if autoCreate is false and the variables object does not exist
+	 * @return an SMSVariables collection of variables for the player
 	 */
 	public static SMSVariables getVariables(String playerName, boolean autoCreate) {
 		if (!allVariables.containsKey(playerName)) {
@@ -173,7 +172,7 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Get a list of all the known SMSVariables collections
 	 *
-	 * @return	a list of all the known SMSVariables collections
+	 * @return a list of all the known SMSVariables collections
 	 */
 	public static Collection<SMSVariables> listVariables() {
 		return listVariables(false);
@@ -182,7 +181,7 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Get a (possibly sorted) list of all the known SMSVariables collections
 	 *
-	 * @param isSorted	true if the result should be sorted by variable name
+	 * @param isSorted true if the result should be sorted by variable name
 	 * @return a list of all the known SMSVariables collections
 	 */
 	private static Collection<SMSVariables> listVariables(boolean isSorted) {
@@ -202,7 +201,7 @@ public class SMSVariables implements SMSPersistable {
 	 * Get the value of the given variable spec.  The spec may be a simple variable name or
 	 * a player name followed by a period, followed by the variable name.
 	 *
-	 * @param sender the command sender who is retrieving the variable
+	 * @param sender  the command sender who is retrieving the variable
 	 * @param varSpec the variable specification
 	 * @return the variable value, or null if not set
 	 */
@@ -214,8 +213,8 @@ public class SMSVariables implements SMSPersistable {
 	 * Get the value of the given variable spec.  The spec may be a simple variable name or
 	 * a player name followed by a period, followed by the variable name.
 	 *
-	 * @param sender the command sender who is retrieving the variable
-	 * @param varSpec the variable specification
+	 * @param sender   the command sender who is retrieving the variable
+	 * @param varSpec  the variable specification
 	 * @param defValue default value to use if the variable is not set
 	 * @return the variable value, or the default value if not set
 	 */
@@ -236,9 +235,9 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Set the given variable spec. to the given value.
 	 *
-	 * @param sender the command sender who is retrieving the variable
+	 * @param sender  the command sender who is retrieving the variable
 	 * @param varSpec the variable specification
-	 * @param value	new value for the variable
+	 * @param value   new value for the variable
 	 */
 	public static void set(CommandSender sender, String varSpec, String value) {
 		VarSpec vs = new VarSpec(sender, varSpec);
@@ -247,10 +246,10 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Check if the given variable specification exists.
-	 * <p>
+	 * <p/>
 	 * A variable specification is either "<varname>" or "<playername>.<varname>"
 	 *
-	 * @param sender the command sender to check
+	 * @param sender  the command sender to check
 	 * @param varSpec the variable specification
 	 * @return true if the variable exists, false otherwise
 	 */

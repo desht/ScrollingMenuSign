@@ -102,14 +102,14 @@ public class SMSRedstoneView extends SMSView {
 	 * only - the closest player to the view.
 	 *
 	 * @param loc The view's location - where the event occurred
-	 * @return	A list of affected players
+	 * @return A list of affected players
 	 */
 	private List<Player> getAffectedPlayers(Location loc) {
 		double radius = (Double) getAttribute(PLAYERRADIUS);
 		if (radius <= 0) {
 			return null;
 		}
-        double radius2 = radius * radius;
+		double radius2 = radius * radius;
 
 		double minDist = Double.MAX_VALUE;
 		List<Player> res = new ArrayList<Player>();
@@ -143,9 +143,9 @@ public class SMSRedstoneView extends SMSView {
 	/**
 	 * Check if the power level for the given location has changed
 	 *
-	 * @param loc	The location to check
-	 * @param newCurrent	The new current at the given location
-	 * @return	true if the new current represents a power level different from the block's current powered status
+	 * @param loc        The location to check
+	 * @param newCurrent The new current at the given location
+	 * @return true if the new current represents a power level different from the block's current powered status
 	 */
 	public boolean hasPowerChanged(Location loc, int newCurrent) {
 		boolean curPower = loc.getBlock().isBlockPowered() || loc.getBlock().isBlockIndirectlyPowered();
@@ -160,7 +160,7 @@ public class SMSRedstoneView extends SMSView {
 
 		LogUtils.fine("block redstone event @ " + b.getLocation() + ", view = "
 				+ getName() + ", menu = " + getNativeMenu().getName()
-				+ ", current = " + event.getOldCurrent() + "->"  + event.getNewCurrent());
+				+ ", current = " + event.getOldCurrent() + "->" + event.getNewCurrent());
 
 		if (event.getNewCurrent() > event.getOldCurrent()) {
 			execute(b.getLocation(), POWERON);

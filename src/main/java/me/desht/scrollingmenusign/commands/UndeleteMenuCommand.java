@@ -14,11 +14,11 @@ public class UndeleteMenuCommand extends SMSAbstractCommand {
 	public UndeleteMenuCommand() {
 		super("sms undelete", 1, 1);
 		setPermissionNode("scrollingmenusign.commands.undelete");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms undelete <menu-name>",
 				"/sms undelete -l",
 		});
-		setOptions(new String[] { "l"} );
+		setOptions(new String[]{"l"});
 	}
 
 	@Override

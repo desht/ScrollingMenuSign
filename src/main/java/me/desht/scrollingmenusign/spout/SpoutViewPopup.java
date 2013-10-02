@@ -35,7 +35,7 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 		title = new GenericLabel(view.variableSubs(view.getActiveMenu(sp.getName()).getTitle()));
 		title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(15).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
 		title.setAnchor(WidgetAnchor.TOP_LEFT);
-		title.setAuto(false	);
+		title.setAuto(false);
 		rejustify();
 
 		int listX = (mainScreen.getWidth() - LIST_WIDTH) / 2;
@@ -47,8 +47,8 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 		listWidget.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
 
 		this.attachWidget(ScrollingMenuSign.getInstance(), title);
-        texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
-        this.attachWidget(ScrollingMenuSign.getInstance(), texture);
+		texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
+		this.attachWidget(ScrollingMenuSign.getInstance(), texture);
 		this.attachWidget(ScrollingMenuSign.getInstance(), listWidget);
 	}
 
@@ -99,13 +99,16 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 
 	private void rejustify() {
 		switch (getView().getTitleJustification()) {
-		case LEFT:
-			title.setAlign(WidgetAnchor.CENTER_LEFT); break;
-		case RIGHT:
-			title.setAlign(WidgetAnchor.CENTER_LEFT); break;
-		case CENTER:
-		default:
-			title.setAlign(WidgetAnchor.CENTER_LEFT); break;
+			case LEFT:
+				title.setAlign(WidgetAnchor.CENTER_LEFT);
+				break;
+			case RIGHT:
+				title.setAlign(WidgetAnchor.CENTER_LEFT);
+				break;
+			case CENTER:
+			default:
+				title.setAlign(WidgetAnchor.CENTER_LEFT);
+				break;
 		}
 	}
 

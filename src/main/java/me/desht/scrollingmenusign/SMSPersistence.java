@@ -45,16 +45,16 @@ public class SMSPersistence {
 	/**
 	 * Given a (possibly) nested map object, expand it into a ConfigurationSection,
 	 * using recursion if necessary.
-	 * 
-	 * @param conf	The ConfigurationSection to put the map into
-	 * @param map	The map object
+	 *
+	 * @param conf The ConfigurationSection to put the map into
+	 * @param map  The map object
 	 */
 	@SuppressWarnings("unchecked")
 	public static void expandMapIntoConfig(ConfigurationSection conf, Map<String, Object> map) {
 		for (Entry<String, Object> e : map.entrySet()) {
-			if (e.getValue() instanceof Map<?,?>) {
+			if (e.getValue() instanceof Map<?, ?>) {
 				ConfigurationSection section = conf.createSection(e.getKey());
-				Map<String,Object> subMap = (Map<String, Object>) e.getValue();
+				Map<String, Object> subMap = (Map<String, Object>) e.getValue();
 				expandMapIntoConfig(section, subMap);
 			} else {
 				conf.set(e.getKey(), e.getValue());
@@ -158,13 +158,13 @@ public class SMSPersistence {
 
 	/**
 	 * Require the presence of the given field in the given configuration.
-	 * 
-	 * @param node		The node to check 
-	 * @param field	The field to check for
-	 * @throws SMSException	if the field is not present in the configuration
+	 *
+	 * @param node  The node to check
+	 * @param field The field to check for
+	 * @throws SMSException if the field is not present in the configuration
 	 */
 	public static void mustHaveField(ConfigurationSection node, String field) throws SMSException {
 		if (!node.contains(field))
 			throw new SMSException("Field '" + field + "' missing - corrupted save file?");
 	}
-}	
+}

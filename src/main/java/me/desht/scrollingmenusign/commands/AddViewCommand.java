@@ -27,7 +27,7 @@ public class AddViewCommand extends SMSAbstractCommand {
 	public AddViewCommand() {
 		super("sms sync", 1);
 		setPermissionNode("scrollingmenusign.commands.sync");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms sync <menu-name>",
 				"/sms sync <menu-name> -sign [-loc <x,y,z,world>]",
 				"/sms sync <menu-name> -multi [-loc <x,y,z,world>]",
@@ -54,10 +54,10 @@ public class AddViewCommand extends SMSAbstractCommand {
 		String viewName = getStringOption("viewname");
 		Location loc = hasOption("loc") ? MiscUtil.parseLocation(getStringOption("loc")) : null;
 
-		if (hasOption("spout")) {		// spout view
+		if (hasOption("spout")) {        // spout view
 			SMSValidate.isTrue(smsPlugin.isSpoutEnabled(), "Server is not Spout-enabled");
 			view = getViewManager(plugin).addSpoutViewToMenu(viewName, menu, sender);
-		} else if (hasOption("sign")) {			// sign view
+		} else if (hasOption("sign")) {            // sign view
 			if (loc == null) {
 				interactiveCreation(sender, viewName, menu, "sign");
 				return true;
@@ -75,7 +75,7 @@ public class AddViewCommand extends SMSAbstractCommand {
 			view = getViewManager(plugin).addInventoryViewToMenu(viewName, menu, sender);
 		} else if (hasOption("item")) {
 			notFromConsole(sender);
-			Player p = (Player)sender;
+			Player p = (Player) sender;
 			ItemStack stack = p.getItemInHand();
 			ItemMeta meta = stack.getItemMeta();
 			if (!hasOption("force") && meta != null && (meta.getDisplayName() != null || meta.getLore() != null)) {
@@ -85,9 +85,9 @@ public class AddViewCommand extends SMSAbstractCommand {
 			p.setItemInHand(item.toItemStack());
 			MiscUtil.statusMessage(sender, "Your &6" + p.getItemInHand().getType() + "&- is now an active item for &e" + menu.getName());
 			return true;
-		} else if (hasOption("multi") && loc != null) { 	// multi-sign view
+		} else if (hasOption("multi") && loc != null) {    // multi-sign view
 			view = getViewManager(plugin).addMultiSignToMenu(viewName, menu, loc, sender);
-		} else if (hasOption("map")) {	// map view
+		} else if (hasOption("map")) {    // map view
 			try {
 				short mapId = (short) getIntOption("map");
 				view = getViewManager(plugin).addMapToMenu(viewName, menu, mapId, sender);
@@ -102,14 +102,14 @@ public class AddViewCommand extends SMSAbstractCommand {
 			// see if we can get a view from what the player is looking at or holding
 			notFromConsole(sender);
 			Player player = (Player) sender;
-			if (player.getItemInHand().getType() == Material.MAP) {		// map view?
+			if (player.getItemInHand().getType() == Material.MAP) {        // map view?
 				PermissionUtils.requirePerms(sender, "scrollingmenusign.use.map");
 				short mapId = player.getItemInHand().getDurability();
 				view = getViewManager(plugin).addMapToMenu(viewName, menu, mapId, sender);
 				((SMSMapView) view).setMapItemName(player.getItemInHand());
 			} else {
 				try {
-					Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);		// sign view ?
+					Block b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);        // sign view ?
 					if (hasOption("multi") && b.getType() == Material.WALL_SIGN) {
 						view = getViewManager(plugin).addMultiSignToMenu(viewName, menu, b.getLocation(), sender);
 					} else if (b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST) {
@@ -122,8 +122,8 @@ public class AddViewCommand extends SMSAbstractCommand {
 		}
 
 		SMSValidate.notNull(view, "Found nothing suitable to add as a menu view");
-        MiscUtil.statusMessage(sender, String.format("Added &9%s&- view &e%s&- to menu &e%s&-.",
-		                                             view.getType(), view.getName(), menu.getName()));
+		MiscUtil.statusMessage(sender, String.format("Added &9%s&- view &e%s&- to menu &e%s&-.",
+				view.getType(), view.getName(), menu.getName()));
 		return true;
 	}
 

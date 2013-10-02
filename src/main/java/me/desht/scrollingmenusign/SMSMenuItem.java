@@ -89,7 +89,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Get the label for this menu item
 	 *
-	 * @return	The label
+	 * @return The label
 	 */
 	public String getLabel() {
 		return label;
@@ -98,7 +98,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Get the label for this menu item with all colour codes removed
 	 *
-	 * @return	The label
+	 * @return The label
 	 */
 	public String getLabelStripped() {
 		return ChatColor.stripColor(label);
@@ -107,7 +107,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Get the command for this menu item
 	 *
-	 * @return	The command
+	 * @return The command
 	 */
 	public String getCommand() {
 		return command;
@@ -116,7 +116,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Get the feedback message for this menu item
 	 *
-	 * @return	The feedback message
+	 * @return The feedback message
 	 */
 	public String getMessage() {
 		return message;
@@ -174,9 +174,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Executes the command for this item
 	 *
-	 * @param sender the command sender who triggered the execution
+	 * @param sender  the command sender who triggered the execution
 	 * @param trigger the view that triggered this execution
-	 * @throws SMSException	if the usage limit for this player is exhausted
+	 * @throws SMSException if the usage limit for this player is exhausted
 	 */
 	public void executeCommand(CommandSender sender, CommandTrigger trigger) {
 		if (sender instanceof Player) {
@@ -193,7 +193,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			}
 		}
 		String cmd = getCommand();
-		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty() ) {
+		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty()) {
 			cmd = menu.getDefaultCommand().replace("<LABEL>", ChatColor.stripColor(getLabel())).replace("<RAWLABEL>", getLabel());
 		}
 
@@ -204,7 +204,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 * Executes the command for this item
 	 *
 	 * @param sender the command sender who triggered the execution
-	 * @throws SMSException	if the usage limit for this player is exhausted
+	 * @throws SMSException if the usage limit for this player is exhausted
 	 */
 	public void executeCommand(CommandSender sender) {
 		executeCommand(sender, null);
@@ -214,7 +214,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 * Verify that the given object (item or menu) has not exhausted its usage limits.
 	 *
 	 * @param useLimitable the menu or item to check
-	 * @param player the player to check
+	 * @param player       the player to check
 	 * @return true if there is a valid usage limit, false if the item has no usage limits at all
 	 * @throws SMSException if the usage limits for the item were already exhausted
 	 */
@@ -249,7 +249,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Displays the feedback message for this menu item
 	 *
-	 * @param player	Player to show the message to
+	 * @param player Player to show the message to
 	 */
 	public void feedbackMessage(Player player) {
 		if (player != null) {
@@ -298,7 +298,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Get the remaining use details for this menu item
 	 *
-	 * @return	The remaining use details
+	 * @return The remaining use details
 	 */
 	public SMSRemainingUses getUseLimits() {
 		return uses;
@@ -316,7 +316,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Returns a printable representation of the number of uses remaining for this item.
 	 *
-	 * @return	Formatted usage information
+	 * @return Formatted usage information
 	 */
 	String formatUses() {
 		return uses.toString();
@@ -325,8 +325,8 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Returns a printable representation of the number of uses remaining for this item, for the given player.
 	 *
-	 * @param sender	Player to retrieve the usage information for
-	 * @return			Formatted usage information
+	 * @param sender Player to retrieve the usage information for
+	 * @return Formatted usage information
 	 */
 	@Override
 	public String formatUses(CommandSender sender) {

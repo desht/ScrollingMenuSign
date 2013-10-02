@@ -29,7 +29,7 @@ import com.google.common.base.Joiner;
 public class CooldownCommandlet extends BaseCommandlet implements Listener {
 	private static final String COOLDOWNS_YML = "cooldowns.yml";
 
-	private final Map<String,Long> cooldowns = new HashMap<String, Long>();
+	private final Map<String, Long> cooldowns = new HashMap<String, Long>();
 	private BukkitTask saveTask;
 
 	public CooldownCommandlet() {
@@ -76,7 +76,9 @@ public class CooldownCommandlet extends BaseCommandlet implements Listener {
 		if (saveTask == null) {
 			saveTask = Bukkit.getScheduler().runTaskLater(ScrollingMenuSign.getInstance(), new Runnable() {
 				@Override
-				public void run() {	save(); }
+				public void run() {
+					save();
+				}
 			}, 600L);
 		}
 	}

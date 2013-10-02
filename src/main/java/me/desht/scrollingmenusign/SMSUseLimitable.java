@@ -4,7 +4,10 @@ import org.bukkit.command.CommandSender;
 
 interface SMSUseLimitable {
 	void autosave();
+
 	String getDescription();
+
 	String formatUses(CommandSender sender);
+
 	SMSRemainingUses getUseLimits();
 }

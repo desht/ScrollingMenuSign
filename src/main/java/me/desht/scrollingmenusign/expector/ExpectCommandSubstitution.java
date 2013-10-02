@@ -50,7 +50,7 @@ public class ExpectCommandSubstitution extends ExpectBase {
 		if (isPassword) {
 			newCommand = command.replaceFirst("<\\$p:.+?>", sub);
 		} else {
-			newCommand = command.replaceFirst("<\\$:.+?>", sub);	
+			newCommand = command.replaceFirst("<\\$:.+?>", sub);
 		}
 
 		LogUtils.fine("command substitution: sub = [" + sub + "], cmd = [" + newCommand + "]");
@@ -61,7 +61,9 @@ public class ExpectCommandSubstitution extends ExpectBase {
 				// event handler, which runs in a different thread.
 				Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
 					@Override
-					public void run() { CommandUtils.executeCommand(player, newCommand, trigger);	}
+					public void run() {
+						CommandUtils.executeCommand(player, newCommand, trigger);
+					}
 				});
 			}
 		} catch (SMSException e) {

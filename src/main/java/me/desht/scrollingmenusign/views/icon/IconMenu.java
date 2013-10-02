@@ -36,7 +36,7 @@ public class IconMenu implements Listener, SMSPopup {
 	public IconMenu(SMSInventoryView view, String menuName) {
 		this.view = view;
 		this.menuName = menuName;
-		LogUtils.fine("icon menu: register events: " + this + " view="+ view.getName());
+		LogUtils.fine("icon menu: register events: " + this + " view=" + view.getName());
 		Bukkit.getPluginManager().registerEvents(this, ScrollingMenuSign.getInstance());
 	}
 
@@ -134,13 +134,16 @@ public class IconMenu implements Listener, SMSPopup {
 	private int getXOffset(int width) {
 		ViewJustification ij = view.getItemJustification();
 		switch (ij) {
-		case LEFT: return 0;
-		case RIGHT: return INVENTORY_WIDTH - width;
-		default: return (INVENTORY_WIDTH - width) / 2;
+			case LEFT:
+				return 0;
+			case RIGHT:
+				return INVENTORY_WIDTH - width;
+			default:
+				return (INVENTORY_WIDTH - width) / 2;
 		}
 	}
 
-	@EventHandler(priority=EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR)
 	void onInventoryClick(InventoryClickEvent event) {
 		if (!(event.getWhoClicked() instanceof Player)) {
 			return;
@@ -152,7 +155,7 @@ public class IconMenu implements Listener, SMSPopup {
 
 		if (isPoppedUp(player) && event.getInventory().getTitle().equals(menuTitle) && menuName.equals(activeMenuName)) {
 			LogUtils.fine("InventoryClickEvent: player = " + playerName + ", view = " + getView().getName() +
-			              ", inventory name = " + event.getInventory().getTitle() + ", icon menu = " + this);
+					", inventory name = " + event.getInventory().getTitle() + ", icon menu = " + this);
 
 			event.setCancelled(true);
 			int slot = event.getRawSlot();
@@ -182,7 +185,7 @@ public class IconMenu implements Listener, SMSPopup {
 	}
 
 	public void destroy() {
-		LogUtils.fine("icon menu: unregister events: " + this + " view="+ view.getName());
+		LogUtils.fine("icon menu: unregister events: " + this + " view=" + view.getName());
 		HandlerList.unregisterAll(this);
 	}
 

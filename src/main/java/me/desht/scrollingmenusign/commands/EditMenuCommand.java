@@ -20,7 +20,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 	public EditMenuCommand() {
 		super("sms edit", 3);
 		setPermissionNode("scrollingmenusign.commands.edit");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms edit <menu-name> @<pos> <replacements...>",
 				"/sms edit <menu-name> <label> <replacements...>",
 				"Replacement options (all take a string argument):",
@@ -32,7 +32,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 				"  -move       The new position in the menu for the item",
 		});
 		setQuotedArgs(true);
-		setOptions(new String[] { "label:s", "command:s", "feedback:s", "icon:s", "move:i", "lore:s" });
+		setOptions(new String[]{"label:s", "command:s", "feedback:s", "icon:s", "move:i", "lore:s"});
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 		}
 
 		SMSMenuItem currentItem = menu.getItemAt(pos, true);
-		String label   = hasOption("label") ? MiscUtil.parseColourSpec(getStringOption("label")) : currentItem.getLabel();
+		String label = hasOption("label") ? MiscUtil.parseColourSpec(getStringOption("label")) : currentItem.getLabel();
 		String command = hasOption("command") ? getStringOption("command") : currentItem.getCommand();
 		String message = hasOption("feedback") ? MiscUtil.parseColourSpec(getStringOption("feedback")) : currentItem.getMessage();
 		String iconMat = hasOption("icon") ? getStringOption("icon") : currentItem.getIconMaterial().toString();
@@ -67,7 +67,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 				l1 = l;
 			}
 			if (!l1.isEmpty()) {
-                Collections.addAll(lore, l1.split("\\\\\\\\"));
+				Collections.addAll(lore, l1.split("\\\\\\\\"));
 			}
 		}
 
@@ -96,14 +96,14 @@ public class EditMenuCommand extends SMSAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		switch (args.length) {
-		case 1:
-			return getMenuCompletions(plugin, sender, args[0]);
-		case 2:
-			SMSMenu menu = getMenu(sender, args[0]);
-			return getMenuItemCompletions(sender, menu, args[1]);
-		default:
-			showUsage(sender);
-			return noCompletions(sender);
+			case 1:
+				return getMenuCompletions(plugin, sender, args[0]);
+			case 2:
+				SMSMenu menu = getMenu(sender, args[0]);
+				return getMenuItemCompletions(sender, menu, args[1]);
+			default:
+				showUsage(sender);
+				return noCompletions(sender);
 		}
 	}
 }

@@ -15,7 +15,7 @@ public class SMSSpoutKeyMap implements ConfigurationSerializable {
 
 	public SMSSpoutKeyMap(String definition) {
 		keys = new HashSet<Keyboard>();
-		
+
 		if (definition == null || definition.isEmpty()) {
 			return;
 		}
@@ -27,7 +27,7 @@ public class SMSSpoutKeyMap implements ConfigurationSerializable {
 			keys.add(Keyboard.valueOf(w));
 		}
 	}
-	
+
 	public SMSSpoutKeyMap() {
 		this(null);
 	}
@@ -35,19 +35,19 @@ public class SMSSpoutKeyMap implements ConfigurationSerializable {
 	public void add(Keyboard key) {
 		keys.add(key);
 	}
-	
+
 	public void remove(Keyboard key) {
 		keys.remove(key);
 	}
-	
+
 	public void clear() {
 		keys.clear();
 	}
-	
+
 	public int keysPressed() {
 		return keys.size();
 	}
-	
+
 	@Override
 	public String toString() {
 		return Joiner.on("+").join(keys);
@@ -80,12 +80,12 @@ public class SMSSpoutKeyMap implements ConfigurationSerializable {
 
 	@Override
 	public Map<String, Object> serialize() {
-		Map<String,Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("keymap", this.toString());
 		return map;
 	}
-	
-	public static SMSSpoutKeyMap deserialize(Map<String,Object> map) {
+
+	public static SMSSpoutKeyMap deserialize(Map<String, Object> map) {
 		return new SMSSpoutKeyMap((String) map.get("keymap"));
 	}
 }

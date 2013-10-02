@@ -57,7 +57,7 @@ public class SMSMapView extends SMSScrollableView {
 	public static final String FONT = "font";
 	public static final String FONT_SIZE = "fontsize";
 
-	private static final Color DEFAULT_COLOR = new Color(0,0,0);
+	private static final Color DEFAULT_COLOR = new Color(0, 0, 0);
 
 	private MapView mapView = null;
 	private final SMSMapRenderer mapRenderer;
@@ -72,17 +72,17 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Create a new map view on the given menu.  The view name is chosen automatically.
 	 *
-	 * @param menu	The menu to attach the new view to
+	 * @param menu The menu to attach the new view to
 	 */
-	public SMSMapView (SMSMenu menu) {
+	public SMSMapView(SMSMenu menu) {
 		this(null, menu);
 	}
 
 	/**
 	 * Create a new map view on the given menu.
 	 *
-	 * @param name	The new view's name.
-	 * @param menu	The menu to attach the new view to.
+	 * @param name The new view's name.
+	 * @param menu The menu to attach the new view to.
 	 */
 	public SMSMapView(String name, SMSMenu menu) {
 		super(name, menu);
@@ -218,7 +218,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Get the Bukkit @see org.bukkit.map.MapView associated with this map view object.
 	 *
-	 * @return	The Bukkit MapView object
+	 * @return The Bukkit MapView object
 	 */
 	public MapView getMapView() {
 		return mapView;
@@ -227,7 +227,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Get the custom map renderer for this map view object.
 	 *
-	 * @return	The SMSMapRenderer object
+	 * @return The SMSMapRenderer object
 	 */
 	public SMSMapRenderer getMapRenderer() {
 		return mapRenderer;
@@ -236,7 +236,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Get the X co-ordinate to start drawing at - the left-hand bounds of the drawing space
 	 *
-	 * @return	The X co-ordinate
+	 * @return The X co-ordinate
 	 */
 	public int getX() {
 		return x;
@@ -245,7 +245,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Set the X co-ordinate to start drawing at - the left-hand bounds of the drawing space
 	 *
-	 * @param x	The X co-ordinate
+	 * @param x The X co-ordinate
 	 */
 	public void setX(int x) {
 		this.x = x;
@@ -254,7 +254,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Get the Y co-ordinate to start drawing at - the upper bounds of the drawing space
 	 *
-	 * @return	The Y co-ordinate
+	 * @return The Y co-ordinate
 	 */
 	public int getY() {
 		return y;
@@ -263,7 +263,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Set the Y co-ordinate to start drawing at - the upper bounds of the drawing space
 	 *
-	 * @param y		The Y co-ordinate
+	 * @param y The Y co-ordinate
 	 */
 	public void setY(int y) {
 		this.y = y;
@@ -272,7 +272,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Get the width of the drawing area on the map
 	 *
-	 * @return	The width
+	 * @return The width
 	 */
 	public int getWidth() {
 		return width;
@@ -281,7 +281,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Set the width of the drawing area on the map
 	 *
-	 * @param width	The width
+	 * @param width The width
 	 */
 	public void setWidth(int width) {
 		this.width = width;
@@ -290,7 +290,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Get the height of the drawing area on the map
 	 *
-	 * @return	The height
+	 * @return The height
 	 */
 	public int getHeight() {
 		return height;
@@ -299,7 +299,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Set the height of the drawing area on the map
 	 *
-	 * @param height	The height
+	 * @param height The height
 	 */
 	public void setHeight(int height) {
 		this.height = height;
@@ -308,7 +308,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Get the pixel spacing between each line of text in the menu
 	 *
-	 * @return	The spacing
+	 * @return The spacing
 	 */
 	public int getLineSpacing() {
 		return lineSpacing;
@@ -317,7 +317,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * Set the pixel spacing between each line of text in the menu
 	 *
-	 * @param lineSpacing	The spacing
+	 * @param lineSpacing The spacing
 	 */
 	public void setLineSpacing(int lineSpacing) {
 		this.lineSpacing = lineSpacing;
@@ -368,17 +368,18 @@ public class SMSMapView extends SMSScrollableView {
 		super.update(menu, arg1);
 
 		switch ((SMSMenuAction) arg1) {
-		case REPAINT: case SCROLLED:
-			if (mapView == null)
-				return;
-			if (mapView.getRenderers().contains(getMapRenderer())) {
-				mapView.removeRenderer(getMapRenderer());
-			}
-			mapView.addRenderer(getMapRenderer());
-			setDirty(true);
-			break;
-		default:
-			break;
+			case REPAINT:
+			case SCROLLED:
+				if (mapView == null)
+					return;
+				if (mapView.getRenderers().contains(getMapRenderer())) {
+					mapView.removeRenderer(getMapRenderer());
+				}
+				mapView.addRenderer(getMapRenderer());
+				setDirty(true);
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -401,7 +402,6 @@ public class SMSMapView extends SMSScrollableView {
 	}
 
 
-
 	@Override
 	public String getType() {
 		return "map";
@@ -421,7 +421,6 @@ public class SMSMapView extends SMSScrollableView {
 	}
 
 
-
 	@Override
 	protected int getHardMaxTitleLines() {
 		return 4;
@@ -429,7 +428,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	@Override
 	protected int getLineLength() {
-		return 30;	// estimate
+		return 30;    // estimate
 	}
 
 	/**
@@ -441,7 +440,7 @@ public class SMSMapView extends SMSScrollableView {
 	public BufferedImage renderImage(Player player) {
 		if (mapView == null) return null;
 
-		BufferedImage result = backgroundImage == null ? new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB): deepCopy(backgroundImage);
+		BufferedImage result = backgroundImage == null ? new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB) : deepCopy(backgroundImage);
 
 		Graphics g = result.getGraphics();
 		g.setFont(new Font(getAttributeAsString(FONT), 0, (Integer) getAttribute(FONT_SIZE)));
@@ -456,7 +455,7 @@ public class SMSMapView extends SMSScrollableView {
 			if (di != null) {
 				g.drawImage(di, 0, 0, null);
 			} else {
-				drawMessage(g, new String[] { "Access Denied" });
+				drawMessage(g, new String[]{"Access Denied"});
 			}
 			return result;
 		}
@@ -537,7 +536,7 @@ public class SMSMapView extends SMSScrollableView {
 		FontMetrics metrics = g.getFontMetrics();
 		int h = metrics.getHeight() + getLineSpacing();
 		int y = getY() + (getHeight() - h * text.length) / 2;
-		for (String s : text)	 {
+		for (String s : text) {
 			int x = getX() + (getWidth() - metrics.stringWidth(s)) / 2;
 			drawText(g, x, y, s);
 			y += h;
@@ -611,14 +610,14 @@ public class SMSMapView extends SMSScrollableView {
 
 	private int getXOffset(ViewJustification just, int width) {
 		switch (just) {
-		case LEFT:
-			return getX();
-		case CENTER:
-			return getX() + (getWidth() - width) / 2;
-		case RIGHT:
-			return getX() + getWidth() - width;
-		default:
-			return 0;
+			case LEFT:
+				return getX();
+			case CENTER:
+				return getX() + (getWidth() - width) / 2;
+			case RIGHT:
+				return getX() + getWidth() - width;
+			default:
+				return 0;
 		}
 	}
 
@@ -630,31 +629,33 @@ public class SMSMapView extends SMSScrollableView {
 	}
 
 	// Minecraft map palette is very limited.  Not all colours will look good.
-	private static final byte[] mcToPaletteIdx = new byte[] {
-		44,	// 0 black
-		48, // 1 blue
-		28, // 2 green
-		21, // 3 cyan
-		16, // 4 red
-		20,	// 5 purple (looks blueish)
-		40,	// 6 yellow (looks brown)
-		13,	// 7 grey
-		12,	// 8 dark grey
-		50,	// 9 bright blue
-		6,	// 10 bright green
-		22,	// 11 bright cyan
-		18,	// 12 bright red
-		21, // 13 pink (much too blue)
-		10, // 14 bright yellow (too brown)
-		34, // 15 white
+	private static final byte[] mcToPaletteIdx = new byte[]{
+			44,    // 0 black
+			48, // 1 blue
+			28, // 2 green
+			21, // 3 cyan
+			16, // 4 red
+			20,    // 5 purple (looks blueish)
+			40,    // 6 yellow (looks brown)
+			13,    // 7 grey
+			12,    // 8 dark grey
+			50,    // 9 bright blue
+			6,    // 10 bright green
+			22,    // 11 bright cyan
+			18,    // 12 bright red
+			21, // 13 pink (much too blue)
+			10, // 14 bright yellow (too brown)
+			34, // 15 white
 	};
 
 	private static final Color[] colors = new Color[mcToPaletteIdx.length];
+
 	static {
 		for (int i = 0; i < mcToPaletteIdx.length; i++) {
 			colors[i] = MapPalette.getColor(mcToPaletteIdx[i]);
 		}
 	}
+
 	private static Color minecraftToJavaColor(int mcColor) {
 		return colors[mcColor];
 	}

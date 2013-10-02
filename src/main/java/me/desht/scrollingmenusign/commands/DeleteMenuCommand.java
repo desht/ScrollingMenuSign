@@ -23,15 +23,15 @@ public class DeleteMenuCommand extends SMSAbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws SMSException {
-		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
+		SMSHandler handler = ((ScrollingMenuSign) plugin).getHandler();
 		SMSMenu menu;
 
 		if (args.length > 0) {
 			menu = getMenu(sender, args[0]);
 		} else {
 			notFromConsole(sender);
-			Player player = (Player)sender;
-			SMSView view = ((ScrollingMenuSign)plugin).getViewManager().getTargetedView(player, true);
+			Player player = (Player) sender;
+			SMSView view = ((ScrollingMenuSign) plugin).getViewManager().getTargetedView(player, true);
 			menu = view.getActiveMenu(player.getName());
 		}
 		menu.ensureAllowedToModify(sender);

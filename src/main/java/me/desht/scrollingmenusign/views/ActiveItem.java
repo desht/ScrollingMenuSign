@@ -58,7 +58,7 @@ public class ActiveItem extends CommandTrigger {
 		String[] menuPath = last.substring(MENU_MARKER.length()).split(SUBMENU_SEPARATOR);
 		for (String menuName : menuPath) {
 			String[] f = menuName.split(":");
-			SMSValidate.isTrue(f.length == 2 && f[1].matches("^\\d+$"),  "Item lore is not correctly formed");
+			SMSValidate.isTrue(f.length == 2 && f[1].matches("^\\d+$"), "Item lore is not correctly formed");
 			menus.add(new MenuPos(SMSMenu.getMenu(f[0]), Integer.parseInt(f[1])));
 		}
 	}
@@ -67,7 +67,7 @@ public class ActiveItem extends CommandTrigger {
 	 * Create a new active item object for the given itemstack and SMS menu.
 	 *
 	 * @param stack the item to turn into an active item
-	 * @param menu the menu to associate the item with
+	 * @param menu  the menu to associate the item with
 	 */
 	public ActiveItem(ItemStack stack, SMSMenu menu) {
 		SMSValidate.isTrue(stack.getType() != Material.AIR, "You can't create an active item from air!");
@@ -83,14 +83,14 @@ public class ActiveItem extends CommandTrigger {
 		List<String> lore = new ArrayList<String>();
 		if (menuItem != null) {
 			meta.setDisplayName(variableSubs(getActiveMenuTitle(null)) + SEPARATOR + variableSubs(menuItem.getLabel()));
-            Collections.addAll(lore, menuItem.getLore());
+			Collections.addAll(lore, menuItem.getLore());
 		} else {
 			meta.setDisplayName(getActiveMenuTitle(null) + SEPARATOR + NO_ITEMS);
 		}
 		List<String> names = new ArrayList<String>(menus.size());
-        for (MenuPos menu : menus) {
-            names.add(menu.menu.getName() + ':' + menu.pos);
-        }
+		for (MenuPos menu : menus) {
+			names.add(menu.menu.getName() + ':' + menu.pos);
+		}
 		lore.add(MENU_MARKER + Joiner.on(SUBMENU_SEPARATOR).join(names));
 		meta.setLore(lore);
 		stack.setItemMeta(meta);
@@ -159,7 +159,7 @@ public class ActiveItem extends CommandTrigger {
 		LogUtils.fine("ActiveItem: about to execute: " + item);
 		if (item != null) {
 			item.executeCommand(player, this);
-		} else  {
+		} else {
 			LogUtils.warning("index " + getSelectedItem() + " out of range for " + getActiveMenu().getName());
 		}
 	}
@@ -168,7 +168,7 @@ public class ActiveItem extends CommandTrigger {
 	 * Scroll the menu for this ActiveItem object.
 	 *
 	 * @param player the player who is scrolling the menu
-	 * @param delta the number of slots to scroll forward or backward by
+	 * @param delta  the number of slots to scroll forward or backward by
 	 */
 	public void scroll(Player player, int delta) {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.item");
@@ -215,19 +215,19 @@ public class ActiveItem extends CommandTrigger {
 	 */
 	public void processAction(Player player, SMSUserAction action) {
 		switch (action) {
-		case EXECUTE:
-			execute(player);
-			break;
-		case SCROLLDOWN:
-			scroll(player, 1);
-			player.setItemInHand(toItemStack());
-			break;
-		case SCROLLUP:
-			scroll(player, -1);
-			player.setItemInHand(toItemStack());
-			break;
-		default:
-			break;
+			case EXECUTE:
+				execute(player);
+				break;
+			case SCROLLDOWN:
+				scroll(player, 1);
+				player.setItemInHand(toItemStack());
+				break;
+			case SCROLLUP:
+				scroll(player, -1);
+				player.setItemInHand(toItemStack());
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -251,8 +251,8 @@ public class ActiveItem extends CommandTrigger {
 			return false;
 		}
 		List<String> lore = meta.getLore();
-        return !(lore == null || !lore.get(lore.size() - 1).startsWith(MENU_MARKER));
-    }
+		return !(lore == null || !lore.get(lore.size() - 1).startsWith(MENU_MARKER));
+	}
 
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.CommandTrigger#pushMenu(java.lang.String, me.desht.scrollingmenusign.SMSMenu)
@@ -283,6 +283,7 @@ public class ActiveItem extends CommandTrigger {
 	}
 
 	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
+
 	private String variableSubs(String text) {
 		Matcher m = viewVarSubPat.matcher(text);
 		StringBuffer sb = new StringBuffer(text.length());

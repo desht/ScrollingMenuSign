@@ -50,8 +50,8 @@ public class ViewManager {
 	/**
 	 * Instantiate a new view from a saved config file
 	 *
-	 * @param node	The configuration
-	 * @return	The view object
+	 * @param node The configuration
+	 * @return The view object
 	 */
 	public SMSView loadView(ConfigurationSection node) {
 		String viewName = null;
@@ -151,8 +151,8 @@ public class ViewManager {
 	/**
 	 * Check to see if the name view exists
 	 *
-	 * @param name	The view name
-	 * @return		true if the named view exists, false otherwise
+	 * @param name The view name
+	 * @return true if the named view exists, false otherwise
 	 */
 	public boolean checkForView(String name) {
 		return allViewNames.containsKey(name);
@@ -161,7 +161,7 @@ public class ViewManager {
 	/**
 	 * Get all known view objects as a List
 	 *
-	 * @return	A list of all known views
+	 * @return A list of all known views
 	 */
 	public List<SMSView> listViews() {
 		return new ArrayList<SMSView>(allViewNames.values());
@@ -170,7 +170,7 @@ public class ViewManager {
 	/**
 	 * Get all known view objects as a Java array
 	 *
-	 * @return	An array of all known views
+	 * @return An array of all known views
 	 */
 	public SMSView[] getViewsAsArray() {
 		return allViewNames.values().toArray(new SMSView[allViewNames.size()]);
@@ -179,9 +179,9 @@ public class ViewManager {
 	/**
 	 * Get the named SMSView object
 	 *
-	 * @param name	The view name
-	 * @return		The SMSView object of that name
-	 * @throws SMSException	if there is no such view with the given name
+	 * @param name The view name
+	 * @throws SMSException if there is no such view with the given name
+	 * @return The SMSView object of that name
 	 */
 	public SMSView getView(String name) throws SMSException {
 		if (!checkForView(name))
@@ -193,8 +193,8 @@ public class ViewManager {
 	/**
 	 * Get the view object at the given location, if any.
 	 *
-	 * @param loc	The location to check
-	 * @return		The SMSView object at that location, or null if there is none
+	 * @param loc The location to check
+	 * @return The SMSView object at that location, or null if there is none
 	 */
 	public SMSView getViewForLocation(Location loc) {
 		return plugin.getLocationManager().getInteractableAt(loc, SMSView.class);
@@ -203,8 +203,8 @@ public class ViewManager {
 	/**
 	 * Find all the views for the given menu.
 	 *
-	 * @param menu	The menu object to check
-	 * @return	A list of SMSView objects which are views for that menu
+	 * @param menu The menu object to check
+	 * @return A list of SMSView objects which are views for that menu
 	 */
 	public List<SMSView> getViewsForMenu(SMSMenu menu) {
 		return getViewsForMenu(menu, false);
@@ -213,9 +213,9 @@ public class ViewManager {
 	/**
 	 * Find all the views for the given menu, optionally sorting the resulting list.
 	 *
-	 * @param menu	The menu object to check
-	 * @param isSorted	If true, sort the returned view list by view name
-	 * @return	A list of SMSView objects which are views for that menu
+	 * @param menu     The menu object to check
+	 * @param isSorted If true, sort the returned view list by view name
+	 * @return A list of SMSView objects which are views for that menu
 	 */
 	public List<SMSView> getViewsForMenu(SMSMenu menu, boolean isSorted) {
 		if (isSorted) {
@@ -236,11 +236,11 @@ public class ViewManager {
 	/**
 	 * Get a count of views used, keyed by view type.  Used for metrics gathering.
 	 *
-	 * @return	a map of type -> count of views of that type
+	 * @return a map of type -> count of views of that type
 	 */
-	public Map<String,Integer> getViewCounts() {
-		Map<String,Integer> map = new HashMap<String, Integer>();
-		for (Entry<String,SMSView> e : allViewNames.entrySet()) {
+	public Map<String, Integer> getViewCounts() {
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		for (Entry<String, SMSView> e : allViewNames.entrySet()) {
 			String type = e.getValue().getType();
 			if (!map.containsKey(type)) {
 				map.put(type, 1);
@@ -254,10 +254,10 @@ public class ViewManager {
 	/**
 	 * Get the view that the player is looking at (or holding), if any.
 	 *
-	 * @param player	The player
+	 * @param player    The player
 	 * @param mustExist if true and no view is found, throw an exception
-	 * @return	the view being looked at, or null if no view is targeted
 	 * @throws SMSException if mustExist is true and no view is targeted
+	 * @return the view being looked at, or null if no view is targeted
 	 */
 	public SMSView getTargetedView(Player player, boolean mustExist) {
 		SMSView view = null;
@@ -349,7 +349,7 @@ public class ViewManager {
 	/**
 	 * Load any deferred locations for the given world.  This is called by the WorldLoadEvent handler.
 	 *
-	 * @param world	The world that's just been loaded.
+	 * @param world The world that's just been loaded.
 	 */
 	public void loadDeferred(World world) {
 		for (SMSView view : listViews()) {
@@ -374,15 +374,15 @@ public class ViewManager {
 	/**
 	 * Given a map ID, return the map view object for that ID, if any.
 	 *
-	 * @param mapId	The ID of the map
-	 * @return	The SMSMapView object for the ID, or null if this map ID isn't used for a SMSMapView
+	 * @param mapId The ID of the map
+	 * @return The SMSMapView object for the ID, or null if this map ID isn't used for a SMSMapView
 	 */
 	public SMSMapView getMapViewForId(short mapId) {
 		MapView mv = Bukkit.getMap(mapId);
 		if (mv != null) {
 			for (MapRenderer r : mv.getRenderers()) {
 				if (r instanceof SMSMapRenderer) {
-					return ((SMSMapRenderer)r).getView();
+					return ((SMSMapRenderer) r).getView();
 				}
 			}
 		}
@@ -392,8 +392,8 @@ public class ViewManager {
 	/**
 	 * Check if the given map ID is used for a SMSMapView
 	 *
-	 * @param mapId	The ID of the map
-	 * @return	true if the ID is used for a SMSMapView, false otherwise
+	 * @param mapId The ID of the map
+	 * @return true if the ID is used for a SMSMapView, false otherwise
 	 */
 	public boolean checkForMapId(short mapId) {
 		MapView mv = Bukkit.getMap(mapId);
@@ -410,10 +410,10 @@ public class ViewManager {
 	/**
 	 * Convenience routine.  Add the given mapId as a view on the given menu.
 	 *
-	 * @param menu	The menu to add the view to
-	 * @param mapId		ID of the map that will be used as a view
-	 * @return	The SMSMapView object that was just created
+	 * @param menu  The menu to add the view to
+	 * @param mapId ID of the map that will be used as a view
 	 * @throws SMSException if the given mapId is already a view
+	 * @return The SMSMapView object that was just created
 	 */
 	public SMSMapView addMapToMenu(String viewName, SMSMenu menu, short mapId, CommandSender owner) throws SMSException {
 		if (checkForMapId(mapId)) {
@@ -440,7 +440,7 @@ public class ViewManager {
 	 * Check to see if this map ID is used by another plugin, to avoid toe-stepping-upon...
 	 * The check is for any renderers on the map of a class outside the org.bukkit namespace.
 	 *
-	 * @param mapId	ID of the map to check
+	 * @param mapId ID of the map to check
 	 * @return true if it's used by someone else, false otherwise
 	 */
 	public boolean isMapUsedByOtherPlugin(short mapId) {
@@ -458,8 +458,8 @@ public class ViewManager {
 	/**
 	 * Convenience routine.  Get the map view that the player is holding, if any.
 	 *
-	 * @param player	The player to check for
-	 * @return			A SMSMapView object if the player is holding one, null otherwise
+	 * @param player The player to check for
+	 * @return A SMSMapView object if the player is holding one, null otherwise
 	 */
 	public SMSMapView getHeldMapView(Player player) {
 		if (player.getItemInHand().getType() == Material.MAP) {
@@ -473,17 +473,17 @@ public class ViewManager {
 	 * Get the item frame attached to the given block, if any, on the
 	 * side of the block facing most directly toward the given location
 	 * (typically a player's eye location).
-	 * <p>
+	 * <p/>
 	 * The item frame must be holding a map which is a SMSMapView.
 	 *
-	 * @param block the block to check
+	 * @param block     the block to check
 	 * @param viewerLoc the location to check from
 	 * @return the item frame object, or null if none was found
 	 */
 	public ItemFrame getMapFrame(Block block, Location viewerLoc) {
 		BlockFace face = BlockUtil.getNearestFace(block, viewerLoc);
 		for (Entity entity : block.getWorld().getEntitiesByClass(ItemFrame.class)) {
-			ItemFrame frame = (ItemFrame)entity;
+			ItemFrame frame = (ItemFrame) entity;
 			if (frame.getItem() == null || frame.getItem().getType() != Material.MAP || !checkForMapId(frame.getItem().getDurability())) {
 				continue;
 			}
@@ -497,7 +497,7 @@ public class ViewManager {
 	/**
 	 * Convenience method.  Create a new inventory view for the given menu.
 	 *
-	 * @param menu the menu to add the new view to
+	 * @param menu  the menu to add the new view to
 	 * @param owner owner of the new view
 	 * @return the newly-created view
 	 */
@@ -517,9 +517,9 @@ public class ViewManager {
 	 * Convenience method.  Create a new multi-sign view at the given location.
 	 *
 	 * @param viewName name for the new view
-	 * @param menu the menu to add the new view to
+	 * @param menu     the menu to add the new view to
 	 * @param location location of one of the signs in the new view
-	 * @param owner owner of the new view
+	 * @param owner    owner of the new view
 	 * @return the newly-created view
 	 * @throws SMSException
 	 */
@@ -534,9 +534,9 @@ public class ViewManager {
 	/**
 	 * Convenience method.  Create a new multi-sign view at the given location.
 	 *
-	 * @param menu the menu to add the view to
+	 * @param menu     the menu to add the view to
 	 * @param location location of one of the signs in the view
-	 * @param owner owner of the new view
+	 * @param owner    owner of the new view
 	 * @return the newly-created view
 	 * @throws SMSException
 	 */
@@ -548,8 +548,8 @@ public class ViewManager {
 	 * Convenience method.  Create a new redstone view at the given location and add it
 	 * to the given menu.
 	 *
-	 * @param menu	The menu to add the view to.
-	 * @param loc	The location for the view.
+	 * @param menu The menu to add the view to.
+	 * @param loc  The location for the view.
 	 * @throws SMSException if the location is not suitable for this view
 	 */
 	public SMSView addRedstoneViewToMenu(String viewName, SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
@@ -570,10 +570,10 @@ public class ViewManager {
 	 * the given menu.  A sign must already exist at the given location, and it must not be
 	 * an already-existing view.
 	 *
-	 * @param menu	The menu to attach the new view to
-	 * @param loc	Location of the new view
-	 * @return		The newly-created view
-	 * @throws SMSException	if the given location is not a suitable location for a new view
+	 * @param menu The menu to attach the new view to
+	 * @param loc  Location of the new view
+	 * @throws SMSException if the given location is not a suitable location for a new view
+	 * @return The newly-created view
 	 */
 	public SMSView addSignToMenu(String viewName, SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
 		SMSView view = new SMSSignView(viewName, menu, loc);
@@ -590,10 +590,10 @@ public class ViewManager {
 	/**
 	 * Convenience method.  Create a new spout view and add it to the given menu.
 	 *
-	 * @param menu	the menu to add the view to
+	 * @param menu  the menu to add the view to
 	 * @param owner the owner of the view
-	 * @return		the view that was just created
 	 * @throws SMSException
+	 * @return the view that was just created
 	 */
 	public SMSView addSpoutViewToMenu(SMSMenu menu, CommandSender owner) throws SMSException {
 		return addSpoutViewToMenu(null, menu, owner);

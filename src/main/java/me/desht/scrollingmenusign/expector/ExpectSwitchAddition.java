@@ -26,8 +26,8 @@ public class ExpectSwitchAddition extends ExpectLocation {
 		Player player = Bukkit.getPlayer(playerName);
 		if (player != null) {
 			MiscUtil.statusMessage(player, String.format("Added output lever at %s to %s view &e%s / %s&-.",
-			                                             MiscUtil.formatLocation(sw.getLocation()),
-			                                             view.getType(), view.getName(), trigger));
+					MiscUtil.formatLocation(sw.getLocation()),
+					view.getType(), view.getName(), trigger));
 		}
 	}
 }

@@ -44,8 +44,8 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * which contains a sign must be added with @see #addLocation(Location) before
 	 * this view is useful.
 	 *
-	 * @param name	Unique name for this view.
-	 * @param menu	The SMSMenu object to attach this view to.
+	 * @param name Unique name for this view.
+	 * @param menu The SMSMenu object to attach this view to.
 	 */
 	public SMSMultiSignView(String name, SMSMenu menu) {
 		super(name, menu);
@@ -59,7 +59,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 *
 	 * @param name name of the new view
 	 * @param menu menu for the new view
-	 * @param loc location of the new view
+	 * @param loc  location of the new view
 	 * @throws SMSException if there was any problem creating the view
 	 */
 	public SMSMultiSignView(String name, SMSMenu menu, Location loc) throws SMSException {
@@ -75,9 +75,9 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * Create a new sign view object.  Equivalent to calling SMSSignView(null, menu, loc).  The
 	 * view's name will be automatically generated, based on the menu name.
 	 *
-	 * @param menu	The SMSMenu object to attach this view to.
-	 * @param loc	The location of this view's sign
-	 * @throws SMSException	if the given location is not suitable for this view
+	 * @param menu The SMSMenu object to attach this view to.
+	 * @param loc  The location of this view's sign
+	 * @throws SMSException if the given location is not suitable for this view
 	 */
 	public SMSMultiSignView(SMSMenu menu, Location loc) throws SMSException {
 		this(null, menu, loc);
@@ -102,11 +102,12 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		super.update(menu, arg);
 
 		switch ((SMSMenuAction) arg) {
-		case REPAINT: case SCROLLED:
-			repaintAll();
-			break;
-		default:
-			break;
+			case REPAINT:
+			case SCROLLED:
+				repaintAll();
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -167,8 +168,8 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * Colour/markup codes are preserved across signs, which may lead to unexpectedly few
 	 * printable characters appearing on each sign if a lot of markup is used!
 	 *
-	 * @param line	The line number on which to draw the text
-	 * @param text	The text to draw
+	 * @param line The line number on which to draw the text
+	 * @param text The text to draw
 	 */
 	public void drawText(int line, String text) {
 		int y = line / 4;
@@ -240,9 +241,9 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * Get the Sign at position (x,y) in the view.  (x, y) = (0, 0) is the top left sign.
 	 * x increases to the right, y increases downward.  This works regardless of sign orientation.
 	 *
-	 * @param x		X co-ordinate
-	 * @param y		Y co-ordinate
-	 * @return	the Sign block retrieved
+	 * @param x X co-ordinate
+	 * @param y Y co-ordinate
+	 * @return the Sign block retrieved
 	 */
 	public org.bukkit.block.Sign getSign(int x, int y) {
 		Block b = getSignLocation(x, y).getBlock();
@@ -275,18 +276,23 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 	public BlockFace getLeft(BlockFace face) {
 		switch (face) {
-		case NORTH: return BlockFace.WEST;
-		case EAST: return BlockFace.NORTH;
-		case SOUTH: return BlockFace.EAST;
-		case WEST: return BlockFace.SOUTH;
-		default: throw new IllegalArgumentException("unsupported face");
+			case NORTH:
+				return BlockFace.WEST;
+			case EAST:
+				return BlockFace.NORTH;
+			case SOUTH:
+				return BlockFace.EAST;
+			case WEST:
+				return BlockFace.SOUTH;
+			default:
+				throw new IllegalArgumentException("unsupported face");
 		}
 	}
 
 	/**
 	 * Mark one line on a given sign as requiring an update.
 	 *
-	 * @param loc location of the sign needing an update
+	 * @param loc  location of the sign needing an update
 	 * @param line line number on the sign, in the range 0 .. 3
 	 * @param text the text to be updated
 	 */
@@ -294,7 +300,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		if (!updates.containsKey(loc)) {
 			updates.put(loc, new String[4]);
 		}
-        updates.get(loc)[line] = text;
+		updates.get(loc)[line] = text;
 	}
 
 	/**
@@ -302,7 +308,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * we only need to send world updates for each sign once.
 	 */
 	private void applyUpdates() {
-		for (Entry<Location,String[]> e : updates.entrySet()) {
+		for (Entry<Location, String[]> e : updates.entrySet()) {
 			Block b = e.getKey().getBlock();
 			if (b.getType() != Material.WALL_SIGN) {
 				continue;
@@ -329,16 +335,20 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		facing = s.getFacing();
 
 		switch (facing) {
-		case NORTH:
-			scan(b, BlockFace.EAST); break;
-		case EAST:
-			scan(b, BlockFace.SOUTH); break;
-		case SOUTH:
-			scan(b, BlockFace.WEST); break;
-		case WEST:
-			scan(b, BlockFace.NORTH); break;
-		default:
-			throw new SMSException("Unexpected sign direction " + facing);
+			case NORTH:
+				scan(b, BlockFace.EAST);
+				break;
+			case EAST:
+				scan(b, BlockFace.SOUTH);
+				break;
+			case SOUTH:
+				scan(b, BlockFace.WEST);
+				break;
+			case WEST:
+				scan(b, BlockFace.NORTH);
+				break;
+			default:
+				throw new SMSException("Unexpected sign direction " + facing);
 		}
 	}
 
@@ -353,14 +363,16 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 		height = (tl.getBlockY() - br.getBlockY()) + 1;
 		switch (horizontal) {
-		case NORTH: case SOUTH:
-			width = Math.abs(tl.getBlockZ() - br.getBlockZ()) + 1;
-			break;
-		case EAST: case WEST:
-			width = Math.abs(tl.getBlockX() - br.getBlockX()) + 1;
-			break;
-		default:
-			break;
+			case NORTH:
+			case SOUTH:
+				width = Math.abs(tl.getBlockZ() - br.getBlockZ()) + 1;
+				break;
+			case EAST:
+			case WEST:
+				width = Math.abs(tl.getBlockX() - br.getBlockX()) + 1;
+				break;
+			default:
+				break;
 		}
 		LogUtils.finer("multisign: topleft=" + topLeft + ", bottomright=" + bottomRight);
 		LogUtils.finer("multisign: height=" + height + ", width=" + width);
@@ -430,17 +442,17 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 			reset = "\u00a7r";
 		}
 		switch (just) {
-		case LEFT:
-			s = prefix + Str.padRight(text + reset, l);
-			break;
-		case CENTER:
-			s = prefix + Str.padCenter(text + reset, l);
-			break;
-		case RIGHT:
-			s = prefix + Str.padLeft(text + reset, l);
-			break;
-		default:
-			break;
+			case LEFT:
+				s = prefix + Str.padRight(text + reset, l);
+				break;
+			case CENTER:
+				s = prefix + Str.padCenter(text + reset, l);
+				break;
+			case RIGHT:
+				s = prefix + Str.padLeft(text + reset, l);
+				break;
+			default:
+				break;
 		}
 		return MiscUtil.parseColourSpec(s);
 	}
@@ -458,7 +470,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private boolean isHexDigit(char c) {
-		return c >= '0' && c <= '9' || c >= 'a' && c <= 'f'	;
+		return c >= '0' && c <= '9' || c >= 'a' && c <= 'f';
 	}
 
 

@@ -21,7 +21,7 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 	public CreateMenuCommand() {
 		super("sms create", 2);
 		setPermissionNode("scrollingmenusign.commands.create");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms create <menu> <title>",
 				"/sms create <menu> from <other-menu>",
 		});

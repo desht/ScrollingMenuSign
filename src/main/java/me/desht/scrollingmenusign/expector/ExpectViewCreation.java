@@ -32,7 +32,7 @@ public class ExpectViewCreation extends ExpectLocation {
 			if (arg.equals("sign")) {
 				view = vm.addSignToMenu(viewName, menu, getLocation(), player);
 			} else if (arg.equals("redstone")) {
-				view = vm.addRedstoneViewToMenu(viewName, menu, getLocation(), player); 
+				view = vm.addRedstoneViewToMenu(viewName, menu, getLocation(), player);
 			} else if (arg.equals("multisign")) {
 				view = vm.addMultiSignToMenu(viewName, menu, getLocation(), player);
 			}
@@ -42,7 +42,7 @@ public class ExpectViewCreation extends ExpectLocation {
 
 		if (view != null && player != null) {
 			MiscUtil.statusMessage(player, String.format("Added %s view &e%s&- to menu &e%s&-.",
-			                                             view.getType(), view.getName(), menu.getName()));
+					view.getType(), view.getName(), menu.getName()));
 		}
 	}
 }

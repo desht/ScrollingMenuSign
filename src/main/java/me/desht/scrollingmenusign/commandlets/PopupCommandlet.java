@@ -22,7 +22,7 @@ public class PopupCommandlet extends BaseCommandlet {
 		SMSView targetView = plugin.getViewManager().getView(args[1]);
 		SMSValidate.isTrue(targetView instanceof PoppableView, "View " + args[1] + " is not a poppable view");
 
-		((PoppableView)targetView).toggleGUI((Player)sender);
+		((PoppableView) targetView).toggleGUI((Player) sender);
 		return true;
 	}
 

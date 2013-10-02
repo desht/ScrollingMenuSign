@@ -24,12 +24,12 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 	public RemoveViewCommand() {
 		super("sms break", 0, 2);
 		setPermissionNode("scrollingmenusign.commands.break");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms break",
 				"/sms break <view-name>",
 				"/sms break -loc <x,y,z,world>",
 		});
-		setOptions(new String[] { "loc:s", "view:s", "item", "frame" });
+		setOptions(new String[]{"loc:s", "view:s", "item", "frame"});
 	}
 
 	@Override
@@ -39,14 +39,14 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 
 		if (args.length == 0) {
 			notFromConsole(sender);
-			Player player = (Player)sender;
+			Player player = (Player) sender;
 			if (hasOption("item")) {
 				// deactivating an active item
-					ActiveItem item = new ActiveItem(player.getItemInHand());
-					item.deactivate();
-					player.setItemInHand(item.toItemStack());
-					MiscUtil.statusMessage(sender, "Deactivated held item: " + ChatColor.GOLD + player.getItemInHand().getType());
-					return true;
+				ActiveItem item = new ActiveItem(player.getItemInHand());
+				item.deactivate();
+				player.setItemInHand(item.toItemStack());
+				MiscUtil.statusMessage(sender, "Deactivated held item: " + ChatColor.GOLD + player.getItemInHand().getType());
+				return true;
 			} else if (hasOption("frame")) {
 				ItemFrame frame = viewManager.getMapFrame(player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST), player.getEyeLocation());
 				if (frame != null) {
@@ -80,14 +80,14 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 		view.ensureAllowedToModify(sender);
 
 		if (sender instanceof Player) {
-			Player player = (Player)sender;
+			Player player = (Player) sender;
 			if (view == viewManager.getHeldMapView(player)) {
-				((SMSMapView)view).removeMapItemName(player.getItemInHand());
+				((SMSMapView) view).removeMapItemName(player.getItemInHand());
 			}
 		}
 		viewManager.deleteView(view, true);
 		MiscUtil.statusMessage(sender, String.format("Removed &9%s&- view &e%s&- from menu &e%s&-.",
-		                                             view.getType(), view.getName(), view.getNativeMenu().getName()));
+				view.getType(), view.getName(), view.getNativeMenu().getName()));
 
 		return true;
 	}
@@ -95,10 +95,10 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		switch (args.length) {
-		case 1:
-			return getViewCompletions(sender, args[0]);
-		default:
-			return noCompletions(sender);
+			case 1:
+				return getViewCompletions(sender, args[0]);
+			default:
+				return noCompletions(sender);
 		}
 	}
 }

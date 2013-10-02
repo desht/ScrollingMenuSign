@@ -30,8 +30,8 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	public static final String AUTOPOPDOWN = "autopopdown";
 	public static final String SPACING = "spacing";
 
-	private final Map<String, IconMenu> iconMenus;	// map menu name to the icon menu object
-	private final Map<String, Set<String>> users;	// map menu name to list of players using it
+	private final Map<String, IconMenu> iconMenus;    // map menu name to the icon menu object
+	private final Map<String, Set<String>> users;    // map menu name to list of players using it
 
 	public SMSInventoryView(String name, SMSMenu menu) {
 		super(name, menu);
@@ -50,17 +50,17 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	public void update(Observable obj, Object arg1) {
 		SMSMenu menu = (SMSMenu) obj;
 		switch ((SMSMenuAction) arg1) {
-		case REPAINT:
-			if (menu == null) {
-				for (IconMenu iconMenu : iconMenus.values()) {
-					iconMenu.repaint();
+			case REPAINT:
+				if (menu == null) {
+					for (IconMenu iconMenu : iconMenus.values()) {
+						iconMenu.repaint();
+					}
+				} else if (iconMenus.containsKey(menu.getName())) {
+					iconMenus.get(menu.getName()).repaint();
 				}
-			} else if (iconMenus.containsKey(menu.getName())) {
-				iconMenus.get(menu.getName()).repaint();
-			}
-			break;
-		default:
-			break;
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -165,7 +165,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 				}
 			}, 2L);
 		} else {
-			event.setWillClose((Boolean)getAttribute(AUTOPOPDOWN));
+			event.setWillClose((Boolean) getAttribute(AUTOPOPDOWN));
 		}
 	}
 
@@ -173,9 +173,9 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		super.onConfigurationValidate(configurationManager, key, oldVal, newVal);
 		if (key.equals(SPACING)) {
-			SMSValidate.isTrue((Integer)newVal >= 1, "Spacing must be 1 or more");
+			SMSValidate.isTrue((Integer) newVal >= 1, "Spacing must be 1 or more");
 		} else if (key.equals(WIDTH)) {
-			SMSValidate.isTrue((Integer)newVal >= 1 && (Integer)newVal <= 9, "Width must be in the range 1 .. 9");
+			SMSValidate.isTrue((Integer) newVal >= 1 && (Integer) newVal <= 9, "Width must be in the range 1 .. 9");
 		}
 	}
 

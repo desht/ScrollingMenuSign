@@ -15,7 +15,7 @@ public class RemoveItemCommand extends SMSAbstractCommand {
 	public RemoveItemCommand() {
 		super("sms remove", 2, 2);
 		setPermissionNode("scrollingmenusign.commands.remove");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms remove <menu-name> @<pos>",
 				"/sms remove <menu-name> <item-label>"
 		});
@@ -30,7 +30,7 @@ public class RemoveItemCommand extends SMSAbstractCommand {
 
 		if (item.matches("@[0-9]+")) {
 			// backwards compatibility - numeric indices should be prefixed with a '@'
-			// but we'll allow raw numbers to be used 
+			// but we'll allow raw numbers to be used
 			item = item.substring(1);
 		}
 
@@ -52,14 +52,14 @@ public class RemoveItemCommand extends SMSAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		switch (args.length) {
-		case 1:
-			return getMenuCompletions(plugin, sender, args[0]);
-		case 2:
-			SMSMenu menu = SMSMenu.getMenu(args[0]);
-			return getMenuItemCompletions(sender, menu, args[1]);
-		default:
-			showUsage(sender);
-			return noCompletions(sender);
+			case 1:
+				return getMenuCompletions(plugin, sender, args[0]);
+			case 2:
+				SMSMenu menu = SMSMenu.getMenu(args[0]);
+				return getMenuItemCompletions(sender, menu, args[1]);
+			default:
+				showUsage(sender);
+				return noCompletions(sender);
 		}
 	}
 }

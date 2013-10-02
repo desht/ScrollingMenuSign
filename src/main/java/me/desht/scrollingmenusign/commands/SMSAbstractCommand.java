@@ -34,13 +34,13 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 	protected List<String> getMenuCompletions(Plugin plugin, CommandSender sender, String prefix) {
 		List<String> res = new ArrayList<String>();
 		if (sender instanceof Player && prefix.isEmpty()) {
-			if (((ScrollingMenuSign)plugin).getViewManager().getTargetedView((Player) sender) != null) {
+			if (((ScrollingMenuSign) plugin).getViewManager().getTargetedView((Player) sender) != null) {
 				// player has a view targeted - add "." as the first item
 				// "." is a convenience for "currently targeted menu"
 				res.add(".");
 			}
 		}
-		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
+		SMSHandler handler = ((ScrollingMenuSign) plugin).getHandler();
 		List<SMSMenu> menus = handler.listMenus(true);
 		for (SMSMenu menu : menus) {
 			if (prefix.isEmpty() || menu.getName().startsWith(prefix))
@@ -121,6 +121,6 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 	}
 
 	protected ViewManager getViewManager(Plugin plugin) {
-		return ((ScrollingMenuSign)plugin).getViewManager();
+		return ((ScrollingMenuSign) plugin).getViewManager();
 	}
 }

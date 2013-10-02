@@ -37,7 +37,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	public static final String TEXTURE = "texture";
 
 	// list of all popups which have been created for this view, keyed by player name
-	private final Map<String, SpoutViewPopup> popups = new HashMap<String,SpoutViewPopup>();
+	private final Map<String, SpoutViewPopup> popups = new HashMap<String, SpoutViewPopup>();
 
 	// map a set of keypresses to the view which handles them
 	private static final Map<String, String> keyMap = new HashMap<String, String>();
@@ -45,9 +45,9 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	/**
 	 * Construct a new SMSSPoutView object
 	 *
-	 * @param name	The view name
-	 * @param menu	The menu to attach the object to
-	 * @throws SMSException 
+	 * @param name The view name
+	 * @param menu The menu to attach the object to
+	 * @throws SMSException
 	 */
 	public SMSSpoutView(String name, SMSMenu menu) throws SMSException {
 		super(name, menu);
@@ -74,8 +74,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 
 	/**
 	 * Show the given player's GUI for this view.
-	 * 
-	 * @param p		The player object
+	 *
+	 * @param p The player object
 	 */
 	@Override
 	public void showGUI(Player p) {
@@ -96,8 +96,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 
 	/**
 	 * Hide the given player's GUI for this view.
-	 * 
-	 * @param p		The player object
+	 *
+	 * @param p The player object
 	 */
 	@Override
 	public void hideGUI(Player p) {
@@ -119,8 +119,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	/**
 	 * Check if the given player has an active GUI (for any Spout view, not
 	 * necessarily this one).
-	 * 
-	 * @param player	the player to check for
+	 *
+	 * @param player the player to check for
 	 * @return true if a GUI is currently popped up, false otherwise
 	 */
 	@Override
@@ -135,8 +135,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	/**
 	 * Get the active GUI for the given player, if any (for any Spout view, not
 	 * necessarily this one).
-	 * 
-	 * @param player	the player to check for
+	 *
+	 * @param player the player to check for
 	 * @return the GUI object if one is currently popped up, null otherwise
 	 */
 	@Override
@@ -151,8 +151,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	/**
 	 * Toggle the given player's visibility of the GUI for this view.  If a GUI for a different view
 	 * is currently showing, pop that one down, and pop this one up.
-	 * 
-	 * @param p		The player object
+	 *
+	 * @param p The player object
 	 */
 	@Override
 	public void toggleGUI(Player p) {
@@ -162,7 +162,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 
 		if (hasActiveGUI(sp)) {
 			SMSPopup gui = getActiveGUI(sp);
-			SMSSpoutView poppedUpView = (SMSSpoutView)gui.getView();
+			SMSSpoutView poppedUpView = (SMSSpoutView) gui.getView();
 			if (poppedUpView == this) {
 				// the player has an active GUI from this view - just pop it down
 				hideGUI(sp);
@@ -174,7 +174,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 				Bukkit.getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {
 					@Override
 					public void run() {
-						showGUI(sp);	
+						showGUI(sp);
 					}
 				}, 3L);
 			}
@@ -190,13 +190,13 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	@Override
 	public void update(Observable menu, Object arg) {
 		switch ((SMSMenuAction) arg) {
-		case REPAINT:
-			for (SMSPopup gui : popups.values()) {
-				gui.repaint();
-			}
-			break;
-		default:
-			break;
+			case REPAINT:
+				for (SMSPopup gui : popups.values()) {
+					gui.repaint();
+				}
+				break;
+			default:
+				break;
 		}
 		// although this is a scrollable view, we don't need to do anything if the action was SCROLLED,
 		// since the Spout list widget handles its own repainting
@@ -309,10 +309,10 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 
 	/**
 	 * A Spout keypress event was received.
-	 * 
-	 * @param sp		The Spout player who pressed the key(s)
-	 * @param pressed	Represents the set of keys currently pressed
-	 * @return			True if a spout view was actually popped up or down, false otherwise
+	 *
+	 * @param sp      The Spout player who pressed the key(s)
+	 * @param pressed Represents the set of keys currently pressed
+	 * @return True if a spout view was actually popped up or down, false otherwise
 	 */
 	public static boolean handleKeypress(SpoutPlayer sp, SMSSpoutKeyMap pressed) {
 		if (pressed.keysPressed() == 0)

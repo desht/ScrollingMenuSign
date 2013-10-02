@@ -16,7 +16,7 @@ public class CloseSubmenuCommandlet extends BaseCommandlet {
 	@Override
 	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
 		Validate.isTrue(sender instanceof Player, "Not from the console!");
-        trigger.popMenu(sender.getName());
+		trigger.popMenu(sender.getName());
 		return true;
 	}
 

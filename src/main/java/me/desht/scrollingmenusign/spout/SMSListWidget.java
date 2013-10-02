@@ -47,7 +47,7 @@ public class SMSListWidget extends GenericListWidget {
 		HexColor cw = (HexColor) view.getAttribute(SMSSpoutView.BACKGROUND);
 		double alpha = (Double) view.getAttribute(SMSSpoutView.ALPHA);
 		Color c = cw.getColor();
-		c.setAlpha((float)alpha);
+		c.setAlpha((float) alpha);
 		LogUtils.finer("updateBackground: view = " + view.getName() + " background = " + c.toString());
 
 		// choose a contrasting text colour - black for a pale background, white for a dark background
@@ -73,7 +73,7 @@ public class SMSListWidget extends GenericListWidget {
 		}
 
 		// bit of a hack - cast to SMSScrollableView to avoid an unnecessary call to SpoutViewPopup.scrollTo()
-		((SMSScrollableView)view).setScrollPos(getScreen().getPlayer().getName(), idx + 1);
+		((SMSScrollableView) view).setScrollPos(getScreen().getPlayer().getName(), idx + 1);
 
 		if (!doubleClicked && ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.double_click")) {
 			return;

@@ -7,8 +7,12 @@ import org.bukkit.entity.Player;
  */
 public interface SMSPopup {
 	public abstract SMSView getView();
+
 	public abstract void repaint();
+
 	public abstract boolean isPoppedUp(Player p);
+
 	public abstract void popup(Player p);
+
 	public abstract void popdown(Player p);
 }

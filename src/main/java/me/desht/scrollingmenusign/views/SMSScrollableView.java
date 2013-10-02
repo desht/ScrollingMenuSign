@@ -23,7 +23,7 @@ public abstract class SMSScrollableView extends SMSView {
 	public static final String MAX_TITLE_LINES = "max_title_lines";
 
 	private boolean wrap;
-	private final Map<String,Integer> playerScrollPos = new HashMap<String, Integer>();
+	private final Map<String, Integer> playerScrollPos = new HashMap<String, Integer>();
 	private final ScrollPosStack storedScrollPos = new ScrollPosStack();
 
 	public SMSScrollableView(SMSMenu menu) {
@@ -39,7 +39,7 @@ public abstract class SMSScrollableView extends SMSView {
 
 	@Override
 	public Map<String, Object> freeze() {
-        return super.freeze();
+		return super.freeze();
 	}
 
 	@Override
@@ -68,8 +68,8 @@ public abstract class SMSScrollableView extends SMSView {
 	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
 	 * adjusted to be in range before being returned.
 	 *
-	 * @param playerName	The player to check
-	 * @return				The scroll position
+	 * @param playerName The player to check
+	 * @return The scroll position
 	 */
 	public int getScrollPos(String playerName) {
 		playerName = getPlayerContext(playerName);
@@ -85,8 +85,8 @@ public abstract class SMSScrollableView extends SMSView {
 	/**
 	 * Sets the scroll position for the given player on this view.
 	 *
-	 * @param playerName	The player's name
-	 * @param scrollPos		The scroll position
+	 * @param playerName The player's name
+	 * @param scrollPos  The scroll position
 	 */
 	public void setScrollPos(String playerName, int scrollPos) {
 		playerName = getPlayerContext(playerName);
@@ -97,7 +97,7 @@ public abstract class SMSScrollableView extends SMSView {
 	/**
 	 * Sets the current selected item for the given player to the next item.
 	 *
-	 * @param playerName	The player to scroll the view for
+	 * @param playerName The player to scroll the view for
 	 */
 	public void scrollDown(String playerName) {
 		int pos = getScrollPos(playerName) + 1;
@@ -110,7 +110,7 @@ public abstract class SMSScrollableView extends SMSView {
 	/**
 	 * Sets the current selected item for the given player to the previous item.
 	 *
-	 * @param playerName	The player to scroll the view for
+	 * @param playerName The player to scroll the view for
 	 */
 	public void scrollUp(String playerName) {
 		if (getActiveMenuItemCount(playerName) == 0)
@@ -150,7 +150,7 @@ public abstract class SMSScrollableView extends SMSView {
 	 */
 	protected int getMaxTitleLines() {
 		int max = (Integer) getAttribute(MAX_TITLE_LINES);
-		return max > 0 ? max :  ScrollingMenuSign.getInstance().getConfig().getInt("sms.max_title_lines", 1);
+		return max > 0 ? max : ScrollingMenuSign.getInstance().getConfig().getInt("sms.max_title_lines", 1);
 	}
 
 	/**
@@ -219,7 +219,7 @@ public abstract class SMSScrollableView extends SMSView {
 		super.onConfigurationValidate(configurationManager, key, oldVal, newVal);
 
 		if (key.equals(MAX_TITLE_LINES)) {
-			if ((Integer)newVal > getHardMaxTitleLines() || (Integer)newVal < 0) {
+			if ((Integer) newVal > getHardMaxTitleLines() || (Integer) newVal < 0) {
 				throw new SMSException("Valid " + MAX_TITLE_LINES + " range for this view is 0-" + getHardMaxTitleLines() + ".");
 			}
 		}
@@ -245,7 +245,7 @@ public abstract class SMSScrollableView extends SMSView {
 
 		public static MarkupTracker findMarkup(String s) {
 			MarkupTracker m = new MarkupTracker();
-			for (int i = 0; i < s.length() - 1; i++	) {
+			for (int i = 0; i < s.length() - 1; i++) {
 				if (s.charAt(i) == 0x00a7) {
 					char c = Character.toUpperCase(s.charAt(i + 1));
 					if (c >= '0' && c <= '9' || c >= 'A' && c <= 'F') {
@@ -262,13 +262,14 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	private class ScrollPosStack {
-		private final Map<String,Deque<Integer>> stacks = new HashMap<String, Deque<Integer>>();
+		private final Map<String, Deque<Integer>> stacks = new HashMap<String, Deque<Integer>>();
 
 		private void verify(String playerName) {
 			if (!stacks.containsKey(playerName)) {
 				stacks.put(playerName, new ArrayDeque<Integer>());
 			}
 		}
+
 		public void pushScrollPos(String playerName, int pos) {
 			verify(playerName);
 			stacks.get(playerName).push(pos);

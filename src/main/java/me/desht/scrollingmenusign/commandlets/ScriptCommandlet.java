@@ -42,7 +42,7 @@ public class ScriptCommandlet extends BaseCommandlet {
 		Bindings bindings = new SimpleBindings();
 		if (args.length > 2) {
 			String[] scriptArgs = new String[args.length - 2];
-            System.arraycopy(args, 2, scriptArgs, 0, scriptArgs.length);
+			System.arraycopy(args, 2, scriptArgs, 0, scriptArgs.length);
 			bindings.put("args", scriptArgs);
 		} else {
 			bindings.put("args", new String[0]);

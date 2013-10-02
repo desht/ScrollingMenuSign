@@ -16,9 +16,8 @@ import org.bukkit.inventory.meta.BookMeta;
 
 /**
  * @author des
- *
- * Represents a written book that can be used to trigger poppable views.
- *
+ *         <p/>
+ *         Represents a written book that can be used to trigger poppable views.
  */
 public class PopupBook {
 	private static final int VIEW_TYPE = 2;
@@ -32,11 +31,11 @@ public class PopupBook {
 	 * Private constructor (use PopupBook.get()).  Create a popup book object from a
 	 * written book item.
 	 *
-	 * @param player	 the player
-	 * @param bi  the book item
+	 * @param player the player
+	 * @param bi     the book item
 	 */
 	private PopupBook(Player player, ItemStack bi) {
-		BookMeta bm = (BookMeta)bi.getItemMeta();
+		BookMeta bm = (BookMeta) bi.getItemMeta();
 
 		String viewType = bm.getPage(VIEW_TYPE).split(" ")[1];
 		String viewName = bm.getPage(VIEW_NAME);
@@ -73,7 +72,7 @@ public class PopupBook {
 	 * Create a popup book object for the given player and view.
 	 *
 	 * @param player the player object
-	 * @param view the view
+	 * @param view   the view
 	 */
 	public PopupBook(Player player, SMSView view) {
 		SMSValidate.isTrue(view instanceof PoppableView, "Invalid view: " + view.getName());
@@ -93,14 +92,14 @@ public class PopupBook {
 		SMSView v = getView();
 		if (p != null && v != null) {
 			v.ensureAllowedToUse(p);
-			((PoppableView)v).toggleGUI(p);
+			((PoppableView) v).toggleGUI(p);
 		}
 	}
 
 	/**
 	 * Get the book item corresponding to this popup book.
 	 *
-	 * @return	an ItemStack of 1 written book with the title and pages filled in
+	 * @return an ItemStack of 1 written book with the title and pages filled in
 	 */
 	public ItemStack toItemStack() {
 		Player p = this.player.get();
@@ -115,9 +114,9 @@ public class PopupBook {
 		bm.setTitle(v.variableSubs(v.getNativeMenu().getTitle()));
 		bm.setAuthor(p.getName());
 		bm.setPages("Left Click to Use!",
-		            "sms " + v.getType() + " view",
-		            v.getName(),
-		            v.getNativeMenu().getName());
+				"sms " + v.getType() + " view",
+				v.getName(),
+				v.getNativeMenu().getName());
 		item.setItemMeta(bm);
 
 		return item;
@@ -140,7 +139,7 @@ public class PopupBook {
 	 * Check if the player is holding a popup book.
 	 *
 	 * @param p the player
-	 * @return	true if the player is holding a popup book
+	 * @return true if the player is holding a popup book
 	 */
 	public static boolean holding(Player p) {
 		if (p.getItemInHand().getType() != Material.WRITTEN_BOOK) {

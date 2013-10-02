@@ -62,7 +62,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	/**
 	 * Get the view this output switch belongs to.
 	 *
-	 * @return	The owning view
+	 * @return The owning view
 	 */
 	public SMSGlobalScrollableView getView() {
 		return view;
@@ -71,7 +71,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	/**
 	 * Get the name of this output switch.
 	 *
-	 * @return	The switch's name
+	 * @return The switch's name
 	 */
 	public String getName() {
 		return name;
@@ -80,7 +80,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	/**
 	 * Get this output switch's location.
 	 *
-	 * @return	The switch's location
+	 * @return The switch's location
 	 */
 	public Location getLocation() {
 		return location.getLocation();
@@ -89,7 +89,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	/**
 	 * Get the trigger string for this switch.
 	 *
-	 * @return	The switch's trigger string
+	 * @return The switch's trigger string
 	 */
 	public String getTrigger() {
 		return trigger;
@@ -106,7 +106,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	/**
 	 * Get the Material for this switch.  (Right now, only Lever is supported).
 	 *
-	 * @return	The switch's material
+	 * @return The switch's material
 	 */
 	private Material getSwitchType() {
 		return getLocation().getBlock().getType();
@@ -115,12 +115,12 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	/**
 	 * Check if this switch is currently powered.
 	 *
-	 * @return	true if powered, false otherwise
+	 * @return true if powered, false otherwise
 	 */
 	public boolean getPowered() {
 		Block b = getLocation().getBlock();
 		if (getSwitchType() == Material.LEVER) {
-			return ((Redstone)b.getState().getData()).isPowered();
+			return ((Redstone) b.getState().getData()).isPowered();
 		} else {
 			LogUtils.warning("Found " + getSwitchType() + " at " + location + " - expecting LEVER!");
 			return false;
@@ -130,7 +130,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	/**
 	 * Set the powered status of this switch.
 	 *
-	 * @param powered	true to switch on, false to switch off
+	 * @param powered true to switch on, false to switch off
 	 */
 	public void setPowered(boolean powered) {
 		if (getSwitchType() == Material.LEVER) {
@@ -148,7 +148,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 		bs.update();
 	}
 
-	public Map<String,Object> freeze() {
+	public Map<String, Object> freeze() {
 		Map<String, Object> map = new HashMap<String, Object>();
 
 		map.put("trigger", MiscUtil.unParseColourSpec(trigger));
@@ -207,9 +207,9 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	@Override
 	public void processEvent(ScrollingMenuSign plugin, BlockBreakEvent event) {
 		MiscUtil.statusMessage(event.getPlayer(),
-		                       String.format("Output switch @ &f%s&- was removed from view &e%s / %s.",
-		                                     MiscUtil.formatLocation(event.getBlock().getLocation()),
-		                                     getView().getName(), getTrigger()));
+				String.format("Output switch @ &f%s&- was removed from view &e%s / %s.",
+						MiscUtil.formatLocation(event.getBlock().getLocation()),
+						getView().getName(), getTrigger()));
 		delete();
 	}
 

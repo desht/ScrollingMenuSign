@@ -150,11 +150,20 @@ public class SMSBlockListener extends SMSListenerBase {
 		BlockFace toCheck = null;
 		if (!event.getLine(1).isEmpty()) {
 			switch (Character.toLowerCase(event.getLine(1).charAt(0))) {
-			case 'u': toCheck = BlockFace.UP; break;
-			case 'd': toCheck = BlockFace.DOWN; break;
-			case 'l': toCheck = left; break;
-			case 'r': toCheck = left.getOppositeFace(); break;
-			default: throw new SMSException("Invalid direction [" + event.getLine(1) + "] (want one of U,D,L,R)");
+				case 'u':
+					toCheck = BlockFace.UP;
+					break;
+				case 'd':
+					toCheck = BlockFace.DOWN;
+					break;
+				case 'l':
+					toCheck = left;
+					break;
+				case 'r':
+					toCheck = left.getOppositeFace();
+					break;
+				default:
+					throw new SMSException("Invalid direction [" + event.getLine(1) + "] (want one of U,D,L,R)");
 			}
 		}
 		SMSGlobalScrollableView gsv;
@@ -174,7 +183,7 @@ public class SMSBlockListener extends SMSListenerBase {
 	}
 
 	private SMSGlobalScrollableView checkForGSView(Block b, BlockFace... faces) {
-		for (BlockFace face: faces) {
+		for (BlockFace face : faces) {
 			Location viewLoc = b.getRelative(face).getLocation();
 			SMSView view = plugin.getViewManager().getViewForLocation(viewLoc);
 			if (view == null || !(view instanceof SMSGlobalScrollableView)) {

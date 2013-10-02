@@ -23,7 +23,7 @@ public class MenuCommand extends SMSAbstractCommand {
 	public MenuCommand() {
 		super("sms menu", 0, 3);
 		setPermissionNode("scrollingmenusign.commands.menu");
-		setUsage(new String[] {
+		setUsage(new String[]{
 				"/sms menu <menu-name> [<attribute>] [<value>]",
 		});
 		setQuotedArgs(true);
@@ -48,23 +48,24 @@ public class MenuCommand extends SMSAbstractCommand {
 
 		String attr;
 		switch (args.length) {
-		case 0: case 1:
-			showMenuDetails(plugin, sender, menu, view);
-			break;
-		case 2:
-			attr = args[1];
-			MiscUtil.statusMessage(sender, String.format("&e%s.%s&- = &e%s&-", menu.getName(), attr, menu.getAttributes().get(attr).toString()));
-			break;
-		case 3:
-			attr = args[1];
-			String newVal = args[2];
-			menu.ensureAllowedToModify(sender);
-			if (attr.equals(SMSMenu.OWNER) && !PermissionUtils.isAllowedTo(sender, "scrollingmenusign.edit.any")) {
-				throw new SMSException("You may not change the owner of a menu.");
-			}
-			menu.getAttributes().set(attr, newVal);
-			MiscUtil.statusMessage(sender, String.format("&e%s.%s&- = &e%s&-", menu.getName(), attr, menu.getAttributes().get(attr).toString()));
-			break;
+			case 0:
+			case 1:
+				showMenuDetails(plugin, sender, menu, view);
+				break;
+			case 2:
+				attr = args[1];
+				MiscUtil.statusMessage(sender, String.format("&e%s.%s&- = &e%s&-", menu.getName(), attr, menu.getAttributes().get(attr).toString()));
+				break;
+			case 3:
+				attr = args[1];
+				String newVal = args[2];
+				menu.ensureAllowedToModify(sender);
+				if (attr.equals(SMSMenu.OWNER) && !PermissionUtils.isAllowedTo(sender, "scrollingmenusign.edit.any")) {
+					throw new SMSException("You may not change the owner of a menu.");
+				}
+				menu.getAttributes().set(attr, newVal);
+				MiscUtil.statusMessage(sender, String.format("&e%s.%s&- = &e%s&-", menu.getName(), attr, menu.getAttributes().get(attr).toString()));
+				break;
 		}
 		return true;
 	}
@@ -110,20 +111,20 @@ public class MenuCommand extends SMSAbstractCommand {
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		SMSMenu menu;
 		switch (args.length) {
-		case 1:
-			return getMenuCompletions(plugin, sender, args[0]);
-		case 2:
-			menu = getMenu(sender, args[0]);
-			return filterPrefix(sender, menu.getAttributes().listAttributeKeys(false), args[1]);
-		case 3:
-			menu = getMenu(sender, args[0]);
-			Object o = menu.getAttributes().get(args[1]);
-			String desc = menu.getAttributes().getDescription(args[1]);
-			if (!desc.isEmpty())
-				desc = ChatColor.GRAY.toString() + ChatColor.ITALIC + " [" + desc + "]";
-			return getConfigValueCompletions(sender, args[1], o, desc, args[2]);
-		default:
-			return noCompletions(sender);
+			case 1:
+				return getMenuCompletions(plugin, sender, args[0]);
+			case 2:
+				menu = getMenu(sender, args[0]);
+				return filterPrefix(sender, menu.getAttributes().listAttributeKeys(false), args[1]);
+			case 3:
+				menu = getMenu(sender, args[0]);
+				Object o = menu.getAttributes().get(args[1]);
+				String desc = menu.getAttributes().getDescription(args[1]);
+				if (!desc.isEmpty())
+					desc = ChatColor.GRAY.toString() + ChatColor.ITALIC + " [" + desc + "]";
+				return getConfigValueCompletions(sender, args[1], o, desc, args[2]);
+			default:
+				return noCompletions(sender);
 		}
 	}
 

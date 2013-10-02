@@ -41,7 +41,7 @@ import com.google.common.base.Joiner;
  * This is just like a {@link SMSScrollableView} but maintains only a single player context
  * for scroll position tracking.  Generally used as the base class for views implemented by
  * blocks in the world, such as sign views.
- * <p>
+ * <p/>
  * It also maintains a set of output switches which are powered/unpowered depending on
  * the selected item in this view, and tracks the location of a possible tooltip sign.
  */
@@ -123,7 +123,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
 	 * adjusted to be in range before being returned.
 	 *
-	 * @return	The scroll position
+	 * @return The scroll position
 	 */
 	public int getScrollPos() {
 		return super.getScrollPos(GLOBAL_PSEUDO_PLAYER);
@@ -208,10 +208,10 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	@Override
-	public Map<String,Object> freeze() {
+	public Map<String, Object> freeze() {
 		Map<String, Object> map = super.freeze();
 
-		Map<String,Map<String,Object>> l = new HashMap<String, Map<String,Object>>();
+		Map<String, Map<String, Object>> l = new HashMap<String, Map<String, Object>>();
 		for (Switch sw : switches) {
 			l.put(sw.getName(), sw.freeze());
 		}
@@ -290,19 +290,19 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 
 		RedstoneOutputMode mode = (RedstoneOutputMode) getAttribute(RS_OUTPUT_MODE);
 		switch (mode) {
-		case TOGGLE:
-			toggleSwitchPower();
-			break;
-		case PULSE:
-			pulseSwitchPower(false);
-			break;
-		case PULSEANY:
-			pulseSwitchPower(true);
-			break;
-		case RADIO:
-			radioSwitchPower();
-		default:
-			break;
+			case TOGGLE:
+				toggleSwitchPower();
+				break;
+			case PULSE:
+				pulseSwitchPower(false);
+				break;
+			case PULSEANY:
+				pulseSwitchPower(true);
+				break;
+			case RADIO:
+				radioSwitchPower();
+			default:
+				break;
 		}
 	}
 
@@ -329,14 +329,14 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		super.onConfigurationChanged(configurationManager, key, oldVal, newVal);
 
 		if (key.equals(RS_OUTPUT_MODE)) {
-			switch ((RedstoneOutputMode)newVal) {
-			case SELECTED:
-				updateSwitchPower();
-				break;
-			default:
-				for (Switch sw : getSwitches()) {
-					sw.setPowered(false);
-				}
+			switch ((RedstoneOutputMode) newVal) {
+				case SELECTED:
+					updateSwitchPower();
+					break;
+				default:
+					for (Switch sw : getSwitches()) {
+						sw.setPowered(false);
+					}
 			}
 			if (pulseResetTask != null) {
 				pulseResetTask.cancel();

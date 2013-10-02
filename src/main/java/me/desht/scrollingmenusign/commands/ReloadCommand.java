@@ -33,21 +33,21 @@ public class ReloadCommand extends SMSAbstractCommand {
 		if (args.length == 0) {
 			loadAll = true;
 		} else {
-            for (String arg : args) {
-                if (arg.startsWith("me")) {
-                    loadMenus = true;
-                } else if (arg.startsWith("ma")) {
-                    loadMacros = true;
-                } else if (arg.startsWith("c")) {
-                    loadConfig = true;
-                } else if (arg.startsWith("va")) {
-                    loadVariables = true;
-                } else if (arg.startsWith("vi")) {
-                    loadViews = true;
-                } else if (arg.startsWith("fo")) {
-                    loadFonts = true;
-                }
-            }
+			for (String arg : args) {
+				if (arg.startsWith("me")) {
+					loadMenus = true;
+				} else if (arg.startsWith("ma")) {
+					loadMacros = true;
+				} else if (arg.startsWith("c")) {
+					loadConfig = true;
+				} else if (arg.startsWith("va")) {
+					loadVariables = true;
+				} else if (arg.startsWith("vi")) {
+					loadViews = true;
+				} else if (arg.startsWith("fo")) {
+					loadFonts = true;
+				}
+			}
 		}
 		if (loadAll || loadConfig) {
 			plugin.reloadConfig();
