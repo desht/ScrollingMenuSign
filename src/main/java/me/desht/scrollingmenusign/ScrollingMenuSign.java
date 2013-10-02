@@ -498,22 +498,4 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			saveConfig();
 		}
 	}
-
-	/**
-	 * Check if the given block is an attachable material, and if so, if the block it's
-	 * attached to can actually hold it.
-	 *
-	 * @param b the block to check
-	 * @return false if the block is still attached OK, true if it has become detached
-	 */
-	public boolean isAttachableDetached(Block b) {
-		BlockState bs = b.getState();
-		if (bs.getData() instanceof Attachable) {
-			Attachable a = (Attachable) bs.getData();
-			Block attachedBlock = b.getRelative(a.getAttachedFace());
-			return !attachedBlock.getType().isSolid();
-		} else {
-			return false;
-		}
-	}
 }

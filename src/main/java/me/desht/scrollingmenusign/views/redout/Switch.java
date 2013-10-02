@@ -8,6 +8,7 @@ import java.util.Set;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSInteractableBlock;
 import me.desht.scrollingmenusign.SMSValidate;
@@ -217,7 +218,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
 		if (plugin.getConfig().getBoolean("sms.no_physics")) {
 			event.setCancelled(true);
-		} else if (plugin.isAttachableDetached(event.getBlock())) {
+		} else if (BlockUtil.isAttachableDetached(event.getBlock())) {
 			LogUtils.info("Redstone output switch @ " + location + " (for " + getView().getName() + ") has become detached: deleting");
 			delete();
 		}

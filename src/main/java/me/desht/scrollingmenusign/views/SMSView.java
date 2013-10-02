@@ -22,6 +22,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSInteractableBlock;
@@ -790,7 +791,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		LogUtils.fine("block physics event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
 		if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
 			event.setCancelled(true);
-		} else if (plugin.isAttachableDetached(b)) {
+		} else if (BlockUtil.isAttachableDetached(b)) {
 			// attached to air? looks like the sign (or other attachable) has become detached
 			// NOTE: for multi-block views, the loss of *any* block due to physics causes the view to be removed
 			LogUtils.info("Attachable view block " + getName() + " @ " + b.getLocation() + " has become detached: deleting");

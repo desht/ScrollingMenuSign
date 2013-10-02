@@ -276,7 +276,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	@Override
 	public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
 		Block b = event.getBlock();
-		if (!plugin.getConfig().getBoolean("sms.no_physics") && plugin.isAttachableDetached(b)) {
+		if (!plugin.getConfig().getBoolean("sms.no_physics") && BlockUtil.isAttachableDetached(b)) {
 			delete();
 			LogUtils.info("Redstone control sign for " + getView().getName() + " @ " + location + " has become detached: deleting");
 		} else {
