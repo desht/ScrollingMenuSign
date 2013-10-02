@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import me.desht.dhutils.Cost;
+import me.desht.dhutils.cost.Cost;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
@@ -135,23 +135,23 @@ public class ParsedCommand {
 				// command terminator - run command and finish
 				commandStopCondition = StopCondition.ON_SUCCESS;
 				break;
-			} else if (token.startsWith("$") && command == null) {
+			} else if (token.startsWith("$") && command == null && sender instanceof Player) {
 				// apply a cost or costs
 				for (String c : token.substring(1).split(";")) {
 					if (!c.isEmpty()) {
 						try {
-							costs.add(new Cost(c));
+                            Cost cost = Cost.parse(c);
+							costs.add(cost);
+                            if (!cost.isAffordable((Player) sender)) {
+                                affordable = false;
+                            }
+                            if (!cost.isApplicable((Player) sender)) {
+                                applicable = false;
+                            }
 						} catch (IllegalArgumentException e) {
 							throw new SMSException(e.getMessage() + ": bad cost");
 						}
 					}
-				}
-
-				if (!Cost.playerCanAfford(sender, getCosts())) {
-					affordable = false;
-				}
-				if (!Cost.isApplicable(sender, getCosts())) {
-					applicable = false;
 				}
 			} else if (token.equals("&&")) {
 				// command separator - start another command IF this command is runnable
@@ -166,7 +166,8 @@ public class ParsedCommand {
 			}
 		}
 
-		quotedArgs = MiscUtil.splitQuotedString(rawCommand.toString()).toArray(new String[0]);
+        List<String> strings = MiscUtil.splitQuotedString(rawCommand.toString());
+        quotedArgs = strings.toArray(new String[strings.size()]);
 
 		if (!(sender instanceof Player) && command != null && command.startsWith("/")) {
 			console = true;
@@ -181,7 +182,7 @@ public class ParsedCommand {
 	/**
 	 * Get the name of the command, i.e. the first word of the command string with any special
 	 * leading characters removed.
-	 * 
+	 *
 	 * @return	The command name
 	 */
 	public String getCommand() {
@@ -190,7 +191,7 @@ public class ParsedCommand {
 
 	/**
 	 * Get the argument list for the command (excluding the command), split on whitespace.
-	 * 
+	 *
 	 * @return	The command's arguments
 	 */
 	public List<String> getArgs() {
@@ -200,7 +201,7 @@ public class ParsedCommand {
 	/**
 	 * Get the argument list for the command (including the command), split on quoted substrings
 	 * and/or whitespace.
-	 * 
+	 *
 	 * @return the argument list
 	 */
 	public String[] getQuotedArgs() {
@@ -210,7 +211,7 @@ public class ParsedCommand {
 	/**
 	 * Get the elevation status, i.e. whether the command should be (has been) run with permissions checks
 	 * bypassed.
-	 * 
+	 *
 	 * @return	true if elevated, false otherwise
 	 */
 	public boolean isElevated() {
@@ -220,7 +221,7 @@ public class ParsedCommand {
 	/**
 	 * Get the restriction status, i.e. whether the command will be (has been) ignored due to a restriction
 	 * check not being met.
-	 * 
+	 *
 	 * @return true if the command was not run due to a restriction check, false otherwise
 	 */
 	public boolean isRestricted() {
@@ -230,7 +231,7 @@ public class ParsedCommand {
 	/**
 	 * Set the restriction status of this command.
 	 *
-	 * @param restricted
+	 * @param restricted whether or not this command should be considered restricted
 	 */
 	public void setRestricted(boolean restricted) {
 		this.restricted = restricted;
@@ -238,7 +239,7 @@ public class ParsedCommand {
 
 	/**
 	 * Get the affordable status, i.e. whether the command costs can be (have been) met by the player.
-	 * 
+	 *
 	 * @return	true if the command is affordable, false otherwise
 	 */
 	public boolean isAffordable() {
@@ -248,7 +249,7 @@ public class ParsedCommand {
 	/**
 	 * Get the applicable status, i.e. whether the command costs actually make sense.  E.g. repairing an
 	 * item which doesn't have durability would not be applicable.
-	 * 
+	 *
 	 * @return true if the costs are applicable, false otherwise
 	 */
 	public boolean isApplicable() {
@@ -257,7 +258,7 @@ public class ParsedCommand {
 
 	/**
 	 * Check if this command is a special "commandlet" registered with SMS.  {@link BaseCommandlet}
-	 * 
+	 *
 	 * @return true if this is a commandlet, false otherwise
 	 */
 	public boolean isCommandlet() {
@@ -266,7 +267,7 @@ public class ParsedCommand {
 
 	/**
 	 * Get the details of the costs for this command.
-	 * 
+	 *
 	 * @return	a List of Cost objects
 	 */
 	public List<Cost> getCosts() {
@@ -275,7 +276,7 @@ public class ParsedCommand {
 
 	/**
 	 * Get the return status from actually running the command.
-	 * 
+	 *
 	 * @return	the return status
 	 */
 	public ReturnStatus getStatus() {
@@ -288,7 +289,7 @@ public class ParsedCommand {
 
 	/**
 	 * Check if this command was to whisper a message to the player, i.e. it started with '\\'
-	 * 
+	 *
 	 * @return true if the command was a whisper, false otherwise
 	 */
 	public boolean isWhisper() {
@@ -297,7 +298,7 @@ public class ParsedCommand {
 
 	/**
 	 * Check if this command is a chat string, i.e. it started with '\'
-	 * 
+	 *
 	 * @return true if the command was a chat string, false otherwise
 	 */
 	public boolean isChat() {
@@ -318,7 +319,7 @@ public class ParsedCommand {
 	 * was encountered following a command that actually ran (and was
 	 * not ignored due to a restriction or cost check), or && was
 	 * encountered following a command that did not run.
-	 * 
+	 *
 	 * @return true if the command was stopped, false otherwise
 	 */
 	public boolean isCommandStopped() {
@@ -337,7 +338,7 @@ public class ParsedCommand {
 	 * was encountered following a command that actually ran (and was
 	 * not ignored due to a restriction or cost check), or && was
 	 * encountered following a command that did not run.
-	 * 
+	 *
 	 * @return true if a macro was stopped, false otherwise
 	 */
 	public boolean isMacroStopped() {
@@ -353,7 +354,7 @@ public class ParsedCommand {
 
 	/**
 	 * Check if the command was run as a console command, i.e. started with '#'
-	 * 
+	 *
 	 * @return true if a console command, false otherwise
 	 */
 	public boolean isConsole() {
@@ -362,7 +363,7 @@ public class ParsedCommand {
 
 	/**
 	 * Get the last error message that was generated from running the command.
-	 * 
+	 *
 	 * @return	The error text
 	 */
 	public String getLastError() {
@@ -379,7 +380,7 @@ public class ParsedCommand {
 
 	/**
 	 * Get the argument at the given index.
-	 * 
+	 *
 	 * @param index		Index of the argument to get
 	 * @return			The argument
 	 */
@@ -405,7 +406,7 @@ public class ParsedCommand {
 
 		switch (checkType.charAt(0)) {
 		case 'g':
-			return ScrollingMenuSign.permission == null ? false : ScrollingMenuSign.permission.playerInGroup(player, checkTerm);
+			return ScrollingMenuSign.permission != null && ScrollingMenuSign.permission.playerInGroup(player, checkTerm);
 		case 'p':
 			return player.getName().equalsIgnoreCase(checkTerm);
 		case 'w':
@@ -496,6 +497,6 @@ public class ParsedCommand {
 		return false;
 	}
 
-	public enum StopCondition { NONE, ON_SUCCESS, ON_FAIL };
+	public enum StopCondition { NONE, ON_SUCCESS, ON_FAIL }
 
 }

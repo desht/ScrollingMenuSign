@@ -40,12 +40,6 @@ public class SMSHandlerImpl implements SMSHandler {
 	}
 
 	@Override
-	@Deprecated
-	public void deleteMenu(String name, SMSMenuAction action) throws SMSException {
-		SMSMenu.getMenu(name).deletePermanent();
-	}
-
-	@Override
 	public void deleteMenu(String name) throws SMSException {
 		SMSMenu.getMenu(name).deletePermanent();
 	}

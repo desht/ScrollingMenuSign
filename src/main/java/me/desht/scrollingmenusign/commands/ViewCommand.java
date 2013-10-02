@@ -37,7 +37,7 @@ public class ViewCommand extends SMSAbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		SMSView view = null;
+		SMSView view;
 		if (args.length > 0) {
 			view = getView(sender, args[0]);
 		} else {
@@ -58,7 +58,7 @@ public class ViewCommand extends SMSAbstractCommand {
 
 		if (getBooleanOption("popup")) {
 			notFromConsole(sender);
-			view.ensureAllowedToUse((Player) sender);
+			view.ensureAllowedToUse(sender);
 			if (view instanceof PoppableView) {
 				PoppableView pop = (PoppableView) view;
 				pop.toggleGUI((Player) sender);

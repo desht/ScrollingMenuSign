@@ -87,7 +87,7 @@ public class GiveCommand extends SMSAbstractCommand {
 				if (v == null) {
 					// this menu doesn't have a map view - make one!
 					mapId = Bukkit.createMap(target.getWorld()).getId();
-					v = ScrollingMenuSign.getInstance().getViewManager().addMapToMenu(menu, mapId, sender);
+					ScrollingMenuSign.getInstance().getViewManager().addMapToMenu(menu, mapId, sender);
 				} else {
 					// menu has a map view already - use that map ID
 					mapId = ((SMSMapView)v).getMapView().getId();
@@ -147,7 +147,7 @@ public class GiveCommand extends SMSAbstractCommand {
 		String s = amount == 1 ? "" : "s";
 		MiscUtil.statusMessage(sender, String.format("Gave %d map%s (&6map_%d&-) to &6%s", amount, s, mapId, targetPlayer.getName()));
 		if (sender != targetPlayer) {
-			MiscUtil.statusMessage(targetPlayer, String.format("You received %d map%s of type &6map_%d&-", amount, s, mapId));	
+			MiscUtil.statusMessage(targetPlayer, String.format("You received %d map%s of type &6map_%d&-", amount, s, mapId));
 		}
 	}
 
@@ -155,7 +155,7 @@ public class GiveCommand extends SMSAbstractCommand {
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		switch (args.length) {
 		case 1:
-			return filterPrefix(sender, Arrays.asList(new String[] { "book", "map" }), args[0]);
+			return filterPrefix(sender, Arrays.asList("book", "map"), args[0]);
 		default:
 			showUsage(sender);
 			return noCompletions(sender);

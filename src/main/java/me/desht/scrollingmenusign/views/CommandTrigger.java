@@ -22,7 +22,7 @@ public abstract class CommandTrigger {
 	 *<p>
 	 * Subclasses should override this as needed.
 	 *
-	 * @param playerName
+	 * @param playerName name of the player to check for
 	 * @return the player context string
 	 */
 	protected String getPlayerContext(String playerName) {
@@ -31,7 +31,7 @@ public abstract class CommandTrigger {
 
 	/**
 	 * Get the title for the given player's currently active menu.
-	 * 
+	 *
 	 * @param playerName name of the player to check
 	 * @return title of the active menu
 	 */
@@ -46,7 +46,7 @@ public abstract class CommandTrigger {
 	/**
 	 * Get the number of items in the given player's currently active menu.  Note that for non-native menus,
 	 * this will be one greater than the actual menu size, because a synthetic "BACK" button is added.
-	 * 
+	 *
 	 * @param playerName name of the player to check
 	 * @return the number of items in the active menu
 	 */
@@ -61,7 +61,7 @@ public abstract class CommandTrigger {
 
 	/**
 	 * Get the menu item at the given position for the given player's currently active menu.
-	 * 
+	 *
 	 * @param playerName name of the player to check
 	 * @param pos position in the active menu
 	 * @return the active menu item

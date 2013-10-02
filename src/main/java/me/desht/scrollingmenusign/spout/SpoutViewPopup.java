@@ -22,7 +22,7 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	private final SMSListWidget listWidget;
 	private final SMSListTexture texture;
 	private final SpoutPlayer sp;
-	
+
 	private boolean poppedUp;
 
 	public SpoutViewPopup(SpoutPlayer sp, SMSSpoutView view) {
@@ -47,10 +47,8 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 		listWidget.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
 
 		this.attachWidget(ScrollingMenuSign.getInstance(), title);
-		if (texture != null) {
-			texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
-			this.attachWidget(ScrollingMenuSign.getInstance(), texture);
-		}
+        texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
+        this.attachWidget(ScrollingMenuSign.getInstance(), texture);
 		this.attachWidget(ScrollingMenuSign.getInstance(), listWidget);
 	}
 
@@ -116,10 +114,10 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	 */
 	public void scrollTo(int scrollPos) {
 		listWidget.setSelection(scrollPos - 1);
-		
+
 		LogUtils.fine("Spout view " + getView().getName() + ": scroll to " + scrollPos + ": " + listWidget.getSelectedItem().getTitle());
 	}
-	
+
 	/**
 	 * This is used when the view is scrolled by a Spout keypress.  When that happens a new item
 	 * becomes selected; we need to distinguish that from an item being selected by a mouse click.

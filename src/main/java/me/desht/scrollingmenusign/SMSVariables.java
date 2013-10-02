@@ -32,7 +32,7 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Private constructor.
-	 * 
+	 *
 	 * @param playerName	The player who owns these variables
 	 */
 	private SMSVariables(String playerName) {
@@ -50,7 +50,7 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Set the given variable to the given value
-	 * 
+	 *
 	 * @param varName	the variable name
 	 * @param value		the value
 	 */
@@ -61,7 +61,7 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Get the value of the given variable
-	 * 
+	 *
 	 * @param varName	the variable name
 	 * @return	the value, or null if the variable does not exist
 	 */
@@ -71,7 +71,7 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Get the value of the given variable
-	 * 
+	 *
 	 * @param varName	the variable name
 	 * @param def	default value
 	 * @return	the value, or null if the variable does not exist
@@ -82,7 +82,7 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Checks if the given variable exists.
-	 * 
+	 *
 	 * @param varName	the variable name
 	 * @return	true if it exists, false otherwise
 	 */
@@ -92,7 +92,7 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Get a all variable names in this variable collection.
-	 * 
+	 *
 	 * @return a set of the variable names in this collection
 	 */
 	public Set<String> getVariables() {
@@ -144,7 +144,7 @@ public class SMSVariables implements SMSPersistable {
 	 * Get the variable collection for the given player.  If the player has no variables,
 	 * a new empty SMSVariables collection will be created iff autoCreate is true, otherwise
 	 * an exception will be thrown.
-	 * 
+	 *
 	 * @param playerName	the player's name
 	 * @return	an SMSVariables collection of variables for the player
 	 * @throws SMSException if autoCreate is false and the variables object does not exist
@@ -162,9 +162,9 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Check if any variables are defined for the given player.
-	 * 
-	 * @param playerName
-	 * @return true if variables are define for the player, false otherwise
+	 *
+	 * @param playerName the name of the player to check for
+	 * @return true if variables are defined for the player, false otherwise
 	 */
 	public static boolean hasVariables(String playerName) {
 		return allVariables.containsKey(playerName);
@@ -172,7 +172,7 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Get a list of all the known SMSVariables collections
-	 * 
+	 *
 	 * @return	a list of all the known SMSVariables collections
 	 */
 	public static Collection<SMSVariables> listVariables() {
@@ -181,7 +181,7 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Get a (possibly sorted) list of all the known SMSVariables collections
-	 * 
+	 *
 	 * @param isSorted	true if the result should be sorted by variable name
 	 * @return a list of all the known SMSVariables collections
 	 */
@@ -201,7 +201,7 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Get the value of the given variable spec.  The spec may be a simple variable name or
 	 * a player name followed by a period, followed by the variable name.
-	 * 
+	 *
 	 * @param sender the command sender who is retrieving the variable
 	 * @param varSpec the variable specification
 	 * @return the variable value, or null if not set
@@ -213,7 +213,7 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Get the value of the given variable spec.  The spec may be a simple variable name or
 	 * a player name followed by a period, followed by the variable name.
-	 * 
+	 *
 	 * @param sender the command sender who is retrieving the variable
 	 * @param varSpec the variable specification
 	 * @param defValue default value to use if the variable is not set
@@ -235,7 +235,7 @@ public class SMSVariables implements SMSPersistable {
 
 	/**
 	 * Set the given variable spec. to the given value.
-	 * 
+	 *
 	 * @param sender the command sender who is retrieving the variable
 	 * @param varSpec the variable specification
 	 * @param value	new value for the variable
@@ -249,9 +249,9 @@ public class SMSVariables implements SMSPersistable {
 	 * Check if the given variable specification exists.
 	 * <p>
 	 * A variable specification is either "<varname>" or "<playername>.<varname>"
-	 * 
+	 *
 	 * @param sender the command sender to check
-	 * @param varSpec the variable specification 
+	 * @param varSpec the variable specification
 	 * @return true if the variable exists, false otherwise
 	 */
 	public static boolean isSet(CommandSender sender, String varSpec) {

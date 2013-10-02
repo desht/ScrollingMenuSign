@@ -14,11 +14,11 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.desht.dhutils.Cost;
 import me.desht.dhutils.ExperienceManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.cost.Cost;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.SMSVariables;
@@ -44,11 +44,11 @@ public class CommandParser {
 	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)(=.*?)?>");
 	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
 
-	private enum RunMode { CHECK_PERMS, EXECUTE };
+	private enum RunMode { CHECK_PERMS, EXECUTE }
 
 	private static Logger cmdLogger = null;
 
-	private Set<String> macroHistory;
+	private final Set<String> macroHistory;
 
 	public CommandParser() {
 		if (cmdLogger == null) {
@@ -86,25 +86,32 @@ public class CommandParser {
 
 	/**
 	 * Parse and run a command string via the SMS command engine
-	 * 
+	 *
 	 * @param sender		Player who is running the command
 	 * @param command		The command to be run
+     * @param trigger       The command trigger
 	 * @return	The parsed command object, which gives access to details on how the command ran
-	 * @throws SMSException
+	 * @throws SMSException if there was any problem running the command
 	 */
 	public ParsedCommand executeCommand(CommandSender sender, String command, CommandTrigger trigger) {
-		ParsedCommand cmd = handleCommandString(sender, trigger, command, RunMode.EXECUTE);
-		return cmd;
+        return handleCommandString(sender, trigger, command, RunMode.EXECUTE);
 	}
 
+    /**
+     * Parse and run a command string via the SMS command engine
+     *
+     * @param sender Player who is running the command
+     * @param command The command to be run
+     * @return The parsed command object, which gives access to details on how the command ran
+     * @throws SMSException if there was any problem running the command
+     */
 	public ParsedCommand executeCommand(CommandSender sender, String command) {
-		ParsedCommand cmd = handleCommandString(sender, null, command, RunMode.EXECUTE);
-		return cmd;
+        return handleCommandString(sender, null, command, RunMode.EXECUTE);
 	}
 
 	/**
 	 * Check that the given player has permission to create a menu entry with the given command.
-	 * 
+	 *
 	 * @param player	Player who is creating the menu item
 	 * @param command	The command to be run
 	 * @return	true if the player is allowed to create this item, false otherwise
@@ -118,7 +125,7 @@ public class CommandParser {
 
 	/**
 	 * Substitute any user-defined variables (/sms var) in the command
-	 * 
+	 *
 	 * @param player	The player running the command
 	 * @param command	The command string
 	 * @param missing	(returned) a set of variable names with no definitions
@@ -144,10 +151,10 @@ public class CommandParser {
 
 	/**
 	 * Substitute any view-specific variable in the command
-	 * 
-	 * @param view
-	 * @param command
-	 * @return
+	 *
+	 * @param view the view
+	 * @param command the command string
+	 * @return the substituted command string
 	 */
 	private String viewVarSubs(SMSView view, String command) {
 		Matcher m = viewVarSubPat.matcher(command);
@@ -162,11 +169,11 @@ public class CommandParser {
 
 	/**
 	 * Carry out all the predefined substitutions
-	 * 
-	 * @param player
-	 * @param trigger
-	 * @param command
-	 * @return
+	 *
+	 * @param player the player to do the substitutions for
+	 * @param trigger the command trigger
+	 * @param command the command string
+	 * @return the substituted command string
 	 */
 	private String preDefinedSubs(Player player, CommandTrigger trigger, String command) {
 		Matcher m = preDefPat.matcher(command);
@@ -199,7 +206,8 @@ public class CommandParser {
 				LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
 				repl = "<" + key + ">";
 			}
-			m.appendReplacement(sb, repl);
+            repl = repl.replace("$", "\\$");
+            m.appendReplacement(sb, repl);
 		}
 		m.appendTail(sb);
 		return sb.toString();
@@ -207,12 +215,12 @@ public class CommandParser {
 
 	/**
 	 * Handle one command string, which may contain multiple commands (chained with && or $$)
-	 * 
-	 * @param sender
-	 * @param trigger
-	 * @param command
-	 * @param mode
-	 * @return
+	 *
+	 * @param sender the command sender
+	 * @param trigger the command trigger
+	 * @param command the command string
+	 * @param mode the run mode
+	 * @return a ParsedCommand object
 	 * @throws SMSException
 	 */
 	private ParsedCommand handleCommandString(CommandSender sender, CommandTrigger trigger, String command, RunMode mode) throws SMSException {
@@ -288,14 +296,9 @@ public class CommandParser {
 		return cmd;
 	}
 
-	private void logCommandUsage(CommandSender sender, ParsedCommand cmd)	 {
-		logCommandUsage(sender, cmd, null);
-	}
-
-	private void logCommandUsage(CommandSender sender, ParsedCommand cmd, String message) {
+	private void logCommandUsage(CommandSender sender, ParsedCommand cmd) {
 		if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.log_commands")) {
-			String outcome = message == null ? cmd.getLastError() : message;
-			cmdLogger.log(Level.INFO, sender.getName() + " ran [" + cmd.getRawCommand() + "], outcome = " + cmd.getStatus() + " (" + outcome + ")");
+			cmdLogger.log(Level.INFO, sender.getName() + " ran [" + cmd.getRawCommand() + "], outcome = " + cmd.getStatus() + " (" + cmd.getLastError() + ")");
 		}
 	}
 
@@ -320,7 +323,7 @@ public class CommandParser {
 		}
 
 		if (sender instanceof Player) {
-			Cost.chargePlayer(sender, cmd.getCosts());
+            Cost.apply((Player) sender, cmd.getCosts());
 		}
 
 		if (cmd.getCommand() == null || cmd.getCommand().isEmpty()) {
@@ -355,8 +358,8 @@ public class CommandParser {
 			// (this now also handles the /* fake-player style, which is no longer directly supported)
 			if (!PermissionUtils.isAllowedTo(sender, "scrollingmenusign.execute.elevated") || ScrollingMenuSign.permission == null) {
 				cmd.setStatus(ReturnStatus.NO_PERMS);
-				cmd.setLastError(ScrollingMenuSign.permission == null ? 
-						"Permission elevation is not supported." : 
+				cmd.setLastError(ScrollingMenuSign.permission == null ?
+						"Permission elevation is not supported." :
 						"You don't have permission to run this command.");
 				return;
 			}
@@ -411,8 +414,7 @@ public class CommandParser {
 			LogUtils.warning("Recursion detected and stopped in macro " + macroName);
 			cmd.setStatus(ReturnStatus.WOULD_RECURSE);
 			cmd.setLastError("Recursion detected and stopped in macro " + macroName);
-			return;
-		} else if (SMSMacro.hasMacro(macroName)) {
+        } else if (SMSMacro.hasMacro(macroName)) {
 			macroHistory.add(macroName);
 			ParsedCommand subCommand = null;
 			String allArgs = Joiner.on(" ").join(cmd.getArgs());
@@ -433,12 +435,10 @@ public class CommandParser {
 				cmd.setStatus(subCommand.getStatus());
 				cmd.setLastError(subCommand.getLastError());
 			}
-			return;
-		} else {
+        } else {
 			cmd.setStatus(ReturnStatus.BAD_MACRO);
 			cmd.setLastError("Unknown macro " + macroName + ".");
-			return;
-		}
+        }
 	}
 
 	private void runCommandlet(CommandSender sender, CommandTrigger trigger, ParsedCommand cmd) {

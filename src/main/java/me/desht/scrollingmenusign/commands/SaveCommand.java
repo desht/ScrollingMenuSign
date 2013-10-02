@@ -23,13 +23,13 @@ public class SaveCommand extends SMSAbstractCommand {
 		if (args.length == 0) {
 			saveAll = true;
 		} else {
-			for (int i = 0 ; i < args.length; i++) {
-				if (args[i].equalsIgnoreCase("menus")) {
-					saveMenus = true;
-				} else if (args[i].equalsIgnoreCase("macros")) {
-					saveMacros = true;
-				}
-			}
+            for (String arg : args) {
+                if (arg.equalsIgnoreCase("menus")) {
+                    saveMenus = true;
+                } else if (arg.equalsIgnoreCase("macros")) {
+                    saveMacros = true;
+                }
+            }
 		}
 		if (saveAll || saveMenus)
 			SMSPersistence.saveMenusAndViews();

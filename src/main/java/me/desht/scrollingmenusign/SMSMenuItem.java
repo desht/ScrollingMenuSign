@@ -50,7 +50,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			throw new SMSException("invalid material '" + iconMaterialName + "'");
 		}
 		this.lore = new ArrayList<String>();
-		for (String l : lore) { 
+		for (String l : lore) {
 			this.lore.add(MiscUtil.parseColourSpec(l));
 		}
 		this.uses = new SMSRemainingUses(this);
@@ -88,7 +88,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/**
 	 * Get the label for this menu item
-	 * 
+	 *
 	 * @return	The label
 	 */
 	public String getLabel() {
@@ -97,7 +97,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/**
 	 * Get the label for this menu item with all colour codes removed
-	 * 
+	 *
 	 * @return	The label
 	 */
 	public String getLabelStripped() {
@@ -106,7 +106,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/**
 	 * Get the command for this menu item
-	 * 
+	 *
 	 * @return	The command
 	 */
 	public String getCommand() {
@@ -115,7 +115,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/**
 	 * Get the feedback message for this menu item
-	 * 
+	 *
 	 * @return	The feedback message
 	 */
 	public String getMessage() {
@@ -125,7 +125,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Return the material used for this menu item's icon, in those views which
 	 * support icons.
-	 * 
+	 *
 	 * @return the material used for the menu item's icon
 	 */
 	public MaterialWithData getIconMaterial() {
@@ -135,7 +135,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Get the lore (tooltip) for this menu item.  Note that not all view types necessarily support
 	 * display of lore.
-	 * 
+	 *
 	 * @return the lore for the menu item, as a String array
 	 */
 	public String[] getLore() {
@@ -145,7 +145,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	/**
 	 * Get the lore (tooltip) for this menu item.  Note that not all view types necessarily support
 	 * display of lore.
-	 * 
+	 *
 	 * @return the lore for the menu item, as a list of String
 	 */
 	public List<String> getLoreAsList() {
@@ -154,26 +154,26 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/**
 	 * Append a line of text to the item's lore.
-	 * 
-	 * @param l
+	 *
+	 * @param lore the lore text to append
 	 */
-	public void appendLore(String l) {
-		lore.add(l);
+	public void appendLore(String lore) {
+		this.lore.add(lore);
 	}
 
 	/**
 	 * Replace the item's lore with a line of text.
-	 * 
-	 * @param l
+	 *
+	 * @param lore the new lore text for the item
 	 */
-	public void setLore(String l) {
-		lore.clear();
-		lore.add(l);
+	public void setLore(String lore) {
+		this.lore.clear();
+		this.lore.add(lore);
 	}
 
 	/**
 	 * Executes the command for this item
-	 * 
+	 *
 	 * @param sender the command sender who triggered the execution
 	 * @param trigger the view that triggered this execution
 	 * @throws SMSException	if the usage limit for this player is exhausted
@@ -202,7 +202,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/**
 	 * Executes the command for this item
-	 * 
+	 *
 	 * @param sender the command sender who triggered the execution
 	 * @throws SMSException	if the usage limit for this player is exhausted
 	 */
@@ -212,7 +212,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/**
 	 * Verify that the given object (item or menu) has not exhausted its usage limits.
-	 * 
+	 *
 	 * @param useLimitable the menu or item to check
 	 * @param player the player to check
 	 * @return true if there is a valid usage limit, false if the item has no usage limits at all
@@ -248,7 +248,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/**
 	 * Displays the feedback message for this menu item
-	 * 
+	 *
 	 * @param player	Player to show the message to
 	 */
 	public void feedbackMessage(Player player) {
@@ -315,7 +315,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/**
 	 * Returns a printable representation of the number of uses remaining for this item.
-	 * 
+	 *
 	 * @return	Formatted usage information
 	 */
 	String formatUses() {
@@ -324,7 +324,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/**
 	 * Returns a printable representation of the number of uses remaining for this item, for the given player.
-	 * 
+	 *
 	 * @param sender	Player to retrieve the usage information for
 	 * @return			Formatted usage information
 	 */
@@ -382,7 +382,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 	/* (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 * 
+	 *
 	 * Two menu items are equal if their labels are the same.  Colour codes do not count, only the text.
 	 */
 	@Override

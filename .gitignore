@@ -1,17 +1,17 @@
-# Eclipse stuff                                                                                                                                                
-/.classpath                                                                                                                                                    
-/.project                                                                                                                                                      
-/.settings   
+# Eclipse stuff
+/.classpath
+/.project
+/.settings
 
-# netbeans                                                                                                                                                     
-/nbproject                                                                                                                                                     
-                                                                                                                                                               
-# we use maven!                                                                                                                                                
-/build.xml                                                                                                                                                     
-                                                                                                                                                               
-# maven                                                                                                                                                        
-/target                                                                                                                                                        
-                                                                                                                                                               
+# netbeans
+/nbproject
+
+# we use maven!
+/build.xml
+
+# maven
+/target
+
 # vim
 .*.sw[a-p]
 
@@ -28,4 +28,5 @@
 *.iml
 *.ipr
 *.iws
+/.idea
 

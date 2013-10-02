@@ -27,7 +27,7 @@ public class SMSRemainingUses {
 
 	/**
 	 * Check if this usage item limits uses.
-	 * 
+	 *
 	 * @param player	The player name to check for
 	 * @return			True if there are limitations, false if not
 	 */
@@ -37,7 +37,7 @@ public class SMSRemainingUses {
 
 	/**
 	 * Return the remaining uses for the player.
-	 * 
+	 *
 	 * @param player	The player name to check for
 	 * @return			The number of uses remaining (Integer.MAX_VALUE if there is no limit)
 	 */
@@ -61,7 +61,7 @@ public class SMSRemainingUses {
 
 	/**
 	 * Clear usage limits for the given player.
-	 * 
+	 *
 	 * @param player	The player name to remove usage limits for
 	 */
 	public void clearUses(String player) {
@@ -72,7 +72,7 @@ public class SMSRemainingUses {
 	/**
 	 * Set the usage limits per player.  This is the total number of times an item/menu can be
 	 * used by each player.
-	 * 
+	 *
 	 * @param useCount	The usage limit
 	 */
 	public void setUses(int useCount) {
@@ -84,8 +84,8 @@ public class SMSRemainingUses {
 	/**
 	 * Set the global usage limit.  This is the total number of times an item/menu can be
 	 * used by any player.
-	 * 
-	 * @param useCount
+	 *
+	 * @param useCount the usage count
 	 */
 	public void setGlobalUses(int useCount) {
 		uses.clear();
@@ -96,7 +96,7 @@ public class SMSRemainingUses {
 
 	/**
 	 * Record a usage event against this item.
-	 * 
+	 *
 	 * @param player	Name of the player who used the menu/item
 	 */
 	public void use(String player) {
@@ -130,7 +130,7 @@ public class SMSRemainingUses {
 
 	/**
 	 * Return a formatted description of the total and remaining usage for the given player.
-	 * 
+	 *
 	 * @param player	The player name
 	 * @return			Formatted string
 	 */

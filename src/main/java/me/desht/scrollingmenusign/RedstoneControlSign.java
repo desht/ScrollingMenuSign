@@ -39,7 +39,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 
 	/**
 	 * Construct a new RedstoneControlSign for the given Sign and view.  Private constructor - use getControlSign().
-	 * 
+	 *
 	 * @param sign	the Sign
 	 * @param view	the globally-scrollable view
 	 * @throws SMSException if the sign text is any way invalid
@@ -105,7 +105,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 
 	/**
 	 * Get the last-recorded power level for this control sign.
-	 * 
+	 *
 	 * @return	the last-recorded power level
 	 */
 	public int getLastPowerLevel() {
@@ -114,7 +114,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 
 	/**
 	 * Set the last-recorded power level for this control sign.
-	 * 
+	 *
 	 * @param lastPowerLevel the power level to record
 	 */
 	public void setLastPowerLevel(int lastPowerLevel) {
@@ -123,7 +123,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 
 	/**
 	 * Get the location of this control sign.
-	 * 
+	 *
 	 * @return	the control sign location
 	 */
 	public Location getlocation() {
@@ -132,7 +132,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 
 	/**
 	 * Get the view that this control sign is attached to.
-	 * 
+	 *
 	 * @return	the view object
 	 */
 	public SMSGlobalScrollableView getView() {
@@ -148,7 +148,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	}
 
 	/**
-	 * Process the actions for this control sign.  Iterate through each defined adjacent block, and when one is 
+	 * Process the actions for this control sign.  Iterate through each defined adjacent block, and when one is
 	 * found that is powered, execute the associated action on the control sign's view.  Stop processing as soon as
 	 * a powered block is found.
 	 */
@@ -169,7 +169,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	/**
 	 * Parse the action definitions in the given string.  This would be taken from lines 3 & 4 of
 	 * the sign.
-	 * 
+	 *
 	 * @param action	The action string, containing a whitespace-separate list of location/action pairs.
 	 */
 	private void parseAction(String action, Sign sign) {
@@ -199,7 +199,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 			face = BlockUtil.getLeft(signData.getFacing());
 			break;
 		default:
-			throw new SMSException("Invalid redstone control direction '" + action.charAt(0) + "'");	
+			throw new SMSException("Invalid redstone control direction '" + action.charAt(0) + "'");
 		}
 
 		SMSUserAction userAction;
@@ -215,7 +215,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 
 	/**
 	 * Mark a control sign as deferred - do this if the world isn't loaded at this point.
-	 * 
+	 *
 	 * @param worldName	The name of the world
 	 * @param pos	a Vector representing the position of the sign
 	 */
@@ -229,7 +229,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	/**
 	 * Load any deferred control signs for the given world.  Called from the
 	 * WorldLoadEvent handler.
-	 * 
+	 *
 	 * @param world	The world that's been loaded
 	 */
 	public static void loadDeferred(World world) {
@@ -289,9 +289,9 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	}
 
 	private class Action {
-		BlockFace face;
-		Block block;
-		SMSUserAction action;
+		private final BlockFace face;
+        private final Block block;
+        private final SMSUserAction action;
 
 		Action (BlockFace face, Block block, SMSUserAction action) {
 			this.face = face;
@@ -299,7 +299,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 			this.action = action;
 			LogUtils.fine("redstone control: create power-on action: " + block + " = " + action);
 		}
-	
+
 		@Override
 		public String toString() {
 			return face + "=" + action.getShortDesc();

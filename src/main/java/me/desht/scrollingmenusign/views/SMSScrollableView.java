@@ -39,9 +39,7 @@ public abstract class SMSScrollableView extends SMSView {
 
 	@Override
 	public Map<String, Object> freeze() {
-		Map<String, Object> map = super.freeze();
-
-		return map;
+        return super.freeze();
 	}
 
 	@Override
@@ -52,7 +50,7 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	@Override
-	public SMSMenu popMenu(String playerName) {		
+	public SMSMenu popMenu(String playerName) {
 		setScrollPos(playerName, storedScrollPos.popScrollPos(playerName));
 		return super.popMenu(playerName);
 	}
@@ -65,15 +63,11 @@ public abstract class SMSScrollableView extends SMSView {
 		this.wrap = wrap;
 	}
 
-	protected void thaw(ConfigurationSection node) throws SMSException {
-		super.thaw(node);
-	}
-
 	/**
 	 * Get the given player's scroll position (currently-selected item) for this view.  If the scroll position
 	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
 	 * adjusted to be in range before being returned.
-	 * 
+	 *
 	 * @param playerName	The player to check
 	 * @return				The scroll position
 	 */
@@ -90,7 +84,7 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Sets the scroll position for the given player on this view.
-	 * 
+	 *
 	 * @param playerName	The player's name
 	 * @param scrollPos		The scroll position
 	 */
@@ -102,7 +96,7 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Sets the current selected item for the given player to the next item.
-	 * 
+	 *
 	 * @param playerName	The player to scroll the view for
 	 */
 	public void scrollDown(String playerName) {
@@ -115,7 +109,7 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Sets the current selected item for the given player to the previous item.
-	 * 
+	 *
 	 * @param playerName	The player to scroll the view for
 	 */
 	public void scrollUp(String playerName) {
@@ -141,7 +135,7 @@ public abstract class SMSScrollableView extends SMSView {
 	/**
 	 * Get the suggested line length in characters.  Default is 0 - subclasses should override this
 	 * as appropriate.  Line length of 0 will disable any splitting.
-	 * 
+	 *
 	 * @return the suggested line length
 	 */
 	protected int getLineLength() {
@@ -151,7 +145,7 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Get the desired maximum number of title lines for this view.
-	 * 
+	 *
 	 * @return the maximum number of title lines to draw
 	 */
 	protected int getMaxTitleLines() {
@@ -161,7 +155,7 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Get the hard maximum on the number of title lines this view supports.  Override in subclasses.
-	 * 
+	 *
 	 * @return the hard limit for the maximum number of title lines
 	 */
 	protected int getHardMaxTitleLines() {
@@ -170,7 +164,7 @@ public abstract class SMSScrollableView extends SMSView {
 
 	/**
 	 * Split the menu's title in the view's maximum line count, based on the view's suggested line length.
-	 * 
+	 *
 	 * @return a String list containing the split title
 	 */
 	public List<String> splitTitle(String playerName) {
@@ -197,7 +191,7 @@ public abstract class SMSScrollableView extends SMSView {
 				sb.append(word);
 			} else {
 				// start a new line
-				result.add(sb.toString()); 	
+				result.add(sb.toString());
 				sb = new StringBuilder(markup + word);
 				lineLength = getLineLength() - markup.toString().length();
 			}
@@ -268,7 +262,7 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	private class ScrollPosStack {
-		private Map<String,Deque<Integer>> stacks = new HashMap<String, Deque<Integer>>();
+		private final Map<String,Deque<Integer>> stacks = new HashMap<String, Deque<Integer>>();
 
 		private void verify(String playerName) {
 			if (!stacks.containsKey(playerName)) {

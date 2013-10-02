@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.commands;
 
+import java.util.Collections;
 import java.util.List;
 
 import me.desht.dhutils.MiscUtil;
@@ -39,7 +40,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 		SMSMenu menu = getMenu(sender, args[0]);
 		menu.ensureAllowedToModify(sender);
 
-		int pos = 0;
+		int pos;
 		if (args[1].startsWith("@")) {
 			try {
 				pos = Integer.parseInt(args[1].substring(1));
@@ -66,9 +67,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 				l1 = l;
 			}
 			if (!l1.isEmpty()) {
-				for (String s : l1.split("\\\\\\\\")) {
-					lore.add(s);
-				}
+                Collections.addAll(lore, l1.split("\\\\\\\\"));
 			}
 		}
 
@@ -87,7 +86,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- edited in &e" + menu.getName() + "&-, new position &e" + newPos);
 		} else {
 			menu.replaceItem(pos, newItem);
-			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- edited in &e" + menu.getName() + "&-, position &e" + pos);		
+			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- edited in &e" + menu.getName() + "&-, position &e" + pos);
 		}
 		menu.notifyObservers(SMSMenuAction.REPAINT);
 

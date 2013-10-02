@@ -100,16 +100,16 @@ public class SMSRedstoneView extends SMSView {
 	 * if this view doesn't affect players (PLAYERRADIUS <= 0), or a list of players (which may
 	 * be empty) otherwise.  If AFFECTONLYNEAREST is true, then the list will contain one element
 	 * only - the closest player to the view.
-	 * 
+	 *
 	 * @param loc The view's location - where the event occurred
 	 * @return	A list of affected players
 	 */
 	private List<Player> getAffectedPlayers(Location loc) {
-		Double radius = (Double) getAttribute(PLAYERRADIUS);
+		double radius = (Double) getAttribute(PLAYERRADIUS);
 		if (radius <= 0) {
 			return null;
 		}
-		radius *= radius;
+        double radius2 = radius * radius;
 
 		double minDist = Double.MAX_VALUE;
 		List<Player> res = new ArrayList<Player>();
@@ -119,7 +119,7 @@ public class SMSRedstoneView extends SMSView {
 			Player closest = null;
 			for (Player p : loc.getWorld().getPlayers()) {
 				double dist = p.getLocation().distanceSquared(loc);
-				if (dist < radius && dist < minDist) {
+				if (dist < radius2 && dist < minDist) {
 					closest = p;
 					minDist = dist;
 				}
@@ -131,7 +131,7 @@ public class SMSRedstoneView extends SMSView {
 			// get a list of all players within PLAYERRADIUS
 			for (Player p : loc.getWorld().getPlayers()) {
 				double dist = p.getLocation().distanceSquared(loc);
-				if (dist < radius) {
+				if (dist < radius2) {
 					res.add(p);
 				}
 			}
@@ -142,7 +142,7 @@ public class SMSRedstoneView extends SMSView {
 
 	/**
 	 * Check if the power level for the given location has changed
-	 * 
+	 *
 	 * @param loc	The location to check
 	 * @param newCurrent	The new current at the given location
 	 * @return	true if the new current represents a power level different from the block's current powered status

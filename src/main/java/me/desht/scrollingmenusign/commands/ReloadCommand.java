@@ -33,21 +33,21 @@ public class ReloadCommand extends SMSAbstractCommand {
 		if (args.length == 0) {
 			loadAll = true;
 		} else {
-			for (int i = 0 ; i < args.length; i++) {
-				if (args[i].startsWith("me")) {
-					loadMenus = true;
-				} else if (args[i].startsWith("ma")) {
-					loadMacros = true;
-				} else if (args[i].startsWith("c")) {
-					loadConfig = true;
-				} else if (args[i].startsWith("va")) {
-					loadVariables = true;
-				} else if (args[i].startsWith("vi")) {
-					loadViews = true;
-				} else if (args[i].startsWith("fo")) {
-					loadFonts = true;
-				}
-			}
+            for (String arg : args) {
+                if (arg.startsWith("me")) {
+                    loadMenus = true;
+                } else if (arg.startsWith("ma")) {
+                    loadMacros = true;
+                } else if (arg.startsWith("c")) {
+                    loadConfig = true;
+                } else if (arg.startsWith("va")) {
+                    loadVariables = true;
+                } else if (arg.startsWith("vi")) {
+                    loadViews = true;
+                } else if (arg.startsWith("fo")) {
+                    loadFonts = true;
+                }
+            }
 		}
 		if (loadAll || loadConfig) {
 			plugin.reloadConfig();
@@ -78,7 +78,7 @@ public class ReloadCommand extends SMSAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		if (args.length >= 1) {
-			List<String> opts = Arrays.asList(new String[] { "menus", "macros", "config", "views", "vars", "fonts" });
+			List<String> opts = Arrays.asList("menus", "macros", "config", "views", "vars", "fonts");
 			return filterPrefix(sender, opts, args[args.length - 1]);
 		} else {
 			showUsage(sender);

@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign.views;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +34,7 @@ public class ActiveItem extends CommandTrigger {
 	private static final String SUBMENU_SEPARATOR = " \u25b6 ";
 	private static final String NO_ITEMS = ChatColor.ITALIC + "\u223c no entries";
 
-	private ItemStack stack;
+	private final ItemStack stack;
 	private final List<MenuPos> menus = new ArrayList<MenuPos>();
 
 	/**
@@ -82,16 +83,14 @@ public class ActiveItem extends CommandTrigger {
 		List<String> lore = new ArrayList<String>();
 		if (menuItem != null) {
 			meta.setDisplayName(variableSubs(getActiveMenuTitle(null)) + SEPARATOR + variableSubs(menuItem.getLabel()));
-			for (String l : menuItem.getLore()) {
-				lore.add(l);
-			}
+            Collections.addAll(lore, menuItem.getLore());
 		} else {
 			meta.setDisplayName(getActiveMenuTitle(null) + SEPARATOR + NO_ITEMS);
 		}
 		List<String> names = new ArrayList<String>(menus.size());
-		for (int i = 0; i < menus.size(); i++) {
-			names.add(menus.get(i).menu.getName() + ':' + menus.get(i).pos);
-		}
+        for (MenuPos menu : menus) {
+            names.add(menu.menu.getName() + ':' + menu.pos);
+        }
 		lore.add(MENU_MARKER + Joiner.on(SUBMENU_SEPARATOR).join(names));
 		meta.setLore(lore);
 		stack.setItemMeta(meta);
@@ -188,7 +187,7 @@ public class ActiveItem extends CommandTrigger {
 	/**
 	 * Retrieve the ItemStack for this ActiveItem
 	 *
-	 * @return
+	 * @return the item stack
 	 */
 	public ItemStack toItemStack() {
 		return stack;
@@ -240,7 +239,7 @@ public class ActiveItem extends CommandTrigger {
 	/**
 	 * Check if the given item stack is an ActiveItem.
 	 *
-	 * @param the item to check
+	 * @param stack the item to check
 	 * @return true if the item is an active item, false otherwise
 	 */
 	public static boolean isActiveItem(ItemStack stack) {
@@ -252,11 +251,8 @@ public class ActiveItem extends CommandTrigger {
 			return false;
 		}
 		List<String> lore = meta.getLore();
-		if (lore == null || !lore.get(lore.size() - 1).startsWith(MENU_MARKER)) {
-			return false;
-		}
-		return true;
-	}
+        return !(lore == null || !lore.get(lore.size() - 1).startsWith(MENU_MARKER));
+    }
 
 	/* (non-Javadoc)
 	 * @see me.desht.scrollingmenusign.views.CommandTrigger#pushMenu(java.lang.String, me.desht.scrollingmenusign.SMSMenu)

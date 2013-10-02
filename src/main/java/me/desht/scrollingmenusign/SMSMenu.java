@@ -20,6 +20,7 @@ import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -71,7 +72,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Construct a new menu from data read from the save file
-	 * 
+	 *
 	 * @param node 		A ConfigurationSection containing the menu's properties
 	 * @throws SMSException If there is already a menu at this location
 	 */
@@ -147,7 +148,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the menu's unique name
-	 * 
+	 *
 	 * @return	Name of this menu
 	 */
 	public String getName() {
@@ -156,7 +157,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the menu's title string
-	 * 
+	 *
 	 * @return	The title string
 	 */
 	public String getTitle() {
@@ -165,16 +166,16 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Set the menu's title string
-	 * 
+	 *
 	 * @param newTitle	The new title string
 	 */
 	public void setTitle(String newTitle) {
-		attributes.set(TITLE, title);
+		attributes.set(TITLE, newTitle);
 	}
 
 	/**
 	 * Get the menu's owner string
-	 * 
+	 *
 	 * @return	Name of the menu's owner
 	 */
 	public String getOwner() {
@@ -183,7 +184,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Set the menu's owner string.
-	 * 
+	 *
 	 * @param owner	Name of the menu's owner
 	 */
 	public void setOwner(String owner) {
@@ -201,7 +202,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Set the menu's autosave status - will menus be automatically saved to disk when modified?
-	 * 
+	 *
 	 * @param autosave	true or false
 	 * @return			the previous autosave status - true or false
 	 */
@@ -216,7 +217,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the menu's autosort status - will menu items be automatically sorted when added?
-	 * 
+	 *
 	 * @return	true or false
 	 */
 	public boolean isAutosort() {
@@ -225,7 +226,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Set the menu's autosort status - will menu items be automatically sorted when added?
-	 * 
+	 *
 	 * @param autosort	true or false
 	 */
 	public void setAutosort(boolean autosort) {
@@ -235,7 +236,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	/**
 	 * Get the menu's default command.  This command will be used if the menu item
 	 * being executed has a missing command.
-	 * 
+	 *
 	 * @return	The default command string
 	 */
 	public String getDefaultCommand() {
@@ -245,8 +246,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	/**
 	 * Set the menu's default command.  This command will be used if the menu item
 	 * being executed has a missing command.
-	 * 
-	 * @param defaultCommand
+	 *
+	 * @param defaultCommand the default command to set
 	 */
 	public void setDefaultCommand(String defaultCommand) {
 		setAttribute(DEFAULT_CMD, defaultCommand);
@@ -254,7 +255,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get a list of all the items in the menu
-	 * 
+	 *
 	 * @return A list of the items
 	 */
 	public List<SMSMenuItem> getItems() {
@@ -263,7 +264,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the number of items in the menu
-	 * 
+	 *
 	 * @return	The number of items
 	 */
 	public int getItemCount() {
@@ -272,7 +273,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the item at the given numeric index
-	 * 
+	 *
 	 * @param 	index	1-based numeric index
 	 * @return		The menu item at that index or null if out of range and mustExist is false
 	 * @throws SMSException if the index is out of range and mustExist is true
@@ -301,7 +302,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the menu item matching the given label
-	 * 
+	 *
 	 * @param wanted	The label to match (case-insensitive)
 	 * @return			The menu item with that label, or null if no matching item
 	 */
@@ -311,7 +312,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the menu item matching the given label
-	 * 
+	 *
 	 * @param wanted	The label to match (case-insensitive)
 	 * @param mustExist	If true and the label is not in the menu, throw an exception
 	 * @return			The menu item with that label, or null if no matching item and mustExist is false
@@ -333,7 +334,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the index of the item matching the given label
-	 * 
+	 *
 	 * @param wanted	The label to match (case-insensitive)
 	 * @return			1-based item index, or -1 if no matching item
 	 */
@@ -353,7 +354,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Append a new item to the menu
-	 * 
+	 *
 	 * @param label	Label of the item to add
 	 * @param command Command to be run when the item is selected
 	 * @param message Feedback text to be shown when the item is selected
@@ -364,7 +365,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Append a new item to the menu
-	 * 
+	 *
 	 * @param item	The item to be added
 	 */
 	public void addItem(SMSMenuItem item) {
@@ -373,11 +374,11 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Insert new item in the menu, at the given position.
-	 * 
-	 * @param pos
-	 * @param label
-	 * @param command
-	 * @param message
+	 *
+	 * @param pos the position to insert at
+	 * @param label label of the new item
+	 * @param command command to be run
+	 * @param message feedback message text
 	 */
 	public void insertItem(int pos, String label, String command, String message) {
 		insertItem(pos, new SMSMenuItem(this, label, command, message));
@@ -385,7 +386,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Insert a new item in the menu, at the given position.
-	 * 
+	 *
 	 * @param item	The item to insert
 	 * @param pos	The position to insert (1-based index)
 	 */
@@ -417,9 +418,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	/**
-	 * Replace an existing menu item.  The label must already be present in the menu, 
+	 * Replace an existing menu item.  The label must already be present in the menu,
 	 * or an exception will be thrown.
-	 * 
+	 *
 	 * @param label	Label of the menu item
 	 * @param command	The command to be run
 	 * @param message	The feedback message
@@ -430,9 +431,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	/**
-	 * Replace an existing menu item.  The label must already be present in the menu, 
+	 * Replace an existing menu item.  The label must already be present in the menu,
 	 * or an exception will be thrown.
-	 * 
+	 *
 	 * @param item	The menu item to replace
 	 * @throws SMSException if the label isn't present in the menu
 	 */
@@ -452,38 +453,38 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	/**
-	 * Replace the menu item at the given 1-based index.  The new label must not already be
+	 * Replace the menu item at the given 1-based position.  The new label must not already be
 	 * present in the menu or an exception will be thrown - duplicates are not allowed.
-	 * 
-	 * @param idx
-	 * @param label
-	 * @param command
-	 * @param message
+	 *
+	 * @param pos the position to replace at
+	 * @param label label of the replacement item
+	 * @param command command for the replacement item
+	 * @param message feedback message text for the replacement item
 	 */
-	public void replaceItem(int idx, String label, String command, String message) {
-		replaceItem(idx, new SMSMenuItem(this, label, command, message));
+	public void replaceItem(int pos, String label, String command, String message) {
+		replaceItem(pos, new SMSMenuItem(this, label, command, message));
 	}
 
 	/**
-	 * Replace the menu item at the given 1-based index.  The new label must not already be
+	 * Replace the menu item at the given 1-based position.  The new label must not already be
 	 * present in the menu or an exception will be thrown - duplicates are not allowed.
-	 * 
-	 * @param idx
-	 * @param item
+	 *
+	 * @param pos the position to replace at
+	 * @param item the new menu item
 	 */
-	public void replaceItem(int idx, SMSMenuItem item) {
+	public void replaceItem(int pos, SMSMenuItem item) {
 		if (items.size() != itemMap.size()) rebuildItemMap();	// workaround for Heroes 1.4.8 which calls menu.getItems().clear
 
 		String l = item.getLabelStripped();
-		if (idx < 1 || idx > items.size()) {
-			throw new SMSException("Index " + idx + " out of range.");
+		if (pos < 1 || pos > items.size()) {
+			throw new SMSException("Index " + pos + " out of range.");
 		}
-		if (itemMap.containsKey(l) && idx != itemMap.get(l)) {
+		if (itemMap.containsKey(l) && pos != itemMap.get(l)) {
 			throw new SMSException("Duplicate label '" + l + "' not allowed in menu '" + getName() + "'.");
 		}
-		itemMap.remove(items.get(idx - 1).getLabelStripped());
-		items.set(idx - 1, item);
-		itemMap.put(l, idx);
+		itemMap.remove(items.get(pos - 1).getLabelStripped());
+		items.set(pos - 1, item);
+		itemMap.put(l, pos);
 
 		setChanged();
 		autosave();
@@ -513,24 +514,23 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	/**
 	 * Remove an item from the menu by matching label.  If the label string is
 	 * just an integer value, remove the item at that 1-based numeric index.
-	 * 
+	 *
 	 * @param indexStr	The label to search for and remove
 	 * @throws IllegalArgumentException if the label does not exist in the menu
 	 */
 	public void removeItem(String indexStr) {
-		Integer index = null;
-		try {
-			index = Integer.parseInt(indexStr);
-		} catch (NumberFormatException e) {
-			index = itemMap.get(ChatColor.stripColor(indexStr));
-			SMSValidate.notNull(index, "No such label '" + indexStr + "' in menu '" + getName() + "'.");
-		}
-		removeItem(index);
+        if (StringUtils.isNumeric(indexStr)) {
+            removeItem(Integer.parseInt(indexStr));
+        } else {
+            String stripped = ChatColor.stripColor(indexStr);
+            SMSValidate.isTrue(itemMap.containsKey(stripped), "No such label '" + indexStr + "' in menu '" + getName() + "'.");
+            removeItem(itemMap.get(stripped));
+        }
 	}
 
 	/**
 	 * Remove an item from the menu by numeric index
-	 * 
+	 *
 	 * @param index 1-based index of the item to remove
 	 */
 	public void removeItem(int index) {
@@ -542,7 +542,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	/**
-	 * Remove all items from a menu 
+	 * Remove all items from a menu
 	 */
 	public void removeAllItems() {
 		items.clear();
@@ -567,7 +567,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	}
 
 	/**
-	 * Temporarily delete a menu.  The menu object is dereferenced but saved menu data is not 
+	 * Temporarily delete a menu.  The menu object is dereferenced but saved menu data is not
 	 * deleted from disk.
 	 */
 	void deleteTemporary() {
@@ -602,7 +602,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Add a menu to the menu list, preserving a reference to it.
-	 * 
+	 *
 	 * @param menuName	The menu's name
 	 * @param menu		The menu object
 	 * @param updateSign	Whether or not to update the menu's signs now
@@ -619,10 +619,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Remove a menu from the list, destroying the reference to it.
-	 * 
-	 * @param menuName	The menu's name
-	 * @param action	Action to take on removal
-	 * @throws SMSException
+	 *
+	 * @param menuName the menu's name
+	 * @throws SMSException if there is no menu of the given name
 	 */
 	static void unregisterMenu(String menuName) {
 		deletedMenus.put(menuName, getMenu(menuName));
@@ -632,9 +631,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	/**
 	 * Retrieve the menu with the given name.
 	 *
-	 * @param menuName	The name of the menu to retrieve
-	 * @return	The menu object
-	 * @throws SMSException if the menu name is not found
+	 * @param menuName	the name of the menu to retrieve
+	 * @return	the menu object
+	 * @throws SMSException if there is no menu of the given name
 	 */
 	public static SMSMenu getMenu(String menuName) {
 		SMSValidate.isTrue(menus.containsKey(menuName), "No such menu '" + menuName + "'.");
@@ -688,7 +687,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the name of the menu at the given location.
-	 * 
+	 *
 	 * @param loc	The location
 	 * @return	The menu name, or null if there is no menu sign at the location
 	 */
@@ -699,7 +698,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the menu at the given location
-	 * 
+	 *
 	 * @param loc	The location
 	 * @return	The menu object
 	 * @throws SMSException if there is no menu sign at the location
@@ -710,7 +709,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Check to see if a menu with the given name exists
-	 * 
+	 *
 	 * @param menuName The menu name
 	 * @return true if the menu exists, false if it does not
 	 */
@@ -729,7 +728,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Return a list of all the known menus
-	 * 
+	 *
 	 * @param isSorted Whether or not to sort the menus by name
 	 * @return	A list of SMSMenu objects
 	 */
@@ -748,7 +747,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Get the usage limit details for this menu.
-	 * 
+	 *
 	 * @return	The usage limit details
 	 */
 	public SMSRemainingUses getUseLimits() {
@@ -757,7 +756,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Returns a printable representation of the number of uses remaining for this item.
-	 * 
+	 *
 	 * @return	Formatted usage information
 	 */
 	String formatUses() {
@@ -766,7 +765,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	/**
 	 * Returns a printable representation of the number of uses remaining for this item, for the given player.
-	 * 
+	 *
 	 * @param sender	Command sender to retrieve the usage information for
 	 * @return			Formatted usage information
 	 */
@@ -801,7 +800,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-		if (key.equals(AUTOSORT) && (Boolean)newVal == true) {
+		if (key.equals(AUTOSORT) && (Boolean)newVal) {
 			sortItems();
 		} else if (key.equals(TITLE)) {
 			title = MiscUtil.parseColourSpec(newVal.toString());

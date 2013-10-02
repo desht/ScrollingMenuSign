@@ -71,7 +71,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Create a new map view on the given menu.  The view name is chosen automatically.
-	 * 
+	 *
 	 * @param menu	The menu to attach the new view to
 	 */
 	public SMSMapView (SMSMenu menu) {
@@ -80,7 +80,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Create a new map view on the given menu.
-	 * 
+	 *
 	 * @param name	The new view's name.
 	 * @param menu	The menu to attach the new view to.
 	 */
@@ -193,7 +193,7 @@ public class SMSMapView extends SMSScrollableView {
 	 * Associate this view with a map ID.  Removes (and saves) all renderers currently on
 	 * the map, and adds our own SMSRenderer to the map.
 	 *
-	 * @param id
+	 * @param id the numeric map ID
 	 */
 	public void setMapId(short id) {
 		mapView = Bukkit.getServer().getMap(id);
@@ -217,7 +217,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Get the Bukkit @see org.bukkit.map.MapView associated with this map view object.
-	 * 
+	 *
 	 * @return	The Bukkit MapView object
 	 */
 	public MapView getMapView() {
@@ -226,7 +226,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Get the custom map renderer for this map view object.
-	 * 
+	 *
 	 * @return	The SMSMapRenderer object
 	 */
 	public SMSMapRenderer getMapRenderer() {
@@ -235,7 +235,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Get the X co-ordinate to start drawing at - the left-hand bounds of the drawing space
-	 * 
+	 *
 	 * @return	The X co-ordinate
 	 */
 	public int getX() {
@@ -244,7 +244,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Set the X co-ordinate to start drawing at - the left-hand bounds of the drawing space
-	 * 
+	 *
 	 * @param x	The X co-ordinate
 	 */
 	public void setX(int x) {
@@ -253,7 +253,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Get the Y co-ordinate to start drawing at - the upper bounds of the drawing space
-	 * 
+	 *
 	 * @return	The Y co-ordinate
 	 */
 	public int getY() {
@@ -262,7 +262,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Set the Y co-ordinate to start drawing at - the upper bounds of the drawing space
-	 * 
+	 *
 	 * @param y		The Y co-ordinate
 	 */
 	public void setY(int y) {
@@ -271,7 +271,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Get the width of the drawing area on the map
-	 * 
+	 *
 	 * @return	The width
 	 */
 	public int getWidth() {
@@ -280,7 +280,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Set the width of the drawing area on the map
-	 * 
+	 *
 	 * @param width	The width
 	 */
 	public void setWidth(int width) {
@@ -289,7 +289,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Get the height of the drawing area on the map
-	 * 
+	 *
 	 * @return	The height
 	 */
 	public int getHeight() {
@@ -298,7 +298,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Set the height of the drawing area on the map
-	 * 
+	 *
 	 * @param height	The height
 	 */
 	public void setHeight(int height) {
@@ -307,7 +307,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Get the pixel spacing between each line of text in the menu
-	 * 
+	 *
 	 * @return	The spacing
 	 */
 	public int getLineSpacing() {
@@ -316,7 +316,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Set the pixel spacing between each line of text in the menu
-	 * 
+	 *
 	 * @param lineSpacing	The spacing
 	 */
 	public void setLineSpacing(int lineSpacing) {
@@ -329,8 +329,8 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Apply an item name & lore for this map view to the given item (which should be a map!)
-	 * 
-	 * @param item
+	 *
+	 * @param item the map item
 	 */
 	public void setMapItemName(ItemStack item) {
 		int nItems = getNativeMenu().getItemCount();
@@ -346,8 +346,8 @@ public class SMSMapView extends SMSScrollableView {
 
 	/**
 	 * Remove any custom item name & lore from the given item.
-	 * 
-	 * @param item
+	 *
+	 * @param item the map item
 	 */
 	public void removeMapItemName(ItemStack item) {
 		if (item.getType() != Material.MAP || getMapView().getId() != item.getDurability()) {
@@ -435,7 +435,7 @@ public class SMSMapView extends SMSScrollableView {
 	/**
 	 * This method does the actual creation of the map image, to be returned to the Bukkit
 	 * map renderer for copying to the canvas.
-	 * 
+	 *
 	 * @return an Image
 	 */
 	public BufferedImage renderImage(Player player) {
@@ -554,7 +554,7 @@ public class SMSMapView extends SMSScrollableView {
 
 		byte flags = 0;
 
-		StringBuffer sb = new StringBuffer(text.length());
+		StringBuilder sb = new StringBuilder(text.length());
 		for (int i = 0; i < text.length(); i++) {
 			Character c = text.charAt(i);
 			if (c == '\u00a7') {

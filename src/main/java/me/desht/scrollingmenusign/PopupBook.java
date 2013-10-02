@@ -18,7 +18,7 @@ import org.bukkit.inventory.meta.BookMeta;
  * @author des
  *
  * Represents a written book that can be used to trigger poppable views.
- * 
+ *
  */
 public class PopupBook {
 	private static final int VIEW_TYPE = 2;
@@ -31,7 +31,7 @@ public class PopupBook {
 	/**
 	 * Private constructor (use PopupBook.get()).  Create a popup book object from a
 	 * written book item.
-	 * 
+	 *
 	 * @param player	 the player
 	 * @param bi  the book item
 	 */
@@ -66,14 +66,14 @@ public class PopupBook {
 
 		SMSValidate.isTrue(wantedView != null && wantedView instanceof PoppableView, "Invalid view: " + viewName);
 		this.player = new WeakReference<Player>(player);
-		this.view = new WeakReference<SMSView>((SMSView) wantedView);
+		this.view = new WeakReference<SMSView>(wantedView);
 	}
 
 	/**
 	 * Create a popup book object for the given player and view.
-	 * 
-	 * @param player
-	 * @param view
+	 *
+	 * @param player the player object
+	 * @param view the view
 	 */
 	public PopupBook(Player player, SMSView view) {
 		SMSValidate.isTrue(view instanceof PoppableView, "Invalid view: " + view.getName());
@@ -82,7 +82,7 @@ public class PopupBook {
 	}
 
 	public SMSView getView() {
-		return view.get();	
+		return view.get();
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class PopupBook {
 
 	/**
 	 * Get the book item corresponding to this popup book.
-	 * 
+	 *
 	 * @return	an ItemStack of 1 written book with the title and pages filled in
 	 */
 	public ItemStack toItemStack() {
@@ -125,7 +125,7 @@ public class PopupBook {
 
 	/**
 	 * Get the popup book that the player is holding, if any.
-	 * 
+	 *
 	 * @param p the player
 	 * @return the book, or null if the player is not holding one
 	 * @throws SMSException if the player is holding a popup book, but it's not valid
@@ -138,7 +138,7 @@ public class PopupBook {
 
 	/**
 	 * Check if the player is holding a popup book.
-	 * 
+	 *
 	 * @param p the player
 	 * @return	true if the player is holding a popup book
 	 */
@@ -153,12 +153,12 @@ public class PopupBook {
 	/**
 	 * Destroys the item in the player's hand.  Doesn't check first to see if it's a
 	 * popup book - would usually be called if PopupBook.get() throws a SMSException.
-	 * 
-	 * @param p
+	 *
+	 * @param player the player object
 	 */
-	public static void destroy(Player p) {
-		p.setItemInHand(new ItemStack(Material.AIR));
-		MiscUtil.statusMessage(p, "Your book suddenly vanishes in a puff of smoke!");
-		p.playEffect(p.getLocation().add(p.getLocation().getDirection()), Effect.SMOKE, BlockFace.UP);
+	public static void destroy(Player player) {
+		player.setItemInHand(new ItemStack(Material.AIR));
+		MiscUtil.statusMessage(player, "Your book suddenly vanishes in a puff of smoke!");
+		player.playEffect(player.getLocation().add(player.getLocation().getDirection()), Effect.SMOKE, BlockFace.UP);
 	}
 }

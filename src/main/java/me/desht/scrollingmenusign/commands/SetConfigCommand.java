@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import me.desht.dhutils.ConfigurationManager;
@@ -30,8 +31,7 @@ public class SetConfigCommand extends SMSAbstractCommand {
 		try {
 			if (args.length > 2) {
 				List<String> list = new ArrayList<String>(args.length - 1);
-				for (int i = 1; i < args.length; i++)
-					list.add(args[i]);
+                list.addAll(Arrays.asList(args).subList(1, args.length));
 				configManager.set(key, list);
 			} else {
 				configManager.set(key, val);

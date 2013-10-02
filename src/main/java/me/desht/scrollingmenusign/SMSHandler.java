@@ -31,21 +31,11 @@ public interface SMSHandler {
 
 	/**
 	 * Deletes a menu, leaving its signs as they are
-	 * 
+	 *
 	 * @param name		Name of menu to delete
 	 * @throws SMSException	if the menu does not exist
 	 */
 	public void deleteMenu(String name) throws SMSException;
-
-	/**
-	 * Delete a menu, carrying out an action on each of the menu's signs
-	 * @param menuName	Name of the menu to delete
-	 * @param action	One of DO_NOTHING, BLANK_SIGNS, DESTROY_SIGNS
-	 * @throws SMSException	if the menu does not exist
-	 * @deprecated use {@link #deleteMenu(String)}
-	 */
-	@Deprecated
-	public void deleteMenu(String menuName, SMSMenuAction action) throws SMSException;
 
 	/**
 	 * Retrieves the menu object for the given menu name
@@ -77,13 +67,13 @@ public interface SMSHandler {
 
 	/**
 	 * Get a list of all known menu objects.
-	 * 
+	 *
 	 * @return	A list of SMSMenu objects.
 	 */
 	public List<SMSMenu> listMenus();
 	/**
 	 * Get a list of all known menu objects, optionally sorting it by menu name.
-	 * 
+	 *
 	 * @param isSorted 	true to sort the menu objects by name
 	 * @return	A list of SMSMenu objects.
 	 */
@@ -91,7 +81,7 @@ public interface SMSHandler {
 
 	/**
 	 * Run a command using the ScrollingMenuSign command parser/executor.
-	 * 
+	 *
 	 * @param sender	The command sender who is running the command
 	 * @param command	The command string to be run
 	 * @return	A ParsedCommand object giving access to detailed information about the outcome of the command

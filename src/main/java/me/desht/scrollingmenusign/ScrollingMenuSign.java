@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.Cost;
 import me.desht.dhutils.ItemGlow;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
@@ -21,6 +20,7 @@ import me.desht.dhutils.MetaFaker.MetadataFilter;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.commands.CommandManager;
+import me.desht.dhutils.cost.EconomyCost;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.commandlets.AfterCommandlet;
 import me.desht.scrollingmenusign.commandlets.CloseSubmenuCommandlet;
@@ -87,8 +87,9 @@ import org.mcstats.Metrics.Plotter;
 import com.comphenix.protocol.ProtocolLibrary;
 
 /**
- * @author des
+ * ScrollingMenuSign
  *
+ * @author desht
  */
 public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListener {
 
@@ -315,22 +316,22 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	}
 
 	private boolean setupEconomy() {
-		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
 		if (economyProvider != null) {
 			economy = economyProvider.getProvider();
-			Cost.setEconomy(economy);
+            EconomyCost.setEconomy(economy);
 		}
 
-		return (economy != null);
+		return economy != null;
 	}
 
 	private boolean setupPermission() {
-		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
+		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(Permission.class);
 		if (permissionProvider != null) {
 			permission = permissionProvider.getProvider();
 		}
 
-		return (permission != null);
+		return permission != null;
 	}
 
 	private void setupProtocolLib(PluginManager pm) {

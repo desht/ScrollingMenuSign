@@ -39,7 +39,7 @@ import com.google.common.base.Joiner;
 
 /**
  * This is just like a {@link SMSScrollableView} but maintains only a single player context
- * for scroll position tracking.  Generally used as the base class for views implemented by 
+ * for scroll position tracking.  Generally used as the base class for views implemented by
  * blocks in the world, such as sign views.
  * <p>
  * It also maintains a set of output switches which are powered/unpowered depending on
@@ -88,7 +88,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public void update(Observable menu, Object arg) {
 		super.update(menu, arg);
 
-		if ((SMSMenuAction)arg == SMSMenuAction.REPAINT) {
+		if (arg == SMSMenuAction.REPAINT) {
 			updateTooltipSign();
 		}
 	}
@@ -122,7 +122,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	 * Get the last scroll position (currently-selected item) for this view.  If the scroll position
 	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
 	 * adjusted to be in range before being returned.
-	 * 
+	 *
 	 * @return	The scroll position
 	 */
 	public int getScrollPos() {
@@ -359,7 +359,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	public void removeTooltipSign() {
 		ScrollingMenuSign.getInstance().getLocationManager().unregisterLocation(tooltipSign.getLocation());
 		tooltipSign = null;
-		
+
 		autosave();
 	}
 

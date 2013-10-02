@@ -98,9 +98,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 					new ActiveItem(player.getItemInHand()).processAction(player, action);
 				}
 			}
-			if ((action == SMSUserAction.SCROLLDOWN || action == SMSUserAction.SCROLLUP) && player.isSneaking() && event instanceof Cancellable) {
+			if ((action == SMSUserAction.SCROLLDOWN || action == SMSUserAction.SCROLLUP) && player.isSneaking()) {
 				// Bukkit 1.5.1+ PlayerItemHeldEvent is now cancellable
-				((Cancellable) event).setCancelled(true);
+				event.setCancelled(true);
 			}
 		} catch (SMSException e) {
 			LogUtils.warning(e.getMessage());
@@ -171,16 +171,16 @@ public class SMSPlayerListener extends SMSListenerBase {
 
 	/**
 	 * Main handler for PlayerInteract events.
-	 * 
+	 *
 	 * @param event		the event to handle
 	 * @return			true if the event has been handled and should be cancelled now, false otherwise
 	 * @throws SMSException	for any error that should be reported to the player
 	 */
-	private boolean handleInteraction(PlayerInteractEvent event) throws SMSException { 
+	private boolean handleInteraction(PlayerInteractEvent event) throws SMSException {
 		Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
 		SMSMapView mapView = plugin.getViewManager().getHeldMapView(player);
-		PopupBook popupBook = null;
+		PopupBook popupBook;
 		ActiveItem activeItem = null;
 
 		try {
@@ -286,7 +286,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 	 * Player has hit an existing view with a book & quill.  Add an inventory view to that view's menu
 	 * if it doesn't already have one, then convert the book & quill into a written popup book for the
 	 * inventory view.
-	 * 
+	 *
 	 * @param view	the view that's been hit
 	 * @param player the player
 	 */
@@ -322,10 +322,10 @@ public class SMSPlayerListener extends SMSListenerBase {
 	/**
 	 * Try to activate a sign by hitting it with an active map.  The map's menu will be "transferred"
 	 * to the sign.
-	 * 
-	 * @param block
-	 * @param player
-	 * @param mapView
+	 *
+	 * @param block the block being hit
+	 * @param player the player doing the hitting
+	 * @param menu the menu to add the sign to
 	 * @throws SMSException
 	 */
 	private void tryToActivateSign(Block block, Player player, SMSMenu menu) throws SMSException {
@@ -342,9 +342,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 
 	/**
 	 * Try to activate a map by hitting an active sign view with it.
-	 * 
-	 * @param block
-	 * @param player
+	 *
+	 * @param view the view for the sign
+	 * @param player the player doing the hitting
 	 * @throws SMSException
 	 */
 	private void tryToActivateMap(SMSView view, Player player) throws SMSException {
@@ -368,9 +368,9 @@ public class SMSPlayerListener extends SMSListenerBase {
 
 	/**
 	 * Try to associate a redstone output lever with the currently selected item of the given view.
-	 * 
-	 * @param view
-	 * @param player
+	 *
+	 * @param view the view
+	 * @param player the player adding the output
 	 */
 	private void tryToAddRedstoneOutput(SMSGlobalScrollableView view, Player player) {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.create.switch");
@@ -388,19 +388,11 @@ public class SMSPlayerListener extends SMSListenerBase {
 	}
 
 	private boolean isHittingViewWithSwitch(Player player, SMSView view) {
-		if (!(view instanceof SMSGlobalScrollableView))
-			return false;
-
-		return player.getItemInHand().getType() == Material.LEVER;
-	}
+        return view instanceof SMSGlobalScrollableView && player.getItemInHand().getType() == Material.LEVER;
+    }
 
 	private boolean isHittingLeverWithSwitch(Player player, Block block) {
-		if (block == null || block.getType() != Material.LEVER) 
-			return false;
-		if (player.getItemInHand().getType() != Material.LEVER)
-			return false;
-
-		return true;
-	}
+        return block != null && block.getType() == Material.LEVER && player.getItemInHand().getType() == Material.LEVER;
+    }
 
 }

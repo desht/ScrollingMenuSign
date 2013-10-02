@@ -197,7 +197,7 @@ public class SMSBlockListener extends SMSListenerBase {
 		String title = MiscUtil.parseColourSpec(player, event.getLine(2));
 
 		SMSHandler handler = plugin.getHandler();
-		SMSMenu menu = null;
+		SMSMenu menu;
 		if (handler.checkMenu(menuName)) {
 			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
 			menu = handler.getMenu(menuName);
@@ -208,7 +208,7 @@ public class SMSBlockListener extends SMSListenerBase {
 			throw new SMSException("No such menu '" + menuName + "'.");
 		}
 
-		// using the scheduler here because updating the sign from its SignChangeEvent handler doesn't work 
+		// using the scheduler here because updating the sign from its SignChangeEvent handler doesn't work
 		final SMSMenu menu2 = menu;
 		Bukkit.getScheduler().runTask(plugin, new Runnable() {
 			@Override

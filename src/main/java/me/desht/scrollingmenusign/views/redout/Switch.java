@@ -29,7 +29,7 @@ import org.bukkit.material.Lever;
 import org.bukkit.material.Redstone;
 
 public class Switch implements Comparable<Switch>, SMSInteractableBlock {
-	private static Map<String, Set<ConfigurationSection>> deferred = new HashMap<String, Set<ConfigurationSection>>();
+	private static final Map<String, Set<ConfigurationSection>> deferred = new HashMap<String, Set<ConfigurationSection>>();
 
 	private final SMSGlobalScrollableView view;
 	private final PersistableLocation location;
@@ -61,7 +61,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 
 	/**
 	 * Get the view this output switch belongs to.
-	 * 
+	 *
 	 * @return	The owning view
 	 */
 	public SMSGlobalScrollableView getView() {
@@ -70,7 +70,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 
 	/**
 	 * Get the name of this output switch.
-	 * 
+	 *
 	 * @return	The switch's name
 	 */
 	public String getName() {
@@ -79,7 +79,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 
 	/**
 	 * Get this output switch's location.
-	 * 
+	 *
 	 * @return	The switch's location
 	 */
 	public Location getLocation() {
@@ -88,7 +88,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 
 	/**
 	 * Get the trigger string for this switch.
-	 * 
+	 *
 	 * @return	The switch's trigger string
 	 */
 	public String getTrigger() {
@@ -105,7 +105,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 
 	/**
 	 * Get the Material for this switch.  (Right now, only Lever is supported).
-	 * 
+	 *
 	 * @return	The switch's material
 	 */
 	private Material getSwitchType() {
@@ -114,7 +114,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 
 	/**
 	 * Check if this switch is currently powered.
-	 * 
+	 *
 	 * @return	true if powered, false otherwise
 	 */
 	public boolean getPowered() {
@@ -129,7 +129,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 
 	/**
 	 * Set the powered status of this switch.
-	 * 
+	 *
 	 * @param powered	true to switch on, false to switch off
 	 */
 	public void setPowered(boolean powered) {

@@ -21,7 +21,7 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 	public CreateMenuCommand() {
 		super("sms create", 2);
 		setPermissionNode("scrollingmenusign.commands.create");
-		setUsage(new String[] { 
+		setUsage(new String[] {
 				"/sms create <menu> <title>",
 				"/sms create <menu> from <other-menu>",
 		});
@@ -75,8 +75,7 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 		} else if (mapId >= 0) {
 			SMSMapView mapView = getViewManager(plugin).addMapToMenu(menu, mapId, sender);
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with map view &fmap_" + mapId);
-			Player player = (Player) sender;
-			mapView.setMapItemName(player.getItemInHand());
+			mapView.setMapItemName(((Player) sender).getItemInHand());
 		} else {
 			MiscUtil.statusMessage(sender, "Created new menu &e" + menuName + "&- with no initial view");
 		}

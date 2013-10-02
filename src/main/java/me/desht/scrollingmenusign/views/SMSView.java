@@ -78,7 +78,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get a user-friendly string representing the type of this view.
-	 * 
+	 *
 	 * @return	The type of view this is.
 	 */
 	public abstract String getType();
@@ -118,7 +118,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get the view's autosave status - will the view be automatically saved to disk when modified?
-	 * 
+	 *
 	 * @return true if the view will be autosaved, false otherwise
 	 */
 	public boolean isAutosave() {
@@ -127,7 +127,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Set the view's autosave status - will the view be automatically saved to disk when modified?
-	 * 
+	 *
 	 * @param autosave true if the view will be autosaved, false otherwise
 	 */
 	public void setAutosave(boolean autosave) {
@@ -168,7 +168,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	/**
 	 * Get the native menu associated with the view.  The native menu is the menu that
 	 * the view was originally created for.
-	 * 
+	 *
 	 * @return The native SMSMenu object for this view.
 	 */
 	public SMSMenu getNativeMenu() {
@@ -178,7 +178,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	/**
 	 * Get the currently active menu for this view for the given player.  This is not necessarily the
 	 * same as the view's native menu, if the player has a submenu open in this view.
-	 * 
+	 *
 	 * @return the active SMSMenu object for this view
 	 */
 	public SMSMenu getActiveMenu(String playerName) {
@@ -212,7 +212,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Pop the active menu off the view, making the previously active menu the new active menu.
-	 * 
+	 *
 	 * @param playerName name of the player to pop the menu for
 	 * @return	the active menu that has just been popped off
 	 */
@@ -236,7 +236,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get the set of players who have a submenu open for this view.
-	 * 
+	 *
 	 * @return a set of players who have a submenu open for this view
 	 */
 	public Set<String> getSubmenuPlayers() {
@@ -255,7 +255,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Set an arbitrary string of tagged data on this view.
-	 * 
+	 *
 	 * @param key	the variable name (must contain only alphanumeric or underscore)
 	 * @param val	the variable value (may contain any character)
 	 */
@@ -270,7 +270,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get an arbitrary string of tagged data from this view
-	 * 
+	 *
 	 * @param key the variable name (must contain only alphanumeric or underscore)
 	 * @return the variable value
 	 */
@@ -282,7 +282,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Check if the given view variable exists in this view.
-	 * 
+	 *
 	 * @param key the variable name (must contain only alphanumeric or underscore)
 	 * @return true if the variable exists, false otherwise
 	 */
@@ -300,7 +300,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get the justification for menu items in this view
-	 * 
+	 *
 	 * @return the justification for menu items in this view
 	 */
 	public ViewJustification getItemJustification() {
@@ -309,7 +309,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get the justification for the menu title in this view
-	 * 
+	 *
 	 * @return the justification for the menu title in this view
 	 */
 	public ViewJustification getTitleJustification() {
@@ -413,7 +413,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	/**
 	 * Mark a location (actually a world name and a x,y,z vector) as deferred - the world isn't
 	 * currently available.
-	 * 
+	 *
 	 * @param worldName name of the world
 	 * @param v a vector describing the location
 	 */
@@ -428,8 +428,8 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get a list of the locations (x,y,z vectors) that have been deferred for the given world name.
-	 * 
-	 * @param worldName
+	 *
+	 * @param worldName the name of the world to check for
 	 * @return a list of vectors; the locations that have been deferred
 	 */
 	public List<Vector> getDeferredLocations(String worldName) {
@@ -438,7 +438,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get the "dirty" status for this view - whether or not a repaint is needed for all players.
-	 * 
+	 *
 	 * @return true if a repaint is needed, false otherwise
 	 */
 	public boolean isDirty() {
@@ -447,7 +447,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get the "dirty" status for this view - whether or not a repaint is needed for the given player.
-	 * 
+	 *
 	 * @param playerName	The player to check for
 	 * @return true if a repaint is needed, false otherwise
 	 */
@@ -457,7 +457,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Set the global "dirty" status for this view - whether or not a repaint is needed for all players.
-	 * 
+	 *
 	 * @param dirty	true if a repaint is needed, false otherwise
 	 */
 	public void setDirty(boolean dirty) {
@@ -469,7 +469,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Set the per-player "dirty" status for this view - whether or not a repaint is needed for the given player.
-	 * 
+	 *
 	 * @param playerName	The player to check for
 	 * @param dirty		Whether or not a repaint is needed
 	 */
@@ -480,7 +480,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	/**
 	 * Get a set of all locations for this view.  Views may have zero or more locations (e.g. a sign
 	 * view has one location, a map view has zero locations, a multisign view has several locations...)
-	 * 
+	 *
 	 * @return	A Set of all locations for this view object
 	 * @throws IllegalStateException if the world for this view has become unloaded
 	 */
@@ -494,7 +494,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get a list of all locations for this view as a Java array.
-	 * 
+	 *
 	 * @return	An array of all locations for this view object
 	 */
 	public Location[] getLocationsArray() {
@@ -503,10 +503,10 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	}
 
 	/**
-	 * Set the maximum number of locations which are allowed.  Subclass constructors can call this
+	 * Set the maximum number of locations which are allowed.  Subclass constructors should call this
 	 * as appropriate.
-	 * 
-	 * @param maxLocations
+	 *
+	 * @param maxLocations the maximum number of locations to be allowed
 	 */
 	protected void setMaxLocations(int maxLocations) {
 		this.maxLocations = maxLocations;
@@ -514,7 +514,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Get the maximum number of locations that this view may occupy.
-	 * 
+	 *
 	 * @return	The maximum number of locations
 	 */
 	public int getMaxLocations() {
@@ -523,9 +523,9 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Build the name of the player (or possibly the console) which owns this view.
-	 * 
-	 * @param sender
-	 * @return
+	 *
+	 * @param sender the command sender object
+	 * @return the name of the command sender
 	 */
 	String makeOwnerName(CommandSender sender) {
 		return sender != null && sender instanceof Player ? sender.getName() : ScrollingMenuSign.CONSOLE_OWNER;
@@ -533,7 +533,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Register a new location as being part of this view object
-	 * 
+	 *
 	 * @param loc	The location to register
 	 * @throws SMSException if the location is not suitable for adding to this view
 	 */
@@ -557,7 +557,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	/**
 	 * Unregister a location from the given view.
-	 * 
+	 *
 	 * @param loc	The location to unregister.
 	 */
 	public void removeLocation(Location loc) {
@@ -722,7 +722,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	/**
 	 * Called automatically when the view is used to execute a menu item.  Override and extend this
 	 * in subclasses.
-	 * 
+	 *
 	 * @param player	The player who did the execution
 	 */
 	public void onExecuted(Player player) {
@@ -732,7 +732,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	/**
 	 * Called automatically when the view is scrolled.  Override and extend this
 	 * in subclasses.
-	 * 
+	 *
 	 * @param player	The player who did the scrolling
 	 * @param action	The scroll direction: SCROLLDOWN or SCROLLUP
 	 */
@@ -743,7 +743,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	/**
 	 * Called automatically when a player logs out.  Perform any cleardown work to remove player
 	 * records from the view.  Override and extend this in subclasses.
-	 * 
+	 *
 	 * @param player	The player who logged out
 	 */
 	public void clearPlayerForView(Player player) {
@@ -757,7 +757,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		SMSMenu menu = getNativeMenu();
 		LogUtils.fine("block damage event @ " + MiscUtil.formatLocation(b.getLocation()) + ", view = " + getName() + ", menu=" + menu.getName());
 
-		if (plugin.getConfig().getBoolean("sms.no_destroy_signs") || 
+		if (plugin.getConfig().getBoolean("sms.no_destroy_signs") ||
 				!menu.isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
 			event.setCancelled(true);
 		}

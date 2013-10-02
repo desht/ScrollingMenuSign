@@ -24,7 +24,7 @@ public class DeleteMenuCommand extends SMSAbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws SMSException {
 		SMSHandler handler = ((ScrollingMenuSign)plugin).getHandler();
-		SMSMenu menu = null;
+		SMSMenu menu;
 
 		if (args.length > 0) {
 			menu = getMenu(sender, args[0]);

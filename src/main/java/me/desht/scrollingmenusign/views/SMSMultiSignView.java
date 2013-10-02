@@ -43,7 +43,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * Create a new multi-sign view object with no registered location.  A location
 	 * which contains a sign must be added with @see #addLocation(Location) before
 	 * this view is useful.
-	 * 
+	 *
 	 * @param name	Unique name for this view.
 	 * @param menu	The SMSMenu object to attach this view to.
 	 */
@@ -56,25 +56,25 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	/**
 	 * Create a new multi-sign view at loc.  The wall signs around loc will be scanned to work out just
 	 * what signs comprise this view.
-	 * 
-	 * @param name
-	 * @param menu
-	 * @param loc
-	 * @throws SMSException
+	 *
+	 * @param name name of the new view
+	 * @param menu menu for the new view
+	 * @param loc location of the new view
+	 * @throws SMSException if there was any problem creating the view
 	 */
 	public SMSMultiSignView(String name, SMSMenu menu, Location loc) throws SMSException {
 		this(name, menu);
 
 		scanForSigns(loc);
 		for (Block b : getBlocks()) {
-			addLocation(b.getLocation());	
+			addLocation(b.getLocation());
 		}
 	}
 
 	/**
 	 * Create a new sign view object.  Equivalent to calling SMSSignView(null, menu, loc).  The
 	 * view's name will be automatically generated, based on the menu name.
-	 * 
+	 *
 	 * @param menu	The SMSMenu object to attach this view to.
 	 * @param loc	The location of this view's sign
 	 * @throws SMSException	if the given location is not suitable for this view
@@ -129,7 +129,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private void repaintAll() {
-		String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%"); 
+		String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%");
 		String prefixSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
 
 		List<String> titleLines = formatTitle();
@@ -166,7 +166,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * Draw a line of text at the given line, which will potentially span multiple signs.
 	 * Colour/markup codes are preserved across signs, which may lead to unexpectedly few
 	 * printable characters appearing on each sign if a lot of markup is used!
-	 * 
+	 *
 	 * @param line	The line number on which to draw the text
 	 * @param text	The text to draw
 	 */
@@ -180,7 +180,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		String ctrlOther = "";
 		while (x < width) {
 			String ctrl = ctrlColour + ctrlOther;
-			int end = Math.min(begin + (15 - ctrl.length()), text.length()); 
+			int end = Math.min(begin + (15 - ctrl.length()), text.length());
 			String sub = ctrl + text.substring(begin, end);
 			if (sub.endsWith("\u00a7")) {
 				// we can't have a control char split over 2 signs
@@ -239,7 +239,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	/**
 	 * Get the Sign at position (x,y) in the view.  (x, y) = (0, 0) is the top left sign.
 	 * x increases to the right, y increases downward.  This works regardless of sign orientation.
-	 * 
+	 *
 	 * @param x		X co-ordinate
 	 * @param y		Y co-ordinate
 	 * @return	the Sign block retrieved
@@ -256,7 +256,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	/**
 	 * Get the location that position (x,y) in the view maps to.  (x, y) = (0, 0) is the top left sign.
 	 * x increases to the right, y increases downward.  This works regardless of sign orientation.
-	 * 
+	 *
 	 * @param x the X position, increasing rightwards
 	 * @param y the Y position, increasing downwards
 	 * @return location of the sign at the given position
@@ -285,17 +285,16 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 	/**
 	 * Mark one line on a given sign as requiring an update.
-	 * 
-	 * @param s
-	 * @param line
-	 * @param text
+	 *
+	 * @param loc location of the sign needing an update
+	 * @param line line number on the sign, in the range 0 .. 3
+	 * @param text the text to be updated
 	 */
 	private void pendingUpdate(Location loc, int line, String text) {
 		if (!updates.containsKey(loc)) {
 			updates.put(loc, new String[4]);
 		}
-		String[] lines = updates.get(loc);
-		lines[line] = text;
+        updates.get(loc)[line] = text;
 	}
 
 	/**
@@ -368,11 +367,9 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private Location scan(Block b, BlockFace horizontal, BlockFace vertical) {
-		Block b1 = b;
-
 		LogUtils.finer("scan: " + b + " h=" + horizontal + " v=" + vertical);
 
-		b1 = scanOneDir(b, horizontal);
+		Block b1 = scanOneDir(b, horizontal);
 		b1 = scanOneDir(b1, vertical);
 
 		return b1.getLocation();

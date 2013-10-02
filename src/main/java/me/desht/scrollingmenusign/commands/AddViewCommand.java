@@ -122,7 +122,7 @@ public class AddViewCommand extends SMSAbstractCommand {
 		}
 
 		SMSValidate.notNull(view, "Found nothing suitable to add as a menu view");
-		MiscUtil.statusMessage(sender, String.format("Added &9%s&- view &e%s&- to menu &e%s&-.",
+        MiscUtil.statusMessage(sender, String.format("Added &9%s&- view &e%s&- to menu &e%s&-.",
 		                                             view.getType(), view.getName(), menu.getName()));
 		return true;
 	}
