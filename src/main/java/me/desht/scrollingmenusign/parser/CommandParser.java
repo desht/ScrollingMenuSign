@@ -3,10 +3,7 @@ package me.desht.scrollingmenusign.parser;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -14,11 +11,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.desht.dhutils.ExperienceManager;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.*;
 import me.desht.dhutils.cost.Cost;
+import me.desht.dhutils.cost.ItemCost;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMacro;
 import me.desht.scrollingmenusign.SMSVariables;
@@ -35,6 +30,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.google.common.base.Joiner;
+import org.bukkit.inventory.ItemStack;
 
 public class CommandParser {
 
@@ -49,6 +45,14 @@ public class CommandParser {
 	private static Logger cmdLogger = null;
 
 	private final Set<String> macroHistory;
+
+	private interface SubstitutionHandler {
+		public String sub(Player player, CommandTrigger trigger);
+	}
+	private static final Map<String,SubstitutionHandler> subs = new HashMap<String, SubstitutionHandler>();
+	static {
+		setupSubHandlers();
+	}
 
 	public CommandParser() {
 		if (cmdLogger == null) {
@@ -122,7 +126,6 @@ public class CommandParser {
 		return cmd == null || cmd.getStatus() == ReturnStatus.CMD_OK;
 	}
 
-
 	/**
 	 * Substitute any user-defined variables (/sms var) in the command
 	 *
@@ -149,6 +152,7 @@ public class CommandParser {
 		return sb.toString();
 	}
 
+
 	/**
 	 * Substitute any view-specific variable in the command
 	 *
@@ -167,6 +171,86 @@ public class CommandParser {
 		return sb.toString();
 	}
 
+	private static void setupSubHandlers() {
+		subs.put("X", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return Integer.toString(player.getLocation().getBlockX());
+			}
+		});
+		subs.put("Y", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return Integer.toString(player.getLocation().getBlockY());
+			}
+		});
+		subs.put("Z", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return Integer.toString(player.getLocation().getBlockZ());
+			}
+		});
+		subs.put("NAME", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return player.getName();
+			}
+		});
+		subs.put("N", subs.get("NAME"));
+		subs.put("WORLD", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return player.getWorld().getName();
+			}
+		});
+		subs.put("I", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				LogUtils.warning("Command substitution <I> is deprecated and will stop working in a future release.");
+				return player.getItemInHand() == null ? "0" : Integer.toString(player.getItemInHand().getTypeId());
+			}
+		});
+		subs.put("INAME", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				if (player.getItemInHand() == null) {
+					return "AIR";
+				} else {
+					ItemStack stack = player.getItemInHand();
+					if (stack.getItemMeta() != null && stack.getItemMeta().getDisplayName() != null) {
+						return stack.getItemMeta().getDisplayName();
+					} else if (ItemNames.lookup(stack) != null) {
+						return ItemNames.lookup(stack);
+					} else {
+						return stack.getType().toString();
+					}
+				}
+			}
+		});
+		subs.put("MONEY", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				if (ScrollingMenuSign.economy != null) {
+					return formatMoney(ScrollingMenuSign.economy.getBalance(player.getName()));
+				} else {
+					return "0.00";
+				}
+			}
+		});
+		subs.put("VIEW", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return trigger == null ? "" : trigger.getName();
+			}
+		});
+		subs.put("EXP", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return Integer.toString(new ExperienceManager(player).getCurrentExp());
+			}
+		});
+	}
+
 	/**
 	 * Carry out all the predefined substitutions
 	 *
@@ -180,34 +264,16 @@ public class CommandParser {
 		StringBuffer sb = new StringBuffer(command.length());
 		while (m.find()) {
 			String key = m.group(1);
-			String repl;
-			if (key.equals("X")) {
-				repl = Integer.toString(player.getLocation().getBlockX());
-			} else if (key.equals("Y")) {
-				repl = Integer.toString(player.getLocation().getBlockY());
-			} else if (key.equals("Z")) {
-				repl = Integer.toString(player.getLocation().getBlockZ());
-			} else if (key.equals("NAME") || key.equals("N")) {
-				repl = player.getName();
-			} else if (key.equals("WORLD")) {
-				repl = player.getWorld().getName();
-			} else if (key.equals("I")) {
-				repl = player.getItemInHand() == null ? "0" : Integer.toString(player.getItemInHand().getTypeId());
-			} else if (key.equals("INAME")) {
-				repl = player.getItemInHand() == null ? "nothing" : player.getItemInHand().getType().toString();
-			} else if (key.equals("MONEY") && ScrollingMenuSign.economy != null) {
-				repl = formatMoney(ScrollingMenuSign.economy.getBalance(player.getName()));
-			} else if (key.equals("VIEW")) {
-				repl = trigger == null ? "" : trigger.getName();
-			} else if (key.equals("EXP")) {
-				repl = Integer.toString(new ExperienceManager(player).getCurrentExp());
+			String replacement;
+			if (subs.containsKey(key)) {
+				replacement = subs.get(key).sub(player, trigger);
 			} else {
 				String menuName = trigger == null ? "???" : trigger.getActiveMenu(player.getName()).getName();
 				LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
-				repl = "<" + key + ">";
+				replacement = "<" + key + ">";
 			}
-			repl = repl.replace("$", "\\$");
-			m.appendReplacement(sb, repl);
+			replacement = replacement.replace("$", "\\$");
+			m.appendReplacement(sb, replacement);
 		}
 		m.appendTail(sb);
 		return sb.toString();
@@ -322,8 +388,14 @@ public class CommandParser {
 			return;
 		}
 
+		// apply any costs associated with this command
 		if (sender instanceof Player) {
-			Cost.apply((Player) sender, cmd.getCosts());
+			for (Cost cost : cmd.getCosts()) {
+				cost.apply((Player) sender);
+				if (cost instanceof ItemCost && ((ItemCost)cost).isItemsDropped()) {
+					MiscUtil.statusMessage(sender, "&6Your inventory is full.  Some items dropped.");
+				}
+			}
 		}
 
 		if (cmd.getCommand() == null || cmd.getCommand().isEmpty()) {
