@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 
 import org.bukkit.event.block.BlockBreakEvent;
@@ -34,7 +35,7 @@ public class TooltipSign implements SMSInteractableBlock {
 
 	@Override
 	public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
-		if (plugin.isAttachableDetached(event.getBlock())) {
+		if (BlockUtil.isAttachableDetached(event.getBlock())) {
 			if (plugin.getConfig().getBoolean("sms.no_physics")) {
 				event.setCancelled(true);
 			} else {
