@@ -50,7 +50,7 @@ public class ActiveItem extends CommandTrigger {
 		SMSValidate.notNull(meta, "There was a problem getting item metadata for your " + stack.getType());
 		List<String> lore = meta.getLore();
 
-		SMSValidate.isTrue(!lore.isEmpty() && meta.getDisplayName() != null, "Item is not an SMS active item");
+		SMSValidate.isTrue(lore != null && !lore.isEmpty() && meta.getDisplayName() != null, "Item is not an SMS active item");
 		String last = lore.get(lore.size() - 1);
 		SMSValidate.isTrue(last.startsWith(MENU_MARKER) && last.length() > MENU_MARKER.length(), "Item is not an SMS active item");
 		SMSValidate.isTrue(meta.getDisplayName().contains(SEPARATOR), "Item name is not correctly formed");
