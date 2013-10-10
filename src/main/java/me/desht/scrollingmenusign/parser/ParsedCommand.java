@@ -1,27 +1,34 @@
 package me.desht.scrollingmenusign.parser;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import me.desht.dhutils.cost.Cost;
+import me.desht.dhutils.ExperienceManager;
+import me.desht.dhutils.ItemNames;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.cost.Cost;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.commandlets.BaseCommandlet;
 import me.desht.scrollingmenusign.commandlets.CommandletManager;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
+import me.desht.scrollingmenusign.views.CommandTrigger;
 
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class ParsedCommand {
 	private String command;
@@ -43,7 +50,15 @@ public class ParsedCommand {
 	private StopCondition commandStopCondition;
 	private StopCondition macroStopCondition;
 
-	ParsedCommand(CommandSender sender, Scanner scanner) throws SMSException {
+	private interface SubstitutionHandler {
+		public String sub(Player player, CommandTrigger trigger);
+	}
+	private static final Map<String,SubstitutionHandler> subs = new HashMap<String, SubstitutionHandler>();
+	static {
+		setupSubHandlers();
+	}
+
+	ParsedCommand(CommandSender sender, CommandTrigger trigger, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
 		costs = new ArrayList<Cost>();
 		elevated = restricted = chat = whisper = macro = console = commandlet = false;
@@ -86,8 +101,6 @@ public class ParsedCommand {
 					args.add(quote + token + quote);
 				continue;
 			}
-
-			rawCommand.append(token).append(" ");
 
 			if (cmdlets.hasCommandlet(token)) {
 				// commandlet
@@ -157,6 +170,18 @@ public class ParsedCommand {
 				// command separator - start another command IF this command is runnable
 				commandStopCondition = StopCondition.ON_FAIL;
 				break;
+			} else if (command != null && sender instanceof Player && token.charAt(0) == '<' && token.charAt(token.length() - 1) == '>') {
+				// a predefined substitution
+				Player player = (Player) sender;
+				String key = token.substring(1, token.length() - 1);
+				if (subs.containsKey(key)) {
+					token = subs.get(key).sub(player, trigger);
+				} else {
+					String menuName = trigger == null ? "???" : trigger.getActiveMenu(player.getName()).getName();
+					LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
+					token = "<" + key + ">";
+				}
+				args.add(token);
 			} else {
 				// just a plain string
 				if (command == null)
@@ -164,6 +189,8 @@ public class ParsedCommand {
 				else
 					args.add(token);
 			}
+
+			rawCommand.append(token).append(" ");
 		}
 
 		List<String> strings = MiscUtil.splitQuotedString(rawCommand.toString());
@@ -324,13 +351,13 @@ public class ParsedCommand {
 	 */
 	public boolean isCommandStopped() {
 		switch (commandStopCondition) {
-			case NONE:
-			default:
-				return false;
-			case ON_FAIL:
-				return restricted || !affordable;
-			case ON_SUCCESS:
-				return !restricted && affordable;
+		case NONE:
+		default:
+			return false;
+		case ON_FAIL:
+			return restricted || !affordable;
+		case ON_SUCCESS:
+			return !restricted && affordable;
 		}
 	}
 
@@ -344,13 +371,13 @@ public class ParsedCommand {
 	 */
 	public boolean isMacroStopped() {
 		switch (macroStopCondition) {
-			case NONE:
-			default:
-				return false;
-			case ON_FAIL:
-				return restricted || !affordable;
-			case ON_SUCCESS:
-				return !restricted && affordable;
+		case NONE:
+		default:
+			return false;
+		case ON_FAIL:
+			return restricted || !affordable;
+		case ON_SUCCESS:
+			return !restricted && affordable;
 		}
 	}
 
@@ -407,26 +434,27 @@ public class ParsedCommand {
 		String checkTerm = parts[1];
 
 		switch (checkType.charAt(0)) {
-			case 'g':
-				return ScrollingMenuSign.permission != null && ScrollingMenuSign.permission.playerInGroup(player, checkTerm);
-			case 'p':
-				return player.getName().equalsIgnoreCase(checkTerm);
-			case 'w':
-				return player.getWorld().getName().equalsIgnoreCase(checkTerm);
-			case 'n':
-				return PermissionUtils.isAllowedTo(player, checkTerm);
-			case 'i':
-				return isHoldingObject(player, checkTerm);
-			case 'v':
-				return variableTest(player, checkType, checkTerm);
-			default:
-				LogUtils.warning("Unknown check type: " + check);
-				return false;
+		case 'g':
+			return ScrollingMenuSign.permission != null && ScrollingMenuSign.permission.playerInGroup(player, checkTerm);
+		case 'p':
+			return player.getName().equalsIgnoreCase(checkTerm);
+		case 'w':
+			return player.getWorld().getName().equalsIgnoreCase(checkTerm);
+		case 'n':
+			return PermissionUtils.isAllowedTo(player, checkTerm);
+		case 'i':
+			return isHoldingObject(player, checkTerm);
+		case 'v':
+			return variableTest(player, checkType, checkTerm);
+		default:
+			LogUtils.warning("Unknown check type: " + check);
+			return false;
 		}
 	}
 
 	private boolean isHoldingObject(Player player, String checkTerm) {
-		if (checkTerm.matches("[0-9]+")) {
+		if (checkTerm.matches("^[0-9]+$")) {
+			LogUtils.warning("Checking for held items by ID is deprecated and will stop working in a future release.");
 			return player.getItemInHand().getTypeId() == Integer.parseInt(checkTerm);
 		} else {
 			Material mat = Material.matchMaterial(checkTerm);
@@ -497,6 +525,97 @@ public class ParsedCommand {
 		}
 
 		return false;
+	}
+
+	private static void setupSubHandlers() {
+		subs.put("X", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return Integer.toString(player.getLocation().getBlockX());
+			}
+		});
+		subs.put("Y", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return Integer.toString(player.getLocation().getBlockY());
+			}
+		});
+		subs.put("Z", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return Integer.toString(player.getLocation().getBlockZ());
+			}
+		});
+		subs.put("NAME", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return player.getName();
+			}
+		});
+		subs.put("N", subs.get("NAME"));
+		subs.put("WORLD", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return player.getWorld().getName();
+			}
+		});
+		subs.put("I", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				LogUtils.warning("Command substitution <I> is deprecated and will stop working in a future release.");
+				return player.getItemInHand() == null ? "0" : Integer.toString(player.getItemInHand().getTypeId());
+			}
+		});
+		subs.put("INAME", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				if (player.getItemInHand() == null) {
+					return "AIR";
+				} else {
+					ItemStack stack = player.getItemInHand();
+					if (stack.getItemMeta() != null && stack.getItemMeta().getDisplayName() != null) {
+						return stack.getItemMeta().getDisplayName();
+					} else if (ItemNames.lookup(stack) != null) {
+						return ItemNames.lookup(stack);
+					} else {
+						return stack.getType().toString();
+					}
+				}
+			}
+		});
+		subs.put("MONEY", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				if (ScrollingMenuSign.economy != null) {
+					return formatMoney(ScrollingMenuSign.economy.getBalance(player.getName()));
+				} else {
+					return "0.00";
+				}
+			}
+		});
+		subs.put("VIEW", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return trigger == null ? "" : trigger.getName();
+			}
+		});
+		subs.put("EXP", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return Integer.toString(new ExperienceManager(player).getCurrentExp());
+			}
+		});
+	}
+
+	private static String formatMoney(double amount) {
+		try {
+			return ScrollingMenuSign.economy.format(amount);
+		} catch (Exception e) {
+			LogUtils.warning("Caught exception from " + ScrollingMenuSign.economy.getName() + " while trying to format quantity " + amount + ":");
+			e.printStackTrace();
+			LogUtils.warning("ScrollingMenuSign will continue but you should verify your economy plugin configuration.");
+		}
+		return new DecimalFormat("#0.00").format(amount) + " ";
 	}
 
 	public enum StopCondition {NONE, ON_SUCCESS, ON_FAIL}

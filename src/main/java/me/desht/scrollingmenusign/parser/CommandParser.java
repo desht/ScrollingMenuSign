@@ -2,8 +2,10 @@ package me.desht.scrollingmenusign.parser;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -11,7 +13,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.desht.dhutils.*;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.cost.Cost;
 import me.desht.dhutils.cost.ItemCost;
 import me.desht.scrollingmenusign.SMSException;
@@ -30,13 +34,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.google.common.base.Joiner;
-import org.bukkit.inventory.ItemStack;
 
 public class CommandParser {
 
 	private static final Pattern promptPat = Pattern.compile("<\\$:(.+?)>");
 	private static final Pattern passwordPat = Pattern.compile("<\\$p:(.+?)>");
-	private static final Pattern preDefPat = Pattern.compile("<([A-Z]+)>");
 	private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)(=.*?)?>");
 	private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
 
@@ -45,14 +47,6 @@ public class CommandParser {
 	private static Logger cmdLogger = null;
 
 	private final Set<String> macroHistory;
-
-	private interface SubstitutionHandler {
-		public String sub(Player player, CommandTrigger trigger);
-	}
-	private static final Map<String,SubstitutionHandler> subs = new HashMap<String, SubstitutionHandler>();
-	static {
-		setupSubHandlers();
-	}
 
 	public CommandParser() {
 		if (cmdLogger == null) {
@@ -171,114 +165,6 @@ public class CommandParser {
 		return sb.toString();
 	}
 
-	private static void setupSubHandlers() {
-		subs.put("X", new SubstitutionHandler() {
-			@Override
-			public String sub(Player player, CommandTrigger trigger) {
-				return Integer.toString(player.getLocation().getBlockX());
-			}
-		});
-		subs.put("Y", new SubstitutionHandler() {
-			@Override
-			public String sub(Player player, CommandTrigger trigger) {
-				return Integer.toString(player.getLocation().getBlockY());
-			}
-		});
-		subs.put("Z", new SubstitutionHandler() {
-			@Override
-			public String sub(Player player, CommandTrigger trigger) {
-				return Integer.toString(player.getLocation().getBlockZ());
-			}
-		});
-		subs.put("NAME", new SubstitutionHandler() {
-			@Override
-			public String sub(Player player, CommandTrigger trigger) {
-				return player.getName();
-			}
-		});
-		subs.put("N", subs.get("NAME"));
-		subs.put("WORLD", new SubstitutionHandler() {
-			@Override
-			public String sub(Player player, CommandTrigger trigger) {
-				return player.getWorld().getName();
-			}
-		});
-		subs.put("I", new SubstitutionHandler() {
-			@Override
-			public String sub(Player player, CommandTrigger trigger) {
-				LogUtils.warning("Command substitution <I> is deprecated and will stop working in a future release.");
-				return player.getItemInHand() == null ? "0" : Integer.toString(player.getItemInHand().getTypeId());
-			}
-		});
-		subs.put("INAME", new SubstitutionHandler() {
-			@Override
-			public String sub(Player player, CommandTrigger trigger) {
-				if (player.getItemInHand() == null) {
-					return "AIR";
-				} else {
-					ItemStack stack = player.getItemInHand();
-					if (stack.getItemMeta() != null && stack.getItemMeta().getDisplayName() != null) {
-						return stack.getItemMeta().getDisplayName();
-					} else if (ItemNames.lookup(stack) != null) {
-						return ItemNames.lookup(stack);
-					} else {
-						return stack.getType().toString();
-					}
-				}
-			}
-		});
-		subs.put("MONEY", new SubstitutionHandler() {
-			@Override
-			public String sub(Player player, CommandTrigger trigger) {
-				if (ScrollingMenuSign.economy != null) {
-					return formatMoney(ScrollingMenuSign.economy.getBalance(player.getName()));
-				} else {
-					return "0.00";
-				}
-			}
-		});
-		subs.put("VIEW", new SubstitutionHandler() {
-			@Override
-			public String sub(Player player, CommandTrigger trigger) {
-				return trigger == null ? "" : trigger.getName();
-			}
-		});
-		subs.put("EXP", new SubstitutionHandler() {
-			@Override
-			public String sub(Player player, CommandTrigger trigger) {
-				return Integer.toString(new ExperienceManager(player).getCurrentExp());
-			}
-		});
-	}
-
-	/**
-	 * Carry out all the predefined substitutions
-	 *
-	 * @param player  the player to do the substitutions for
-	 * @param trigger the command trigger
-	 * @param command the command string
-	 * @return the substituted command string
-	 */
-	private String preDefinedSubs(Player player, CommandTrigger trigger, String command) {
-		Matcher m = preDefPat.matcher(command);
-		StringBuffer sb = new StringBuffer(command.length());
-		while (m.find()) {
-			String key = m.group(1);
-			String replacement;
-			if (subs.containsKey(key)) {
-				replacement = subs.get(key).sub(player, trigger);
-			} else {
-				String menuName = trigger == null ? "???" : trigger.getActiveMenu(player.getName()).getName();
-				LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
-				replacement = "<" + key + ">";
-			}
-			replacement = replacement.replace("$", "\\$");
-			m.appendReplacement(sb, replacement);
-		}
-		m.appendTail(sb);
-		return sb.toString();
-	}
-
 	/**
 	 * Handle one command string, which may contain multiple commands (chained with && or $$)
 	 *
@@ -293,7 +179,7 @@ public class CommandParser {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 
-			// see if an interactive substitution is needed
+			// see if any interactive substitution is needed
 			if (mode == RunMode.EXECUTE) {
 				Matcher m = promptPat.matcher(command);
 				if (m.find() && m.groupCount() > 0) {
@@ -307,9 +193,6 @@ public class CommandParser {
 					}
 				}
 			}
-
-			// make any predefined substitutions
-			command = preDefinedSubs(player, trigger, command);
 
 			// make any user-defined substitutions
 			Set<String> missing = new HashSet<String>();
@@ -337,7 +220,7 @@ public class CommandParser {
 				break;
 			}
 
-			cmd = new ParsedCommand(sender, scanner);
+			cmd = new ParsedCommand(sender, trigger, scanner);
 
 			switch (mode) {
 				case EXECUTE:
@@ -541,16 +424,5 @@ public class CommandParser {
 		} else {
 			LogUtils.info("Chat: " + command);
 		}
-	}
-
-	private static String formatMoney(double amount) {
-		try {
-			return ScrollingMenuSign.economy.format(amount);
-		} catch (Exception e) {
-			LogUtils.warning("Caught exception from " + ScrollingMenuSign.economy.getName() + " while trying to format quantity " + amount + ":");
-			e.printStackTrace();
-			LogUtils.warning("ScrollingMenuSign will continue but you should verify your economy plugin configuration.");
-		}
-		return new DecimalFormat("#0.00").format(amount) + " ";
 	}
 }
