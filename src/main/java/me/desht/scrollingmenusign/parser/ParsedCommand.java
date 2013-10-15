@@ -1,12 +1,7 @@
 package me.desht.scrollingmenusign.parser;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -58,6 +53,8 @@ public class ParsedCommand {
 		setupSubHandlers();
 	}
 
+	private static Pattern predefSubPat = Pattern.compile("<([A-Z]+)>");
+
 	ParsedCommand(CommandSender sender, CommandTrigger trigger, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
 		costs = new ArrayList<Cost>();
@@ -102,7 +99,11 @@ public class ParsedCommand {
 				continue;
 			}
 
-			if (cmdlets.hasCommandlet(token)) {
+			if (sender instanceof Player) {
+				token = predefSubs((Player) sender, token, trigger);
+			}
+
+			if (cmdlets.hasCommandlet(token) && command == null) {
 				// commandlet
 				command = token;
 				commandlet = true;
@@ -150,38 +151,11 @@ public class ParsedCommand {
 				break;
 			} else if (token.startsWith("$") && command == null && sender instanceof Player) {
 				// apply a cost or costs
-				for (String c : token.substring(1).split(";")) {
-					if (!c.isEmpty()) {
-						try {
-							Cost cost = Cost.parse(c);
-							costs.add(cost);
-							if (!cost.isAffordable((Player) sender)) {
-								affordable = false;
-							}
-							if (!cost.isApplicable((Player) sender)) {
-								applicable = false;
-							}
-						} catch (IllegalArgumentException e) {
-							throw new SMSException(e.getMessage() + ": bad cost");
-						}
-					}
-				}
+				applyCosts((Player) sender, token);
 			} else if (token.equals("&&")) {
 				// command separator - start another command IF this command is runnable
 				commandStopCondition = StopCondition.ON_FAIL;
 				break;
-			} else if (command != null && sender instanceof Player && token.charAt(0) == '<' && token.charAt(token.length() - 1) == '>') {
-				// a predefined substitution
-				Player player = (Player) sender;
-				String key = token.substring(1, token.length() - 1);
-				if (subs.containsKey(key)) {
-					token = subs.get(key).sub(player, trigger);
-				} else {
-					String menuName = trigger == null ? "???" : trigger.getActiveMenu(player.getName()).getName();
-					LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
-					token = "<" + key + ">";
-				}
-				args.add(token);
 			} else {
 				// just a plain string
 				if (command == null)
@@ -198,6 +172,43 @@ public class ParsedCommand {
 
 		if (!(sender instanceof Player) && command != null && command.startsWith("/")) {
 			console = true;
+		}
+	}
+
+	private String predefSubs(Player player, String token, CommandTrigger trigger) {
+		Matcher m = predefSubPat.matcher(token);
+		StringBuffer sb = new StringBuffer(token.length());
+		while (m.find()) {
+			String key = m.group(1);
+			if (subs.containsKey(key)) {
+				String repl = subs.get(key).sub(player, trigger);
+				m.appendReplacement(sb, Matcher.quoteReplacement(repl));
+			} else {
+				String menuName = trigger == null ? "???" : trigger.getActiveMenu(player.getName()).getName();
+				LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
+				sb.append("<").append(key).append(">");
+			}
+		}
+		m.appendTail(sb);
+		return sb.toString();
+	}
+
+	private void applyCosts(Player player, String token) {
+		for (String c : token.substring(1).split(";")) {
+			if (!c.isEmpty()) {
+				try {
+					Cost cost = Cost.parse(c);
+					costs.add(cost);
+					if (!cost.isAffordable(player)) {
+						affordable = false;
+					}
+					if (!cost.isApplicable(player)) {
+						applicable = false;
+					}
+				} catch (IllegalArgumentException e) {
+					throw new SMSException(e.getMessage() + ": bad cost");
+				}
+			}
 		}
 	}
 
