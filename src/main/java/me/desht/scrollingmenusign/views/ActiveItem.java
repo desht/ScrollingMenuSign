@@ -16,6 +16,7 @@ import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -58,7 +59,7 @@ public class ActiveItem extends CommandTrigger {
 		String[] menuPath = last.substring(MENU_MARKER.length()).split(SUBMENU_SEPARATOR);
 		for (String menuName : menuPath) {
 			String[] f = menuName.split(":");
-			SMSValidate.isTrue(f.length == 2 && f[1].matches("^\\d+$"), "Item lore is not correctly formed");
+			SMSValidate.isTrue(f.length == 2 && StringUtils.isNumeric(f[1]), "Item lore is not correctly formed");
 			menus.add(new MenuPos(SMSMenu.getMenu(f[0]), Integer.parseInt(f[1])));
 		}
 	}
@@ -152,9 +153,7 @@ public class ActiveItem extends CommandTrigger {
 			return;
 		}
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.item");
-		if (!getActiveMenu().hasOwnerPermission(player)) {
-			throw new SMSException("This menu is owned by someone else");
-		}
+		SMSValidate.isTrue(getActiveMenu().hasOwnerPermission(player), "This menu is owned by someone else");
 		SMSMenuItem item = getActiveMenuItemAt(null, getSelectedItem());
 		LogUtils.fine("ActiveItem: about to execute: " + item);
 		if (item != null) {
