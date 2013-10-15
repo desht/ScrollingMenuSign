@@ -46,11 +46,6 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	@Override
-	public Map<String, Object> freeze() {
-		return super.freeze();
-	}
-
-	@Override
 	public void pushMenu(String playerName, SMSMenu newActive) {
 		storedScrollPos.pushScrollPos(playerName, getScrollPos(playerName));
 		setScrollPos(playerName, 1);

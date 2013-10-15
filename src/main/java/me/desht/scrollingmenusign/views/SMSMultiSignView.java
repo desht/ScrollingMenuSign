@@ -182,35 +182,42 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 
 		LogUtils.finer("drawText: view=" + getName() + ", line=" + line + ", text=[" + text + "]");
 		int begin = 0;
-		int x = 0;
-		String ctrlColour = "";
-		String ctrlOther = "";
-		while (x < width) {
-			String ctrl = ctrlColour + ctrlOther;
-			int end = Math.min(begin + (15 - ctrl.length()), text.length());
-			String sub = ctrl + text.substring(begin, end);
-			if (sub.endsWith("\u00a7")) {
-				// we can't have a control char split over 2 signs
-				sub = sub.replaceAll("\u00a7$", "");
-			}
-			ctrlColour = ctrlOther = "";
-			for (int i = 0; i < sub.length() - 1; i++) {
-				char c = sub.charAt(i), c1 = Character.toLowerCase(sub.charAt(i + 1));
-				if (c == '\u00a7') {
-					if (c1 == 'r') {
-						ctrlColour = ctrlOther = "";
-					} else if (isHexDigit(c1)) {
-						ctrlColour = "\u00a7" + c1;
-					} else {
-						ctrlOther += "\u00a7" + c1;
+		if (width == 1) {
+			// optimised case; avoid line-splitting calculations
+			Location loc = getSignLocation(0, y);
+			pendingUpdate(loc, line % 4, text);
+		} else {
+			// multiple horizontal signs; we have some line-splitting to do...
+			int x = 0;
+			String ctrlColour = "";
+			String ctrlOther = "";
+			while (x < width) {
+				String ctrl = ctrlColour + ctrlOther;
+				int end = Math.min(begin + (15 - ctrl.length()), text.length());
+				String sub = ctrl + text.substring(begin, end);
+				if (sub.endsWith("\u00a7")) {
+					// we can't have a control char split over 2 signs
+					sub = sub.replaceAll("\u00a7$", "");
+				}
+				ctrlColour = ctrlOther = "";
+				for (int i = 0; i < sub.length() - 1; i++) {
+					char c = sub.charAt(i), c1 = Character.toLowerCase(sub.charAt(i + 1));
+					if (c == '\u00a7') {
+						if (c1 == 'r') {
+							ctrlColour = ctrlOther = "";
+						} else if (isHexDigit(c1)) {
+							ctrlColour = "\u00a7" + c1;
+						} else {
+							ctrlOther += "\u00a7" + c1;
+						}
 					}
 				}
+				Location loc = getSignLocation(x, y);
+				LogUtils.finest("drawText: substr = [" + sub + "] @" + x + "," + y + loc + " line=" + line % 4);
+				pendingUpdate(loc, line % 4, sub);
+				begin += sub.length() - ctrl.length();
+				x++;
 			}
-			Location loc = getSignLocation(x, y);
-			LogUtils.finest("drawLine: sub = [" + sub + "] @" + x + "," + y + loc + " line=" + line % 4);
-			pendingUpdate(loc, line % 4, sub);
-			begin += sub.length() - ctrl.length();
-			x++;
 		}
 	}
 

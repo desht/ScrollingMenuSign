@@ -53,7 +53,7 @@ public class ParsedCommand {
 		setupSubHandlers();
 	}
 
-	private static Pattern predefSubPat = Pattern.compile("<([A-Z]+)>");
+	private static final Pattern predefSubPat = Pattern.compile("<([A-Z]+)>");
 
 	ParsedCommand(CommandSender sender, CommandTrigger trigger, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
