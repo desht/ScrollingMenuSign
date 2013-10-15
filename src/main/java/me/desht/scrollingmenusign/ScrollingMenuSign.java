@@ -10,15 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import me.desht.dhutils.ConfigurationListener;
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.ItemGlow;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MetaFaker;
+import me.desht.dhutils.*;
 import me.desht.dhutils.MetaFaker.MetadataFilter;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.cost.EconomyCost;
 import me.desht.dhutils.responsehandler.ResponseHandler;
@@ -61,21 +54,16 @@ import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
 import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.views.ActiveItem;
-import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.scrollingmenusign.views.ViewManager;
+import me.desht.scrollingmenusign.views.*;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.Attachable;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -158,6 +146,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		MessagePager.setPageCmd("/sms page [#|n|p]");
 		MessagePager.setDefaultPageSize(getConfig().getInt("sms.pager.lines", 0));
+
+		SMSScrollableView.setDefaultScrollType(SMSScrollableView.ScrollType.valueOf(getConfig().getString("sms.scroll_type").toUpperCase()));
 
 		loadPersistedData();
 
@@ -426,7 +416,14 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-		// do nothing
+		if (key.equals("scroll_type")) {
+			try {
+				SMSScrollableView.ScrollType t = SMSGlobalScrollableView.ScrollType.valueOf(newVal.toString().toUpperCase());
+				DHValidate.isTrue(t != SMSGlobalScrollableView.ScrollType.DEFAULT, "Scroll type must be one of SCROLL/PAGE");
+			} catch (IllegalArgumentException e) {
+				throw new DHUtilsException("Scroll type must be one of SCROLL/PAGE");
+			}
+		}
 	}
 
 	@Override
@@ -446,6 +443,9 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			repaintViews(null);
 		} else if (key.equals("coloured_console")) {
 			MiscUtil.setColouredConsole((Boolean) newVal);
+		} else if (key.equals("scroll_type")) {
+			SMSScrollableView.setDefaultScrollType(SMSGlobalScrollableView.ScrollType.valueOf(newVal.toString().toUpperCase()));
+			repaintViews(null);
 		}
 	}
 

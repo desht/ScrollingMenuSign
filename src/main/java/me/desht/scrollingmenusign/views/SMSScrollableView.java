@@ -20,7 +20,14 @@ import org.bukkit.entity.Player;
  * Represents the abstract base class for all scrollable views.  Provides per-player scroll positioning.
  */
 public abstract class SMSScrollableView extends SMSView {
+	public enum ScrollType {
+		DEFAULT, SCROLL, PAGE
+	}
+
 	public static final String MAX_TITLE_LINES = "max_title_lines";
+	public static final String SCROLL_TYPE = "scrolltype";
+
+	private static ScrollType defaultScrollType;
 
 	private boolean wrap;
 	private final Map<String, Integer> playerScrollPos = new HashMap<String, Integer>();
@@ -35,6 +42,7 @@ public abstract class SMSScrollableView extends SMSView {
 		wrap = true;
 
 		registerAttribute(MAX_TITLE_LINES, 0, "Max lines to use for menu title");
+		registerAttribute(SCROLL_TYPE, ScrollType.DEFAULT, "View scrolling method (scroll or page)");
 	}
 
 	@Override
@@ -55,12 +63,30 @@ public abstract class SMSScrollableView extends SMSView {
 		return super.popMenu(playerName);
 	}
 
+	public static void setDefaultScrollType(ScrollType scrollType) {
+		defaultScrollType = scrollType;
+	}
+
+	public static ScrollType getDefaultScrollType() {
+		return defaultScrollType;
+	}
+
 	public boolean isWrap() {
 		return wrap;
 	}
 
 	public void setWrap(boolean wrap) {
 		this.wrap = wrap;
+	}
+
+	/**
+	 * Get the scroll type for this view.
+	 *
+	 * @return the view's scroll type
+	 */
+	public ScrollType getScrollType() {
+		ScrollType t = (ScrollType) getAttribute(SCROLL_TYPE);
+		return t == ScrollType.DEFAULT ? getDefaultScrollType() : t;
 	}
 
 	/**

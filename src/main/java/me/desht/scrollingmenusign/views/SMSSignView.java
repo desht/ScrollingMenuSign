@@ -6,6 +6,7 @@ import java.util.Observable;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
@@ -63,10 +64,8 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	@Override
 	public void addLocation(Location loc) throws SMSException {
 		Block b = loc.getBlock();
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " does not contain a sign.");
-		}
-
+		SMSValidate.isTrue(b.getType() == Material.WALL_SIGN || b.getType() == Material.SIGN_POST,
+				"Location " + MiscUtil.formatLocation(loc) + " does not contain a sign.");
 		super.addLocation(loc);
 	}
 
@@ -123,17 +122,30 @@ public class SMSSignView extends SMSGlobalScrollableView {
 			res[i] = String.format(makePrefix("", getTitleJustification()), title.get(i));
 		}
 
-		// line 2-4 are the menu items around the current menu position
-		// line 3 is the current position
 		String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%");
 		String prefixSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
-
 		ViewJustification ij = getItemJustification();
-		if (title.size() < 2) {
-			res[1] = String.format(makePrefix(prefixNotSel, ij), getLine2Item(scrollPos));
+		int pageSize = res.length - title.size();
+		int menuSize = getActiveMenuItemCount(null);
+
+		switch (getScrollType()) {
+			case SCROLL:
+				// line 2-4 are the menu items around the current menu position
+				// line 3 is the current position
+				if (title.size() < 2) {
+					res[1] = String.format(makePrefix(prefixNotSel, ij), getLine2Item(scrollPos));
+				}
+				res[2] = String.format(makePrefix(prefixSel, ij), getLine3Item(scrollPos));
+				res[3] = String.format(makePrefix(prefixNotSel, ij), getLine4Item(scrollPos));
+				break;
+			case PAGE:
+				int pageNum = (scrollPos - 1) / pageSize;
+				for (int j = 0, pos = (pageNum * pageSize) + 1; j < pageSize && pos <= menuSize; j++, pos++) {
+					String pre = pos == scrollPos ? prefixSel : prefixNotSel;
+					res[j + title.size()] = String.format(makePrefix(pre, ij), getActiveItemLabel(null, pos));
+				}
+				break;
 		}
-		res[2] = String.format(makePrefix(prefixSel, ij), getLine3Item(scrollPos));
-		res[3] = String.format(makePrefix(prefixNotSel, ij), getLine4Item(scrollPos));
 
 		return res;
 	}

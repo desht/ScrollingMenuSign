@@ -138,26 +138,32 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		for (int i = 0; i < nTitleLines; i++) {
 			drawText(i, titleLines.get(i));
 		}
+		for (int i = nTitleLines; i < height * 4; i++) {
+			drawText(i, "");
+		}
 
-		int current = getScrollPos();
-		int nItems = getActiveMenuItemCount(null);
-		int nDisplayable = height * 4 - nTitleLines;
-		if (nItems > 0) {
-			for (int n = 0; n < nDisplayable; n++) {
-				SMSMenuItem item = getActiveMenuItemAt(null, current);
-				String lineText;
-				if (n < nItems) {
-					lineText = item == null ? "???" : item.getLabel();
-				} else {
-					// no more menu items - blank lines to the bottom of the view
-					lineText = "";
+		int scrollPos = getScrollPos();
+		int menuSize = getActiveMenuItemCount(null);
+		int pageSize = height * 4 - nTitleLines;
+		switch (getScrollType()) {
+			case SCROLL:
+				for (int j = 0, pos = scrollPos; j < pageSize && j < menuSize; j++) {
+					String pre = j == 0 ? prefixSel : prefixNotSel;
+					String lineText = getActiveItemLabel(null, pos);
+					drawText(j + nTitleLines, formatItem(pre, lineText));
+					if (++pos > menuSize) {
+						pos = 1;
+					}
 				}
-				LogUtils.finer("SMSMultiSignView: update: current=" + current + " line=" + n + " text=[" + lineText + "]");
-				drawText(n + nTitleLines, formatItem(n == 0 ? prefixSel : prefixNotSel, lineText));
-				current++;
-				if (current > nItems)
-					current = 1;
-			}
+				break;
+			case PAGE:
+				int pageNum = (scrollPos - 1) / pageSize;
+				for (int j = 0, pos = (pageNum * pageSize) + 1; j < pageSize && pos <= menuSize; j++, pos++) {
+					String pre = pos == scrollPos ? prefixSel : prefixNotSel;
+					String lineText = getActiveItemLabel(null, pos);
+					drawText(j + nTitleLines, formatItem(pre, lineText));
+				}
+				break;
 		}
 
 		applyUpdates();
@@ -174,7 +180,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	public void drawText(int line, String text) {
 		int y = line / 4;
 
-		LogUtils.finest("drawLine: line=" + line + "  text=[" + text + "]");
+		LogUtils.finer("drawText: view=" + getName() + ", line=" + line + ", text=[" + text + "]");
 		int begin = 0;
 		int x = 0;
 		String ctrlColour = "";

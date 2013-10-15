@@ -63,3 +63,4 @@ sms:
             material: 324
         title_prefix: '->'
     coloured_console: true
+    scroll_type: SCROLL

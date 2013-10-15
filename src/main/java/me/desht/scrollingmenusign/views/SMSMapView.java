@@ -476,37 +476,41 @@ public class SMSMapView extends SMSScrollableView {
 		g.drawLine(x, lineY, x + width, lineY);
 		g.setColor(c);
 
-		String prefix1 = config.getString("sms.item_prefix.not_selected", "  ");
-		String prefix2 = config.getString("sms.item_prefix.selected", "> ");
-
-		int nDisplayable = (getHeight() - yPos) / (metrics.getHeight() + getLineSpacing());
-
-		if (menu.getItemCount() > 0) {
-			int current = getScrollPos(player.getName());
-			ViewJustification itemJust = getItemJustification();
-			for (int n = 0; n < nDisplayable; n++) {
-				String lineText = getActiveItemLabel(player.getName(), current);
-				if (lineText == null) lineText = "???";
-				if (n == 0) {
-					lineText = prefix2 + lineText;
-				} else {
-					lineText = prefix1 + lineText;
+		String prefixNotSel = config.getString("sms.item_prefix.not_selected", "  ");
+		String prefixSel = config.getString("sms.item_prefix.selected", "> ");
+		ViewJustification itemJust = getItemJustification();
+		int pageSize = (getHeight() - yPos) / (metrics.getHeight() + getLineSpacing());
+		int scrollPos = getScrollPos(player.getName());
+		int menuSize = getActiveMenuItemCount(player.getName());
+		// draw the text
+		switch (getScrollType()) {
+			case SCROLL:
+				for (int n = 0; n < pageSize && n < menuSize; n++, yPos += lineHeight) {
+					String prefix = n == 0 ? prefixSel : prefixNotSel;
+					String lineText = getActiveItemLabel(player.getName(), scrollPos);
+					drawText(g, itemJust, yPos, prefix + lineText);
+					if (++scrollPos > menuSize) {
+						scrollPos = 1;
+					}
 				}
-				drawText(g, itemJust, yPos, lineText);
-				yPos += lineHeight;
-				current++;
-				if (current > getActiveMenuItemCount(player.getName()))
-					current = 1;
-				if (n + 1 >= getActiveMenuItemCount(player.getName()))
-					break;
-			}
+				break;
+			case PAGE:
+				int pageNum = (scrollPos - 1) / pageSize;
+				for (int j = 0, pos = (pageNum * pageSize) + 1; j < pageSize && pos <= menuSize; j++, pos++, yPos += lineHeight) {
+					String pre = pos == scrollPos ? prefixSel : prefixNotSel;
+					String lineText = getActiveItemLabel(player.getName(), pos);
+					drawText(g, itemJust, yPos, pre + lineText);
+				}
+				break;
 		}
 
+		// draw the tooltip, if needed
 		SMSMenuItem item = menu.getItemAt(getScrollPos(player.getName()));
 		if (item != null && config.getBoolean("sms.maps.show_tooltips")) {
 			String[] lore = item.getLore();
 			if (lore.length > 0) {
-				int y1 = lineHeight * (titleLines.size() + 3);
+				int offset = getScrollType() == ScrollType.SCROLL ? 3 : (scrollPos % pageSize) + 1;
+				int y1 = lineHeight * (titleLines.size() + offset);
 				int x1 = x + 10;
 				int y2 = y1 + lineHeight * lore.length + 1;
 				int x2 = x + width;
