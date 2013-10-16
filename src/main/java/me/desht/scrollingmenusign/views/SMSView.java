@@ -545,9 +545,9 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 		ViewManager viewManager = ScrollingMenuSign.getInstance().getViewManager();
 		SMSView v = viewManager.getViewForLocation(loc);
-		SMSValidate.isTrue(v == null,
-				"Location " + MiscUtil.formatLocation(loc) + " already contains a view on menu: " + v.getNativeMenu().getName());
-
+		if (v != null) {
+			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " already contains a view on menu: " + v.getNativeMenu().getName());
+		}
 		locations.add(new PersistableLocation(loc));
 		if (viewManager.checkForView(getName())) {
 			viewManager.registerLocation(loc, this);
