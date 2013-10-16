@@ -95,11 +95,12 @@ public abstract class SMSScrollableView extends SMSView {
 	public int getScrollPos(String playerName) {
 		playerName = getPlayerContext(playerName);
 
-		if (!playerScrollPos.containsKey(playerName) || playerScrollPos.get(playerName) < 1) {
+		Integer pos = playerScrollPos.get(playerName);
+		if (pos == null || pos < 1) {
 			setScrollPos(playerName, 1);
-		} else if (playerScrollPos.get(playerName) > getActiveMenuItemCount(playerName))
+		} else if (pos > getActiveMenuItemCount(playerName)) {
 			setScrollPos(playerName, getActiveMenuItemCount(playerName));
-
+		}
 		return playerScrollPos.get(playerName);
 	}
 
@@ -107,7 +108,7 @@ public abstract class SMSScrollableView extends SMSView {
 	 * Sets the scroll position for the given player on this view.
 	 *
 	 * @param playerName The player's name
-	 * @param scrollPos  The scroll position
+	 * @param scrollPos  The new scroll position
 	 */
 	public void setScrollPos(String playerName, int scrollPos) {
 		playerName = getPlayerContext(playerName);
@@ -116,7 +117,7 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	/**
-	 * Sets the current selected item for the given player to the next item.
+	 * Sets the currently-selected item for the given player to the next item.
 	 *
 	 * @param playerName The player to scroll the view for
 	 */

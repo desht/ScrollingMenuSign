@@ -11,6 +11,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.Str;
+import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
@@ -18,6 +19,7 @@ import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -119,7 +121,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 				for (int y = 0; y < height; y++) {
 					org.bukkit.block.Sign s = getSign(x, y);
 					if (s != null) {
-						for (int i = 0; i < 4; i++) {
+						for (int i = 0; i < SIGN_LINES; i++) {
 							s.setLine(i, "");
 						}
 						s.update();
@@ -138,13 +140,13 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		for (int i = 0; i < nTitleLines; i++) {
 			drawText(i, titleLines.get(i));
 		}
-		for (int i = nTitleLines; i < height * 4; i++) {
+		for (int i = nTitleLines; i < height * SIGN_LINES; i++) {
 			drawText(i, "");
 		}
 
 		int scrollPos = getScrollPos();
 		int menuSize = getActiveMenuItemCount(null);
-		int pageSize = height * 4 - nTitleLines;
+		int pageSize = height * SIGN_LINES - nTitleLines;
 		switch (getScrollType()) {
 			case SCROLL:
 				for (int j = 0, pos = scrollPos; j < pageSize && j < menuSize; j++) {
@@ -178,26 +180,23 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 * @param text The text to draw
 	 */
 	public void drawText(int line, String text) {
-		int y = line / 4;
+		int y = line / SIGN_LINES;
 
 		LogUtils.finer("drawText: view=" + getName() + ", line=" + line + ", text=[" + text + "]");
 		int begin = 0;
 		if (width == 1) {
 			// optimised case; avoid line-splitting calculations
-			Location loc = getSignLocation(0, y);
-			pendingUpdate(loc, line % 4, text);
+			pendingUpdate(getSignLocation(0, y), line % SIGN_LINES, text);
 		} else {
 			// multiple horizontal signs; we have some line-splitting to do...
-			int x = 0;
-			String ctrlColour = "";
-			String ctrlOther = "";
-			while (x < width) {
+			String ctrlColour = "", ctrlOther = "";
+			for (int x = 0; x < width; x++) {
 				String ctrl = ctrlColour + ctrlOther;
-				int end = Math.min(begin + (15 - ctrl.length()), text.length());
+				int end = Math.min(begin + (SIGN_WIDTH - ctrl.length()), text.length());
 				String sub = ctrl + text.substring(begin, end);
 				if (sub.endsWith("\u00a7")) {
 					// we can't have a control char split over 2 signs
-					sub = sub.replaceAll("\u00a7$", "");
+					sub = StringUtils.chop(sub);
 				}
 				ctrlColour = ctrlOther = "";
 				for (int i = 0; i < sub.length() - 1; i++) {
@@ -207,16 +206,16 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 							ctrlColour = ctrlOther = "";
 						} else if (isHexDigit(c1)) {
 							ctrlColour = "\u00a7" + c1;
+							ctrlOther = ""; // colour code disables any previous formatting code
 						} else {
 							ctrlOther += "\u00a7" + c1;
 						}
 					}
 				}
 				Location loc = getSignLocation(x, y);
-				LogUtils.finest("drawText: substr = [" + sub + "] @" + x + "," + y + loc + " line=" + line % 4);
-				pendingUpdate(loc, line % 4, sub);
+				LogUtils.finest("drawText: substr = [" + sub + "] @" + x + "," + y + loc + " line=" + line % SIGN_LINES);
+				pendingUpdate(loc, line % SIGN_LINES, sub);
 				begin += sub.length() - ctrl.length();
-				x++;
 			}
 		}
 	}
@@ -278,28 +277,13 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	public Location getSignLocation(int x, int y) {
 		Location tl = topLeft.getLocation();
 
-		BlockFace toLeft = getLeft(facing);
+		BlockFace toLeft = BlockUtil.getLeft(facing);
 
 		int x1 = tl.getBlockX() + toLeft.getModX() * x;
 		int y1 = tl.getBlockY() - y;
 		int z1 = tl.getBlockZ() + toLeft.getModZ() * x;
 
 		return new Location(tl.getWorld(), x1, y1, z1);
-	}
-
-	public BlockFace getLeft(BlockFace face) {
-		switch (face) {
-			case NORTH:
-				return BlockFace.WEST;
-			case EAST:
-				return BlockFace.NORTH;
-			case SOUTH:
-				return BlockFace.EAST;
-			case WEST:
-				return BlockFace.SOUTH;
-			default:
-				throw new IllegalArgumentException("unsupported face");
-		}
 	}
 
 	/**
@@ -311,7 +295,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	 */
 	private void pendingUpdate(Location loc, int line, String text) {
 		if (!updates.containsKey(loc)) {
-			updates.put(loc, new String[4]);
+			updates.put(loc, new String[SIGN_LINES]);
 		}
 		updates.get(loc)[line] = text;
 	}
@@ -327,7 +311,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 				continue;
 			}
 			org.bukkit.block.Sign s = (org.bukkit.block.Sign) b.getState();
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < SIGN_LINES; i++) {
 				String line = e.getValue()[i];
 				if (line != null) {
 					s.setLine(i, line);
@@ -445,7 +429,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	}
 
 	private String formatLine(String prefix, String text, ViewJustification just) {
-		int l = 15 * width - prefix.length();
+		int l = SIGN_WIDTH * width - prefix.length();
 		String s = "";
 		//		this regexp sadly doesn't work
 		//		String reset = text.matches("\u00a7[mn]") ? "\u00a7r" : "";
@@ -486,10 +470,9 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 		return c >= '0' && c <= '9' || c >= 'a' && c <= 'f';
 	}
 
-
 	@Override
 	protected int getLineLength() {
-		return 15 * width;
+		return SIGN_WIDTH * width;
 	}
 
 	@Override

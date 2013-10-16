@@ -92,7 +92,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 		if (permanent) {
 			Sign sign = getSign();
 			if (sign != null) {
-				for (int i = 0; i < 4; i++) {
+				for (int i = 0; i < SIGN_LINES; i++) {
 					sign.setLine(i, "");
 				}
 				sign.update();
@@ -113,7 +113,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	}
 
 	private String[] buildSignText(int scrollPos) {
-		String[] res = new String[4];
+		String[] res = new String[SIGN_LINES];
 
 		List<String> title = splitTitle(null);
 
@@ -180,7 +180,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	}
 
 	private String makePrefix(String prefix, ViewJustification just) {
-		int l = 15 - prefix.length();
+		int l = SIGN_WIDTH - prefix.length();
 		String s = "";
 		switch (just) {
 			case LEFT:
@@ -235,7 +235,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
 	 */
 	@Override
 	protected int getLineLength() {
-		return 15;
+		return SIGN_WIDTH;
 	}
 
 	/* (non-Javadoc)

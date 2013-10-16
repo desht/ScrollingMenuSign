@@ -540,15 +540,13 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 * @throws SMSException if the location is not suitable for adding to this view
 	 */
 	public void addLocation(Location loc) throws SMSException {
-		if (getLocations().size() >= getMaxLocations())
-			throw new SMSException("View " + getName() + " already occupies the maximum number of locations (" + getMaxLocations() + ")");
+		SMSValidate.isTrue(getLocations().size() < getMaxLocations(),
+				"View " + getName() + " already occupies the maximum number of locations (" + getMaxLocations() + ")");
 
 		ViewManager viewManager = ScrollingMenuSign.getInstance().getViewManager();
-
 		SMSView v = viewManager.getViewForLocation(loc);
-		if (v != null) {
-			throw new SMSException("Location " + MiscUtil.formatLocation(loc) + " already contains a view on menu: " + v.getNativeMenu().getName());
-		}
+		SMSValidate.isTrue(v == null,
+				"Location " + MiscUtil.formatLocation(loc) + " already contains a view on menu: " + v.getNativeMenu().getName());
 
 		locations.add(new PersistableLocation(loc));
 		if (viewManager.checkForView(getName())) {
@@ -673,9 +671,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	}
 
 	public void setAttribute(String k, String val) throws SMSException {
-		if (!attributes.contains(k)) {
-			throw new SMSException("No such view attribute: " + k);
-		}
+		SMSValidate.isTrue(attributes.contains(k), "No such view attribute: " + k);
 		attributes.set(k, val);
 	}
 
@@ -701,9 +697,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		if (key.equals(OWNER)) {
-			if (newVal.toString().isEmpty()) {
-				throw new SMSException("Unowned views are not allowed");
-			}
+			SMSValidate.isFalse(newVal.toString().isEmpty(), "Unowned views are not allowed");
 		} else if (key.equals(ACCESS)) {
 			SMSAccessRights access = (SMSAccessRights) newVal;
 			if (access != SMSAccessRights.ANY && getAttributeAsString(OWNER).equals(ScrollingMenuSign.CONSOLE_OWNER)) {

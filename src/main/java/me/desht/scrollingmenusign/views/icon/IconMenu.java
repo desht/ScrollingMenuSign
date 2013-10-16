@@ -161,7 +161,6 @@ public class IconMenu implements Listener, SMSPopup {
 			int slot = event.getRawSlot();
 			int spacing = (Integer) getView().getAttribute(SMSInventoryView.SPACING);
 			int slot2 = slot == 0 ? 0 : ((slot - 1) / spacing) + 1;
-			System.out.println("slot " + slot + "->" + slot2);
 			if (slot >= 0 && slot < size && optionNames[slot] != null) {
 				OptionClickEvent optionEvent = new OptionClickEvent(player, getMenuIndexForSlot(slot2), optionNames[slot]);
 				try {

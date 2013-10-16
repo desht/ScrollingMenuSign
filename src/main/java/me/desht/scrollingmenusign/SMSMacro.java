@@ -150,11 +150,8 @@ public class SMSMacro implements SMSPersistable {
 	 */
 	public static SMSMacro getMacro(String macroName, boolean autoCreate) throws SMSException {
 		if (!allMacros.containsKey(macroName)) {
-			if (autoCreate) {
-				addMacro(new SMSMacro(macroName));
-			} else {
-				throw new SMSException("No such macro " + macroName);
-			}
+			SMSValidate.isTrue(autoCreate, "No such macro " + macroName);
+			addMacro(new SMSMacro(macroName));
 		}
 
 		return allMacros.get(macroName);

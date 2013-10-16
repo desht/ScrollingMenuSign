@@ -46,6 +46,8 @@ import com.google.common.base.Joiner;
  * the selected item in this view, and tracks the location of a possible tooltip sign.
  */
 public abstract class SMSGlobalScrollableView extends SMSScrollableView {
+	protected static final int SIGN_WIDTH = 15;
+	protected static final int SIGN_LINES = 4;
 
 	public static final String RS_OUTPUT_MODE = "rsoutputmode";
 	public static final String PULSE_TICKS = "pulseticks";
@@ -314,7 +316,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 				Block b = tooltipSign.getBlock();
 				if (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN) {
 					Sign sign = (Sign) b.getState();
-					for (int i = 0; i < 4; i++) {
+					for (int i = 0; i < SIGN_LINES; i++) {
 						sign.setLine(i, "");
 					}
 					sign.update();
@@ -374,7 +376,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		} else {
 			Sign sign = (Sign) b.getState();
 			String[] text = getTooltipText();
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < SIGN_LINES; i++) {
 				sign.setLine(i, text[i]);
 			}
 			sign.update();
@@ -385,11 +387,11 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 		String[] lore = getActiveMenuItemAt(null, getScrollPos()).getLore();
 		Scanner scanner = new Scanner(Joiner.on(" ").join(lore));
 		StringBuilder sb = new StringBuilder();
-		String[] text = new String[4];
+		String[] text = new String[SIGN_LINES];
 		int i = 0;
-		while (scanner.hasNext() && i < 4) {
+		while (scanner.hasNext() && i < text.length) {
 			String word = scanner.next();
-			if (sb.length() + word.length() > 14) {
+			if (sb.length() + word.length() >= SIGN_WIDTH) {
 				text[i++] = sb.toString();
 				sb.setLength(0);
 			}
@@ -397,7 +399,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 			sb.append(word);
 		}
 		scanner.close();
-		if (i < 4) text[i] = sb.toString();
+		if (i < text.length) text[i] = sb.toString();
 
 		return text;
 	}
