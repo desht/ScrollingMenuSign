@@ -481,7 +481,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 	private void configCleanup() {
 		String[] obsolete = new String[]{
-				"sms.break_block_id", "sms.autosave", "sms.menuitem_separator",
+				"sms.maps.break_block_id", "sms.autosave", "sms.menuitem_separator",
 				"sms.persistent_user_vars", "uservar",
 		};
 
