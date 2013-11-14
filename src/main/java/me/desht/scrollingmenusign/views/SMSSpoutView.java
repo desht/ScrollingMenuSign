@@ -223,7 +223,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	}
 
 	public String toString() {
-		return "spout (" + popups.size() + " popups created)";
+		return "spout - " + popups.size() + " popups created";
 	}
 
 	/* (non-Javadoc)
