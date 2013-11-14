@@ -53,22 +53,13 @@
             <url>http://repo.bukkit.org/content/groups/public</url>
         </repository>
         <repository>
-            <id>spout-repo</id>
-            <name>Spout API</name>
-            <url>http://repo.spout.org</url>
-        </repository>
-        <repository>
             <id>Plugin Metrics</id>
             <url>http://repo.mcstats.org/content/repositories/public</url>
         </repository>
         <repository>
-            <id>Genesis-MC</id>
-            <url>http://jenkins.genesis-mc.com/plugin/repository/everything/</url>
-        </repository>
-        <!-- <repository>
             <id>DH Dropbox</id>
             <url>http://dl.dropboxusercontent.com/u/12467600/maven-repo</url>
-        </repository> -->
+        </repository>
         <repository>
             <id>comphenix-rep</id>
             <name>Comphenix Repository</name>
@@ -77,6 +68,18 @@
         <repository>
             <id>vault-repo</id>
             <url>http://ci.herocraftonline.com/plugin/repository/everything</url>
+        </repository>
+	<repository>
+            <id>sonatype-nexus-releases</id>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
         </repository>
     </repositories>
     <build>
@@ -185,9 +188,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.getspout</groupId>
-            <artifactId>spoutplugin</artifactId>
-            <version>dev-SNAPSHOT</version>
+            <groupId>org.spoutcraft</groupId>
+            <artifactId>spoutcraftplugin</artifactId>
+            <version>1.6.4-R2.1-SNAPSHOT</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
