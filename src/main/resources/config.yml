@@ -34,7 +34,6 @@ sms:
         font: SansSerif
         fontsize: 9
         show_tooltips: true
-        break_block_id: 0
         transfer:
             to_sign: true
             from_sign: true
@@ -60,7 +59,7 @@ sms:
     submenus:
         back_item:
             label: '&l<- BACK'
-            material: 324
+            material: wooden_door
         title_prefix: '->'
     coloured_console: true
     scroll_type: SCROLL
