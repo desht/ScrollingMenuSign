@@ -31,8 +31,19 @@ public class SMSRemainingUses {
 	 *
 	 * @param player The player name to check for
 	 * @return True if there are limitations, false if not
+	 * @deprecated use #hasLimitedUses()
 	 */
+	@Deprecated
 	public boolean hasLimitedUses(String player) {
+		return uses.containsKey(GLOBAL_MAX) || uses.containsKey(PER_PLAYER_MAX);
+	}
+
+	/**
+	 * Check if this usage item limits uses.
+	 *
+	 * @return True if there are limitations, false if not
+	 */
+	public boolean hasLimitedUses() {
 		return uses.containsKey(GLOBAL_MAX) || uses.containsKey(PER_PLAYER_MAX);
 	}
 

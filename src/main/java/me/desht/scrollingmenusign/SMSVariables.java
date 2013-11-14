@@ -255,9 +255,7 @@ public class SMSVariables implements SMSPersistable {
 	 */
 	public static boolean isSet(CommandSender sender, String varSpec) {
 		VarSpec vs = new VarSpec(sender, varSpec);
-		if (!hasVariables(vs.playerName))
-			return false;
-		return getVariables(vs.playerName, false).isSet(vs.varName);
+		return hasVariables(vs.playerName) && getVariables(vs.playerName, false).isSet(vs.varName);
 	}
 
 	static void load(File f) {

@@ -62,11 +62,6 @@ public class SMSPersistence {
 		}
 	}
 
-	public static void loadMenusAndViews() {
-		loadMenus();
-		loadViews();
-	}
-
 	public static void loadMacros() {
 		for (SMSMacro macro : SMSMacro.listMacros()) {
 			macro.deleteTemporary();

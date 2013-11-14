@@ -222,7 +222,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		String playerName = player.getName();
 		SMSRemainingUses limits = useLimitable.getUseLimits();
 
-		if (limits.hasLimitedUses(playerName)) {
+		if (limits.hasLimitedUses()) {
 			String desc = limits.getDescription();
 			if (limits.getRemainingUses(playerName) <= 0) {
 				throw new SMSException("You can't use that " + desc + " anymore.");
@@ -237,7 +237,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		String playerName = player.getName();
 		SMSRemainingUses limits = useLimitable.getUseLimits();
 
-		if (limits.hasLimitedUses(playerName)) {
+		if (limits.hasLimitedUses()) {
 			String desc = limits.getDescription();
 			limits.use(playerName);
 			if ((Boolean) menu.getAttributes().get(SMSMenu.REPORT_USES)) {
