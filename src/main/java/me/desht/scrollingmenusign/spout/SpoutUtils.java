@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.spout;
 
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +52,11 @@ public class SpoutUtils {
 			if (v instanceof SMSSpoutView) {
 				String url = v.getAttributeAsString(SMSSpoutView.TEXTURE);
 				if (!url.isEmpty()) {
-					SpoutManager.getFileManager().addToPreLoginCache(ScrollingMenuSign.getInstance(), url);
+					try {
+						SpoutManager.getFileManager().addToPreLoginCache(ScrollingMenuSign.getInstance(), ScrollingMenuSign.makeImageURL(url).toString());
+					} catch (MalformedURLException e) {
+						LogUtils.warning("Spout: can't pre-cache resource: " + url);
+					}
 				}
 			}
 		}

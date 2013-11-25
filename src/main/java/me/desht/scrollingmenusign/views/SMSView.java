@@ -802,6 +802,29 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	}
 
 	/**
+	 * Get a view by name.  Backwards-compatibility for other plugins which need it.
+	 *
+	 * @param viewName name of the view to get
+	 * @return the view object
+	 * @throws SMSException if there is no such view
+	 * @deprecated use ViewManager#getView(String)
+	 */
+	@Deprecated
+	public static SMSView getView(String viewName) {
+		return ScrollingMenuSign.getInstance().getViewManager().getView(viewName);
+	}
+
+	/**
+	 * Register a view with the view manager.  Backwards-compatibility for other plugins which need it.
+	 *
+	 * @deprecated use ViewManager#registerView(SMSView)
+	 */
+	@Deprecated
+	public void register() {
+		ScrollingMenuSign.getInstance().getViewManager().registerView(this);
+	}
+
+	/**
 	 * Represents a stack of menus, for submenu support.  The currently-active
 	 * menu is at the top of the stack.
 	 */
