@@ -9,6 +9,7 @@ import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -66,6 +67,10 @@ public enum SMSUserAction {
 
 	public static SMSUserAction getAction(HangingBreakByEntityEvent event) {
 		return _makeAction((Player) event.getRemover(), new StringBuilder("sms.actions.leftclick."));
+	}
+
+	public static SMSUserAction getAction(EntityDamageByEntityEvent event) {
+		return _makeAction((Player) event.getDamager(), new StringBuilder("sms.actions.leftclick."));
 	}
 
 	private static SMSUserAction _makeAction(Player player, StringBuilder key) {

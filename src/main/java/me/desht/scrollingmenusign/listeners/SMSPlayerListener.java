@@ -30,9 +30,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -152,16 +155,38 @@ public class SMSPlayerListener extends SMSListenerBase {
 
 	@EventHandler
 	public void onItemFrameLeftClicked(HangingBreakByEntityEvent event) {
+		// CB 1.6.4 and older - item frame auto-breaks even with an item in it
 		Entity entity = event.getEntity();
 		if (entity instanceof ItemFrame && event.getRemover() instanceof Player) {
 			ItemStack item = ((ItemFrame) entity).getItem();
-			if (item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
+			if (item != null && item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
 				SMSUserAction action = SMSUserAction.getAction(event);
 				SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
+				Player player = (Player) event.getRemover();
 				try {
-					action.execute((Player) event.getRemover(), mapView);
+					action.execute(player, mapView);
 				} catch (SMSException e) {
-					MiscUtil.errorMessage((Player) event.getRemover(), e.getMessage());
+					MiscUtil.errorMessage(player, e.getMessage());
+				}
+				event.setCancelled(true);
+			}
+		}
+	}
+
+	@EventHandler
+	public void onItemFrameLeftClicked17(EntityDamageByEntityEvent event) {
+		// CB 1.7.2+ - item frame with an item in it doesn't auto-break - instead a damage event is fired
+		Entity entity = event.getEntity();
+		if (entity instanceof ItemFrame && event.getDamager() instanceof Player) {
+			ItemStack item = ((ItemFrame) entity).getItem();
+			if (item != null && item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
+				SMSUserAction action = SMSUserAction.getAction(event);
+				SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
+				Player player = (Player) event.getDamager();
+				try {
+					action.execute(player, mapView);
+				} catch (SMSException e) {
+					MiscUtil.errorMessage(player, e.getMessage());
 				}
 				event.setCancelled(true);
 			}
