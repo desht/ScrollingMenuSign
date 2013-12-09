@@ -22,6 +22,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -206,6 +208,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 	}
 
 	@Override
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	public void processEvent(ScrollingMenuSign plugin, BlockBreakEvent event) {
 		MiscUtil.statusMessage(event.getPlayer(),
 				String.format("Output switch @ &f%s&- was removed from view &e%s / %s.",

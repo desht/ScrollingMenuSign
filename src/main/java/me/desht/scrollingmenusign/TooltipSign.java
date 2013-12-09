@@ -6,6 +6,8 @@ import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -20,6 +22,7 @@ public class TooltipSign implements SMSInteractableBlock {
 	}
 
 	@Override
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
 	public void processEvent(ScrollingMenuSign plugin, BlockDamageEvent event) {
 		if (!view.isOwnedBy(event.getPlayer()) && !PermissionUtils.isAllowedTo(event.getPlayer(), "scrollingmenusign.destroy")) {
 			event.setCancelled(true);
@@ -27,6 +30,7 @@ public class TooltipSign implements SMSInteractableBlock {
 	}
 
 	@Override
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	public void processEvent(ScrollingMenuSign plugin, BlockBreakEvent event) {
 		view.removeTooltipSign();
 		MiscUtil.statusMessage(event.getPlayer(), String.format("Tooltip sign @ &f%s&- was removed from view &e%s&-.",
