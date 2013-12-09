@@ -34,6 +34,7 @@ sms:
         font: SansSerif
         fontsize: 9
         show_tooltips: true
+        background: 9
         transfer:
             to_sign: true
             from_sign: true

@@ -1,9 +1,6 @@
 package me.desht.scrollingmenusign.views;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
@@ -23,6 +20,7 @@ import javax.imageio.ImageIO;
 
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MapUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
@@ -54,6 +52,7 @@ public class SMSMapView extends SMSScrollableView {
 
 	// attributes
 	public static final String IMAGE_FILE = "imagefile";
+	public static final String BACKGROUND = "background";
 	public static final String FONT = "font";
 	public static final String FONT_SIZE = "fontsize";
 
@@ -91,6 +90,7 @@ public class SMSMapView extends SMSScrollableView {
 		registerAttribute(IMAGE_FILE, "", "Image to use as map background");
 		registerAttribute(FONT, config.getString("sms.maps.font"), "Java font for map text drawing");
 		registerAttribute(FONT_SIZE, config.getInt("sms.maps.fontsize"), "Font size for map text drawing");
+		registerAttribute(BACKGROUND, config.getInt("sms.maps.background"), "Background fill colour");
 
 		x = 4;
 		y = 0;
@@ -147,6 +147,10 @@ public class SMSMapView extends SMSScrollableView {
 				resizedImage = ImageIO.read(cached);
 			} else {
 				BufferedImage orig = ImageIO.read(url);
+				BufferedImage result = MapUtil.createMapBuffer();
+				Graphics2D graphics = result.createGraphics();
+				graphics.drawImage(orig, 0, 0, 128, 128, null);
+				graphics.dispose();
 				resizedImage = MapPalette.resizeImage(orig);
 				if (cached != null) {
 					ImageIO.write(resizedImage, CACHED_FILE_FORMAT, cached);
@@ -438,12 +442,18 @@ public class SMSMapView extends SMSScrollableView {
 	 * @return an Image
 	 */
 	public BufferedImage renderImage(Player player) {
-		if (mapView == null) return null;
+		if (mapView == null) {
+			return null;
+		}
 
-		BufferedImage result = backgroundImage == null ? new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB) : deepCopy(backgroundImage);
+		BufferedImage result = backgroundImage == null ? MapUtil.createMapBuffer() : deepCopy(backgroundImage);
 
 		Graphics g = result.getGraphics();
 		g.setFont(new Font(getAttributeAsString(FONT), 0, (Integer) getAttribute(FONT_SIZE)));
+		if (backgroundImage == null) {
+			g.setColor(MapUtil.getMapColor((Integer) getAttribute(BACKGROUND)));
+			g.fillRect(0, 0, 128, 128);
+		}
 		g.setColor(DEFAULT_COLOR);
 
 		FontMetrics metrics = g.getFontMetrics();
@@ -470,7 +480,7 @@ public class SMSMapView extends SMSScrollableView {
 			yPos += lineHeight;
 		}
 		Color c = g.getColor();
-		g.setColor(minecraftToJavaColor(7));
+		g.setColor(MapUtil.getChatColor(7));
 		yPos++;
 		int lineY = yPos + 1 - lineHeight;
 		g.drawLine(x, lineY, x + width, lineY);
@@ -514,19 +524,20 @@ public class SMSMapView extends SMSScrollableView {
 				int x1 = x + 10;
 				int y2 = y1 + lineHeight * lore.length + 1;
 				int x2 = x + width;
-				g.setColor(minecraftToJavaColor(14));
+				g.setColor(MapUtil.getMapColor(10));
 				g.fillRect(x1, y1, x2 - x1, y2 - y1);
-				g.setColor(minecraftToJavaColor(6));
+				g.setColor(MapUtil.getMapColor(11));
 				g.draw3DRect(x1, y1, x2 - x1, y2 - y1, true);
 				yPos = y2 - (2 + lineHeight * (lore.length - 1));
 				g.setClip(x1, y1, x2 - x1, y2 - y1);
 				for (String l : lore) {
-					g.setColor(minecraftToJavaColor(0));
+					g.setColor(MapUtil.getChatColor(0));
 					drawText(g, x1 + 2, yPos, l);
 					yPos += lineHeight;
 				}
 			}
 		}
+		g.dispose();
 		return result;
 	}
 
@@ -557,7 +568,7 @@ public class SMSMapView extends SMSScrollableView {
 
 		byte flags = 0;
 
-		g.setColor(minecraftToJavaColor(0));
+		g.setColor(MapUtil.getChatColor(0));
 		StringBuilder sb = new StringBuilder(text.length());
 		for (int i = 0; i < text.length(); i++) {
 			Character c = text.charAt(i);
@@ -573,7 +584,7 @@ public class SMSMapView extends SMSScrollableView {
 				c = Character.toLowerCase(text.charAt(i));
 				if (c >= '0' && c <= '9' || c >= 'a' && c <= 'f') {
 					byte mcColor = Byte.parseByte(c.toString(), 16);
-					g.setColor(minecraftToJavaColor(mcColor));
+					g.setColor(MapUtil.getChatColor(mcColor));
 					flags = 0x0;
 				} else if (c == 'l') {
 					flags |= BOLD;
@@ -633,38 +644,6 @@ public class SMSMapView extends SMSScrollableView {
 		return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
 	}
 
-	// Minecraft map palette is very limited.  Not all colours will look good.
-	private static final byte[] mcToPaletteIdx = new byte[]{
-			44,    // 0 black
-			48, // 1 blue
-			28, // 2 green
-			21, // 3 cyan
-			16, // 4 red
-			20,    // 5 purple (looks blueish)
-			40,    // 6 yellow (looks brown)
-			13,    // 7 grey
-			12,    // 8 dark grey
-			50,    // 9 bright blue
-			6,    // 10 bright green
-			22,    // 11 bright cyan
-			18,    // 12 bright red
-			21, // 13 pink (much too blue)
-			10, // 14 bright yellow (too brown)
-			34, // 15 white
-	};
-
-	private static final Color[] colors = new Color[mcToPaletteIdx.length];
-
-	static {
-		for (int i = 0; i < mcToPaletteIdx.length; i++) {
-			colors[i] = MapPalette.getColor(mcToPaletteIdx[i]);
-		}
-	}
-
-	private static Color minecraftToJavaColor(int mcColor) {
-		return colors[mcColor];
-	}
-
 	public class SMSMapRenderer extends MapRenderer {
 		private final SMSMapView view;
 
@@ -673,9 +652,6 @@ public class SMSMapView extends SMSScrollableView {
 			this.view = view;
 		}
 
-		/**
-		 * @return the view
-		 */
 		public SMSMapView getView() {
 			return view;
 		}
