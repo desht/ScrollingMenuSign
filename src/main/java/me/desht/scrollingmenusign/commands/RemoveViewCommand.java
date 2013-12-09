@@ -52,7 +52,7 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 				if (frame != null) {
 					ItemStack stack = frame.getItem();
 					SMSMapView mv = viewManager.getMapViewForId(stack.getDurability());
-					frame.getWorld().dropItem(player.getLocation(), stack);
+					frame.getWorld().dropItemNaturally(frame.getLocation(), stack);
 					frame.setItem(null);
 					MiscUtil.statusMessage(player, "Removed map for menu &e" + mv.getNativeMenu().getName() + "&- from the item frame.");
 					return true;
