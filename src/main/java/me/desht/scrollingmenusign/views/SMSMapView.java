@@ -557,6 +557,7 @@ public class SMSMapView extends SMSScrollableView {
 
 		byte flags = 0;
 
+		g.setColor(minecraftToJavaColor(0));
 		StringBuilder sb = new StringBuilder(text.length());
 		for (int i = 0; i < text.length(); i++) {
 			Character c = text.charAt(i);
