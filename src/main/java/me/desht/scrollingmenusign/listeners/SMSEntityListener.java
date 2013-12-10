@@ -56,21 +56,27 @@ public class SMSEntityListener extends SMSListenerBase {
 	}
 
 	@EventHandler
-	public void onItemFrameLeftClicked(HangingBreakByEntityEvent event) {
+	public void onItemFrameDamagedByEntity_16(HangingBreakByEntityEvent event) {
 		// CB 1.6.4 and older - item frame auto-breaks even with an item in it
 		Entity entity = event.getEntity();
-		if (entity instanceof ItemFrame && event.getRemover() instanceof Player && event.getCause() == HangingBreakEvent.RemoveCause.ENTITY) {
+		if (entity instanceof ItemFrame) {
 			ItemStack item = ((ItemFrame) entity).getItem();
 			if (item != null && item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
-				SMSUserAction action = SMSUserAction.getAction(event);
-				SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
-				Player player = (Player) event.getRemover();
-				try {
-					action.execute(player, mapView);
-				} catch (SMSException e) {
-					MiscUtil.errorMessage(player, e.getMessage());
+				if (event.getRemover() instanceof Player && event.getCause() == HangingBreakEvent.RemoveCause.ENTITY) {
+					SMSUserAction action = SMSUserAction.getAction(event);
+					SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
+					Player player = (Player) event.getRemover();
+					try {
+						action.execute(player, mapView);
+					} catch (SMSException e) {
+						MiscUtil.errorMessage(player, e.getMessage());
+					}
+					event.setCancelled(true);
+				} else {
+					if (plugin.getConfig().getBoolean("sms.no_itemframe_damage")) {
+						event.setCancelled(true);
+					}
 				}
-				event.setCancelled(true);
 			}
 		}
 	}
