@@ -40,22 +40,21 @@ public class SMSEntityListener extends SMSListenerBase {
 		while (iter.hasNext()) {
 			Location loc = iter.next().getLocation();
 			SMSView view = plugin.getViewManager().getViewForLocation(loc);
-			if (view == null)
-				continue;
-
-			SMSMenu menu = view.getNativeMenu();
-			LogUtils.fine("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
-			if (noExplode) {
-				LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was protected from an explosion.");
-				iter.remove();
-			} else {
-				LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
-				plugin.getViewManager().deleteView(view, true);
+			if (view != null) {
+				SMSMenu menu = view.getNativeMenu();
+				LogUtils.fine("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
+				if (noExplode) {
+					LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was protected from an explosion.");
+					iter.remove();
+				} else {
+					LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
+					plugin.getViewManager().deleteView(view, true);
+				}
 			}
 		}
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onItemFrameDamagedByEntity_16(HangingBreakByEntityEvent event) {
 		// CB 1.6.4 and older - item frame auto-breaks even with an item in it
 		Entity entity = event.getEntity();
