@@ -73,6 +73,7 @@ public class SMSListWidget extends GenericListWidget {
 		}
 
 		// bit of a hack - cast to SMSScrollableView to avoid an unnecessary call to SpoutViewPopup.scrollTo()
+		//noinspection RedundantCast
 		((SMSScrollableView) view).setScrollPos(getScreen().getPlayer().getName(), idx + 1);
 
 		if (!doubleClicked && ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.double_click")) {

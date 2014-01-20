@@ -5,7 +5,6 @@ import java.util.List;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
@@ -16,6 +15,7 @@ import me.desht.scrollingmenusign.views.SMSView;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
 
 public class MenuCommand extends SMSAbstractCommand {
@@ -83,7 +83,8 @@ public class MenuCommand extends SMSAbstractCommand {
 			pager.add("Uses: &e" + menu.formatUses(sender));
 		}
 
-		String defIcon = MaterialWithData.get(plugin.getConfig().getString("sms.inv_view.default_icon", "stone")).toString();
+		String defIconName = plugin.getConfig().getString("sms.inv_view.default_icon", "STONE");
+		MaterialData defIcon = SMSMenuItem.parseIconMaterial(defIconName);
 
 		List<SMSMenuItem> items = menu.getItems();
 		int n = 1;
@@ -92,12 +93,19 @@ public class MenuCommand extends SMSAbstractCommand {
 			String message = item.getMessage();
 			String command = item.getCommand().replace(" && ", " &&&& ");
 			String uses = item.formatUses(sender);
-			String icon = item.getIconMaterial().toString();
-			String s = String.format("&e%2d) &f%s &7[%s]", n++, item.getLabel(), command);
-			pager.add(s);
-			if (!message.isEmpty()) pager.add("    &9Feedback: &e" + message);
-			if (!uses.isEmpty()) pager.add("    &9Uses: &e" + uses);
-			if (!icon.equalsIgnoreCase(defIcon)) pager.add("    &9Icon: &e" + icon);
+			pager.add(String.format("&e%2d) &f%s &7[%s]", n++, item.getLabel(), command));
+			if (!message.isEmpty()) {
+				pager.add("    &9Feedback: &e" + message);
+			}
+			if (!uses.isEmpty()) {
+				pager.add("    &9Uses: &e" + uses);
+			}
+			if (item.getIconMaterial() != null) {
+				MaterialData icon = item.getIconMaterial();
+				if (icon.getItemType() != defIcon.getItemType() || icon.getData() != defIcon.getData()) {
+					pager.add("    &9Icon: &e" + item.getIconMaterial().toString());
+				}
+			}
 			String[] lore = item.getLore();
 			for (int i = 0; i < lore.length; i++) {
 				pager.add((i == 0 ? "    &9Lore: &e" : "          &e") + lore[i]);

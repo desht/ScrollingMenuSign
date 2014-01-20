@@ -55,7 +55,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
 		String label = hasOption("label") ? MiscUtil.parseColourSpec(getStringOption("label")) : currentItem.getLabel();
 		String command = hasOption("command") ? getStringOption("command") : currentItem.getCommand();
 		String message = hasOption("feedback") ? MiscUtil.parseColourSpec(getStringOption("feedback")) : currentItem.getMessage();
-		String iconMat = hasOption("icon") ? getStringOption("icon") : currentItem.getIconMaterial().toString();
+		String iconMat = hasOption("icon") ? getStringOption("icon") : currentItem.getIconMaterialName();
 		List<String> lore = currentItem.getLoreAsList();
 		if (hasOption("lore")) {
 			String l = getStringOption("lore");

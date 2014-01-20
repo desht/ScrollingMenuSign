@@ -1,29 +1,27 @@
 package me.desht.scrollingmenusign;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.scrollingmenusign.views.CommandTrigger;
-
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
+import org.bukkit.TreeSpecies;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.material.MaterialData;
+
+import java.util.*;
 
 public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	private final String label;
 	private final String command;
 	private final String message;
 	private final List<String> lore;
-	private final MaterialWithData iconMaterial;
+	private final MaterialData materialData;
 	private SMSRemainingUses uses;
 	private final SMSMenu menu;
 
@@ -43,9 +41,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		this.command = command;
 		this.message = message;
 		try {
-			if (iconMaterialName == null || iconMaterialName.isEmpty())
-				iconMaterialName = getIconMaterialName();
-			this.iconMaterial = MaterialWithData.get(iconMaterialName);
+			this.materialData = parseIconMaterial(iconMaterialName);
 		} catch (IllegalArgumentException e) {
 			throw new SMSException("invalid material '" + iconMaterialName + "'");
 		}
@@ -65,9 +61,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		this.label = MiscUtil.parseColourSpec(node.getString("label"));
 		this.command = node.getString("command");
 		this.message = MiscUtil.parseColourSpec(node.getString("message"));
-		String defMat = getIconMaterialName();
-		String iconMat = node.getString("icon", defMat);
-		this.iconMaterial = MaterialWithData.get(iconMat);
+		this.materialData = parseIconMaterial(node.getString("icon"));
 		this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
 		this.lore = new ArrayList<String>();
 		if (node.contains("lore")) {
@@ -77,13 +71,43 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		}
 	}
 
-	private String getIconMaterialName() {
-		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
-		if (plugin == null) {
-			return "stone";
-		} else {
-			return plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
+	public static MaterialData parseIconMaterial(String iconMaterialName) {
+		if (iconMaterialName == null) {
+			return null;
 		}
+
+		String[] fields = iconMaterialName.split("[:()]");
+		Material mat = Material.matchMaterial(fields[0]);
+		if (mat == null) {
+			throw new IllegalArgumentException("Unknown material " + fields[0]);
+		}
+		MaterialData res = new MaterialData(mat);
+		if (fields.length > 1) {
+			if (StringUtils.isNumeric(fields[1])) {
+				res.setData(Byte.parseByte(fields[1]));
+			} else {
+				switch (mat) {
+					case INK_SACK:
+						DyeColor dc1 = DyeColor.valueOf(fields[1].toUpperCase());
+						res.setData(dc1.getDyeData());
+						break;
+					case WOOL:case CARPET:case STAINED_GLASS:case STAINED_GLASS_PANE:case STAINED_CLAY:
+						// maybe one day these will all implement Colorable...
+						DyeColor dc2 = DyeColor.valueOf(fields[1].toUpperCase());
+						res.setData(dc2.getWoolData());
+						break;
+					case SAPLING:case WOOD:
+						TreeSpecies ts = TreeSpecies.valueOf(fields[1].toUpperCase());
+						res.setData(ts.getData());
+						break;
+				}
+			}
+		}
+		return res;
+	}
+
+	public String getIconMaterialName() {
+		return getIconMaterial() == null ? null : getIconMaterial().toString();
 	}
 
 	/**
@@ -128,8 +152,8 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 *
 	 * @return the material used for the menu item's icon
 	 */
-	public MaterialWithData getIconMaterial() {
-		return iconMaterial;
+	public MaterialData getIconMaterial() {
+		return materialData;
 	}
 
 	/**
@@ -292,7 +316,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 */
 	@Override
 	public String toString() {
-		return "SMSMenuItem [label=" + label + ", command=" + command + ", message=" + message + ", icon=" + iconMaterial + "]";
+		return "SMSMenuItem [label=" + label + ", command=" + command + ", message=" + message + ", icon=" + materialData + "]";
 	}
 
 	/**
@@ -396,7 +420,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		map.put("label", MiscUtil.unParseColourSpec(label));
 		map.put("command", command);
 		map.put("message", MiscUtil.unParseColourSpec(message));
-		map.put("icon", iconMaterial.toString());
+		if (getIconMaterial() != null) {
+			map.put("icon", getIconMaterialName());
+		}
 		map.put("usesRemaining", uses.freeze());
 		List<String> lore2 = new ArrayList<String>(lore.size());
 		for (String l : lore) {
@@ -428,6 +454,6 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			ls = getLabelStripped() + "-" + n;
 		} while (menu.getItem(ls) != null);
 
-		return new SMSMenuItem(menu, getLabel() + "-" + n, getCommand(), getMessage(), getIconMaterial().toString());
+		return new SMSMenuItem(menu, getLabel() + "-" + n, getCommand(), getMessage(), getIconMaterialName());
 	}
 }
