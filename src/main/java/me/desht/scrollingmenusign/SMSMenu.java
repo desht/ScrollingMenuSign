@@ -40,6 +40,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	public static final String TITLE = "title";
 	public static final String ACCESS = "access";
 	public static final String REPORT_USES = "report_uses";
+	public static final String GROUP = "group";
 
 	private final String name;
 	private final List<SMSMenuItem> items = new ArrayList<SMSMenuItem>();
@@ -86,17 +87,26 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
 		this.attributes = new AttributeCollection(this);
 		registerAttributes();
+		this.attributes.setValidate(false);
+
+		// migration of owner field from pre-2.0.0: "&console" => "[console]"
+		if (node.getString(OWNER).equals("&console")) {
+			node.set(OWNER, ScrollingMenuSign.CONSOLE_OWNER);
+		}
+
+		// migration of group -> owner_group access in 2.4.0
+		if (!node.contains("group") && node.getString(ACCESS).equals("GROUP")) {
+			LogUtils.info("menu " + name + ": migrate GROUP -> OWNER_GROUP access");
+			node.set("access", "OWNER_GROUP");
+		}
+
 		for (String k : node.getKeys(false)) {
 			if (!node.isConfigurationSection(k) && attributes.hasAttribute(k)) {
 				setAttribute(k, node.getString(k));
 			}
 		}
 
-		// migration of owner field from pre-2.0.0: "&console" => "[console]"
-		String owner = attributes.get(OWNER).toString();
-		if (owner.equals("&console")) {
-			setAttribute(OWNER, ScrollingMenuSign.CONSOLE_OWNER);
-		}
+		this.attributes.setValidate(true);
 
 		List<Map<String, Object>> items = (List<Map<String, Object>>) node.getList("items");
 		for (Map<String, Object> item : items) {
@@ -120,6 +130,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		attributes.registerAttribute(AUTOSORT, false, "Always keep the menu sorted?");
 		attributes.registerAttribute(DEFAULT_CMD, "", "Default command to run if item has no command");
 		attributes.registerAttribute(OWNER, "", "Player who owns this menu");
+		attributes.registerAttribute(GROUP, "", "Permission group for this menu");
 		attributes.registerAttribute(TITLE, "", "The menu's displayed title");
 		attributes.registerAttribute(ACCESS, SMSAccessRights.ANY, "Who may use this menu");
 		attributes.registerAttribute(REPORT_USES, true, "Tell the player when remaining uses have changed?");
@@ -189,6 +200,24 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public void setOwner(String owner) {
 		attributes.set(OWNER, owner);
+	}
+
+	/**
+	 * Get the menu's permission group.
+	 *
+	 * @return the group
+	 */
+	public String getGroup() {
+		return attributes.get(GROUP).toString();
+	}
+
+	/**
+	 * Set the menu's permission group.
+	 *
+	 * @param group Name of the menu's group
+	 */
+	public void setGroup(String group) {
+		attributes.set(GROUP, group);
 	}
 
 	/**
@@ -600,7 +629,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public boolean hasOwnerPermission(Player player) {
 		SMSAccessRights access = (SMSAccessRights) getAttributes().get(ACCESS);
-		return access.isAllowedToUse(player, getOwner());
+		return access.isAllowedToUse(player, getOwner(), getGroup());
 	}
 
 	/**************************************************************************/

@@ -57,6 +57,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 	// view attribute names
 	public static final String OWNER = "owner";
+	public static final String GROUP = "group";
 	public static final String ITEM_JUSTIFY = "item_justify";
 	public static final String TITLE_JUSTIFY = "title_justify";
 	public static final String ACCESS = "access";
@@ -102,6 +103,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		this.menuStack = new HashMap<String, MenuStack>();
 
 		attributes.registerAttribute(OWNER, ScrollingMenuSign.CONSOLE_OWNER, "Player who owns this view");
+		attributes.registerAttribute(GROUP, "", "Permission group for this view");
 		attributes.registerAttribute(TITLE_JUSTIFY, ViewJustification.DEFAULT, "Horizontal title positioning");
 		attributes.registerAttribute(ITEM_JUSTIFY, ViewJustification.DEFAULT, "Horizontal item positioning");
 		attributes.registerAttribute(ACCESS, SMSAccessRights.ANY, "Who may use this view");
@@ -388,6 +390,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		}
 
 		// temporarily disable validation while attributes are loaded from saved data
+		attributes.setValidate(false);
 		for (String key : node.getKeys(false)) {
 			if (!node.isConfigurationSection(key) && attributes.hasAttribute(key)) {
 				String val = node.getString(key);
@@ -410,6 +413,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 				setVariable(k, vars.getString(k));
 			}
 		}
+		attributes.setValidate(true);
 	}
 
 	/**
@@ -595,7 +599,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 			return false;
 		}
 		SMSAccessRights access = (SMSAccessRights) getAttribute(ACCESS);
-		return access.isAllowedToUse(player, getAttributeAsString(OWNER));
+		return access.isAllowedToUse(player, getAttributeAsString(OWNER), getAttributeAsString(GROUP));
 	}
 
 	/**
