@@ -61,7 +61,7 @@ sms:
     submenus:
         back_item:
             label: '&l<- BACK'
-            material: wooden_door
+            material: wood_door
         title_prefix: '->'
     coloured_console: true
     scroll_type: SCROLL
