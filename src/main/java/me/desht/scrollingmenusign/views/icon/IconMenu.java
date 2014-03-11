@@ -18,14 +18,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 public class IconMenu implements Listener, SMSPopup {
 	private static final int INVENTORY_WIDTH = 9;
 	private static final int MAX_INVENTORY_ROWS = 6;
+	private static final String SMS_CLOSING_ON_COMMAND = "SMS_Closing_On_Command";
 
 	private final SMSInventoryView view;
 	private final String menuName;
@@ -154,7 +158,7 @@ public class IconMenu implements Listener, SMSPopup {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	void onInventoryClick(InventoryClickEvent event) {
 		if (!(event.getWhoClicked() instanceof Player)) {
 			return;
@@ -180,6 +184,7 @@ public class IconMenu implements Listener, SMSPopup {
 					MiscUtil.errorMessage(player, e.getMessage());
 				}
 				if (optionEvent.willClose()) {
+					player.setMetadata(SMS_CLOSING_ON_COMMAND, new FixedMetadataValue(ScrollingMenuSign.getInstance(), true));
 					Bukkit.getScheduler().runTaskLater(ScrollingMenuSign.getInstance(), new Runnable() {
 						@Override
 						public void run() {
@@ -192,6 +197,41 @@ public class IconMenu implements Listener, SMSPopup {
 				}
 			}
 		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	void onInventoryClose(InventoryCloseEvent event) {
+		if (!(event.getPlayer() instanceof Player)) {
+			return;
+		}
+		final Player player = (Player) event.getPlayer();
+		String playerName = player.getName();
+		String menuTitle = getView().variableSubs(getView().getActiveMenuTitle(playerName));
+		String activeMenuName = view.getActiveMenu(playerName).getName();
+
+		if (isPoppedUp(player) && event.getInventory().getTitle().equals(menuTitle) && menuName.equals(activeMenuName)) {
+			Debugger.getInstance().debug("InventoryCloseEvent: player = " + playerName + ", view = " + getView().getName() +
+					", inventory name = " + event.getInventory().getTitle() + ", icon menu = " + this);
+			if ((Boolean) getView().getAttribute(SMSInventoryView.NO_ESCAPE) && !isClosingOnCommand(player)) {
+				// force the view to be re-shown
+				Bukkit.getScheduler().runTask(ScrollingMenuSign.getInstance(), new Runnable() {
+					@Override
+					public void run() {
+						popup(player);
+					}
+				});
+			}
+			player.removeMetadata(SMS_CLOSING_ON_COMMAND, ScrollingMenuSign.getInstance());
+		}
+	}
+
+	private boolean isClosingOnCommand(Player p) {
+		for (MetadataValue mv : p.getMetadata(SMS_CLOSING_ON_COMMAND)) {
+			if (mv.getOwningPlugin() == ScrollingMenuSign.getInstance()) {
+				return (Boolean) mv.value();
+			}
+		}
+		return false;
 	}
 
 	public void destroy() {

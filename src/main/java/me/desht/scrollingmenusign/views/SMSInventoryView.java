@@ -29,6 +29,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 	public static final String WIDTH = "width";
 	public static final String AUTOPOPDOWN = "autopopdown";
 	public static final String SPACING = "spacing";
+	public static final String NO_ESCAPE = "noescape";
 
 	private final Map<String, IconMenu> iconMenus;    // map menu name to the icon menu object
 	private final Map<String, Set<String>> users;    // map menu name to list of players using it
@@ -39,6 +40,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 		registerAttribute(WIDTH, 9, "Number of icons per inventory row");
 		registerAttribute(AUTOPOPDOWN, true, "Auto-popdown after item click?");
 		registerAttribute(SPACING, 1, "Distance (in slots) between each icon");
+		registerAttribute(NO_ESCAPE, false, "Prevent menu being closed with Escape");
 
 		iconMenus = new HashMap<String, IconMenu>();
 		iconMenus.put(getNativeMenu().getName(), new IconMenu(this, getNativeMenu().getName()));
@@ -182,6 +184,10 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 			SMSValidate.isTrue((Integer) newVal >= 1, "Spacing must be 1 or more");
 		} else if (key.equals(WIDTH)) {
 			SMSValidate.isTrue((Integer) newVal >= 1 && (Integer) newVal <= 9, "Width must be in the range 1 .. 9");
+		} else if (key.equals(AUTOPOPDOWN) && !((Boolean) newVal)) {
+			SMSValidate.isFalse((Boolean) getAttribute(NO_ESCAPE), "Cannot set 'autopopdown' to false if 'noescape' is true");
+		} else if (key.equals(NO_ESCAPE) && ((Boolean) newVal)) {
+			SMSValidate.isTrue((Boolean) getAttribute(AUTOPOPDOWN), "Cannot set 'noescape' to true if 'autopopdown' is false");
 		}
 	}
 
