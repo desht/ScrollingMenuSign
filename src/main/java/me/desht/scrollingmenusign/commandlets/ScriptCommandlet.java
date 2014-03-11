@@ -11,6 +11,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
@@ -37,7 +38,7 @@ public class ScriptCommandlet extends BaseCommandlet {
 		String ext = scriptName.substring(idx + 1);
 		ScriptEngine engine = manager.getEngineByExtension(ext);
 		SMSValidate.notNull(engine, "no scripting engine for " + scriptName);
-		LogUtils.fine("running script " + scriptName + " with " + engine.getFactory().getEngineName());
+		Debugger.getInstance().debug("running script " + scriptName + " with " + engine.getFactory().getEngineName());
 
 		Bindings bindings = new SimpleBindings();
 		if (args.length > 2) {
@@ -58,7 +59,7 @@ public class ScriptCommandlet extends BaseCommandlet {
 			Object o = bindings.get("result");
 			if (o instanceof Boolean) {
 				retval = (Boolean) o;
-				LogUtils.fine("script " + scriptName + " returns: " + retval);
+				Debugger.getInstance().debug("script " + scriptName + " returns: " + retval);
 			}
 		} catch (FileNotFoundException e) {
 			throw new SMSException("no such script " + scriptName);

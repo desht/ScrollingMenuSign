@@ -1,28 +1,14 @@
 package me.desht.scrollingmenusign.listeners;
 
-import me.desht.dhutils.DHUtilsException;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.scrollingmenusign.PopupBook;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.dhutils.*;
+import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.expector.ExpectViewCreation;
-import me.desht.scrollingmenusign.views.ActiveItem;
-import me.desht.scrollingmenusign.views.PoppableView;
-import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
-import me.desht.scrollingmenusign.views.SMSMapView;
-import me.desht.scrollingmenusign.views.SMSScrollableView;
-import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.*;
 import me.desht.scrollingmenusign.views.redout.Switch;
-
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -30,20 +16,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityEvent;
-import org.bukkit.event.hanging.HangingBreakByEntityEvent;
-import org.bukkit.event.hanging.HangingBreakEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
 public class SMSPlayerListener extends SMSListenerBase {
@@ -89,7 +65,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 			SMSView view = plugin.getViewManager().getTargetedView(player);
 			SMSUserAction action = null;
 			if (view != null) {
-				LogUtils.fine(String.format("PlayerItemHeldChangeEvent @ %s, %s did %d->%d, menu = %s",
+				Debugger.getInstance().debug(String.format("PlayerItemHeldChangeEvent @ %s, %s did %d->%d, menu = %s",
 						view.getName(), player.getName(),
 						event.getPreviousSlot(), event.getNewSlot(), view.getNativeMenu().getName()));
 				action = SMSUserAction.getAction(event);
@@ -220,12 +196,12 @@ public class SMSPlayerListener extends SMSListenerBase {
 			popupBook.toggle();
 			player.setItemInHand(popupBook.toItemStack());
 		} else if (activeItem != null) {
-			LogUtils.fine("player interact event @ active item: " + activeItem);
+			Debugger.getInstance().debug("player interact event @ active item: " + activeItem);
 			SMSUserAction action = SMSUserAction.getAction(event);
 			activeItem.processAction(player, action);
 		} else if (mapView != null) {
 			// Holding an active map view
-			LogUtils.fine("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() +
+			Debugger.getInstance().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() +
 					", menu=" + mapView.getActiveMenu(player.getName()).getName());
 			if (clickedView == null && block != null && (block.getType() == Material.WALL_SIGN || block.getType() == Material.SIGN_POST)) {
 				// Hit a non-active sign with an active map - try to make the sign into a view
@@ -251,7 +227,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 				tryToAddRedstoneOutput((SMSGlobalScrollableView) clickedView, player);
 			} else if (clickedView != null && clickedView instanceof SMSScrollableView) {
 				// There's an interactable view at the targeted block
-				LogUtils.fine("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() +
+				Debugger.getInstance().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() +
 						", menu=" + clickedView.getActiveMenu(player.getName()).getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
 				if (action != null) {

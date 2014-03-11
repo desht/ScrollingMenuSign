@@ -53,7 +53,7 @@ sms:
     resource_base_url: ''
     log_commands: false
     command_log_file: ''
-    log_level: INFO
+    debug_level: 0
     mcstats: true
     autocreate_views: true
     pager:

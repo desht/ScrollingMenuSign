@@ -1,13 +1,12 @@
 package me.desht.scrollingmenusign.expector;
 
 import me.desht.dhutils.DHUtilsException;
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.responsehandler.ExpectBase;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.scrollingmenusign.views.CommandTrigger;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -53,7 +52,7 @@ public class ExpectCommandSubstitution extends ExpectBase {
 			newCommand = command.replaceFirst("<\\$:.+?>", sub);
 		}
 
-		LogUtils.fine("command substitution: sub = [" + sub + "], cmd = [" + newCommand + "]");
+		Debugger.getInstance().debug("command substitution: sub = [" + sub + "], cmd = [" + newCommand + "]");
 		try {
 			final Player player = Bukkit.getPlayer(playerName);
 			if (player != null) {

@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -68,7 +69,7 @@ public class SpoutUtils {
 			return false;
 		}
 
-		LogUtils.fine("show spout text entry popup for " + player.getName() + ", prompt = " + prompt);
+		Debugger.getInstance().debug("show spout text entry popup for " + player.getName() + ", prompt = " + prompt);
 
 		// delaying this makes it play nicely with any spout view that might currently be showing
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ScrollingMenuSign.getInstance(), new Runnable() {

@@ -7,10 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Observable;
 
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PersistableLocation;
-import me.desht.dhutils.Str;
+import me.desht.dhutils.*;
 import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -182,7 +179,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 	public void drawText(int line, String text) {
 		int y = line / SIGN_LINES;
 
-		LogUtils.finer("drawText: view=" + getName() + ", line=" + line + ", text=[" + text + "]");
+		Debugger.getInstance().debug(2, "drawText: view=" + getName() + ", line=" + line + ", text=[" + text + "]");
 		int begin = 0;
 		if (width == 1) {
 			// optimised case; avoid line-splitting calculations
@@ -213,7 +210,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 					}
 				}
 				Location loc = getSignLocation(x, y);
-				LogUtils.finest("drawText: substr = [" + sub + "] @" + x + "," + y + loc + " line=" + line % SIGN_LINES);
+				Debugger.getInstance().debug(3, "drawText: substr = [" + sub + "] @" + x + "," + y + loc + " line=" + line % SIGN_LINES);
 				pendingUpdate(loc, line % SIGN_LINES, sub);
 				begin += sub.length() - ctrl.length();
 			}
@@ -371,12 +368,12 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
 			default:
 				break;
 		}
-		LogUtils.finer("multisign: topleft=" + topLeft + ", bottomright=" + bottomRight);
-		LogUtils.finer("multisign: height=" + height + ", width=" + width);
+		Debugger.getInstance().debug(2, "multisign: topleft=" + topLeft + ", bottomright=" + bottomRight);
+		Debugger.getInstance().debug(2, "multisign: height=" + height + ", width=" + width);
 	}
 
 	private Location scan(Block b, BlockFace horizontal, BlockFace vertical) {
-		LogUtils.finer("scan: " + b + " h=" + horizontal + " v=" + vertical);
+		Debugger.getInstance().debug(2, "scan: " + b + " h=" + horizontal + " v=" + vertical);
 
 		Block b1 = scanOneDir(b, horizontal);
 		b1 = scanOneDir(b1, vertical);

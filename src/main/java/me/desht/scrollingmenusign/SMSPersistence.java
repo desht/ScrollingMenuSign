@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -72,7 +73,7 @@ public class SMSPersistence {
 			SMSMacro m = new SMSMacro(conf);
 			SMSMacro.addMacro(m);
 		}
-		LogUtils.fine("Loaded " + SMSMacro.listMacros().size() + " macros from file.");
+		Debugger.getInstance().debug("Loaded " + SMSMacro.listMacros().size() + " macros from file.");
 	}
 
 	public static void loadVariables() {
@@ -83,7 +84,7 @@ public class SMSPersistence {
 		for (File f : DirectoryStructure.getVarsFolder().listFiles(ymlFilter)) {
 			SMSVariables.load(f);
 		}
-		LogUtils.fine("Loaded " + SMSVariables.listVariables().size() + " variable sets from file.");
+		Debugger.getInstance().debug("Loaded " + SMSVariables.listVariables().size() + " variable sets from file.");
 	}
 
 	public static void saveMenusAndViews() {
@@ -95,7 +96,7 @@ public class SMSPersistence {
 		for (SMSView view : vm.listViews()) {
 			save(view);
 		}
-		LogUtils.fine("saved " + SMSMenu.listMenus().size() + " menus and " +
+		Debugger.getInstance().debug("saved " + SMSMenu.listMenus().size() + " menus and " +
 				vm.listViews().size() + " views to file.");
 	}
 
@@ -103,14 +104,14 @@ public class SMSPersistence {
 		for (SMSMacro macro : SMSMacro.listMacros()) {
 			save(macro);
 		}
-		LogUtils.fine("saved " + SMSMacro.listMacros().size() + " macros to file.");
+		Debugger.getInstance().debug("saved " + SMSMacro.listMacros().size() + " macros to file.");
 	}
 
 	public static void saveVariables() {
 		for (SMSVariables variables : SMSVariables.listVariables()) {
 			save(variables);
 		}
-		LogUtils.fine("saved " + SMSVariables.listVariables().size() + " variable sets to file.");
+		Debugger.getInstance().debug("saved " + SMSVariables.listVariables().size() + " variable sets to file.");
 	}
 
 	public static void loadMenus() {
@@ -120,7 +121,7 @@ public class SMSPersistence {
 
 		for (File f : DirectoryStructure.getMenusFolder().listFiles(ymlFilter)) {
 			try {
-				LogUtils.finer("loading menu: " + f);
+				Debugger.getInstance().debug(2, "loading menu: " + f);
 				YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 				SMSMenu menu = new SMSMenu(conf);
 				SMSMenu.registerMenu(menu.getName(), menu, true);
@@ -128,7 +129,7 @@ public class SMSPersistence {
 				LogUtils.severe("Can't load menu data from " + f + ": " + e.getMessage());
 			}
 		}
-		LogUtils.fine("Loaded " + SMSMenu.listMenus().size() + " menus from file.");
+		Debugger.getInstance().debug("Loaded " + SMSMenu.listMenus().size() + " menus from file.");
 	}
 
 	public static void loadViews() {
@@ -139,7 +140,7 @@ public class SMSPersistence {
 		}
 
 		for (File f : DirectoryStructure.getViewsFolder().listFiles(ymlFilter)) {
-			LogUtils.finer("loading view: " + f);
+			Debugger.getInstance().debug(2, "loading view: " + f);
 			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 			SMSView view = vm.loadView(conf);
 			if (view != null) {
@@ -148,7 +149,7 @@ public class SMSPersistence {
 			}
 		}
 
-		LogUtils.fine("Loaded " + vm.listViews().size() + " views from file.");
+		Debugger.getInstance().debug("Loaded " + vm.listViews().size() + " views from file.");
 	}
 
 	/**

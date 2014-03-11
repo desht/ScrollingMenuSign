@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.PopupBook;
@@ -366,7 +367,7 @@ public class ViewManager {
 			for (Vector vec : l) {
 				try {
 					view.addLocation(new Location(world, vec.getBlockX(), vec.getBlockY(), vec.getBlockZ()));
-					LogUtils.fine("added loc " + world.getName() + ", " + vec + " to view " + view.getName());
+					Debugger.getInstance().debug("added loc " + world.getName() + ", " + vec + " to view " + view.getName());
 				} catch (SMSException e) {
 					LogUtils.warning("Can't add location " + world.getName() + ", " + vec + " to view " + view.getName());
 					LogUtils.warning("  Exception message: " + e.getMessage());

@@ -206,7 +206,7 @@ public abstract class SMSScrollableView extends SMSView {
 		while (scanner.hasNext()) {
 			String word = scanner.next();
 			markup.update(MarkupTracker.findMarkup(word));
-			//			LogUtils.finer(getName() + ": buflen = " + sb.length() + " wordlen = " + word.length() + " line length = " + lineLength);
+			//			Debugger.getInstance().debug(2, getName() + ": buflen = " + sb.length() + " wordlen = " + word.length() + " line length = " + lineLength);
 			if (sb.length() + word.length() + 1 <= lineLength || result.size() >= maxLines - 1) {
 				// continue appending
 				if (sb.length() > 0) sb.append(" ");

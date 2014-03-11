@@ -1,9 +1,8 @@
 package me.desht.scrollingmenusign.enums;
 
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-
 import org.bukkit.entity.Player;
 
 public enum SMSAccessRights {
@@ -28,12 +27,12 @@ public enum SMSAccessRights {
 			case OWNER_GROUP:
 				String primaryGroup = ScrollingMenuSign.permission.getPrimaryGroup(player.getWorld().getName(), owner);
 				inGroup = checkGroupMembership(player, primaryGroup);
-				LogUtils.fine("OWNER_GROUP access check: owner = [" + owner + "], primary group = [" + primaryGroup + "], player ["
+				Debugger.getInstance().debug("OWNER_GROUP access check: owner = [" + owner + "], primary group = [" + primaryGroup + "], player ["
 						+ player.getName() + "] in group: " + inGroup);
 				return inGroup;
 			case GROUP:
 				inGroup = checkGroupMembership(player, group);
-				LogUtils.fine("GROUP access check: group = [" + group + "], player [" + player.getName() + "] in group: " + inGroup);
+				Debugger.getInstance().debug("GROUP access check: group = [" + group + "], player [" + player.getName() + "] in group: " + inGroup);
 				return inGroup;
 			default:
 				return false;

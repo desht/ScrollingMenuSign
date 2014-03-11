@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign.spout;
 
-import me.desht.dhutils.LogUtils;
+import com.google.common.base.Joiner;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -8,7 +9,6 @@ import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.getspout.spoutapi.gui.Color;
@@ -16,8 +16,6 @@ import org.getspout.spoutapi.gui.GenericListWidget;
 import org.getspout.spoutapi.gui.ListWidgetItem;
 import org.getspout.spoutapi.gui.Scrollable;
 import org.getspout.spoutapi.player.SpoutPlayer;
-
-import com.google.common.base.Joiner;
 
 public class SMSListWidget extends GenericListWidget {
 	private static final float THRESHOLD = 129;
@@ -48,7 +46,7 @@ public class SMSListWidget extends GenericListWidget {
 		double alpha = (Double) view.getAttribute(SMSSpoutView.ALPHA);
 		Color c = cw.getColor();
 		c.setAlpha((float) alpha);
-		LogUtils.finer("updateBackground: view = " + view.getName() + " background = " + c.toString());
+		Debugger.getInstance().debug(2, "updateBackground: view = " + view.getName() + " background = " + c.toString());
 
 		// choose a contrasting text colour - black for a pale background, white for a dark background
 		int luminance = (int) Math.sqrt(c.getRedI() * c.getRedI() * 0.241 + c.getGreenI() * c.getGreenI() * 0.691 + c.getBlueI() * c.getBlueI() * 0.068);

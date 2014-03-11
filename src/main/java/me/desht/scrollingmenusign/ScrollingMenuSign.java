@@ -124,7 +124,9 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		MiscUtil.init(this);
 		MiscUtil.setColouredConsole(getConfig().getBoolean("sms.coloured_console"));
 
-		LogUtils.setLogLevel(getConfig().getString("sms.log_level", "INFO"));
+		Debugger.getInstance().setPrefix("[SMS] ");
+		Debugger.getInstance().setLevel(getConfig().getInt("sms.debug_level"));
+		Debugger.getInstance().setTarget(getServer().getConsoleSender());
 
 		PluginManager pm = getServer().getPluginManager();
 		setupSpout(pm);
@@ -161,7 +163,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
 		setupMetrics();
 
-		LogUtils.fine(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!");
+		Debugger.getInstance().debug(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!");
 	}
 
 	@Override
@@ -184,7 +186,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		permission = null;
 		setInstance(null);
 
-		LogUtils.fine(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!");
+		Debugger.getInstance().debug(getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!");
 	}
 
 	@Override
@@ -286,14 +288,14 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		Plugin spout = pm.getPlugin("Spout");
 		if (spout != null && spout.isEnabled()) {
 			spoutEnabled = true;
-			LogUtils.fine("Hooked Spout v" + spout.getDescription().getVersion());
+			Debugger.getInstance().debug("Hooked Spout v" + spout.getDescription().getVersion());
 		}
 	}
 
 	private void setupVault(PluginManager pm) {
 		Plugin vault = pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault && vault.isEnabled()) {
-			LogUtils.fine("Hooked Vault v" + vault.getDescription().getVersion());
+			Debugger.getInstance().debug("Hooked Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
 				LogUtils.warning("No economy plugin detected - economy command costs not available");
 			}
@@ -328,7 +330,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		Plugin pLib = pm.getPlugin("ProtocolLib");
 		if (pLib != null && pLib instanceof ProtocolLibrary && pLib.isEnabled()) {
 			protocolLibEnabled = true;
-			LogUtils.fine("Hooked ProtocolLib v" + pLib.getDescription().getVersion());
+			Debugger.getInstance().debug("Hooked ProtocolLib v" + pLib.getDescription().getVersion());
 		}
 	}
 
@@ -423,6 +425,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			} catch (IllegalArgumentException e) {
 				throw new DHUtilsException("Scroll type must be one of SCROLL/PAGE");
 			}
+		} else if (key.equals("debug_level")) {
+			DHValidate.isTrue((Integer) newVal >= 0, "Debug level must be >= 0");
 		}
 	}
 
@@ -436,8 +440,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			repaintViews("spout");
 		} else if (key.equalsIgnoreCase("command_log_file")) {
 			CommandParser.setLogFile(newVal.toString());
-		} else if (key.equalsIgnoreCase("log_level")) {
-			LogUtils.setLogLevel(newVal.toString());
+		} else if (key.equalsIgnoreCase("debug_level")) {
+			Debugger.getInstance().setLevel((Integer) newVal);
 		} else if (key.startsWith("item_prefix.") || key.endsWith("_justify") || key.equals("max_title_lines") || key.startsWith("submenus.")) {
 			// settings which affect how all views are drawn
 			repaintViews(null);
@@ -472,7 +476,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			}
 			try {
 				ge.registerFont(Font.createFont(type, f));
-				LogUtils.fine("registered font: " + f.getName());
+				Debugger.getInstance().debug("registered font: " + f.getName());
 			} catch (Exception e) {
 				LogUtils.warning("can't load custom font " + f + ": " + e.getMessage());
 			}

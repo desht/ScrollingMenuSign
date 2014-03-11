@@ -1,10 +1,9 @@
 package me.desht.scrollingmenusign.spout;
 
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
-
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.Label;
@@ -118,7 +117,7 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	public void scrollTo(int scrollPos) {
 		listWidget.setSelection(scrollPos - 1);
 
-		LogUtils.fine("Spout view " + getView().getName() + ": scroll to " + scrollPos + ": " + listWidget.getSelectedItem().getTitle());
+		Debugger.getInstance().debug("Spout view " + getView().getName() + ": scroll to " + scrollPos + ": " + listWidget.getSelectedItem().getTitle());
 	}
 
 	/**

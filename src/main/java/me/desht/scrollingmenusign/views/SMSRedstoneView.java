@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.*;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
@@ -158,7 +155,7 @@ public class SMSRedstoneView extends SMSView {
 	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event) {
 		Block b = event.getBlock();
 
-		LogUtils.fine("block redstone event @ " + b.getLocation() + ", view = "
+		Debugger.getInstance().debug("block redstone event @ " + b.getLocation() + ", view = "
 				+ getName() + ", menu = " + getNativeMenu().getName()
 				+ ", current = " + event.getOldCurrent() + "->" + event.getNewCurrent());
 

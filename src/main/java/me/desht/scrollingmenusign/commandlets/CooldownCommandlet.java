@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.Duration;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.DirectoryStructure;
@@ -89,7 +90,7 @@ public class CooldownCommandlet extends BaseCommandlet implements Listener {
 			cooldowns.put(key, 0L);
 		}
 		long last = cooldowns.get(key);
-		LogUtils.fine("cooldown: " + key + "=" + last + ", delay = " + delay);
+		Debugger.getInstance().debug("cooldown: " + key + "=" + last + ", delay = " + delay);
 		return System.currentTimeMillis() - last < delay;
 	}
 
@@ -104,7 +105,7 @@ public class CooldownCommandlet extends BaseCommandlet implements Listener {
 			conf.set(e.getKey(), e.getValue());
 		}
 		try {
-			LogUtils.fine("saving cooldown data");
+			Debugger.getInstance().debug("saving cooldown data");
 			conf.save(saveFile);
 			saveTask = null;
 		} catch (IOException e) {
@@ -118,7 +119,7 @@ public class CooldownCommandlet extends BaseCommandlet implements Listener {
 		YamlConfiguration conf = new YamlConfiguration();
 		try {
 			if (saveFile.exists()) {
-				LogUtils.fine("loading cooldown data");
+				Debugger.getInstance().debug("loading cooldown data");
 				conf.load(saveFile);
 				for (String k : conf.getKeys(false)) {
 					cooldowns.put(k, conf.getLong(k));

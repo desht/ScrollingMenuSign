@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
@@ -154,11 +155,11 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	 */
 	public void processActions() {
 		for (Action a : actions) {
-			LogUtils.fine("processActions: check " + a.block + " power = " + a.block.isBlockPowered() + "/" + a.block.isBlockIndirectlyPowered());
+			Debugger.getInstance().debug("processActions: check " + a.block + " power = " + a.block.isBlockPowered() + "/" + a.block.isBlockIndirectlyPowered());
 			if (a.block.isBlockPowered() || a.block.isBlockIndirectlyPowered()) {
 				String k = "sms.redstonecontrol." + a.action.toString().toLowerCase();
 				if (ScrollingMenuSign.getInstance().getConfig().getBoolean(k)) {
-					LogUtils.fine("processActions: view=" + view.getName() + " action=" + a.action);
+					Debugger.getInstance().debug("processActions: view=" + view.getName() + " action=" + a.action);
 					a.action.execute(null, view);
 					break;
 				}
@@ -280,7 +281,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 			delete();
 			LogUtils.info("Redstone control sign for " + getView().getName() + " @ " + location + " has become detached: deleting");
 		} else {
-			LogUtils.fine("block physics event @ " + b + " power=" + b.getBlockPower() + " prev-power=" + getLastPowerLevel());
+			Debugger.getInstance().debug("block physics event @ " + b + " power=" + b.getBlockPower() + " prev-power=" + getLastPowerLevel());
 			if (b.getBlockPower() > 0 && b.getBlockPower() > getLastPowerLevel()) {
 				processActions();
 			}
@@ -291,7 +292,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 	@Override
 	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event) {
 		Block b = event.getBlock();
-		LogUtils.fine("redstone control: " + b + " current=" + event.getNewCurrent() + " power=" + b.getBlockPower());
+		Debugger.getInstance().debug("redstone control: " + b + " current=" + event.getNewCurrent() + " power=" + b.getBlockPower());
 		setLastPowerLevel(b.getBlockPower());
 	}
 
@@ -304,7 +305,7 @@ public class RedstoneControlSign implements SMSInteractableBlock {
 			this.face = face;
 			this.block = block;
 			this.action = action;
-			LogUtils.fine("redstone control: create power-on action: " + block + " = " + action);
+			Debugger.getInstance().debug("redstone control: create power-on action: " + block + " = " + action);
 		}
 
 		@Override

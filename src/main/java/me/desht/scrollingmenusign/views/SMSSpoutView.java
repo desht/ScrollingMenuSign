@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Observable;
 
 import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
@@ -83,7 +84,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 		if (!sp.isSpoutCraftEnabled())
 			return;
 
-		LogUtils.fine("showing Spout GUI for " + getName() + " to " + sp.getName());
+		Debugger.getInstance().debug("showing Spout GUI for " + getName() + " to " + sp.getName());
 
 		if (!popups.containsKey(sp.getName())) {
 			// create a new gui for this player
@@ -109,7 +110,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 			return;
 		}
 
-		LogUtils.fine("hiding Spout GUI for " + getName() + " from " + sp.getName());
+		Debugger.getInstance().debug("hiding Spout GUI for " + getName() + " from " + sp.getName());
 		popups.get(sp.getName()).popdown(p);
 
 		// decision: destroy the gui object or not?

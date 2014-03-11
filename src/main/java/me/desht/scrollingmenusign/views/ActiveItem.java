@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.ItemGlow;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
@@ -155,7 +156,7 @@ public class ActiveItem extends CommandTrigger {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.item");
 		SMSValidate.isTrue(getActiveMenu().hasOwnerPermission(player), "This menu is owned by someone else");
 		SMSMenuItem item = getActiveMenuItemAt(null, getSelectedItem());
-		LogUtils.fine("ActiveItem: about to execute: " + item);
+		Debugger.getInstance().debug("ActiveItem: about to execute: " + item);
 		if (item != null) {
 			item.executeCommand(player, this);
 		} else {

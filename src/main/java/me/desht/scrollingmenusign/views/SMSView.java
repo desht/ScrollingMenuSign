@@ -15,13 +15,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.desht.dhutils.AttributeCollection;
-import me.desht.dhutils.ConfigurationListener;
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.*;
 import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
@@ -147,7 +141,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 		SMSMenu m = (SMSMenu) o;
 		SMSMenuAction action = (SMSMenuAction) arg;
-		LogUtils.fine("update: view=" + getName() + " action=" + action + " menu=" + m.getName() + ", nativemenu=" + getNativeMenu().getName());
+		Debugger.getInstance().debug("update: view=" + getName() + " action=" + action + " menu=" + m.getName() + ", nativemenu=" + getNativeMenu().getName());
 		if (m == getNativeMenu()) {
 			if (action == SMSMenuAction.DELETE_PERM) {
 				ScrollingMenuSign.getInstance().getViewManager().deleteView(this, true);
@@ -755,7 +749,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		Player player = event.getPlayer();
 
 		SMSMenu menu = getNativeMenu();
-		LogUtils.fine("block damage event @ " + MiscUtil.formatLocation(b.getLocation()) + ", view = " + getName() + ", menu=" + menu.getName());
+		Debugger.getInstance().debug("block damage event @ " + MiscUtil.formatLocation(b.getLocation()) + ", view = " + getName() + ", menu=" + menu.getName());
 
 		if (plugin.getConfig().getBoolean("sms.no_destroy_signs") ||
 				!menu.isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
@@ -767,7 +761,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		Player player = event.getPlayer();
 		Block b = event.getBlock();
 
-		LogUtils.fine("block break event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
+		Debugger.getInstance().debug("block break event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
 
 		if (plugin.getConfig().getBoolean("sms.no_destroy_signs")) {
 			event.setCancelled(true);
@@ -786,7 +780,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
 		Block b = event.getBlock();
 
-		LogUtils.fine("block physics event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
+		Debugger.getInstance().debug("block physics event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
 		if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
 			event.setCancelled(true);
 		} else if (BlockUtil.isAttachableDetached(b)) {
@@ -800,7 +794,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event) {
 		Block b = event.getBlock();
 
-		LogUtils.fine("block redstone event @ " + b.getLocation() + ", view = "
+		Debugger.getInstance().debug("block redstone event @ " + b.getLocation() + ", view = "
 				+ getName() + ", menu = " + getNativeMenu().getName()
 				+ ", current = " + event.getOldCurrent() + "->" + event.getNewCurrent());
 	}

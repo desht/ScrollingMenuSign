@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.listeners;
 
 import java.util.Iterator;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
@@ -42,7 +43,7 @@ public class SMSEntityListener extends SMSListenerBase {
 			SMSView view = plugin.getViewManager().getViewForLocation(loc);
 			if (view != null) {
 				SMSMenu menu = view.getNativeMenu();
-				LogUtils.fine("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
+				Debugger.getInstance().debug("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
 				if (noExplode) {
 					LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was protected from an explosion.");
 					iter.remove();

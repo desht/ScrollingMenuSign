@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
@@ -306,7 +307,7 @@ public class CommandParser {
 				cmd.setLastError("You don't have permission to run this command.");
 				return;
 			}
-			LogUtils.fine("Execute (console): " + command);
+			Debugger.getInstance().debug("Execute (console): " + command);
 			executeLowLevelCommand(Bukkit.getServer().getConsoleSender(), cmd, command);
 		} else if (cmd.isElevated()) {
 			// this is a /@ command, to be run as the real player, but with temporary permissions
@@ -325,7 +326,7 @@ public class CommandParser {
 			}
 		} else {
 			// just an ordinary command (possibly chat), no special privilege elevation
-			LogUtils.fine("Execute (normal): " + command);
+			Debugger.getInstance().debug("Execute (normal): " + command);
 			executeLowLevelCommand(sender, cmd, command);
 		}
 	}
@@ -338,27 +339,27 @@ public class CommandParser {
 			for (String node : nodes) {
 				if (!node.isEmpty()) {
 					ScrollingMenuSign.permission.playerAddTransient(player, node);
-					LogUtils.fine("Added temporary permission node '" + node + "' to " + player.getName());
+					Debugger.getInstance().debug("Added temporary permission node '" + node + "' to " + player.getName());
 				}
 			}
 			if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
 				tempOp = true;
 				player.setOp(true);
-				LogUtils.fine("Granted temporary op to " + player.getName());
+				Debugger.getInstance().debug("Granted temporary op to " + player.getName());
 			}
-			LogUtils.fine("Execute (elevated): " + command);
+			Debugger.getInstance().debug("Execute (elevated): " + command);
 			executeLowLevelCommand(player, cmd, command);
 		} finally {
 			// revoke all temporary permissions granted to the user
 			for (String node : nodes) {
 				if (!node.isEmpty()) {
 					ScrollingMenuSign.permission.playerRemoveTransient(player, node);
-					LogUtils.fine("Removed temporary permission node '" + node + "' from " + player.getName());
+					Debugger.getInstance().debug("Removed temporary permission node '" + node + "' from " + player.getName());
 				}
 			}
 			if (tempOp) {
 				player.setOp(false);
-				LogUtils.fine("Removed temporary op from " + player.getName());
+				Debugger.getInstance().debug("Removed temporary op from " + player.getName());
 			}
 		}
 	}

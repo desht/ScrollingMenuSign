@@ -12,6 +12,7 @@ import org.bukkit.TreeSpecies;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
 
 import java.util.*;
@@ -88,15 +89,16 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			} else {
 				switch (mat) {
 					case INK_SACK:
-						DyeColor dc1 = DyeColor.valueOf(fields[1].toUpperCase());
-						res.setData(dc1.getDyeData());
+						Dye dye = new Dye();
+						dye.setColor(DyeColor.valueOf(fields[1].toUpperCase()));
+						res = dye;
 						break;
-					case WOOL:case CARPET:case STAINED_GLASS:case STAINED_GLASS_PANE:case STAINED_CLAY:
+					case WOOL: case CARPET: case STAINED_GLASS: case STAINED_GLASS_PANE: case STAINED_CLAY:
 						// maybe one day these will all implement Colorable...
 						DyeColor dc2 = DyeColor.valueOf(fields[1].toUpperCase());
 						res.setData(dc2.getWoolData());
 						break;
-					case SAPLING:case WOOD:
+					case SAPLING: case WOOD:
 						TreeSpecies ts = TreeSpecies.valueOf(fields[1].toUpperCase());
 						res.setData(ts.getData());
 						break;

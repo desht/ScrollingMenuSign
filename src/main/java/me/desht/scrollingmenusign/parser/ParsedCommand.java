@@ -6,11 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import me.desht.dhutils.ExperienceManager;
-import me.desht.dhutils.ItemNames;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.*;
 import me.desht.dhutils.cost.Cost;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSVariables;
@@ -503,8 +499,8 @@ public class ParsedCommand {
 		boolean useRegex = checkType.indexOf('r') > 0;
 		boolean forceNumeric = checkType.indexOf('n') > 0;
 
-		LogUtils.fine("doComparison: player=[" + player.getName() + "] var=[" + varSpec + "] val=[" + value + "] op=[" + op + "] test=[" + testValue + "]");
-		LogUtils.fine("doComparison: case-sensitive=" + !caseInsensitive + " regex=" + useRegex + " force-numeric=" + forceNumeric);
+		Debugger.getInstance().debug(2, "doComparison: player=[" + player.getName() + "] var=[" + varSpec + "] val=[" + value + "] op=[" + op + "] test=[" + testValue + "]");
+		Debugger.getInstance().debug(2, "doComparison: case-sensitive=" + !caseInsensitive + " regex=" + useRegex + " force-numeric=" + forceNumeric);
 
 		try {
 			if (op.equals("=")) {
@@ -580,18 +576,7 @@ public class ParsedCommand {
 		subs.put("INAME", new SubstitutionHandler() {
 			@Override
 			public String sub(Player player, CommandTrigger trigger) {
-				if (player.getItemInHand() == null) {
-					return "AIR";
-				} else {
-					ItemStack stack = player.getItemInHand();
-					if (stack.getItemMeta() != null && stack.getItemMeta().getDisplayName() != null) {
-						return stack.getItemMeta().getDisplayName();
-					} else if (ItemNames.lookup(stack) != null) {
-						return ItemNames.lookup(stack);
-					} else {
-						return stack.getType().toString();
-					}
-				}
+				return player.getItemInHand() == null ? "Air" : ItemNames.lookup(player.getItemInHand());
 			}
 		});
 		subs.put("MONEY", new SubstitutionHandler() {

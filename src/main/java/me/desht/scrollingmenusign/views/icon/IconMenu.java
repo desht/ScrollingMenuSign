@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.views.icon;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
@@ -9,10 +10,8 @@ import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.scrollingmenusign.views.SMSInventoryView;
 import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSView;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -38,7 +37,7 @@ public class IconMenu implements Listener, SMSPopup {
 	public IconMenu(SMSInventoryView view, String menuName) {
 		this.view = view;
 		this.menuName = menuName;
-		LogUtils.fine("icon menu: register events: " + this + " view=" + view.getName());
+		Debugger.getInstance().debug("icon menu: register events: " + this + " view=" + view.getName());
 		Bukkit.getPluginManager().registerEvents(this, ScrollingMenuSign.getInstance());
 	}
 
@@ -121,7 +120,7 @@ public class IconMenu implements Listener, SMSPopup {
 			optionNames[pos] = menuItem.getLabel();
 		}
 
-		LogUtils.fine("built icon menu inventory for " + p.getName() + ": " + size + " slots");
+		Debugger.getInstance().debug("built icon menu inventory for " + p.getName() + ": " + size + " slots");
 	}
 
 	private ItemStack getItemIcon(MaterialData iconMaterial) {
@@ -166,7 +165,7 @@ public class IconMenu implements Listener, SMSPopup {
 		String activeMenuName = view.getActiveMenu(playerName).getName();
 
 		if (isPoppedUp(player) && event.getInventory().getTitle().equals(menuTitle) && menuName.equals(activeMenuName)) {
-			LogUtils.fine("InventoryClickEvent: player = " + playerName + ", view = " + getView().getName() +
+			Debugger.getInstance().debug("InventoryClickEvent: player = " + playerName + ", view = " + getView().getName() +
 					", inventory name = " + event.getInventory().getTitle() + ", icon menu = " + this);
 
 			event.setCancelled(true);
@@ -196,7 +195,7 @@ public class IconMenu implements Listener, SMSPopup {
 	}
 
 	public void destroy() {
-		LogUtils.fine("icon menu: unregister events: " + this + " view=" + view.getName());
+		Debugger.getInstance().debug("icon menu: unregister events: " + this + " view=" + view.getName());
 		HandlerList.unregisterAll(this);
 	}
 
