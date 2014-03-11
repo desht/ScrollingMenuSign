@@ -154,6 +154,13 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 		item.executeCommand(event.getPlayer(), this);
 		item.feedbackMessage(event.getPlayer());
 		onExecuted(event.getPlayer());
+		System.out.println("command = [" + item.getCommand() + "]");
+		if (item.getCommand().isEmpty()) {
+			// an item with an empty command in an inventory view is basically a label and
+			// won't cause the view to close
+			event.setWillClose(false);
+			return;
+		}
 		if (m != getActiveMenu(playerName)) {
 			// just pushed or popped a submenu
 			// need to pop this inventory down and pop up a new one with the right title
