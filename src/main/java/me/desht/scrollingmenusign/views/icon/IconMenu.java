@@ -10,6 +10,7 @@ import me.desht.scrollingmenusign.enums.ViewJustification;
 import me.desht.scrollingmenusign.views.SMSInventoryView;
 import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSView;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -30,6 +31,7 @@ public class IconMenu implements Listener, SMSPopup {
 	private static final int INVENTORY_WIDTH = 9;
 	private static final int MAX_INVENTORY_ROWS = 6;
 	private static final String SMS_CLOSING_ON_COMMAND = "SMS_Closing_On_Command";
+	private static final int MAX_TITLE_LENGTH = 32;
 
 	private final SMSInventoryView view;
 	private final String menuName;
@@ -73,7 +75,7 @@ public class IconMenu implements Listener, SMSPopup {
 	@Override
 	public void popup(Player p) {
 		if (!isPoppedUp(p)) {
-			String title = getView().variableSubs(getView().getActiveMenuTitle(p.getName()));
+			String title = StringUtils.abbreviate(getView().variableSubs(getView().getActiveMenuTitle(p.getName())), MAX_TITLE_LENGTH);
 			if (size == 0 || getView().isDirty(p.getName())) {
 				buildMenu(p);
 			}
@@ -165,7 +167,7 @@ public class IconMenu implements Listener, SMSPopup {
 		}
 		final Player player = (Player) event.getWhoClicked();
 		String playerName = player.getName();
-		String menuTitle = getView().variableSubs(getView().getActiveMenuTitle(playerName));
+		String menuTitle = StringUtils.abbreviate(getView().variableSubs(getView().getActiveMenuTitle(playerName)), MAX_TITLE_LENGTH);
 		String activeMenuName = view.getActiveMenu(playerName).getName();
 
 		if (isPoppedUp(player) && event.getInventory().getTitle().equals(menuTitle) && menuName.equals(activeMenuName)) {
