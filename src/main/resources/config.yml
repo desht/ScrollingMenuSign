@@ -2,7 +2,7 @@ sms:
     actions:
         leftclick:
             normal: execute
-            sneak: none
+            sneak: execute
         wheeldown:
             normal: scrolldown
             sneak: scrolldown

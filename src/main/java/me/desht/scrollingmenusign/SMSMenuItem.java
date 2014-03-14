@@ -23,6 +23,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	private final String message;
 	private final List<String> lore;
 	private final MaterialData materialData;
+	private final String altCommand;
 	private SMSRemainingUses uses;
 	private final SMSMenu menu;
 
@@ -40,6 +41,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		this.menu = menu;
 		this.label = label;
 		this.command = command;
+		this.altCommand = "";
 		this.message = message;
 		try {
 			this.materialData = parseIconMaterial(iconMaterialName);
@@ -61,6 +63,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		this.menu = menu;
 		this.label = MiscUtil.parseColourSpec(node.getString("label"));
 		this.command = node.getString("command");
+		this.altCommand = node.getString("altCommand", "");
 		this.message = MiscUtil.parseColourSpec(node.getString("message"));
 		this.materialData = parseIconMaterial(node.getString("icon"));
 		this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
@@ -70,6 +73,17 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 				lore.add(MiscUtil.parseColourSpec(l));
 			}
 		}
+	}
+
+	private SMSMenuItem(Builder builder) {
+		this.menu = builder.menu;
+		this.label = builder.label;
+		this.message = builder.message;
+		this.lore = builder.lore;
+		this.command = builder.command;
+		this.altCommand = builder.altCommand == null ? "" : builder.altCommand;
+		this.materialData = builder.icon;
+		this.uses = new SMSRemainingUses(this);
 	}
 
 	public static MaterialData parseIconMaterial(String iconMaterialName) {
@@ -140,6 +154,15 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	}
 
 	/**
+	 * Get the alternative (secondary) command for this menu item
+	 *
+	 * @return the alternative command
+	 */
+	public String getAltCommand() {
+		return altCommand;
+	}
+
+	/**
 	 * Get the feedback message for this menu item
 	 *
 	 * @return The feedback message
@@ -205,6 +228,22 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	 * @throws SMSException if the usage limit for this player is exhausted
 	 */
 	public void executeCommand(CommandSender sender, CommandTrigger trigger) {
+		executeCommand(sender, trigger, false);
+	}
+
+	/**
+	 * Executes the command for this item
+	 *
+	 * @param sender  the command sender who triggered the execution
+	 * @param trigger the view that triggered this execution
+	 * @param alt true if the item's alternate command should be executed
+	 * @throws SMSException if the usage limit for this player is exhausted
+	 */
+	public void executeCommand(CommandSender sender, CommandTrigger trigger, boolean alt) {
+		String cmd = getCommand();
+		if (alt && !getAltCommand().isEmpty()) {
+			cmd = getAltCommand();
+		}
 		if (sender instanceof Player) {
 			boolean itemUses = verifyRemainingUses(this, (Player) sender);
 			boolean menuUses = verifyRemainingUses(menu, (Player) sender);
@@ -218,7 +257,6 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 				menu.autosave();
 			}
 		}
-		String cmd = getCommand();
 		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty()) {
 			cmd = menu.getDefaultCommand().replace("<LABEL>", ChatColor.stripColor(getLabel())).replace("<RAWLABEL>", getLabel());
 		}
@@ -421,6 +459,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
 		map.put("label", MiscUtil.unParseColourSpec(label));
 		map.put("command", command);
+		map.put("altCommand", altCommand);
 		map.put("message", MiscUtil.unParseColourSpec(message));
 		if (getIconMaterial() != null) {
 			map.put("icon", getIconMaterialName());
@@ -456,6 +495,72 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 			ls = getLabelStripped() + "-" + n;
 		} while (menu.getItem(ls) != null);
 
-		return new SMSMenuItem(menu, getLabel() + "-" + n, getCommand(), getMessage(), getIconMaterialName());
+		return new SMSMenuItem.Builder(menu, label)
+				.withCommand(getCommand())
+				.withMessage(getMessage())
+				.withIcon(getIconMaterialName())
+				.withAltCommand(getAltCommand())
+				.withLore(getLore())
+				.build();
+
+//		return new SMSMenuItem(menu, getLabel() + "-" + n, getCommand(), getMessage(), getIconMaterialName());
+	}
+
+	public static class Builder {
+		private final SMSMenu menu;
+		private final String label;
+		private String command;
+		private String altCommand;
+		private String message;
+		private List<String> lore;
+		private MaterialData icon;
+
+		public Builder(SMSMenu menu, String label) {
+			this.menu = menu;
+			this.label = label;
+		}
+
+		public Builder withCommand(String command) {
+			this.command = command;
+			return this;
+		}
+
+		public Builder withMessage(String message) {
+			this.message = message;
+			return this;
+		}
+
+		public Builder withAltCommand(String altCommand) {
+			this.altCommand = altCommand;
+			return this;
+		}
+
+		public Builder withLore(String... lore) {
+			this.lore = Arrays.asList(lore);
+			return this;
+		}
+
+		public Builder withLore(List<String> lore) {
+			this.lore = new ArrayList<String>(lore);
+			return this;
+		}
+
+		public Builder withIcon(MaterialData icon) {
+			this.icon = icon;
+			return this;
+		}
+
+		public Builder withIcon(String iconMaterialName) {
+			try {
+				this.icon = parseIconMaterial(iconMaterialName);
+			} catch (IllegalArgumentException e) {
+				throw new SMSException("invalid material '" + iconMaterialName + "'");
+			}
+			return this;
+		}
+
+		public SMSMenuItem build() {
+			return new SMSMenuItem(this);
+		}
 	}
 }

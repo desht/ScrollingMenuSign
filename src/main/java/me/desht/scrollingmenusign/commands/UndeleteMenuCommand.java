@@ -18,7 +18,7 @@ public class UndeleteMenuCommand extends SMSAbstractCommand {
 				"/sms undelete <menu-name>",
 				"/sms undelete -l",
 		});
-		setOptions(new String[]{"l"});
+		setOptions("l");
 	}
 
 	@Override

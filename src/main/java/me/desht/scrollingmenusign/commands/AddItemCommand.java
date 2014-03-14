@@ -23,12 +23,13 @@ public class AddItemCommand extends SMSAbstractCommand {
 				"/sms add <menu-name> <label> [<command>] [<options...>]",
 				"Options (-at takes integer, all others take string):",
 				"  -at         Position to add the new item at",
+				"  -altcommand The alternative command to run",
 				"  -feedback   The new feedback message to display",
 				"  -icon       The new material used for the item's icon",
 				"  -lore       The lore for the item (line delimiter '\\\\')",
 		});
 		setQuotedArgs(true);
-		setOptions(new String[]{"at:i", "feedback:s", "icon:s", "lore:s"});
+		setOptions("at:i", "altcommand:s", "feedback:s", "icon:s", "lore:s");
 	}
 
 	@Override
@@ -46,6 +47,7 @@ public class AddItemCommand extends SMSAbstractCommand {
 		int pos = hasOption("at") ? getIntOption("at") : -1;
 		String label = MiscUtil.parseColourSpec(sender, args[1]);
 		String cmd = args.length >= 3 ? args[2] : "";
+		String altCmd = hasOption("altcommand") ? getStringOption("altcommand") : "";
 		String msg = hasOption("feedback") ? getStringOption("feedback") : "";
 		String iconMat = hasOption("icon") ? getStringOption("icon") : plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
 		String[] lore = hasOption("lore") ? getStringOption("lore").split("\\\\\\\\") : new String[0];
@@ -53,7 +55,15 @@ public class AddItemCommand extends SMSAbstractCommand {
 		SMSValidate.isFalse(sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd),
 				"You do not have permission to add that kind of command.");
 
-		SMSMenuItem newItem = new SMSMenuItem(menu, label, cmd, msg, iconMat, lore);
+		SMSMenuItem newItem = new SMSMenuItem.Builder(menu, label)
+				.withCommand(cmd)
+				.withMessage(msg)
+				.withIcon(iconMat)
+				.withAltCommand(altCmd)
+				.withLore(lore)
+				.build();
+
+//		SMSMenuItem newItem = new SMSMenuItem(menu, label, cmd, msg, iconMat, lore);
 		if (pos < 0) {
 			menu.addItem(newItem);
 			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- added to &e" + menu.getName());

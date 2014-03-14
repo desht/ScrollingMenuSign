@@ -38,7 +38,7 @@ public class AddViewCommand extends SMSAbstractCommand {
 				"/sms sync <menu-name> -item",
 				"  [-viewname <name>]  Choose a non-default view name"
 		});
-		setOptions("map:i,sign,spout,redstone,multi,inventory,inv,item,force,viewname:s,loc:s");
+		setOptions("map:i","sign","spout","redstone","multi","inventory","inv","item","force","viewname:s","loc:s");
 	}
 
 	@Override

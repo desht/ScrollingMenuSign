@@ -21,7 +21,7 @@ public class VarCommand extends SMSAbstractCommand {
 				"/sms var [-q] -d [<player>.]<variable>",
 				"/sms var [-q] -i [<player>.]<variable> [<amount>]",
 		});
-		setOptions(new String[]{"q", "l", "d", "i"});
+		setOptions("q", "l", "d", "i");
 		setQuotedArgs(true);
 	}
 

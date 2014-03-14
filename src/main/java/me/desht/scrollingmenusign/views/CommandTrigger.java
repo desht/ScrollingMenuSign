@@ -76,8 +76,12 @@ public abstract class CommandTrigger {
 		SMSMenu activeMenu = getActiveMenu(playerName);
 		if (activeMenu != getNativeMenu() && pos == activeMenu.getItemCount() + 1) {
 			String label = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.label", "&l<- BACK");
-			String mat = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.material", "irondoor");
-			return new SMSMenuItem(activeMenu, MiscUtil.parseColourSpec(label), "BACK", "", mat);
+			String backIcon = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.material", "irondoor");
+			return new SMSMenuItem.Builder(activeMenu, MiscUtil.parseColourSpec(label))
+					.withCommand("BACK")
+					.withIcon(backIcon)
+					.build();
+//			return new SMSMenuItem(activeMenu, MiscUtil.parseColourSpec(label), "BACK", "", backIcon);
 		} else {
 			return activeMenu.getItemAt(pos);
 		}

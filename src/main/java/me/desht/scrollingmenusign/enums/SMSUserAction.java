@@ -103,7 +103,7 @@ public enum SMSUserAction {
 			case EXECUTE:
 				SMSMenuItem item = sview.getActiveMenuItemAt(playerName, sview.getScrollPos(playerName));
 				if (item != null) {
-					item.executeCommand(player, view);
+					item.executeCommand(player, view, player.isSneaking());
 					item.feedbackMessage(player);
 					view.onExecuted(player);
 				}

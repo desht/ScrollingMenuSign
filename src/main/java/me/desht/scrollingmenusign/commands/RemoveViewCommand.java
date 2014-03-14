@@ -29,7 +29,7 @@ public class RemoveViewCommand extends SMSAbstractCommand {
 				"/sms break <view-name>",
 				"/sms break -loc <x,y,z,world>",
 		});
-		setOptions(new String[]{"loc:s", "view:s", "item", "frame"});
+		setOptions("loc:s", "view:s", "item", "frame");
 	}
 
 	@Override

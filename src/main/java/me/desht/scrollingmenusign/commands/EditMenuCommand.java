@@ -26,13 +26,14 @@ public class EditMenuCommand extends SMSAbstractCommand {
 				"Replacement options (all take a string argument):",
 				"  -label      The new item label",
 				"  -command    The new command to run",
+				"  -altcommand    The new alternative command to run",
 				"  -feedback   The new feedback message to display",
 				"  -icon       The new material used for the item's icon",
 				"  -lore       The new lore for the item (use '+text' to append)",
 				"  -move       The new position in the menu for the item",
 		});
 		setQuotedArgs(true);
-		setOptions(new String[]{"label:s", "command:s", "feedback:s", "icon:s", "move:i", "lore:s"});
+		setOptions("label:s", "command:s", "altcommand:s", "feedback:s", "icon:s", "move:i", "lore:s");
 	}
 
 	@Override
@@ -54,28 +55,24 @@ public class EditMenuCommand extends SMSAbstractCommand {
 		SMSMenuItem currentItem = menu.getItemAt(pos, true);
 		String label = hasOption("label") ? MiscUtil.parseColourSpec(getStringOption("label")) : currentItem.getLabel();
 		String command = hasOption("command") ? getStringOption("command") : currentItem.getCommand();
+		String altCommand = hasOption("altcommand") ? getStringOption("altcommand") : currentItem.getAltCommand();
 		String message = hasOption("feedback") ? MiscUtil.parseColourSpec(getStringOption("feedback")) : currentItem.getMessage();
 		String iconMat = hasOption("icon") ? getStringOption("icon") : currentItem.getIconMaterialName();
-		List<String> lore = currentItem.getLoreAsList();
-		if (hasOption("lore")) {
-			String l = getStringOption("lore");
-			String l1;
-			if (l.startsWith("+") && l.length() > 1) {
-				l1 = l.substring(1);
-			} else {
-				lore.clear();
-				l1 = l;
-			}
-			if (!l1.isEmpty()) {
-				Collections.addAll(lore, l1.split("\\\\\\\\"));
-			}
-		}
+		String[] lore = buildNewLore(currentItem);
 
 		if (!command.isEmpty() && sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, command)) {
 			throw new SMSException("You do not have permission to add that kind of command.");
 		}
 
-		SMSMenuItem newItem = new SMSMenuItem(menu, label, command, message, iconMat, lore.toArray(new String[lore.size()]));
+		SMSMenuItem newItem = new SMSMenuItem.Builder(menu, label)
+				.withCommand(command)
+				.withAltCommand(altCommand)
+				.withMessage(message)
+				.withIcon(iconMat)
+				.withLore(lore)
+				.build();
+
+//		SMSMenuItem newItem = new SMSMenuItem(menu, label, command, message, iconMat, lore.toArray(new String[lore.size()]));
 		newItem.setUseLimits(currentItem.getUseLimits());
 
 		if (hasOption("move")) {
@@ -91,6 +88,24 @@ public class EditMenuCommand extends SMSAbstractCommand {
 		menu.notifyObservers(SMSMenuAction.REPAINT);
 
 		return true;
+	}
+
+	private String[] buildNewLore(SMSMenuItem item) {
+		List<String> lore = item.getLoreAsList();
+		if (hasOption("lore")) {
+			String l = getStringOption("lore");
+			String l1;
+			if (l.startsWith("+") && l.length() > 1) {
+				l1 = l.substring(1);
+			} else {
+				lore.clear();
+				l1 = l;
+			}
+			if (!l1.isEmpty()) {
+				Collections.addAll(lore, l1.split("\\\\\\\\"));
+			}
+		}
+		return lore.toArray(new String[lore.size()]);
 	}
 
 	@Override

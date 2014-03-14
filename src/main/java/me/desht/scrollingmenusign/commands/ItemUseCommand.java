@@ -21,7 +21,7 @@ public class ItemUseCommand extends SMSAbstractCommand {
 				"/sms uses <menu> clear",
 		});
 		setQuotedArgs(true);
-		setOptions(new String[]{"global", "g"});
+		setOptions("global", "g");
 	}
 
 	@Override

@@ -158,7 +158,7 @@ public class ActiveItem extends CommandTrigger {
 		SMSMenuItem item = getActiveMenuItemAt(null, getSelectedItem());
 		Debugger.getInstance().debug("ActiveItem: about to execute: " + item);
 		if (item != null) {
-			item.executeCommand(player, this);
+			item.executeCommand(player, this, player.isSneaking());
 		} else {
 			LogUtils.warning("index " + getSelectedItem() + " out of range for " + getActiveMenu().getName());
 		}

@@ -389,7 +389,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param label   Label of the item to add
 	 * @param command Command to be run when the item is selected
 	 * @param message Feedback text to be shown when the item is selected
+	 * @deprecated use {@link #addItem(SMSMenuItem)}
 	 */
+	@Deprecated
 	public void addItem(String label, String command, String message) {
 		addItem(new SMSMenuItem(this, label, command, message));
 	}
@@ -410,7 +412,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param label   label of the new item
 	 * @param command command to be run
 	 * @param message feedback message text
+	 * @deprecated use {@link #insertItem(int, SMSMenuItem)}
 	 */
+	@Deprecated
 	public void insertItem(int pos, String label, String command, String message) {
 		insertItem(pos, new SMSMenuItem(this, label, command, message));
 	}
@@ -457,17 +461,19 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param command The command to be run
 	 * @param message The feedback message
 	 * @throws SMSException if the label isn't present in the menu
+	 * @deprecated use {@link #replaceItem(SMSMenuItem)}
 	 */
+	@Deprecated
 	public void replaceItem(String label, String command, String message) {
 		replaceItem(new SMSMenuItem(this, label, command, message));
 	}
 
 	/**
-	 * Replace an existing menu item.  The label must already be present in the menu,
-	 * or an exception will be thrown.
+	 * Replace an existing menu item.  The new item's label must already be present in
+	 * the menu.
 	 *
-	 * @param item The menu item to replace
-	 * @throws SMSException if the label isn't present in the menu
+	 * @param item the replacement menu item
+	 * @throws SMSException if the new item's label isn't present in the menu
 	 */
 	public void replaceItem(SMSMenuItem item) {
 		if (items.size() != itemMap.size())
@@ -493,7 +499,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param label   label of the replacement item
 	 * @param command command for the replacement item
 	 * @param message feedback message text for the replacement item
+	 * @deprecated use {@link #replaceItem(int, SMSMenuItem)}
 	 */
+	@Deprecated
 	public void replaceItem(int pos, String label, String command, String message) {
 		replaceItem(pos, new SMSMenuItem(this, label, command, message));
 	}
@@ -504,6 +512,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 *
 	 * @param pos  the position to replace at
 	 * @param item the new menu item
+	 * @throws SMSException if the new menu item's label already exists in this menu
 	 */
 	public void replaceItem(int pos, SMSMenuItem item) {
 		if (items.size() != itemMap.size())

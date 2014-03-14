@@ -32,7 +32,7 @@ public class ViewCommand extends SMSAbstractCommand {
 				"/sms view <view-name> -popup"
 		});
 		setQuotedArgs(true);
-		setOptions(new String[]{"popup", "d:s"});
+		setOptions("popup", "d:s");
 	}
 
 	@Override

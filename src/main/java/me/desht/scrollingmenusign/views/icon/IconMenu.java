@@ -18,6 +18,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -181,7 +182,7 @@ public class IconMenu implements Listener, SMSPopup {
 			int spacing = (Integer) getView().getAttribute(SMSInventoryView.SPACING);
 			int slot2 = slot == 0 ? 0 : ((slot - 1) / spacing) + 1;
 			if (slot >= 0 && slot < size && optionNames[slot] != null) {
-				OptionClickEvent optionEvent = new OptionClickEvent(player, getMenuIndexForSlot(slot2), optionNames[slot]);
+				OptionClickEvent optionEvent = new OptionClickEvent(player, getMenuIndexForSlot(slot2), optionNames[slot], event.getClick());
 				try {
 					view.onOptionClick(optionEvent);
 				} catch (SMSException e) {
@@ -255,16 +256,18 @@ public class IconMenu implements Listener, SMSPopup {
 		private final Player player;
 		private final int index;
 		private final String name;
+		private final ClickType clickType;
 
 		private boolean close;
 		private boolean destroy;
 
-		public OptionClickEvent(Player player, int index, String name) {
+		public OptionClickEvent(Player player, int index, String name, ClickType type) {
 			this.player = player;
 			this.index = index;
 			this.name = name;
 			this.close = true;
 			this.destroy = false;
+			this.clickType = type;
 		}
 
 		public Player getPlayer() {
@@ -285,6 +288,10 @@ public class IconMenu implements Listener, SMSPopup {
 
 		public boolean willDestroy() {
 			return destroy;
+		}
+
+		public ClickType getClickType() {
+			return clickType;
 		}
 
 		public void setWillClose(boolean close) {

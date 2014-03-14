@@ -87,13 +87,18 @@ public class MenuCommand extends SMSAbstractCommand {
 		MaterialData defIcon = SMSMenuItem.parseIconMaterial(defIconName);
 
 		List<SMSMenuItem> items = menu.getItems();
+		String s = items.size() == 1 ? "" : "s";
 		int n = 1;
-		pager.add("&fMenu items:");
+		pager.add("&f" + items.size() + " menu item" + s + ":");
 		for (SMSMenuItem item : items) {
 			String message = item.getMessage();
 			String command = item.getCommand().replace(" && ", " &&&& ");
+			String altCommand = item.getAltCommand().replace(" && ", " &&&& ");
 			String uses = item.formatUses(sender);
 			pager.add(String.format("&e%2d) &f%s &7[%s]", n++, item.getLabel(), command));
+			if (!altCommand.isEmpty()) {
+				pager.add("    &9Alt Command: &e" + altCommand);
+			}
 			if (!message.isEmpty()) {
 				pager.add("    &9Feedback: &e" + message);
 			}
