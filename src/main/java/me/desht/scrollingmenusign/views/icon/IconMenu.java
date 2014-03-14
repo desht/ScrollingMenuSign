@@ -58,7 +58,8 @@ public class IconMenu implements Listener, SMSPopup {
 
 	@Override
 	public boolean isPoppedUp(Player player) {
-		return player.getOpenInventory().getTitle().equals(getView().getActiveMenuTitle(player.getName()));
+		String menuTitle = getActualMenuTitle(player.getName());
+		return player.getOpenInventory().getTitle().equals(menuTitle);
 	}
 
 	@Override
@@ -75,10 +76,10 @@ public class IconMenu implements Listener, SMSPopup {
 	@Override
 	public void popup(Player p) {
 		if (!isPoppedUp(p)) {
-			String title = StringUtils.abbreviate(getView().variableSubs(getView().getActiveMenuTitle(p.getName())), MAX_TITLE_LENGTH);
 			if (size == 0 || getView().isDirty(p.getName())) {
 				buildMenu(p);
 			}
+			String title = getActualMenuTitle(p.getName());
 			Inventory inventory = Bukkit.createInventory(p, size, title);
 			getView().setDirty(p.getName(), false);
 			for (int i = 0; i < size; i++) {
@@ -166,8 +167,9 @@ public class IconMenu implements Listener, SMSPopup {
 			return;
 		}
 		final Player player = (Player) event.getWhoClicked();
+
 		String playerName = player.getName();
-		String menuTitle = StringUtils.abbreviate(getView().variableSubs(getView().getActiveMenuTitle(playerName)), MAX_TITLE_LENGTH);
+		String menuTitle = getActualMenuTitle(playerName);
 		String activeMenuName = view.getActiveMenu(playerName).getName();
 
 		if (isPoppedUp(player) && event.getInventory().getTitle().equals(menuTitle) && menuName.equals(activeMenuName)) {
@@ -187,12 +189,12 @@ public class IconMenu implements Listener, SMSPopup {
 				}
 				if (optionEvent.willClose()) {
 					player.setMetadata(SMS_CLOSING_ON_COMMAND, new FixedMetadataValue(ScrollingMenuSign.getInstance(), true));
-					Bukkit.getScheduler().runTaskLater(ScrollingMenuSign.getInstance(), new Runnable() {
+					Bukkit.getScheduler().runTask(ScrollingMenuSign.getInstance(), new Runnable() {
 						@Override
 						public void run() {
 							player.closeInventory();
 						}
-					}, 1L);
+					});
 				}
 				if (optionEvent.willDestroy()) {
 					destroy();
@@ -208,7 +210,7 @@ public class IconMenu implements Listener, SMSPopup {
 		}
 		final Player player = (Player) event.getPlayer();
 		String playerName = player.getName();
-		String menuTitle = getView().variableSubs(getView().getActiveMenuTitle(playerName));
+		String menuTitle = getActualMenuTitle(playerName);
 		String activeMenuName = view.getActiveMenu(playerName).getName();
 
 		if (isPoppedUp(player) && event.getInventory().getTitle().equals(menuTitle) && menuName.equals(activeMenuName)) {
@@ -225,6 +227,10 @@ public class IconMenu implements Listener, SMSPopup {
 			}
 			player.removeMetadata(SMS_CLOSING_ON_COMMAND, ScrollingMenuSign.getInstance());
 		}
+	}
+
+	private String getActualMenuTitle(String playerName) {
+		return StringUtils.abbreviate(getView().variableSubs(getView().getActiveMenuTitle(playerName)), MAX_TITLE_LENGTH);
 	}
 
 	private boolean isClosingOnCommand(Player p) {
