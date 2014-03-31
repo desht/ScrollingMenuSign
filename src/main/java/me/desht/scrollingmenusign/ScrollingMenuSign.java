@@ -6,8 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 
 import me.desht.dhutils.*;
@@ -164,6 +163,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		setupMetrics();
 
 		Debugger.getInstance().debug(getDescription().getName() + " version " + getDescription().getVersion() + " is enabled!");
+
+		UUIDMigration.migrateToUUID(this);
 	}
 
 	@Override

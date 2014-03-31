@@ -30,6 +30,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
+		System.out.println("interact: " + event.getPlayer().getUniqueId());
 		if (event.getAction() == Action.PHYSICAL) {
 			// We're not interested in physical actions (pressure plate) here
 			return;

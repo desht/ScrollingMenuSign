@@ -1,32 +1,21 @@
 package me.desht.scrollingmenusign;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import me.desht.dhutils.AttributeCollection;
-import me.desht.dhutils.ConfigurationListener;
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.*;
 import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSView;
-
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
+import java.io.File;
+import java.util.*;
 
 /**
  * Represents a menu object
@@ -52,6 +41,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	private static final Map<String, SMSMenu> deletedMenus = new HashMap<String, SMSMenu>();
 
 	private String title;  // cache colour-parsed version of the title attribute
+	private UUID ownerId;  // cache owner's UUID (could be null)
 	private boolean autosave = true;
 
 	/**
@@ -61,13 +51,52 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @param title Title of the menu
 	 * @param owner Owner of the menu
 	 * @throws SMSException If there is already a menu at this location
+	 * @deprecated use {@link SMSMenu(String,String,Player)} or {@link SMSMenu(String,String, org.bukkit.plugin.Plugin )}
 	 */
+	@Deprecated
 	public SMSMenu(String name, String title, String owner) {
 		this.name = name;
 		this.uses = new SMSRemainingUses(this);
 		this.attributes = new AttributeCollection(this);
 		registerAttributes();
 		setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner);
+		ownerId = null;
+		setAttribute(TITLE, title);
+	}
+
+	/**
+	 * Construct a new menu
+	 *
+	 * @param name  Name of the menu
+	 * @param title Title of the menu
+	 * @param owner Owner of the menu
+	 * @throws SMSException If there is already a menu at this location
+	 */
+	public SMSMenu(String name, String title, Player owner) {
+		this.name = name;
+		this.uses = new SMSRemainingUses(this);
+		this.attributes = new AttributeCollection(this);
+		registerAttributes();
+		setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner.getDisplayName());
+		ownerId = owner == null ? null : owner.getUniqueId();
+		setAttribute(TITLE, title);
+	}
+
+	/**
+	 * Construct a new menu
+	 *
+	 * @param name  Name of the menu
+	 * @param title Title of the menu
+	 * @param owner Owner of the menu
+	 * @throws SMSException If there is already a menu at this location
+	 */
+	public SMSMenu(String name, String title, Plugin owner) {
+		this.name = name;
+		this.uses = new SMSRemainingUses(this);
+		this.attributes = new AttributeCollection(this);
+		registerAttributes();
+		setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : "[" + owner.getName() + "]");
+		ownerId = null;
 		setAttribute(TITLE, title);
 	}
 
@@ -88,6 +117,12 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		this.attributes = new AttributeCollection(this);
 		registerAttributes();
 		this.attributes.setValidate(false);
+		String id = node.getString("owner_id");
+		if (id != null && !id.isEmpty()) {
+			this.ownerId = UUID.fromString(id);
+		} else {
+			this.ownerId = null;
+		}
 
 		// migration of owner field from pre-2.0.0: "&console" => "[console]"
 		if (node.getString(OWNER).equals("&console")) {
@@ -149,6 +184,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		map.put("name", getName());
 		map.put("items", l);
 		map.put("usesRemaining", uses.freeze());
+		map.put("owner_id", getOwnerId() == null ? "" : getOwnerId().toString());
 
 		return map;
 	}
@@ -218,6 +254,14 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public void setGroup(String group) {
 		attributes.set(GROUP, group);
+	}
+
+	public UUID getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(UUID ownerId) {
+		this.ownerId = ownerId;
 	}
 
 	/**
@@ -837,8 +881,12 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-		if (key.equals(OWNER) && newVal.toString().isEmpty()) {
-			throw new SMSException("Owner may not be null");
+		if (key.equals(OWNER)) {
+			String owner = newVal.toString();
+			if (!owner.isEmpty() && !owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {
+				@SuppressWarnings("deprecation") Player p = Bukkit.getPlayer(owner);
+				SMSValidate.notNull(p, "Unknown player: " + owner);
+			}
 		}
 	}
 
@@ -850,6 +898,17 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 			title = MiscUtil.parseColourSpec(newVal.toString());
 			setChanged();
 			notifyObservers(SMSMenuAction.REPAINT);
+		} else if (key.equals(OWNER)) {
+			String owner = newVal.toString();
+			if (owner.isEmpty() || owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {
+				ownerId = null;
+			} else {
+				// TODO use async lookup to get the UUID for a player name?
+				@SuppressWarnings("deprecation") Player p = Bukkit.getPlayer(owner);
+				if (p != null) {
+					ownerId = p.getUniqueId();
+				}
+			}
 		}
 
 		autosave();
@@ -862,7 +921,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 * @return true if the menu is owned by the given player, false otherwise
 	 */
 	public boolean isOwnedBy(Player player) {
-		return player.getName().equalsIgnoreCase(getAttributes().get(OWNER).toString());
+		return player.getUniqueId().equals(ownerId);
+//		return player.getName().equalsIgnoreCase(getAttributes().get(OWNER).toString());
 	}
 
 	/**

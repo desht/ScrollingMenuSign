@@ -67,7 +67,7 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 		}
 
 		String menuTitle = MiscUtil.parseColourSpec(sender, combine(args, 1));
-		SMSMenu menu = handler.createMenu(menuName, menuTitle, owner);
+		SMSMenu menu = handler.createMenu(menuName, menuTitle, sender instanceof Player ? (Player) sender : null);
 
 		if (signLoc != null) {
 			getViewManager(plugin).addSignToMenu(menu, signLoc, sender);

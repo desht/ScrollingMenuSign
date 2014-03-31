@@ -9,6 +9,8 @@ import me.desht.scrollingmenusign.views.SMSView;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public interface SMSHandler {
 	/**
@@ -18,17 +20,30 @@ public interface SMSHandler {
 	 * @param title Title for the menu
 	 * @param owner Owner of the menu
 	 * @return The menu
+	 * @deprecated use {@link #createMenu(String,String, org.bukkit.entity.Player )} or {@link #createMenu(String,String, org.bukkit.plugin.Plugin )}
 	 */
+	@Deprecated
 	public SMSMenu createMenu(String name, String title, String owner);
 
-	//	/**
-	//	 * Creates a new menu as a copy of an existing menu
-	//	 * @param name		Unique name of the menu
-	//	 * @param otherMenu	The menu to copy
-	//	 * @param owner		Owner of the menu
-	//	 * @return			The menu
-	//	 */
-	//	public SMSMenu createMenu(String name, SMSMenu otherMenu, String owner);
+	/**
+	 * Creates a new menu
+	 *
+	 * @param name  Unique name of the menu
+	 * @param title Title for the menu
+	 * @param owner Owner of the menu, may be null
+	 * @return The menu
+	 */
+	public SMSMenu createMenu(String name, String title, Player owner);
+
+	/**
+	 * Creates a new menu
+	 *
+	 * @param name  Unique name of the menu
+	 * @param title Title for the menu
+	 * @param owner Owner of the menu, may be null
+	 * @return The menu
+	 */
+	public SMSMenu createMenu(String name, String title, Plugin owner);
 
 	/**
 	 * Deletes a menu, leaving its signs as they are

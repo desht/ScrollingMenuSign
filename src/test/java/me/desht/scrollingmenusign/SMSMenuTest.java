@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import me.desht.dhutils.LogUtils;
 
+import org.bukkit.entity.Player;
 import org.junit.Test;
 
 public class SMSMenuTest {
@@ -14,26 +15,26 @@ public class SMSMenuTest {
 
 	@Test
 	public void testCreation() {
-		SMSMenu menu = new SMSMenu("testmenu", "A Test Menu", "someone");
+		SMSMenu menu = new SMSMenu("testmenu", "A Test Menu", (Player) null);
 		assertEquals("Name is 'testmenu'", "testmenu", menu.getName());
 		assertEquals("Title is 'A Test Menu'", "A Test Menu", menu.getTitle());
-		assertEquals("Owner is 'someone'", "someone", menu.getOwner());
+		assertEquals("Owner is console", ScrollingMenuSign.CONSOLE_OWNER, menu.getOwner());
 	}
 
-	@Test
-	public void testOwnerNotEmpty() {
-		boolean ok = false;
-		try {
-			new SMSMenu("testmenu", "A Test Menu", "");
-		} catch (SMSException e) {
-			ok = true;
-		}
-		assertTrue("Exception thrown when empty owner passed", ok);
-	}
+//	@Test
+//	public void testOwnerNotEmpty() {
+//		boolean ok = false;
+//		try {
+//			new SMSMenu("testmenu", "A Test Menu", "");
+//		} catch (SMSException e) {
+//			ok = true;
+//		}
+//		assertTrue("Exception thrown when empty owner passed", ok);
+//	}
 
 	@Test
 	public void testAddRemoveItems() {
-		SMSMenu menu = new SMSMenu("testmenu", "A Test Menu", "someone");
+		SMSMenu menu = new SMSMenu("testmenu", "A Test Menu", (Player) null);
 		menu.addItem("Label 1", "a command", "");
 		menu.addItem("Label 2", "another command", "msg 2");
 		menu.addItem("Label 3", "third command", "");
@@ -53,7 +54,7 @@ public class SMSMenuTest {
 
 	@Test
 	public void testSortMenu() {
-		SMSMenu menu = new SMSMenu("testmenu", "A Test Menu", "someone");
+		SMSMenu menu = new SMSMenu("testmenu", "A Test Menu", (Player) null);
 		menu.addItem("Zebra", "a command", "");
 		menu.addItem("Hotel", "another command", "msg 2");
 		menu.addItem("Charlie", "third command", "");

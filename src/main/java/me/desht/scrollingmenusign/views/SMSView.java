@@ -2,16 +2,7 @@ package me.desht.scrollingmenusign.views;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,6 +57,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	private boolean autosave;
 	private boolean dirty;
 	private int maxLocations;
+	private UUID ownerId;
 
 	// we can't use a Set here, since there are three possible values: 1) dirty, 2) clean, 3) unknown
 	private final Map<String, Boolean> dirtyPlayers = new HashMap<String, Boolean>();
@@ -170,6 +162,15 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 */
 	public SMSMenu getNativeMenu() {
 		return menu;
+	}
+
+	public UUID getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(UUID ownerId) {
+		this.ownerId = ownerId;
+		autosave();
 	}
 
 	/**
@@ -348,6 +349,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		map.put("name", name);
 		map.put("menu", menu.getName());
 		map.put("class", getClass().getName());
+		map.put("owner_id", getOwnerId() == null ? "" : getOwnerId().toString());
 		for (String key : listAttributeKeys(false)) {
 			map.put(key, attributes.get(key).toString());
 		}
@@ -381,6 +383,11 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 			} else {
 				throw new SMSException("invalid location in view " + getName() + " (corrupted file?)");
 			}
+		}
+
+		String id = node.getString("owner_id");
+		if (id != null && !id.isEmpty()) {
+			setOwnerId(UUID.fromString(id));
 		}
 
 		// temporarily disable validation while attributes are loaded from saved data
@@ -603,7 +610,8 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 * @return true if the view is owned by the player, false otherwise
 	 */
 	public boolean isOwnedBy(Player player) {
-		return player.getName().equalsIgnoreCase(getAttributeAsString(OWNER));
+		return player.getUniqueId().equals(ownerId);
+//		return player.getName().equalsIgnoreCase(getAttributeAsString(OWNER));
 	}
 
 	/**

@@ -212,7 +212,7 @@ public class SMSBlockListener extends SMSListenerBase {
 			menu = handler.getMenu(menuName);
 		} else if (title.length() > 0) {
 			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.create");
-			menu = handler.createMenu(menuName, title, player.getName());
+			menu = handler.createMenu(menuName, title, player);
 		} else {
 			throw new SMSException("No such menu '" + menuName + "'.");
 		}

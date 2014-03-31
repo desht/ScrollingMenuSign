@@ -3,13 +3,8 @@ package me.desht.scrollingmenusign.views;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
@@ -432,6 +427,7 @@ public class ViewManager {
 		SMSMapView mapView = new SMSMapView(viewName, menu);
 		registerView(mapView);
 		mapView.setAttribute(SMSView.OWNER, mapView.makeOwnerName(owner));
+		mapView.setOwnerId(getUniqueId(owner));
 		mapView.setMapId(mapId);
 		mapView.update(menu, SMSMenuAction.REPAINT);
 
@@ -515,6 +511,7 @@ public class ViewManager {
 		SMSInventoryView view = new SMSInventoryView(viewName, menu);
 		registerView(view);
 		view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
+		view.setOwnerId(getUniqueId(owner));
 		view.update(view.getNativeMenu(), SMSMenuAction.REPAINT);
 		return view;
 	}
@@ -533,6 +530,7 @@ public class ViewManager {
 		SMSView view = new SMSMultiSignView(viewName, menu, location);
 		registerView(view);
 		view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
+		view.setOwnerId(getUniqueId(owner));
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
@@ -563,6 +561,7 @@ public class ViewManager {
 		view.addLocation(loc);
 		registerView(view);
 		view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
+		view.setOwnerId(getUniqueId(owner));
 		return view;
 	}
 
@@ -585,6 +584,7 @@ public class ViewManager {
 		SMSView view = new SMSSignView(viewName, menu, loc);
 		registerView(view);
 		view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
+		view.setOwnerId(getUniqueId(owner));
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
@@ -609,8 +609,12 @@ public class ViewManager {
 		SMSView view = new SMSSpoutView(viewName, menu);
 		registerView(view);
 		view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
+		view.setOwnerId(getUniqueId(owner));
 		view.update(menu, SMSMenuAction.REPAINT);
 		return view;
 	}
 
+	private UUID getUniqueId(CommandSender owner) {
+		return owner instanceof Player ? ((Player) owner).getUniqueId() : null;
+	}
 }

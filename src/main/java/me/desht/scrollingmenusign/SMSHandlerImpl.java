@@ -10,6 +10,8 @@ import me.desht.scrollingmenusign.views.ViewManager;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class SMSHandlerImpl implements SMSHandler {
 
@@ -17,7 +19,35 @@ public class SMSHandlerImpl implements SMSHandler {
 	}
 
 	@Override
+	@Deprecated
 	public SMSMenu createMenu(String name, String title, String owner) {
+		SMSMenu menu;
+		try {
+			menu = new SMSMenu(name, MiscUtil.parseColourSpec(title), owner);
+		} catch (SMSException e) {
+			// should not get here
+			return null;
+		}
+		SMSMenu.registerMenu(name, menu, false);
+		return menu;
+	}
+
+	@Override
+	public SMSMenu createMenu(String name, String title, Player owner) {
+		SMSMenu menu;
+		try {
+			menu = new SMSMenu(name, MiscUtil.parseColourSpec(title), owner);
+		} catch (SMSException e) {
+			e.printStackTrace();
+			// should not get here
+			return null;
+		}
+		SMSMenu.registerMenu(name, menu, false);
+		return menu;
+	}
+
+	@Override
+	public SMSMenu createMenu(String name, String title, Plugin owner) {
 		SMSMenu menu;
 		try {
 			menu = new SMSMenu(name, MiscUtil.parseColourSpec(title), owner);

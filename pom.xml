@@ -193,6 +193,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>craftbukkit</artifactId>
+            <version>LATEST</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.spoutcraft</groupId>
             <artifactId>spoutcraftplugin</artifactId>
             <version>1.6.4-R2.1-SNAPSHOT</version>
