@@ -1,21 +1,15 @@
 package me.desht.scrollingmenusign.views;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Observable;
-
-import me.desht.dhutils.*;
+import me.desht.dhutils.Debugger;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.Str;
 import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
-
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +18,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.material.Sign;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * This view draws menus on a rectangular array of signs.

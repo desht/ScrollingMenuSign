@@ -7,6 +7,8 @@ import me.desht.scrollingmenusign.views.redout.Switch;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class ExpectSwitchAddition extends ExpectLocation {
 	private final String trigger;
 	private final SMSGlobalScrollableView view;
@@ -17,13 +19,13 @@ public class ExpectSwitchAddition extends ExpectLocation {
 	}
 
 	@Override
-	public void doResponse(String playerName) {
+	public void doResponse(UUID playerId) {
 		Switch sw = new Switch(view, trigger, getLocation());
 		view.addSwitch(sw);
 		view.updateSwitchPower();
 		view.autosave();
 
-		Player player = Bukkit.getPlayer(playerName);
+		Player player = Bukkit.getPlayer(playerId);
 		if (player != null) {
 			MiscUtil.statusMessage(player, String.format("Added output lever at %s to %s view &e%s / %s&-.",
 					MiscUtil.formatLocation(sw.getLocation()),

@@ -1,20 +1,12 @@
 package me.desht.scrollingmenusign.views;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+
+import java.util.*;
 
 /**
  * Represents the abstract base class for all scrollable views.  Provides per-player scroll positioning.
@@ -30,7 +22,7 @@ public abstract class SMSScrollableView extends SMSView {
 	private static ScrollType defaultScrollType;
 
 	private boolean wrap;
-	private final Map<String, Integer> playerScrollPos = new HashMap<String, Integer>();
+	private final Map<UUID, Integer> playerScrollPos = new HashMap<UUID, Integer>();
 	private final ScrollPosStack storedScrollPos = new ScrollPosStack();
 
 	public SMSScrollableView(SMSMenu menu) {
@@ -46,16 +38,16 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	@Override
-	public void pushMenu(String playerName, SMSMenu newActive) {
-		storedScrollPos.pushScrollPos(playerName, getScrollPos(playerName));
-		setScrollPos(playerName, 1);
-		super.pushMenu(playerName, newActive);
+	public void pushMenu(Player player, SMSMenu newActive) {
+		storedScrollPos.pushScrollPos(player, getScrollPos(player));
+		setScrollPos(player, 1);
+		super.pushMenu(player, newActive);
 	}
 
 	@Override
-	public SMSMenu popMenu(String playerName) {
-		setScrollPos(playerName, storedScrollPos.popScrollPos(playerName));
-		return super.popMenu(playerName);
+	public SMSMenu popMenu(Player player) {
+		setScrollPos(player, storedScrollPos.popScrollPos(player));
+		return super.popMenu(player);
 	}
 
 	public static void setDefaultScrollType(ScrollType scrollType) {
@@ -89,60 +81,58 @@ public abstract class SMSScrollableView extends SMSView {
 	 * is out of range (possibly because an item was deleted from the menu), it will be automatically
 	 * adjusted to be in range before being returned.
 	 *
-	 * @param playerName The player to check
+	 * @param player The player to check
 	 * @return The scroll position
 	 */
-	public int getScrollPos(String playerName) {
-		playerName = getPlayerContext(playerName);
-
-		Integer pos = playerScrollPos.get(playerName);
+	public int getScrollPos(Player player) {
+		UUID key = getPlayerContext(player);
+		Integer pos = playerScrollPos.get(getPlayerContext(player));
 		if (pos == null || pos < 1) {
-			setScrollPos(playerName, 1);
-		} else if (pos > getActiveMenuItemCount(playerName)) {
-			setScrollPos(playerName, getActiveMenuItemCount(playerName));
+			setScrollPos(player, 1);
+		} else if (pos > getActiveMenuItemCount(player)) {
+			setScrollPos(player, getActiveMenuItemCount(player));
 		}
-		return playerScrollPos.get(playerName);
+		return playerScrollPos.get(key);
 	}
 
 	/**
 	 * Sets the scroll position for the given player on this view.
 	 *
-	 * @param playerName The player's name
+	 * @param player The player's name
 	 * @param scrollPos  The new scroll position
 	 */
-	public void setScrollPos(String playerName, int scrollPos) {
-		playerName = getPlayerContext(playerName);
-		playerScrollPos.put(playerName, scrollPos);
-		setDirty(playerName, true);
+	public void setScrollPos(Player player, int scrollPos) {
+		playerScrollPos.put(getPlayerContext(player), scrollPos);
+		setDirty(player, true);
 	}
 
 	/**
 	 * Sets the currently-selected item for the given player to the next item.
 	 *
-	 * @param playerName The player to scroll the view for
+	 * @param player The player to scroll the view for
 	 */
-	public void scrollDown(String playerName) {
-		int pos = getScrollPos(playerName) + 1;
-		if (pos > getActiveMenuItemCount(playerName)) {
-			pos = wrap ? 1 : getActiveMenuItemCount(playerName);
+	public void scrollDown(Player player) {
+		int pos = getScrollPos(player) + 1;
+		if (pos > getActiveMenuItemCount(player)) {
+			pos = wrap ? 1 : getActiveMenuItemCount(player);
 		}
-		setScrollPos(playerName, pos);
+		setScrollPos(player, pos);
 	}
 
 	/**
 	 * Sets the current selected item for the given player to the previous item.
 	 *
-	 * @param playerName The player to scroll the view for
+	 * @param player The player to scroll the view for
 	 */
-	public void scrollUp(String playerName) {
-		if (getActiveMenuItemCount(playerName) == 0)
+	public void scrollUp(Player player) {
+		if (getActiveMenuItemCount(player) == 0)
 			return;
 
-		int pos = getScrollPos(playerName) - 1;
+		int pos = getScrollPos(player) - 1;
 		if (pos <= 0) {
-			pos = wrap ? getActiveMenuItemCount(playerName) : 1;
+			pos = wrap ? getActiveMenuItemCount(player) : 1;
 		}
-		setScrollPos(playerName, pos);
+		setScrollPos(player, pos);
 	}
 
 	/* (non-Javadoc)
@@ -151,7 +141,7 @@ public abstract class SMSScrollableView extends SMSView {
 	@Override
 	public void clearPlayerForView(Player player) {
 		super.clearPlayerForView(player);
-		playerScrollPos.remove(player.getName());
+		playerScrollPos.remove(getPlayerContext(player));
 	}
 
 	/**
@@ -189,8 +179,8 @@ public abstract class SMSScrollableView extends SMSView {
 	 *
 	 * @return a String list containing the split title
 	 */
-	public List<String> splitTitle(String playerName) {
-		String title = variableSubs(getActiveMenuTitle(playerName));
+	public List<String> splitTitle(Player player) {
+		String title = variableSubs(getActiveMenuTitle(player));
 		int lineLength = getLineLength();
 		List<String> result = new ArrayList<String>();
 		int maxLines = Math.min(getMaxTitleLines(), getHardMaxTitleLines());
@@ -284,22 +274,22 @@ public abstract class SMSScrollableView extends SMSView {
 	}
 
 	private class ScrollPosStack {
-		private final Map<String, Deque<Integer>> stacks = new HashMap<String, Deque<Integer>>();
+		private final Map<UUID, Deque<Integer>> stacks = new HashMap<UUID, Deque<Integer>>();
 
-		private void verify(String playerName) {
-			if (!stacks.containsKey(playerName)) {
-				stacks.put(playerName, new ArrayDeque<Integer>());
+		private void verify(Player player) {
+			if (!stacks.containsKey(player.getUniqueId())) {
+				stacks.put(player.getUniqueId(), new ArrayDeque<Integer>());
 			}
 		}
 
-		public void pushScrollPos(String playerName, int pos) {
-			verify(playerName);
-			stacks.get(playerName).push(pos);
+		public void pushScrollPos(Player player, int pos) {
+			verify(player);
+			stacks.get(player.getUniqueId()).push(pos);
 		}
 
-		public int popScrollPos(String playerName) {
-			verify(playerName);
-			Deque<Integer> stack = stacks.get(playerName);
+		public int popScrollPos(Player player) {
+			verify(player);
+			Deque<Integer> stack = stacks.get(player.getUniqueId());
 			return stack.isEmpty() ? 1 : stack.pop();
 		}
 	}

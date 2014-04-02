@@ -42,7 +42,7 @@ public class MenuCommand extends SMSAbstractCommand {
 				menu = new ActiveItem(player.getItemInHand()).getActiveMenu();
 			} else {
 				view = ScrollingMenuSign.getInstance().getViewManager().getTargetedView(player, true);
-				menu = view.getActiveMenu(player.getName());
+				menu = view.getActiveMenu(player);
 			}
 		}
 
@@ -107,8 +107,9 @@ public class MenuCommand extends SMSAbstractCommand {
 			}
 			if (item.getIconMaterial() != null) {
 				MaterialData icon = item.getIconMaterial();
-				if (icon.getItemType() != defIcon.getItemType() || icon.getData() != defIcon.getData()) {
-					pager.add("    &9Icon: &e" + item.getIconMaterial().toString());
+//				if (icon.getItemType() != defIcon.getItemType() || icon.getData() != defIcon.getData()) {
+				if (!icon.equals(defIcon)) {
+					pager.add("    &9Icon: &e" + icon.toString());
 				}
 			}
 			String[] lore = item.getLore();

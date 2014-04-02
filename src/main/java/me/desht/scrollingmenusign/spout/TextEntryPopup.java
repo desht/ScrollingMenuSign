@@ -1,9 +1,6 @@
 package me.desht.scrollingmenusign.spout;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MiscUtil;
@@ -21,8 +18,8 @@ import org.getspout.spoutapi.gui.TextField;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class TextEntryPopup extends SMSGenericPopup {
-	private static final Map<String, TextEntryPopup> allPopups = new HashMap<String, TextEntryPopup>();
-	private static final Set<String> visiblePopups = new HashSet<String>();
+	private static final Map<UUID, TextEntryPopup> allPopups = new HashMap<UUID, TextEntryPopup>();
+	private static final Set<UUID> visiblePopups = new HashSet<UUID>();
 
 	private static final String LABEL_COLOUR = ChatColor.YELLOW.toString();
 	private static final int BUTTON_HEIGHT = 20;
@@ -74,49 +71,48 @@ public class TextEntryPopup extends SMSGenericPopup {
 	public void confirm() {
 		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
 
-		if (plugin.responseHandler.isExpecting(sp.getName(), ExpectCommandSubstitution.class)) {
+		if (plugin.responseHandler.isExpecting(sp, ExpectCommandSubstitution.class)) {
 			try {
-				ExpectCommandSubstitution cs = plugin.responseHandler.getAction(sp.getName(), ExpectCommandSubstitution.class);
+				ExpectCommandSubstitution cs = plugin.responseHandler.getAction(sp, ExpectCommandSubstitution.class);
 				cs.setSub(textField.getText());
-				cs.handleAction();
+				cs.handleAction(sp);
 			} catch (DHUtilsException e) {
 				MiscUtil.errorMessage(sp, e.getMessage());
 			}
 		}
 
 		close();
-		visiblePopups.remove(sp.getName());
+		visiblePopups.remove(sp.getUniqueId());
 	}
 
 	private void cancel() {
-		ScrollingMenuSign.getInstance().responseHandler.cancelAction(sp.getName(), ExpectCommandSubstitution.class);
+		ScrollingMenuSign.getInstance().responseHandler.cancelAction(sp, ExpectCommandSubstitution.class);
 
 		close();
-		visiblePopups.remove(sp.getName());
+		visiblePopups.remove(sp.getUniqueId());
 	}
 
 	public static void show(SpoutPlayer sp, String prompt) {
 		TextEntryPopup popup;
-		String name = sp.getName();
-		if (!allPopups.containsKey(name)) {
+		if (!allPopups.containsKey(sp.getUniqueId())) {
 			popup = new TextEntryPopup(sp, prompt);
-			allPopups.put(sp.getName(), popup);
+			allPopups.put(sp.getUniqueId(), popup);
 		} else {
-			popup = allPopups.get(name);
+			popup = allPopups.get(sp.getUniqueId());
 			popup.setPrompt(prompt);
 		}
 
 		ScrollingMenuSign plugin = ScrollingMenuSign.getInstance();
-		if (plugin.responseHandler.isExpecting(sp.getName(), ExpectCommandSubstitution.class)) {
-			ExpectCommandSubstitution cs = plugin.responseHandler.getAction(sp.getName(), ExpectCommandSubstitution.class);
+		if (plugin.responseHandler.isExpecting(sp, ExpectCommandSubstitution.class)) {
+			ExpectCommandSubstitution cs = plugin.responseHandler.getAction(sp, ExpectCommandSubstitution.class);
 			popup.setPasswordField(cs.isPassword());
 		}
 
 		sp.getMainScreen().attachPopupScreen(popup);
-		visiblePopups.add(name);
+		visiblePopups.add(sp.getUniqueId());
 	}
 
-	public static boolean hasActivePopup(String playerName) {
+	public static boolean hasActivePopup(UUID playerName) {
 		return visiblePopups.contains(playerName);
 	}
 

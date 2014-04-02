@@ -78,6 +78,22 @@ public class ActiveItem extends CommandTrigger {
 		buildItemStack();
 	}
 
+	/**
+	 * Get the active item that the player is holding.
+	 *
+	 * @param player the player
+	 * @return the player's active item, or null if the player isn't holding an active item
+	 * @throws SMSException if the active item is somehow invalid
+	 */
+	public static ActiveItem get(Player player) {
+		ItemStack item = player.getItemInHand();
+		if (ActiveItem.isActiveItem(item)) {
+			return new ActiveItem(item);
+		} else {
+			return null;
+		}
+	}
+
 	private void buildItemStack() {
 		ItemMeta meta = stack.getItemMeta();
 		SMSValidate.notNull(meta, "There was a problem getting item metadata for your " + stack.getType());
@@ -105,7 +121,7 @@ public class ActiveItem extends CommandTrigger {
 	 * @see me.desht.scrollingmenusign.CommandTrigger#getActiveMenu(java.lang.String)
 	 */
 	@Override
-	public SMSMenu getActiveMenu(String playerName) {
+	public SMSMenu getActiveMenu(Player player) {
 		return menus.get(menus.size() - 1).menu;
 	}
 
@@ -176,10 +192,10 @@ public class ActiveItem extends CommandTrigger {
 			throw new SMSException("This menu is owned by someone else");
 		}
 		setSelectedItem(getSelectedItem() + delta);
-		if (getSelectedItem() > getActiveMenuItemCount(player.getName())) {
+		if (getSelectedItem() > getActiveMenuItemCount(player)) {
 			setSelectedItem(1);
 		} else if (getSelectedItem() < 1) {
-			setSelectedItem(getActiveMenuItemCount(player.getName()));
+			setSelectedItem(getActiveMenuItemCount(player));
 		}
 		buildItemStack();
 	}
@@ -258,7 +274,7 @@ public class ActiveItem extends CommandTrigger {
 	 * @see me.desht.scrollingmenusign.views.CommandTrigger#pushMenu(java.lang.String, me.desht.scrollingmenusign.SMSMenu)
 	 */
 	@Override
-	public void pushMenu(String playerName, SMSMenu newActive) {
+	public void pushMenu(Player player, SMSMenu newActive) {
 		menus.add(new MenuPos(newActive, 1));
 		buildItemStack();
 	}
@@ -267,7 +283,7 @@ public class ActiveItem extends CommandTrigger {
 	 * @see me.desht.scrollingmenusign.views.CommandTrigger#popMenu(java.lang.String)
 	 */
 	@Override
-	public SMSMenu popMenu(String playerName) {
+	public SMSMenu popMenu(Player player) {
 		SMSMenu popped = getActiveMenu();
 		menus.remove(menus.size() - 1);
 		buildItemStack();

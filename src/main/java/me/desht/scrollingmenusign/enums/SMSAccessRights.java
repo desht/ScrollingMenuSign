@@ -14,22 +14,22 @@ public enum SMSAccessRights {
 	 * Check if the given player is allowed to use an access-controlled object owned by the given owner.
 	 *
 	 * @param player the player to check for
-	 * @param owner  the name of the owner of the object
+	 * @param ownerId the UUID of the object's owner
+	 * @param ownerName  the name of the object's owner
 	 * @return true if the player may use it, false otherwise
 	 */
-	public boolean isAllowedToUse(Player player, String owner, String group) {
-		if (player.getName().equalsIgnoreCase(owner) || PermissionUtils.isAllowedTo(player, "scrollingmenusign.access.any")) {
+	public boolean isAllowedToUse(Player player, UUID ownerId, String ownerName, String group) {
+		if (this == ANY || player.getUniqueId().equals(ownerId) || PermissionUtils.isAllowedTo(player, "scrollingmenusign.access.any")) {
 			return true;
 		}
 
 		boolean inGroup;
 		switch (this) {
-			case ANY:
-				return true;
 			case OWNER_GROUP:
-				String primaryGroup = ScrollingMenuSign.permission.getPrimaryGroup(player.getWorld().getName(), owner);
+				// TODO hopefully Vault will add API to do queries by UUID soon
+				String primaryGroup = ScrollingMenuSign.permission.getPrimaryGroup(player.getWorld().getName(), ownerName);
 				inGroup = checkGroupMembership(player, primaryGroup);
-				Debugger.getInstance().debug("OWNER_GROUP access check: owner = [" + owner + "], primary group = [" + primaryGroup + "], player ["
+				Debugger.getInstance().debug("OWNER_GROUP access check: owner = [" + ownerName + "], primary group = [" + primaryGroup + "], player ["
 						+ player.getDisplayName() + "] in group: " + inGroup);
 				return inGroup;
 			case GROUP:
@@ -42,6 +42,7 @@ public enum SMSAccessRights {
 	}
 
 	private boolean checkGroupMembership(Player player, String group) {
+		// TODO hopefully Vault will add API to do queries by UUID soon
 		return group != null &&
 				!group.isEmpty() &&
 				ScrollingMenuSign.permission != null &&

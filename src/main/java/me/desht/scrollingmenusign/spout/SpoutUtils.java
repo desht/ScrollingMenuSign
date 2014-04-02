@@ -86,6 +86,6 @@ public class SpoutUtils {
 		if (!sp.isSpoutCraftEnabled()) {
 			throw new SMSException("Password prompting is only supported when using Spoutcraft.");
 		}
-		ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command, trigger, true));
+		ScrollingMenuSign.getInstance().responseHandler.expect(player, new ExpectCommandSubstitution(command, trigger, true));
 	}
 }

@@ -59,7 +59,7 @@ public class IconMenu implements Listener, SMSPopup {
 
 	@Override
 	public boolean isPoppedUp(Player player) {
-		String menuTitle = getActualMenuTitle(player.getName());
+		String menuTitle = getActualMenuTitle(player);
 		return player.getOpenInventory().getTitle().equals(menuTitle);
 	}
 
@@ -75,18 +75,18 @@ public class IconMenu implements Listener, SMSPopup {
 	}
 
 	@Override
-	public void popup(Player p) {
-		if (!isPoppedUp(p)) {
-			if (size == 0 || getView().isDirty(p.getName())) {
-				buildMenu(p);
+	public void popup(Player player) {
+		if (!isPoppedUp(player)) {
+			if (size == 0 || getView().isDirty(player)) {
+				buildMenu(player);
 			}
-			String title = getActualMenuTitle(p.getName());
-			Inventory inventory = Bukkit.createInventory(p, size, title);
-			getView().setDirty(p.getName(), false);
+			String title = getActualMenuTitle(player);
+			Inventory inventory = Bukkit.createInventory(player, size, title);
+			getView().setDirty(player, false);
 			for (int i = 0; i < size; i++) {
 				inventory.setItem(i, optionIcons[i]);
 			}
-			p.openInventory(inventory);
+			player.openInventory(inventory);
 		}
 	}
 
@@ -97,10 +97,10 @@ public class IconMenu implements Listener, SMSPopup {
 		}
 	}
 
-	private void buildMenu(Player p) {
+	private void buildMenu(Player player) {
 		int width = (Integer) getView().getAttribute(SMSInventoryView.WIDTH);
 		int spacing = (Integer) getView().getAttribute(SMSInventoryView.SPACING);
-		int nItems = getView().getActiveMenuItemCount(p.getName());
+		int nItems = getView().getActiveMenuItemCount(player);
 		int nRows = Math.min(MAX_INVENTORY_ROWS, (((nItems - 1) / width) + 1) * spacing);
 
 		size = INVENTORY_WIDTH * nRows;
@@ -117,7 +117,7 @@ public class IconMenu implements Listener, SMSPopup {
 				LogUtils.warning("inventory view " + getView().getName() + " doesn't have enough slots to display its items");
 				break;
 			}
-			SMSMenuItem menuItem = getView().getActiveMenuItemAt(p.getName(), i + 1);
+			SMSMenuItem menuItem = getView().getActiveMenuItemAt(player, i + 1);
 			ItemStack icon = getItemIcon(menuItem.getIconMaterial());
 			String label = getView().variableSubs(menuItem.getLabel());
 			ItemMeta im = icon.getItemMeta();
@@ -128,7 +128,7 @@ public class IconMenu implements Listener, SMSPopup {
 			optionNames[pos] = menuItem.getLabel();
 		}
 
-		Debugger.getInstance().debug("built icon menu inventory for " + p.getName() + ": " + size + " slots");
+		Debugger.getInstance().debug("built icon menu inventory for " + player.getDisplayName() + ": " + size + " slots");
 	}
 
 	private ItemStack getItemIcon(MaterialData iconMaterial) {
@@ -169,12 +169,11 @@ public class IconMenu implements Listener, SMSPopup {
 		}
 		final Player player = (Player) event.getWhoClicked();
 
-		String playerName = player.getName();
-		String menuTitle = getActualMenuTitle(playerName);
-		String activeMenuName = view.getActiveMenu(playerName).getName();
+		String menuTitle = getActualMenuTitle(player);
+		String activeMenuName = view.getActiveMenu(player).getName();
 
 		if (isPoppedUp(player) && event.getInventory().getTitle().equals(menuTitle) && menuName.equals(activeMenuName)) {
-			Debugger.getInstance().debug("InventoryClickEvent: player = " + playerName + ", view = " + getView().getName() +
+			Debugger.getInstance().debug("InventoryClickEvent: player = " + player.getDisplayName() + ", view = " + getView().getName() +
 					", inventory name = " + event.getInventory().getTitle() + ", icon menu = " + this);
 
 			event.setCancelled(true);
@@ -210,12 +209,11 @@ public class IconMenu implements Listener, SMSPopup {
 			return;
 		}
 		final Player player = (Player) event.getPlayer();
-		String playerName = player.getName();
-		String menuTitle = getActualMenuTitle(playerName);
-		String activeMenuName = view.getActiveMenu(playerName).getName();
+		String menuTitle = getActualMenuTitle(player);
+		String activeMenuName = view.getActiveMenu(player).getName();
 
 		if (isPoppedUp(player) && event.getInventory().getTitle().equals(menuTitle) && menuName.equals(activeMenuName)) {
-			Debugger.getInstance().debug("InventoryCloseEvent: player = " + playerName + ", view = " + getView().getName() +
+			Debugger.getInstance().debug("InventoryCloseEvent: player = " + player.getDisplayName() + ", view = " + getView().getName() +
 					", inventory name = " + event.getInventory().getTitle() + ", icon menu = " + this);
 			if ((Boolean) getView().getAttribute(SMSInventoryView.NO_ESCAPE) && !isClosingOnCommand(player)) {
 				// force the view to be re-shown
@@ -230,8 +228,8 @@ public class IconMenu implements Listener, SMSPopup {
 		}
 	}
 
-	private String getActualMenuTitle(String playerName) {
-		return StringUtils.abbreviate(getView().variableSubs(getView().getActiveMenuTitle(playerName)), MAX_TITLE_LENGTH);
+	private String getActualMenuTitle(Player player) {
+		return StringUtils.abbreviate(getView().variableSubs(getView().getActiveMenuTitle(player)), MAX_TITLE_LENGTH);
 	}
 
 	private boolean isClosingOnCommand(Player p) {

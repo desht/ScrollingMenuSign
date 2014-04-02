@@ -77,7 +77,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		this.uses = new SMSRemainingUses(this);
 		this.attributes = new AttributeCollection(this);
 		registerAttributes();
-		setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner.getDisplayName());
+		setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner.getName());
 		ownerId = owner == null ? null : owner.getUniqueId();
 		setAttribute(TITLE, title);
 	}
@@ -682,7 +682,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public boolean hasOwnerPermission(Player player) {
 		SMSAccessRights access = (SMSAccessRights) getAttributes().get(ACCESS);
-		return access.isAllowedToUse(player, getOwner(), getGroup());
+		return access.isAllowedToUse(player, ownerId, getOwner(), getGroup());
 	}
 
 	/**************************************************************************/
@@ -885,7 +885,14 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 			String owner = newVal.toString();
 			if (!owner.isEmpty() && !owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {
 				@SuppressWarnings("deprecation") Player p = Bukkit.getPlayer(owner);
-				SMSValidate.notNull(p, "Unknown player: " + owner);
+				SMSValidate.notNull(p, "There is no player called '" + owner + "' online at this time.");
+			}
+		} else if (key.equals(ACCESS)) {
+			SMSAccessRights access = (SMSAccessRights) newVal;
+			if (access != SMSAccessRights.ANY && ownerId == null) {
+				throw new SMSException("View must be owned by a player to change access control to " + access);
+			} else if (access == SMSAccessRights.GROUP && ScrollingMenuSign.permission == null) {
+				throw new SMSException("Cannot use GROUP access control (no permission group support available)");
 			}
 		}
 	}
@@ -922,7 +929,6 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 	 */
 	public boolean isOwnedBy(Player player) {
 		return player.getUniqueId().equals(ownerId);
-//		return player.getName().equalsIgnoreCase(getAttributes().get(OWNER).toString());
 	}
 
 	/**
@@ -934,7 +940,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (!isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
-				throw new SMSException("That menu belongs to someone else.");
+				throw new SMSException("You don't have permission to modify that menu.");
 			}
 		}
 	}

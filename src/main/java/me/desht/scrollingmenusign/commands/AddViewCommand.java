@@ -141,6 +141,6 @@ public class AddViewCommand extends SMSAbstractCommand {
 		notFromConsole(sender);
 		MiscUtil.statusMessage(sender, "Left-click a block to add it as a &9" + viewType + "&- view on menu &e" + menu.getName() + "&-.");
 		MiscUtil.statusMessage(sender, "Right-click anywhere to cancel.");
-		ScrollingMenuSign.getInstance().responseHandler.expect(sender.getName(), new ExpectViewCreation(viewName, menu, viewType));
+		ScrollingMenuSign.getInstance().responseHandler.expect((Player) sender, new ExpectViewCreation(viewName, menu, viewType));
 	}
 }

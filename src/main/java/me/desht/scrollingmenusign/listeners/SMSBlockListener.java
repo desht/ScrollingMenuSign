@@ -51,16 +51,16 @@ public class SMSBlockListener extends SMSListenerBase {
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event) {
 		Block b = event.getBlock();
-		Player p = event.getPlayer();
+		Player player = event.getPlayer();
 
 		SMSInteractableBlock iBlock = plugin.getLocationManager().getInteractableAt(b.getLocation());
 
-		if (plugin.getViewManager().getHeldMapView(p) != null) {
+		if (plugin.getViewManager().getHeldMapView(player) != null) {
 			// avoid breaking blocks while holding active map view (mainly for benefit of creative mode)
 			event.setCancelled(true);
 			if (iBlock != null && iBlock instanceof SMSView) {
 				SMSView view = (SMSView) iBlock;
-				view.update(view.getActiveMenu(p.getName()), SMSMenuAction.REPAINT);
+				view.update(view.getActiveMenu(player), SMSMenuAction.REPAINT);
 			}
 		} else if (iBlock != null) {
 			iBlock.processEvent(plugin, event);
@@ -80,14 +80,14 @@ public class SMSBlockListener extends SMSListenerBase {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		Player p = event.getPlayer();
-		if (plugin.responseHandler.isExpecting(p.getName(), ExpectSwitchAddition.class)) {
-			ExpectSwitchAddition swa = plugin.responseHandler.getAction(p.getName(), ExpectSwitchAddition.class);
+		Player player = event.getPlayer();
+		if (plugin.responseHandler.isExpecting(player, ExpectSwitchAddition.class)) {
+			ExpectSwitchAddition swa = plugin.responseHandler.getAction(player, ExpectSwitchAddition.class);
 			swa.setLocation(event.getBlock().getLocation());
 			try {
-				swa.handleAction();
+				swa.handleAction(player);
 			} catch (DHUtilsException e) {
-				MiscUtil.errorMessage(p, e.getMessage());
+				MiscUtil.errorMessage(player, e.getMessage());
 			}
 		}
 	}

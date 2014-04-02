@@ -111,7 +111,7 @@ public class ViewCommand extends SMSAbstractCommand {
 		pager.add(String.format("View &6%s&f (%s) :",
 				view.getName(), view.toString()));
 		pager.add(String.format("Native menu: &6%s&f, Active menu: &6%s",
-				view.getNativeMenu().getName(), view.getActiveMenu(sender.getName()).getName()));
+				view.getNativeMenu().getName(), view.getActiveMenu(sender instanceof Player ? (Player) sender : null).getName()));
 		for (String k : view.listAttributeKeys(true)) {
 			pager.add(String.format(MessagePager.BULLET + "&e%s&f = &e%s", k, view.getAttributeAsString(k, "")));
 		}

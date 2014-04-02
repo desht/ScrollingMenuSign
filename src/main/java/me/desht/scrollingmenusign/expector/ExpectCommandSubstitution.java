@@ -10,6 +10,8 @@ import me.desht.scrollingmenusign.views.CommandTrigger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class ExpectCommandSubstitution extends ExpectBase {
 	private final String command;
 	private final CommandTrigger trigger;
@@ -44,7 +46,7 @@ public class ExpectCommandSubstitution extends ExpectBase {
 	}
 
 	@Override
-	public void doResponse(String playerName) {
+	public void doResponse(UUID playerId) {
 		final String newCommand;
 		if (isPassword) {
 			newCommand = command.replaceFirst("<\\$p:.+?>", sub);
@@ -54,7 +56,7 @@ public class ExpectCommandSubstitution extends ExpectBase {
 
 		Debugger.getInstance().debug("command substitution: sub = [" + sub + "], cmd = [" + newCommand + "]");
 		try {
-			final Player player = Bukkit.getPlayer(playerName);
+			final Player player = Bukkit.getPlayer(playerId);
 			if (player != null) {
 				// Using the scheduler here because this response handler is called by the AsyncPlayerChatEvent
 				// event handler, which runs in a different thread.

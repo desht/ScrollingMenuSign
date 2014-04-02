@@ -457,7 +457,7 @@ public class SMSMapView extends SMSScrollableView {
 		g.setColor(DEFAULT_COLOR);
 
 		FontMetrics metrics = g.getFontMetrics();
-		SMSMenu menu = getActiveMenu(player.getName());
+		SMSMenu menu = getActiveMenu(player);
 		Configuration config = ScrollingMenuSign.getInstance().getConfig();
 
 		if (!hasOwnerPermission(player) || !isTypeUsable(player)) {
@@ -474,7 +474,7 @@ public class SMSMapView extends SMSScrollableView {
 		int yPos = getY() + lineHeight;
 
 		// draw the title line(s)
-		List<String> titleLines = splitTitle(player.getName());
+		List<String> titleLines = splitTitle(player);
 		for (String line : titleLines) {
 			drawText(g, getTitleJustification(), yPos, line);
 			yPos += lineHeight;
@@ -490,14 +490,14 @@ public class SMSMapView extends SMSScrollableView {
 		String prefixSel = config.getString("sms.item_prefix.selected", "> ");
 		ViewJustification itemJust = getItemJustification();
 		int pageSize = (getHeight() - yPos) / (metrics.getHeight() + getLineSpacing());
-		int scrollPos = getScrollPos(player.getName());
-		int menuSize = getActiveMenuItemCount(player.getName());
+		int scrollPos = getScrollPos(player);
+		int menuSize = getActiveMenuItemCount(player);
 		// draw the text
 		switch (getScrollType()) {
 			case SCROLL:
 				for (int n = 0; n < pageSize && n < menuSize; n++, yPos += lineHeight) {
 					String prefix = n == 0 ? prefixSel : prefixNotSel;
-					String lineText = getActiveItemLabel(player.getName(), scrollPos);
+					String lineText = getActiveItemLabel(player, scrollPos);
 					drawText(g, itemJust, yPos, prefix + lineText);
 					if (++scrollPos > menuSize) {
 						scrollPos = 1;
@@ -508,14 +508,14 @@ public class SMSMapView extends SMSScrollableView {
 				int pageNum = (scrollPos - 1) / pageSize;
 				for (int j = 0, pos = (pageNum * pageSize) + 1; j < pageSize && pos <= menuSize; j++, pos++, yPos += lineHeight) {
 					String pre = pos == scrollPos ? prefixSel : prefixNotSel;
-					String lineText = getActiveItemLabel(player.getName(), pos);
+					String lineText = getActiveItemLabel(player, pos);
 					drawText(g, itemJust, yPos, pre + lineText);
 				}
 				break;
 		}
 
 		// draw the tooltip, if needed
-		SMSMenuItem item = menu.getItemAt(getScrollPos(player.getName()));
+		SMSMenuItem item = menu.getItemAt(getScrollPos(player));
 		if (item != null && config.getBoolean("sms.maps.show_tooltips")) {
 			String[] lore = item.getLore();
 			if (lore.length > 0) {
@@ -658,10 +658,10 @@ public class SMSMapView extends SMSScrollableView {
 
 		@Override
 		public void render(MapView map, MapCanvas canvas, Player player) {
-			if (isDirty(player.getName())) {
+			if (isDirty(player)) {
 				BufferedImage img = renderImage(player);
 				canvas.drawImage(0, 0, img);
-				setDirty(player.getName(), false);
+				setDirty(player, false);
 				player.sendMap(map);
 			}
 		}

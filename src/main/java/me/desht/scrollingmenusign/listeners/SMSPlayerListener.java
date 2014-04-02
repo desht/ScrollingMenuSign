@@ -30,7 +30,6 @@ public class SMSPlayerListener extends SMSListenerBase {
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		System.out.println("interact: " + event.getPlayer().getUniqueId());
 		if (event.getAction() == Action.PHYSICAL) {
 			// We're not interested in physical actions (pressure plate) here
 			return;
@@ -56,8 +55,8 @@ public class SMSPlayerListener extends SMSListenerBase {
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
 		Player player = event.getPlayer();
 
-		if (plugin.responseHandler.isExpecting(player.getName(), ExpectSwitchAddition.class)) {
-			plugin.responseHandler.cancelAction(player.getName(), ExpectSwitchAddition.class);
+		if (plugin.responseHandler.isExpecting(player, ExpectSwitchAddition.class)) {
+			plugin.responseHandler.cancelAction(player, ExpectSwitchAddition.class);
 			MiscUtil.statusMessage(player, "&6Switch placement cancelled.");
 			return;
 		}
@@ -67,7 +66,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 			SMSUserAction action = null;
 			if (view != null) {
 				Debugger.getInstance().debug(String.format("PlayerItemHeldChangeEvent @ %s, %s did %d->%d, menu = %s",
-						view.getName(), player.getName(),
+						view.getName(), player.getDisplayName(),
 						event.getPreviousSlot(), event.getNewSlot(), view.getNativeMenu().getName()));
 				action = SMSUserAction.getAction(event);
 				if (action != null) {
@@ -93,11 +92,11 @@ public class SMSPlayerListener extends SMSListenerBase {
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
-		if (plugin.responseHandler.isExpecting(player.getName(), ExpectCommandSubstitution.class)) {
+		if (plugin.responseHandler.isExpecting(player, ExpectCommandSubstitution.class)) {
 			try {
-				ExpectCommandSubstitution cs = plugin.responseHandler.getAction(player.getName(), ExpectCommandSubstitution.class);
+				ExpectCommandSubstitution cs = plugin.responseHandler.getAction(player, ExpectCommandSubstitution.class);
 				cs.setSub(event.getMessage());
-				cs.handleAction();
+				cs.handleAction(player);
 				event.setCancelled(true);
 			} catch (DHUtilsException e) {
 				MiscUtil.errorMessage(player, e.getMessage());
@@ -142,52 +141,44 @@ public class SMSPlayerListener extends SMSListenerBase {
 	private boolean handleInteraction(PlayerInteractEvent event) throws SMSException {
 		Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
-		SMSMapView mapView = plugin.getViewManager().getHeldMapView(player);
-		PopupBook popupBook;
+
+		PopupBook popupBook = null;
 		ActiveItem activeItem = null;
-
-		try {
+		SMSMapView mapView = plugin.getViewManager().getHeldMapView(player);
+		if (mapView == null) {
 			popupBook = PopupBook.get(player);
-		} catch (SMSException e) {
-			// this means the player is holding a book, but it's no longer a valid one
-			PopupBook.destroy(player);
-			return true;
+			if (popupBook == null) {
+				activeItem = ActiveItem.get(player);
+			}
 		}
-
-		if (ActiveItem.isActiveItem(player.getItemInHand())) {
-			activeItem = new ActiveItem(player.getItemInHand());
-		}
-
-		// If there is no mapView, book or selected block, there's nothing for us to do
 		if (block == null && mapView == null && popupBook == null && activeItem == null) {
+			// nothing for us to do here
 			return false;
 		}
 
 		SMSView clickedView = block == null ? null : plugin.getViewManager().getViewForLocation(block.getLocation());
 
-		String playerName = player.getName();
-
-		if (plugin.responseHandler.isExpecting(playerName, ExpectCommandSubstitution.class)) {
+		if (plugin.responseHandler.isExpecting(player, ExpectCommandSubstitution.class)) {
 			// left or right-clicking cancels any command substitution in progress
-			plugin.responseHandler.cancelAction(playerName, ExpectCommandSubstitution.class);
+			plugin.responseHandler.cancelAction(player, ExpectCommandSubstitution.class);
 			MiscUtil.alertMessage(player, "&6Command execution cancelled.");
-		} else if (plugin.responseHandler.isExpecting(playerName, ExpectViewCreation.class) && block != null) {
+		} else if (plugin.responseHandler.isExpecting(player, ExpectViewCreation.class) && block != null) {
 			// Handle the case where the player is creating a view interactively: left-click to create,
 			// right-click to cancel.
-			ExpectViewCreation c = plugin.responseHandler.getAction(playerName, ExpectViewCreation.class);
+			ExpectViewCreation c = plugin.responseHandler.getAction(player, ExpectViewCreation.class);
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				c.setLocation(block.getLocation());
-				c.handleAction();
+				c.handleAction(player);
 			} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				c.cancelAction();
+				c.cancelAction(player);
 				MiscUtil.statusMessage(player, "&6View creation cancelled.");
 			}
-		} else if (plugin.responseHandler.isExpecting(playerName, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block)) {
+		} else if (plugin.responseHandler.isExpecting(player, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block)) {
 			Switch sw = plugin.getLocationManager().getInteractableAt(block.getLocation(), Switch.class);
 			if (sw == null) {
-				ExpectSwitchAddition swa = plugin.responseHandler.getAction(playerName, ExpectSwitchAddition.class);
+				ExpectSwitchAddition swa = plugin.responseHandler.getAction(player, ExpectSwitchAddition.class);
 				swa.setLocation(event.getClickedBlock().getLocation());
-				swa.handleAction();
+				swa.handleAction(player);
 			} else {
 				MiscUtil.statusMessage(player, String.format("&6Lever is an output switch already (&e%s / %s&-).",
 						sw.getView().getName(), sw.getTrigger()));
@@ -202,11 +193,11 @@ public class SMSPlayerListener extends SMSListenerBase {
 			activeItem.processAction(player, action);
 		} else if (mapView != null) {
 			// Holding an active map view
-			Debugger.getInstance().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getName() + " did " + event.getAction() +
-					", menu=" + mapView.getActiveMenu(player.getName()).getName());
+			Debugger.getInstance().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getDisplayName() + " did " + event.getAction() +
+					", menu=" + mapView.getActiveMenu(player).getName());
 			if (clickedView == null && block != null && (block.getType() == Material.WALL_SIGN || block.getType() == Material.SIGN_POST)) {
 				// Hit a non-active sign with an active map - try to make the sign into a view
-				tryToActivateSign(block, player, mapView.getActiveMenu(player.getName()));
+				tryToActivateSign(block, player, mapView.getActiveMenu(player));
 			} else {
 				SMSUserAction action = SMSUserAction.getAction(event);
 				if (action != null) {
@@ -228,15 +219,15 @@ public class SMSPlayerListener extends SMSListenerBase {
 				tryToAddRedstoneOutput((SMSGlobalScrollableView) clickedView, player);
 			} else if (clickedView != null && clickedView instanceof SMSScrollableView) {
 				// There's an interactable view at the targeted block
-				Debugger.getInstance().debug("player interact event @ " + block.getLocation() + ", " + player.getName() + " did " + event.getAction() +
-						", menu=" + clickedView.getActiveMenu(player.getName()).getName());
+				Debugger.getInstance().debug("player interact event @ " + block.getLocation() + ", " + player.getDisplayName() + " did " + event.getAction() +
+						", menu=" + clickedView.getActiveMenu(player).getName());
 				SMSUserAction action = SMSUserAction.getAction(event);
 				if (action != null) {
 					action.execute(player, clickedView);
 				}
 				if (event.getAction() == Action.LEFT_CLICK_BLOCK && player.getGameMode() == GameMode.CREATIVE) {
 					// left clicking a sign in creative mode even once will blank the sign
-					clickedView.update(clickedView.getActiveMenu(player.getName()), SMSMenuAction.REPAINT);
+					clickedView.update(clickedView.getActiveMenu(player), SMSMenuAction.REPAINT);
 				}
 			} else {
 				return false;
@@ -253,12 +244,11 @@ public class SMSPlayerListener extends SMSListenerBase {
 	 * @param view   the view that's been hit
 	 * @param player the player
 	 */
-	@SuppressWarnings("deprecation")
 	private void tryToAddInventoryView(SMSGlobalScrollableView view, Player player) {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.inventory");
 
 		boolean newView = false;
-		SMSMenu menu = view.getActiveMenu(player.getName());
+		SMSMenu menu = view.getActiveMenu(player);
 		SMSView popView = plugin.getViewManager().findView(menu, PoppableView.class);
 		if (popView == null) {
 			PermissionUtils.requirePerms(player, "scrollingmenusign.commands.sync");
@@ -272,6 +262,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 		} else {
 			player.setItemInHand(new ItemStack(stack.getType(), stack.getAmount() - 1));
 			player.getInventory().addItem(popup.toItemStack());
+			//noinspection deprecation
 			player.updateInventory();
 		}
 
@@ -322,11 +313,11 @@ public class SMSPlayerListener extends SMSListenerBase {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.use.map");
 		PermissionUtils.requirePerms(player, "scrollingmenusign.maps.from.sign");
 
-		SMSMapView mapView = plugin.getViewManager().addMapToMenu(view.getActiveMenu(player.getName()), mapId, player);
+		SMSMapView mapView = plugin.getViewManager().addMapToMenu(view.getActiveMenu(player), mapId, player);
 		mapView.setMapItemName(player.getItemInHand());
 
 		MiscUtil.statusMessage(player, String.format("Added new map view &e%s&- to menu &e%s&-.",
-				mapView.getName(), mapView.getActiveMenu(player.getName()).getName()));
+				mapView.getName(), mapView.getActiveMenu(player).getName()));
 	}
 
 	/**
@@ -338,7 +329,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 	private void tryToAddRedstoneOutput(SMSGlobalScrollableView view, Player player) {
 		PermissionUtils.requirePerms(player, "scrollingmenusign.create.switch");
 		view.ensureAllowedToModify(player);
-		SMSMenuItem item = view.getActiveMenuItemAt(player.getName(), view.getScrollPos());
+		SMSMenuItem item = view.getActiveMenuItemAt(player, view.getScrollPos());
 		if (item == null) return;
 
 		String trigger = item.getLabel();
@@ -347,7 +338,7 @@ public class SMSPlayerListener extends SMSListenerBase {
 				view.getName(), trigger));
 		MiscUtil.statusMessage(player, "Change your held item to cancel.");
 
-		plugin.responseHandler.expect(player.getName(), new ExpectSwitchAddition(view, trigger));
+		plugin.responseHandler.expect(player, new ExpectSwitchAddition(view, trigger));
 	}
 
 	private boolean isHittingViewWithSwitch(Player player, SMSView view) {

@@ -72,15 +72,15 @@ public class SMSListWidget extends GenericListWidget {
 
 		// bit of a hack - cast to SMSScrollableView to avoid an unnecessary call to SpoutViewPopup.scrollTo()
 		//noinspection RedundantCast
-		((SMSScrollableView) view).setScrollPos(getScreen().getPlayer().getName(), idx + 1);
+		((SMSScrollableView) view).setScrollPos(getScreen().getPlayer(), idx + 1);
 
 		if (!doubleClicked && ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.double_click")) {
 			return;
 		}
 
 		final SpoutPlayer player = getScreen().getPlayer();
-		SMSMenu menu = view.getActiveMenu(player.getName());
-		SMSMenuItem item = view.getActiveMenuItemAt(sp.getName(), idx + 1);
+		SMSMenu menu = view.getActiveMenu(player);
+		SMSMenuItem item = view.getActiveMenuItemAt(sp, idx + 1);
 		try {
 			if (item == null) {
 				throw new SMSException("spout list widget onSelected: index " + idx + " out of range for " + menu.getName() + " ?");
@@ -88,7 +88,7 @@ public class SMSListWidget extends GenericListWidget {
 			item.executeCommand(player, view);
 			item.feedbackMessage(player);
 			view.onExecuted(player);
-			if (menu != view.getActiveMenu(player.getName())) {
+			if (menu != view.getActiveMenu(player)) {
 				Bukkit.getScheduler().runTaskLater(ScrollingMenuSign.getInstance(), new Runnable() {
 					@Override
 					public void run() {
@@ -111,9 +111,9 @@ public class SMSListWidget extends GenericListWidget {
 
 		boolean showTooltips = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.spout.show_tooltips");
 
-		int nItems = view.getActiveMenuItemCount(sp.getName());
+		int nItems = view.getActiveMenuItemCount(sp);
 		for (int i = 1; i <= nItems; i++) {
-			SMSMenuItem item = view.getActiveMenuItemAt(sp.getName(), i);
+			SMSMenuItem item = view.getActiveMenuItemAt(sp, i);
 			String lore = Joiner.on(" ").join(item.getLore());
 			addItem(new ListWidgetItem(defaultTextColor + view.variableSubs(item.getLabel()), showTooltips ? lore : ""));
 		}

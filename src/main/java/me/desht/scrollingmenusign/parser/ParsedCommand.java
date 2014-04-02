@@ -180,7 +180,7 @@ public class ParsedCommand {
 				String repl = subs.get(key).sub(player, trigger);
 				m.appendReplacement(sb, Matcher.quoteReplacement(repl));
 			} else {
-				String menuName = trigger == null ? "???" : trigger.getActiveMenu(player.getName()).getName();
+				String menuName = trigger == null ? "???" : trigger.getActiveMenu(player).getName();
 				LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
 				sb.append("<").append(key).append(">");
 			}

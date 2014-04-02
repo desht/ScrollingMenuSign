@@ -184,7 +184,7 @@ public class CommandParser {
 			if (mode == RunMode.EXECUTE) {
 				Matcher m = promptPat.matcher(command);
 				if (m.find() && m.groupCount() > 0) {
-					ScrollingMenuSign.getInstance().responseHandler.expect(player.getName(), new ExpectCommandSubstitution(command, trigger));
+					ScrollingMenuSign.getInstance().responseHandler.expect(player, new ExpectCommandSubstitution(command, trigger));
 					return new ParsedCommand(ReturnStatus.SUBSTITUTION_NEEDED, m.group(1));
 				} else {
 					m = passwordPat.matcher(command);
@@ -339,13 +339,13 @@ public class CommandParser {
 			for (String node : nodes) {
 				if (!node.isEmpty()) {
 					ScrollingMenuSign.permission.playerAddTransient(player, node);
-					Debugger.getInstance().debug("Added temporary permission node '" + node + "' to " + player.getName());
+					Debugger.getInstance().debug("Added temporary permission node '" + node + "' to " + player.getDisplayName());
 				}
 			}
 			if (ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.elevation.grant_op", false) && !player.isOp()) {
 				tempOp = true;
 				player.setOp(true);
-				Debugger.getInstance().debug("Granted temporary op to " + player.getName());
+				Debugger.getInstance().debug("Granted temporary op to " + player.getDisplayName());
 			}
 			Debugger.getInstance().debug("Execute (elevated): " + command);
 			executeLowLevelCommand(player, cmd, command);
@@ -354,12 +354,12 @@ public class CommandParser {
 			for (String node : nodes) {
 				if (!node.isEmpty()) {
 					ScrollingMenuSign.permission.playerRemoveTransient(player, node);
-					Debugger.getInstance().debug("Removed temporary permission node '" + node + "' from " + player.getName());
+					Debugger.getInstance().debug("Removed temporary permission node '" + node + "' from " + player.getDisplayName());
 				}
 			}
 			if (tempOp) {
 				player.setOp(false);
-				Debugger.getInstance().debug("Removed temporary op from " + player.getName());
+				Debugger.getInstance().debug("Removed temporary op from " + player.getDisplayName());
 			}
 		}
 	}

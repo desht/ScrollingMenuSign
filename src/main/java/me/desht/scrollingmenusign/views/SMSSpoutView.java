@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Observable;
+import java.util.UUID;
 
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.Debugger;
@@ -37,8 +38,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	public static final String ALPHA = "alpha";
 	public static final String TEXTURE = "texture";
 
-	// list of all popups which have been created for this view, keyed by player name
-	private final Map<String, SpoutViewPopup> popups = new HashMap<String, SpoutViewPopup>();
+	// list of all popups which have been created for this view, keyed by player ID
+	private final Map<UUID, SpoutViewPopup> popups = new HashMap<UUID, SpoutViewPopup>();
 
 	// map a set of keypresses to the view which handles them
 	private static final Map<String, String> keyMap = new HashMap<String, String>();
@@ -84,14 +85,14 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 		if (!sp.isSpoutCraftEnabled())
 			return;
 
-		Debugger.getInstance().debug("showing Spout GUI for " + getName() + " to " + sp.getName());
+		Debugger.getInstance().debug("showing Spout GUI for " + getName() + " to " + sp.getDisplayName());
 
-		if (!popups.containsKey(sp.getName())) {
+		if (!popups.containsKey(sp.getUniqueId())) {
 			// create a new gui for this player
-			popups.put(sp.getName(), new SpoutViewPopup(sp, this));
+			popups.put(sp.getUniqueId(), new SpoutViewPopup(sp, this));
 		}
 
-		SpoutViewPopup gui = popups.get(sp.getName());
+		SpoutViewPopup gui = popups.get(sp.getUniqueId());
 		gui.popup(p);
 	}
 
@@ -106,12 +107,12 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 		if (!sp.isSpoutCraftEnabled())
 			return;
 
-		if (!popups.containsKey(sp.getName())) {
+		if (!popups.containsKey(sp.getUniqueId())) {
 			return;
 		}
 
-		Debugger.getInstance().debug("hiding Spout GUI for " + getName() + " from " + sp.getName());
-		popups.get(sp.getName()).popdown(p);
+		Debugger.getInstance().debug("hiding Spout GUI for " + getName() + " from " + sp.getDisplayName());
+		popups.get(sp.getUniqueId()).popdown(p);
 
 		// decision: destroy the gui object or not?
 		//		popups.remove(sp.getName());
@@ -207,7 +208,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	public void onDeleted(boolean permanent) {
 		super.onDeleted(permanent);
 		if (permanent) {
-			for (Entry<String, SpoutViewPopup> e : popups.entrySet()) {
+			for (Entry<UUID, SpoutViewPopup> e : popups.entrySet()) {
 				if (e.getValue().isPoppedUp(null)) {
 					hideGUI(e.getValue().getPlayer());
 				}
@@ -289,21 +290,21 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	}
 
 	@Override
-	public void scrollDown(String playerName) {
-		super.scrollDown(playerName);
-		scrollPopup(playerName);
+	public void scrollDown(Player player) {
+		super.scrollDown(player);
+		scrollPopup(player);
 	}
 
 	@Override
-	public void scrollUp(String playerName) {
-		super.scrollUp(playerName);
-		scrollPopup(playerName);
+	public void scrollUp(Player player) {
+		super.scrollUp(player);
+		scrollPopup(player);
 	}
 
-	private void scrollPopup(String playerName) {
-		if (popups.containsKey(playerName)) {
-			SpoutViewPopup popup = popups.get(playerName);
-			popup.scrollTo(getScrollPos(playerName));
+	private void scrollPopup(Player player) {
+		if (popups.containsKey(player.getUniqueId())) {
+			SpoutViewPopup popup = popups.get(player.getUniqueId());
+			popup.scrollTo(getScrollPos(player));
 			popup.ignoreNextSelection();
 		}
 	}
@@ -319,7 +320,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 		if (pressed.keysPressed() == 0)
 			return false;
 
-		if (TextEntryPopup.hasActivePopup(sp.getName())) {
+		if (TextEntryPopup.hasActivePopup(sp.getUniqueId())) {
 			return false;
 		}
 
@@ -358,6 +359,6 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
 	@Override
 	public void clearPlayerForView(Player player) {
 		super.clearPlayerForView(player);
-		popups.remove(player.getName());
+		popups.remove(player.getUniqueId());
 	}
 }

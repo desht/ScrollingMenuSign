@@ -12,7 +12,7 @@ import org.getspout.spoutapi.gui.WidgetAnchor;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
-	private static final int LIST_WIDTH = 200;
+	private static final int LIST_WIDTH_HEIGHT = 200;
 	private static final int TITLE_HEIGHT = 15;
 	private static final int TITLE_WIDTH = 100;
 
@@ -31,22 +31,22 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 
 		Screen mainScreen = sp.getMainScreen();
 
-		title = new GenericLabel(view.variableSubs(view.getActiveMenu(sp.getName()).getTitle()));
+		title = new GenericLabel(view.variableSubs(view.getActiveMenu(sp).getTitle()));
 		title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(15).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
 		title.setAnchor(WidgetAnchor.TOP_LEFT);
 		title.setAuto(false);
 		rejustify();
 
-		int listX = (mainScreen.getWidth() - LIST_WIDTH) / 2;
+		int listX = (mainScreen.getWidth() - LIST_WIDTH_HEIGHT) / 2;
 		int listY = 5 + 2 + TITLE_HEIGHT;
 
 		texture = new SMSListTexture(this);
 
 		listWidget = new SMSListWidget(sp, view);
-		listWidget.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
+		listWidget.setX(listX).setY(listY).setWidth(LIST_WIDTH_HEIGHT).setHeight(LIST_WIDTH_HEIGHT);
 
 		this.attachWidget(ScrollingMenuSign.getInstance(), title);
-		texture.setX(listX).setY(listY).setWidth(LIST_WIDTH).setHeight(LIST_WIDTH);
+		texture.setX(listX).setY(listY).setWidth(LIST_WIDTH_HEIGHT).setHeight(LIST_WIDTH_HEIGHT);
 		this.attachWidget(ScrollingMenuSign.getInstance(), texture);
 		this.attachWidget(ScrollingMenuSign.getInstance(), listWidget);
 	}
@@ -72,7 +72,7 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
 	 */
 	@Override
 	public void repaint() {
-		title.setText(view.variableSubs(view.getActiveMenuTitle(sp.getName())));
+		title.setText(view.variableSubs(view.getActiveMenuTitle(sp)));
 		rejustify();
 		texture.updateURL();
 		listWidget.repaint();

@@ -32,7 +32,7 @@ public class DeleteMenuCommand extends SMSAbstractCommand {
 			notFromConsole(sender);
 			Player player = (Player) sender;
 			SMSView view = ((ScrollingMenuSign) plugin).getViewManager().getTargetedView(player, true);
-			menu = view.getActiveMenu(player.getName());
+			menu = view.getActiveMenu(player);
 		}
 		menu.ensureAllowedToModify(sender);
 		handler.deleteMenu(menu.getName());

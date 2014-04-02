@@ -1,13 +1,6 @@
 package me.desht.scrollingmenusign.views;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
@@ -46,6 +39,8 @@ import com.google.common.base.Joiner;
  * the selected item in this view, and tracks the location of a possible tooltip sign.
  */
 public abstract class SMSGlobalScrollableView extends SMSScrollableView {
+	public static final UUID GLOBAL_PLAYER_UUID = UUID.fromString("90e73940-ba41-11e3-a5e2-0800200c9a66");
+
 	protected static final int SIGN_WIDTH = 15;
 	protected static final int SIGN_LINES = 4;
 
@@ -72,14 +67,14 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	@Override
-	public void pushMenu(String playerName, SMSMenu newActive) {
-		super.pushMenu(playerName, newActive);
+	public void pushMenu(Player player, SMSMenu newActive) {
+		super.pushMenu(player, newActive);
 		updateTooltipSign();
 	}
 
 	@Override
-	public SMSMenu popMenu(String playerName) {
-		SMSMenu menu = super.popMenu(playerName);
+	public SMSMenu popMenu(Player player) {
+		SMSMenu menu = super.popMenu(player);
 
 		updateTooltipSign();
 
@@ -116,8 +111,8 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	}
 
 	@Override
-	protected String getPlayerContext(String playerName) {
-		return GLOBAL_PSEUDO_PLAYER;
+	protected UUID getPlayerContext(Player player) {
+		return GLOBAL_PLAYER_UUID;
 	}
 
 	/**
@@ -128,7 +123,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
 	 * @return The scroll position
 	 */
 	public int getScrollPos() {
-		return super.getScrollPos(GLOBAL_PSEUDO_PLAYER);
+		return super.getScrollPos(null);
 	}
 
 	public void updateSwitchPower() {

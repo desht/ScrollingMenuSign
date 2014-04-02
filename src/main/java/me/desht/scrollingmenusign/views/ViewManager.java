@@ -118,8 +118,8 @@ public class ViewManager {
 	 */
 	private void unregisterView(SMSView view) {
 		view.getNativeMenu().deleteObserver(view);
-		for (String playerName : view.getSubmenuPlayers()) {
-			MenuStack mst = view.getMenuStack(playerName);
+		for (UUID playerId : view.getSubmenuPlayers()) {
+			MenuStack mst = view.getMenuStack(playerId);
 			for (WeakReference<SMSMenu> ref : mst.stack) {
 				SMSMenu m = ref.get();
 				if (m != null) {

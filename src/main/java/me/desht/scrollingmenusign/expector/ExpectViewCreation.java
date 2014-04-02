@@ -11,6 +11,8 @@ import me.desht.scrollingmenusign.views.ViewManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class ExpectViewCreation extends ExpectLocation {
 	private final String viewName;
 	private final SMSMenu menu;
@@ -23,10 +25,10 @@ public class ExpectViewCreation extends ExpectLocation {
 	}
 
 	@Override
-	public void doResponse(String playerName) {
+	public void doResponse(UUID playerId) {
 		SMSView view = null;
 		ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
-		Player player = Bukkit.getPlayer(playerName);
+		Player player = Bukkit.getPlayer(playerId);
 		try {
 			// TODO: code smell
 			if (arg.equals("sign")) {

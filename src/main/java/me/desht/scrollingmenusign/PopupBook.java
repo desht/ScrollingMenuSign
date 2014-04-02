@@ -112,7 +112,7 @@ public class PopupBook {
 		BookMeta bm = (BookMeta) item.getItemMeta();
 
 		bm.setTitle(v.variableSubs(v.getNativeMenu().getTitle()));
-		bm.setAuthor(p.getName());
+		bm.setAuthor(p.getDisplayName());
 		bm.setPages("Left Click to Use!",
 				"sms " + v.getType() + " view",
 				v.getName(),
@@ -130,9 +130,15 @@ public class PopupBook {
 	 * @throws SMSException if the player is holding a popup book, but it's not valid
 	 */
 	public static PopupBook get(Player p) {
-		if (!holding(p))
+		if (!holding(p)) {
 			return null;
-		return new PopupBook(p, p.getItemInHand());
+		}
+		try {
+			return new PopupBook(p, p.getItemInHand());
+		} catch (SMSException e) {
+			destroy(p);
+			return null;
+		}
 	}
 
 	/**
@@ -155,7 +161,7 @@ public class PopupBook {
 	 *
 	 * @param player the player object
 	 */
-	public static void destroy(Player player) {
+	private static void destroy(Player player) {
 		player.setItemInHand(new ItemStack(Material.AIR));
 		MiscUtil.statusMessage(player, "Your book suddenly vanishes in a puff of smoke!");
 		player.playEffect(player.getLocation().add(player.getLocation().getDirection()), Effect.SMOKE, BlockFace.UP);

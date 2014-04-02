@@ -96,7 +96,8 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
 
 	protected SMSMenu getMenu(CommandSender sender, String menuName) {
 		if (menuName.equals(".") && sender instanceof Player) {
-			return ScrollingMenuSign.getInstance().getViewManager().getTargetedView((Player) sender, true).getActiveMenu(sender.getName());
+			Player player = (Player) sender;
+			return ScrollingMenuSign.getInstance().getViewManager().getTargetedView(player, true).getActiveMenu(player);
 		} else {
 			return SMSMenu.getMenu(menuName);
 		}

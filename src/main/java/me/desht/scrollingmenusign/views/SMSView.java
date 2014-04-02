@@ -1,26 +1,13 @@
 package me.desht.scrollingmenusign.views;
 
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import me.desht.dhutils.*;
 import me.desht.dhutils.block.BlockUtil;
-import me.desht.scrollingmenusign.DirectoryStructure;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSInteractableBlock;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSPersistable;
-import me.desht.scrollingmenusign.SMSPersistence;
-import me.desht.scrollingmenusign.SMSValidate;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
-
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -31,6 +18,12 @@ import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.util.Vector;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents a base menu view from which all concrete views will inherit.
@@ -52,7 +45,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	private final String name;
 	private final AttributeCollection attributes;    // view attributes to be displayed and/or edited by players
 	private final Map<String, String> variables;    // view variables
-	private final Map<String, MenuStack> menuStack;    // map player name to menu stack (submenu support)
+	private final Map<UUID, MenuStack> menuStack;    // map player ID to menu stack (submenu support)
 
 	private boolean autosave;
 	private boolean dirty;
@@ -60,7 +53,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	private UUID ownerId;
 
 	// we can't use a Set here, since there are three possible values: 1) dirty, 2) clean, 3) unknown
-	private final Map<String, Boolean> dirtyPlayers = new HashMap<String, Boolean>();
+	private final Map<UUID, Boolean> dirtyPlayers = new HashMap<UUID, Boolean>();
 	// map a world name (for a world which hasn't been loaded yet) to a list of x,y,z positions
 	private final Map<String, List<Vector>> deferredLocations = new HashMap<String, List<Vector>>();
 
@@ -86,7 +79,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 		this.attributes = new AttributeCollection(this);
 		this.variables = new HashMap<String, String>();
 		this.maxLocations = 1;
-		this.menuStack = new HashMap<String, MenuStack>();
+		this.menuStack = new HashMap<UUID, MenuStack>();
 
 		attributes.registerAttribute(OWNER, ScrollingMenuSign.CONSOLE_OWNER, "Player who owns this view");
 		attributes.registerAttribute(GROUP, "", "Permission group for this view");
@@ -179,31 +172,34 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 *
 	 * @return the active SMSMenu object for this view
 	 */
-	public SMSMenu getActiveMenu(String playerName) {
-		playerName = getPlayerContext(playerName);
-
-		MenuStack mst;
-		if (!menuStack.containsKey(playerName)) {
-			menuStack.put(playerName, new MenuStack());
+	public SMSMenu getActiveMenu(Player player) {
+		if (player == null) {
+			return getNativeMenu();
 		}
-		mst = menuStack.get(playerName);
+
+		UUID key = getPlayerContext(player);
+
+		if (!menuStack.containsKey(key)) {
+			menuStack.put(key, new MenuStack());
+		}
+		MenuStack mst = menuStack.get(key);
 		return mst.isEmpty() ? getNativeMenu() : mst.peek();
 	}
 
 	/**
-	 * Push the given menu onto the view, making it the active menu as returned by {@link #getActiveMenu(String)}
+	 * Push the given menu onto the view, making it the active menu as returned by {@link #getActiveMenu(Player)}
 	 *
-	 * @param playerName name of the player to push the menu for
+	 * @param player player to push the menu for
 	 * @param newActive  the menu to make active
 	 */
-	public void pushMenu(String playerName, SMSMenu newActive) {
-		playerName = getPlayerContext(playerName);
+	public void pushMenu(Player player, SMSMenu newActive) {
+		UUID key = getPlayerContext(player);
 
-		getActiveMenu(playerName).deleteObserver(this);
-		if (!menuStack.containsKey(playerName)) {
-			menuStack.put(playerName, new MenuStack());
+		getActiveMenu(player).deleteObserver(this);
+		if (!menuStack.containsKey(key)) {
+			menuStack.put(key, new MenuStack());
 		}
-		menuStack.get(playerName).pushMenu(newActive);
+		menuStack.get(key).pushMenu(newActive);
 		newActive.addObserver(this);
 		update(newActive, SMSMenuAction.REPAINT);
 	}
@@ -211,43 +207,43 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	/**
 	 * Pop the active menu off the view, making the previously active menu the new active menu.
 	 *
-	 * @param playerName name of the player to pop the menu for
+	 * @param player player to pop the menu for
 	 * @return the active menu that has just been popped off
 	 */
-	public SMSMenu popMenu(String playerName) {
-		playerName = getPlayerContext(playerName);
+	public SMSMenu popMenu(Player player) {
+		UUID key = getPlayerContext(player);
 
-		if (!menuStack.containsKey(playerName)) {
-			menuStack.put(playerName, new MenuStack());
+		if (!menuStack.containsKey(key)) {
+			menuStack.put(key, new MenuStack());
 		}
-		MenuStack mst = menuStack.get(playerName);
+		MenuStack mst = menuStack.get(key);
 		SMSMenu oldActive = mst.popMenu();
 		if (oldActive == null) {
 			return null;
 		}
 		oldActive.deleteObserver(this);
-		SMSMenu newActive = getActiveMenu(playerName);
+		SMSMenu newActive = getActiveMenu(player);
 		newActive.addObserver(this);
 		update(newActive, SMSMenuAction.REPAINT);
 		return oldActive;
 	}
 
 	/**
-	 * Get the set of players who have a submenu open for this view.
+	 * Get the set of player IDs who have a submenu open for this view.
 	 *
-	 * @return a set of players who have a submenu open for this view
+	 * @return a set of player IDs who have a submenu open for this view
 	 */
-	public Set<String> getSubmenuPlayers() {
+	public Set<UUID> getSubmenuPlayers() {
 		return menuStack.keySet();
 	}
 
-	MenuStack getMenuStack(String playerName) {
-		return menuStack.get(playerName);
+	MenuStack getMenuStack(UUID playerId) {
+		return menuStack.get(playerId);
 	}
 
 	@Override
-	public String getActiveItemLabel(String playerName, int pos) {
-		String label = super.getActiveItemLabel(playerName, pos);
+	public String getActiveItemLabel(Player player, int pos) {
+		String label = super.getActiveItemLabel(player, pos);
 		return label == null ? null : variableSubs(label);
 	}
 
@@ -455,11 +451,12 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	/**
 	 * Get the "dirty" status for this view - whether or not a repaint is needed for the given player.
 	 *
-	 * @param playerName The player to check for
+	 * @param player The player to check for
 	 * @return true if a repaint is needed, false otherwise
 	 */
-	public boolean isDirty(String playerName) {
-		return dirtyPlayers.containsKey(playerName) ? dirtyPlayers.get(playerName) : dirty;
+	public boolean isDirty(Player player) {
+		UUID key = getPlayerContext(player);
+		return dirtyPlayers.containsKey(key) ? dirtyPlayers.get(key) : dirty;
 	}
 
 	/**
@@ -477,11 +474,11 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	/**
 	 * Set the per-player "dirty" status for this view - whether or not a repaint is needed for the given player.
 	 *
-	 * @param playerName The player to check for
+	 * @param player The player to check for
 	 * @param dirty      Whether or not a repaint is needed
 	 */
-	public void setDirty(String playerName, boolean dirty) {
-		dirtyPlayers.put(playerName, dirty);
+	public void setDirty(Player player, boolean dirty) {
+		dirtyPlayers.put(getPlayerContext(player), dirty);
 	}
 
 	/**
@@ -596,11 +593,11 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 * @return True if the player may use this view, false if not
 	 */
 	public boolean hasOwnerPermission(Player player) {
-		if (!getActiveMenu(player.getName()).hasOwnerPermission(player)) {
+		if (!getActiveMenu(player).hasOwnerPermission(player)) {
 			return false;
 		}
 		SMSAccessRights access = (SMSAccessRights) getAttribute(ACCESS);
-		return access.isAllowedToUse(player, getAttributeAsString(OWNER), getAttributeAsString(GROUP));
+		return access.isAllowedToUse(player, ownerId, getAttributeAsString(OWNER), getAttributeAsString(GROUP));
 	}
 
 	/**
@@ -611,7 +608,6 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	 */
 	public boolean isOwnedBy(Player player) {
 		return player.getUniqueId().equals(ownerId);
-//		return player.getName().equalsIgnoreCase(getAttributeAsString(OWNER));
 	}
 
 	/**
@@ -692,6 +688,18 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		// don't do updates on views that haven't been registered yet (which will be the case
 		// when restoring saved views from disk)
+		if (key.equals(OWNER)) {
+			String owner = newVal.toString();
+			if (owner.isEmpty() || owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {
+				ownerId = null;
+			} else {
+				// TODO use async lookup to get the UUID for a player name?
+				@SuppressWarnings("deprecation") Player p = Bukkit.getPlayer(owner);
+				if (p != null) {
+					ownerId = p.getUniqueId();
+				}
+			}
+		}
 		if (ScrollingMenuSign.getInstance().getViewManager().checkForView(getName())) {
 			update(null, SMSMenuAction.REPAINT);
 		}
@@ -703,10 +711,14 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		if (key.equals(OWNER)) {
-			SMSValidate.isFalse(newVal.toString().isEmpty(), "Unowned views are not allowed");
+			String owner = newVal.toString();
+			if (!owner.isEmpty() && !owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {
+				@SuppressWarnings("deprecation") Player p = Bukkit.getPlayer(owner);
+				SMSValidate.notNull(p, "There is no player called '" + owner + "' online at this time.");
+			}
 		} else if (key.equals(ACCESS)) {
 			SMSAccessRights access = (SMSAccessRights) newVal;
-			if (access != SMSAccessRights.ANY && getAttributeAsString(OWNER).equals(ScrollingMenuSign.CONSOLE_OWNER)) {
+			if (access != SMSAccessRights.ANY && ownerId == null) {
 				throw new SMSException("View must be owned by a player to change access control to " + access);
 			} else if (access == SMSAccessRights.GROUP && ScrollingMenuSign.permission == null) {
 				throw new SMSException("Cannot use GROUP access control (no permission group support available)");
@@ -773,7 +785,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
 		if (plugin.getConfig().getBoolean("sms.no_destroy_signs")) {
 			event.setCancelled(true);
-			update(getActiveMenu(player.getName()), SMSMenuAction.REPAINT);
+			update(getActiveMenu(player), SMSMenuAction.REPAINT);
 		} else {
 			removeLocation(b.getLocation());
 			if (getLocations().isEmpty()) {
