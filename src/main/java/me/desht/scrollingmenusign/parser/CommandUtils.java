@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.parser;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.views.CommandTrigger;
 
@@ -10,6 +11,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CommandUtils {
+	private static ReturnStatus lastReturnStatus = ReturnStatus.UNKNOWN;
+
 	/**
 	 * High-level wrapper to run a command.  Return status is messaged to the calling command sender if necessary.
 	 *
@@ -52,7 +55,13 @@ public class CommandUtils {
 					MiscUtil.errorMessage(sender, pCmd.getLastError());
 					break;
 			}
+			lastReturnStatus = pCmd.getStatus();
+		} else {
+			lastReturnStatus = ReturnStatus.NO_COMMAND;
 		}
+	}
 
+	public static ReturnStatus getLastReturnStatus() {
+		return lastReturnStatus;
 	}
 }

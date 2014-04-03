@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign;
 
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.scrollingmenusign.views.CommandTrigger;
 import org.apache.commons.lang.StringUtils;
@@ -244,9 +245,20 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 		if (alt && !getAltCommand().isEmpty()) {
 			cmd = getAltCommand();
 		}
+		boolean itemUses = false, menuUses = false;
 		if (sender instanceof Player) {
-			boolean itemUses = verifyRemainingUses(this, (Player) sender);
-			boolean menuUses = verifyRemainingUses(menu, (Player) sender);
+			itemUses = verifyRemainingUses(this, (Player) sender);
+			menuUses = verifyRemainingUses(menu, (Player) sender);
+		}
+
+		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty()) {
+			cmd = menu.getDefaultCommand().replace("<LABEL>", ChatColor.stripColor(getLabel())).replace("<RAWLABEL>", getLabel());
+		}
+
+		CommandUtils.executeCommand(sender, cmd, trigger);
+		ReturnStatus rs = CommandUtils.getLastReturnStatus();
+
+		if (rs == ReturnStatus.CMD_OK || rs == ReturnStatus.UNKNOWN) {
 			if (itemUses) {
 				decrementRemainingUses(this, (Player) sender);
 			}
@@ -257,11 +269,6 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 				menu.autosave();
 			}
 		}
-		if ((cmd == null || cmd.isEmpty()) && !menu.getDefaultCommand().isEmpty()) {
-			cmd = menu.getDefaultCommand().replace("<LABEL>", ChatColor.stripColor(getLabel())).replace("<RAWLABEL>", getLabel());
-		}
-
-		CommandUtils.executeCommand(sender, cmd, trigger);
 	}
 
 	/**

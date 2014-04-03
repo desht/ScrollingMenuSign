@@ -14,6 +14,7 @@ import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.scrollingmenusign.views.CommandTrigger;
 
@@ -67,7 +68,8 @@ public class CooldownCommandlet extends BaseCommandlet implements Listener {
 		} else {
 			CommandUtils.executeCommand(sender, command, trigger);
 			updateCooldown(sender, cooldownName);
-			return true;
+			ReturnStatus rs = CommandUtils.getLastReturnStatus();
+			return rs == ReturnStatus.CMD_OK || rs == ReturnStatus.UNKNOWN;
 		}
 	}
 
