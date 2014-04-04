@@ -1,11 +1,5 @@
 package me.desht.scrollingmenusign.parser;
 
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import me.desht.dhutils.*;
 import me.desht.dhutils.cost.Cost;
 import me.desht.scrollingmenusign.SMSException;
@@ -13,13 +7,19 @@ import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.commandlets.BaseCommandlet;
 import me.desht.scrollingmenusign.commandlets.CommandletManager;
+import me.desht.scrollingmenusign.commandlets.CooldownCommandlet;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.views.CommandTrigger;
-
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class ParsedCommand {
 	private String command;
@@ -50,6 +50,12 @@ public class ParsedCommand {
 	}
 
 	private static final Pattern predefSubPat = Pattern.compile("<([A-Z]+)>");
+
+	@Override
+	public String toString() {
+		return String.format("ParsedCommand [%s], el=%s re=%s af=%s ap=%s st=%s wh=%s ch=%s ma=%s co=%s",
+				command, elevated, restricted, affordable, applicable, status, whisper, chat, macro, console);
+	}
 
 	ParsedCommand(CommandSender sender, CommandTrigger trigger, Scanner scanner) throws SMSException {
 		args = new ArrayList<String>();
@@ -169,6 +175,8 @@ public class ParsedCommand {
 		if (!(sender instanceof Player) && command != null && command.startsWith("/")) {
 			console = true;
 		}
+
+		Debugger.getInstance().debug(this.toString());
 	}
 
 	private String predefSubs(Player player, String token, CommandTrigger trigger) {
@@ -431,6 +439,10 @@ public class ParsedCommand {
 		}
 		Player player = (Player) sender;
 
+		if (check.isEmpty()) {
+			return false;
+		}
+
 		String[] parts = check.split(":", 2);
 		if (parts.length == 1) {
 			// legacy check: just see if the player name matches
@@ -444,7 +456,7 @@ public class ParsedCommand {
 		case 'g':
 			return ScrollingMenuSign.permission != null && ScrollingMenuSign.permission.playerInGroup(player, checkTerm);
 		case 'p':
-			return player.getName().equalsIgnoreCase(checkTerm);
+			return looksLikeUUID(checkTerm) ? player.getUniqueId().equals(UUID.fromString(checkTerm)) : player.getName().equalsIgnoreCase(checkTerm);
 		case 'w':
 			return player.getWorld().getName().equalsIgnoreCase(checkTerm);
 		case 'n':
@@ -457,6 +469,10 @@ public class ParsedCommand {
 			LogUtils.warning("Unknown check type: " + check);
 			return false;
 		}
+	}
+
+	private static boolean looksLikeUUID(String s) {
+		return s.length() == 36 && s.charAt(8) == '-';
 	}
 
 	private boolean isHoldingObject(Player player, String checkTerm) {
@@ -499,7 +515,7 @@ public class ParsedCommand {
 		boolean useRegex = checkType.indexOf('r') > 0;
 		boolean forceNumeric = checkType.indexOf('n') > 0;
 
-		Debugger.getInstance().debug(2, "doComparison: player=[" + player.getName() + "] var=[" + varSpec + "] val=[" + value + "] op=[" + op + "] test=[" + testValue + "]");
+		Debugger.getInstance().debug(2, "doComparison: player=[" + player.getDisplayName() + "] var=[" + varSpec + "] val=[" + value + "] op=[" + op + "] test=[" + testValue + "]");
 		Debugger.getInstance().debug(2, "doComparison: case-sensitive=" + !caseInsensitive + " regex=" + useRegex + " force-numeric=" + forceNumeric);
 
 		try {
@@ -559,6 +575,12 @@ public class ParsedCommand {
 				return player.getName();
 			}
 		});
+		subs.put("UUID", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return player.getUniqueId().toString();
+			}
+		});
 		subs.put("N", subs.get("NAME"));
 		subs.put("WORLD", new SubstitutionHandler() {
 			@Override
@@ -599,6 +621,19 @@ public class ParsedCommand {
 			@Override
 			public String sub(Player player, CommandTrigger trigger) {
 				return Integer.toString(new ExperienceManager(player).getCurrentExp());
+			}
+		});
+		subs.put("COOLDOWN", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				CooldownCommandlet cc = (CooldownCommandlet) ScrollingMenuSign.getInstance().getCommandletManager().getCommandlet("COOLDOWN");
+				long millis = cc.getLastCooldownTimeRemaining();
+				int seconds = (int) (millis / 1000) % 60 ;
+				if (millis < 60000) return String.format("%ds", seconds);
+				int minutes = (int) ((millis / (1000*60)) % 60);
+				if (millis < 3600000) return String.format("%dm %ds", minutes, seconds);
+				int hours   = (int) ((millis / (1000*60*60)) % 24);
+				return String.format("%dh %dm %ds", hours, minutes, seconds);
 			}
 		});
 	}

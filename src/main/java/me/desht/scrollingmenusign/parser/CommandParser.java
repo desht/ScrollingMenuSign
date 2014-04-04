@@ -243,6 +243,7 @@ public class CommandParser {
 			}
 		}
 
+		Debugger.getInstance().debug("final command: " + cmd);
 		return cmd;
 	}
 

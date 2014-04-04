@@ -33,6 +33,7 @@ public class CooldownCommandlet extends BaseCommandlet implements Listener {
 
 	private final Map<String, Long> cooldowns = new HashMap<String, Long>();
 	private BukkitTask saveTask;
+	private long lastCooldownTime = 0L;
 
 	public CooldownCommandlet() {
 		super("COOLDOWN");
@@ -63,7 +64,8 @@ public class CooldownCommandlet extends BaseCommandlet implements Listener {
 
 		final String command = Joiner.on(" ").join(Arrays.copyOfRange(args, 3, args.length));
 
-		if (isOnCooldown(sender, cooldownName, delay.getTotalDuration())) {
+		lastCooldownTime = getCooldownRemaining(sender, cooldownName, delay.getTotalDuration());
+		if (lastCooldownTime > 0) {
 			return false;
 		} else {
 			CommandUtils.executeCommand(sender, command, trigger);
@@ -71,6 +73,20 @@ public class CooldownCommandlet extends BaseCommandlet implements Listener {
 			ReturnStatus rs = CommandUtils.getLastReturnStatus();
 			return rs == ReturnStatus.CMD_OK || rs == ReturnStatus.UNKNOWN;
 		}
+	}
+
+	private long getCooldownRemaining(CommandSender sender, String name, long delay) {
+		String key = makeKey(name, sender.getName());
+		if (!cooldowns.containsKey(key)) {
+			cooldowns.put(key, 0L);
+		}
+		long last = cooldowns.get(key);
+		Debugger.getInstance().debug("cooldown: " + key + "=" + last + ", delay = " + delay);
+		return delay - (System.currentTimeMillis() - last);
+	}
+
+	public long getLastCooldownTimeRemaining() {
+		return lastCooldownTime;
 	}
 
 	private void updateCooldown(CommandSender sender, String name) {
