@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign;
 
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.UUIDFetcher;
 import me.desht.scrollingmenusign.views.SMSView;
 import org.bukkit.Bukkit;
 
