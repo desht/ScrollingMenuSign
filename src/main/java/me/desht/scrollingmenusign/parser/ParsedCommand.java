@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.parser;
 import me.desht.dhutils.*;
 import me.desht.dhutils.cost.Cost;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.commandlets.BaseCommandlet;
@@ -10,6 +11,7 @@ import me.desht.scrollingmenusign.commandlets.CommandletManager;
 import me.desht.scrollingmenusign.commandlets.CooldownCommandlet;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.views.CommandTrigger;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,12 +42,13 @@ public class ParsedCommand {
 	private StopCondition commandStopCondition;
 	private StopCondition macroStopCondition;
 
-	private interface SubstitutionHandler {
+	public interface SubstitutionHandler {
 		public String sub(Player player, CommandTrigger trigger);
 	}
+
 	private static final Map<String,SubstitutionHandler> subs = new HashMap<String, SubstitutionHandler>();
 	static {
-		setupSubHandlers();
+		setupDefaultSubHandlers();
 	}
 
 	private static final Pattern predefSubPat = Pattern.compile("<([A-Z]+)>");
@@ -549,7 +552,13 @@ public class ParsedCommand {
 		return false;
 	}
 
-	private static void setupSubHandlers() {
+	public static void addSubstitutionHandler(String sub, SubstitutionHandler handler) {
+		SMSValidate.isFalse(subs.containsKey(sub), "A handler is already registered for " + sub);
+		SMSValidate.isTrue(StringUtils.isAlpha(sub), "Substitution string must be all alphabetic");
+		subs.put(sub, handler);
+	}
+
+	private static void setupDefaultSubHandlers() {
 		subs.put("X", new SubstitutionHandler() {
 			@Override
 			public String sub(Player player, CommandTrigger trigger) {
@@ -572,6 +581,12 @@ public class ParsedCommand {
 			@Override
 			public String sub(Player player, CommandTrigger trigger) {
 				return player.getName();
+			}
+		});
+		subs.put("DNAME", new SubstitutionHandler() {
+			@Override
+			public String sub(Player player, CommandTrigger trigger) {
+				return player.getDisplayName();
 			}
 		});
 		subs.put("UUID", new SubstitutionHandler() {
