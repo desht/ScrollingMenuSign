@@ -32,12 +32,7 @@ public class VarCommand extends SMSAbstractCommand {
 
 		if (getBooleanOption("l")) {
 			// list all variables for the player
-
-			if (args.length == 0) notFromConsole(sender);
-
-			String target = args.length >= 1 ? args[0] : sender.getName();
-
-			SMSVariables vars = SMSVariables.getVariables(target, false);
+			SMSVariables vars = SMSVariables.getVariables(sender, false);
 			MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
 			for (String key : vars.getVariables()) {
 				pager.add(key + " = '&e" + vars.get(key) + "&-'");

@@ -1,46 +1,49 @@
 package me.desht.scrollingmenusign;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
-
+import me.desht.dhutils.UUIDFetcher;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.io.File;
+import java.util.*;
 
 /**
  * @author desht
  */
 public class SMSVariables implements SMSPersistable {
-	private static final Map<String, SMSVariables> allVariables = new HashMap<String, SMSVariables>();
+	private static final UUID CONSOLE_SPECIAL_UUID = UUID.fromString("b5ccc760-cc85-11e3-9c1a-0800200c9a66");
+	private static final UUID GLOBAL_UUID = new UUID(0, 0);
+
+	private static final Map<String, YamlConfiguration> toMigrate = new HashMap<String, YamlConfiguration>();
+
+	private static final Map<UUID, SMSVariables> allVariables = new HashMap<UUID, SMSVariables>();
 
 	private static final String DEFAULT_MARKER = "*";
 
-	private final String playerName;
+	private final UUID playerId;
 	private final Configuration variables;
 
 	/**
 	 * Private constructor.
 	 *
-	 * @param playerName The player who owns these variables
+	 * @param playerId ID of the player who owns these variables
 	 */
-	private SMSVariables(String playerName) {
-		this.playerName = playerName;
+	private SMSVariables(UUID playerId) {
+		this.playerId = playerId;
 		variables = new MemoryConfiguration();
 	}
 
-	public String getPlayerName() {
-		return playerName;
+	public UUID getPlayerId() {
+		return playerId;
 	}
 
 	private void autosave() {
@@ -99,7 +102,7 @@ public class SMSVariables implements SMSPersistable {
 	}
 
 	private void deleteCommon() {
-		allVariables.remove(playerName);
+		allVariables.remove(playerId);
 	}
 
 	void deletePermanent() {
@@ -116,7 +119,7 @@ public class SMSVariables implements SMSPersistable {
 	 */
 	@Override
 	public String getName() {
-		return playerName;
+		return playerId.toString();
 	}
 
 	/* (non-Javadoc)
@@ -144,11 +147,27 @@ public class SMSVariables implements SMSPersistable {
 	 * a new empty SMSVariables collection will be created iff autoCreate is true, otherwise
 	 * an exception will be thrown.
 	 *
-	 * @param playerName the player's name
+	 * @param sender the command sender
+	 * @param autoCreate if true, a variables object will be auto-created if it doesn't exist
 	 * @throws SMSException if autoCreate is false and the variables object does not exist
 	 * @return an SMSVariables collection of variables for the player
 	 */
-	public static SMSVariables getVariables(String playerName, boolean autoCreate) {
+	public static SMSVariables getVariables(CommandSender sender, boolean autoCreate) {
+		UUID id = sender instanceof ConsoleCommandSender ? CONSOLE_SPECIAL_UUID : ((Player) sender).getUniqueId();
+		return getVariables(id, autoCreate);
+	}
+
+	/**
+	 * Get the variable collection for the given player.  If the player has no variables,
+	 * a new empty SMSVariables collection will be created iff autoCreate is true, otherwise
+	 * an exception will be thrown.
+	 *
+	 * @param playerName the player's name
+	 * @param autoCreate if true, a variables object will be auto-created if it doesn't exist
+	 * @throws SMSException if autoCreate is false and the variables object does not exist
+	 * @return an SMSVariables collection of variables for the player
+	 */
+	public static SMSVariables getVariables(UUID playerName, boolean autoCreate) {
 		if (!allVariables.containsKey(playerName)) {
 			if (autoCreate) {
 				allVariables.put(playerName, new SMSVariables(playerName));
@@ -162,11 +181,11 @@ public class SMSVariables implements SMSPersistable {
 	/**
 	 * Check if any variables are defined for the given player.
 	 *
-	 * @param playerName the name of the player to check for
+	 * @param playerId the name of the player to check for
 	 * @return true if variables are defined for the player, false otherwise
 	 */
-	public static boolean hasVariables(String playerName) {
-		return allVariables.containsKey(playerName);
+	public static boolean hasVariables(UUID playerId) {
+		return allVariables.containsKey(playerId);
 	}
 
 	/**
@@ -186,9 +205,9 @@ public class SMSVariables implements SMSPersistable {
 	 */
 	private static Collection<SMSVariables> listVariables(boolean isSorted) {
 		if (isSorted) {
-			SortedSet<String> sorted = new TreeSet<String>(allVariables.keySet());
+			SortedSet<UUID> sorted = new TreeSet<UUID>(allVariables.keySet());
 			List<SMSVariables> res = new ArrayList<SMSVariables>();
-			for (String name : sorted) {
+			for (UUID name : sorted) {
 				res.add(allVariables.get(name));
 			}
 			return res;
@@ -221,11 +240,11 @@ public class SMSVariables implements SMSPersistable {
 	public static String get(CommandSender sender, String varSpec, String defValue) {
 		VarSpec vs = new VarSpec(sender, varSpec);
 
-		if (hasVariables(vs.playerName) && getVariables(vs.playerName, false).isSet(vs.varName)) {
-			return getVariables(vs.playerName, false).get(vs.varName);
+		if (hasVariables(vs.playerId) && getVariables(vs.playerId, false).isSet(vs.varName)) {
+			return getVariables(vs.playerId, false).get(vs.varName);
 		} else {
-			if (hasVariables(DEFAULT_MARKER)) {
-				return getVariables(DEFAULT_MARKER, false).get(vs.varName, defValue);
+			if (hasVariables(GLOBAL_UUID)) {
+				return getVariables(GLOBAL_UUID, false).get(vs.varName, defValue);
 			} else {
 				return defValue;
 			}
@@ -241,7 +260,7 @@ public class SMSVariables implements SMSPersistable {
 	 */
 	public static void set(CommandSender sender, String varSpec, String value) {
 		VarSpec vs = new VarSpec(sender, varSpec);
-		getVariables(vs.playerName, true).set(vs.varName, value);
+		getVariables(vs.playerId, true).set(vs.varName, value);
 	}
 
 	/**
@@ -255,21 +274,39 @@ public class SMSVariables implements SMSPersistable {
 	 */
 	public static boolean isSet(CommandSender sender, String varSpec) {
 		VarSpec vs = new VarSpec(sender, varSpec);
-		return hasVariables(vs.playerName) && getVariables(vs.playerName, false).isSet(vs.varName);
+		return hasVariables(vs.playerId) && getVariables(vs.playerId, false).isSet(vs.varName);
 	}
 
 	static void load(File f) {
 		YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 		String playerName = f.getName().replaceAll("\\.yml$", "");
-		SMSVariables vars = getVariables(playerName, true);
+		if (MiscUtil.looksLikeUUID(playerName)) {
+			SMSVariables vars = getVariables(UUID.fromString(playerName), true);
 
-		for (String key : conf.getKeys(false)) {
-			vars.set(key, conf.getString(key));
+			for (String key : conf.getKeys(false)) {
+				vars.set(key, conf.getString(key));
+			}
+		} else {
+			toMigrate.put(playerName, conf);
 		}
 	}
 
+	static void migrateUUIDs() {
+		final UUIDFetcher uf = new UUIDFetcher(new ArrayList<String>(toMigrate.keySet()), true);
+		Bukkit.getScheduler().runTaskAsynchronously(ScrollingMenuSign.getInstance(), new Runnable() {
+			@Override
+			public void run() {
+				try {
+					new SyncUUIDTask(uf.call()).runTask(ScrollingMenuSign.getInstance());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
 	private static class VarSpec {
-		private final String playerName;
+		private final UUID playerId;
 		private final String varName;
 
 		private VarSpec(CommandSender sender, String spec) {
@@ -277,23 +314,50 @@ public class SMSVariables implements SMSPersistable {
 
 			if (parts.length == 1) {
 				// unqualified variable - <var>
-				if (!(sender instanceof Player)) {
-					throw new SMSException("Unqualified variables can't be referenced from the console");
-				}
-				playerName = sender.getName();
+				playerId = sender instanceof Player ? ((Player) sender).getUniqueId() : CONSOLE_SPECIAL_UUID;
 				varName = parts[0];
 			} else {
 				// qualified variable - <player>.<var>
-				playerName = parts[0].startsWith(DEFAULT_MARKER) ? DEFAULT_MARKER : parts[0];
-				varName = parts[1];
-				if (!this.playerName.equalsIgnoreCase(sender.getName())) {
+				if (parts[0].startsWith(DEFAULT_MARKER)) {
+					playerId = GLOBAL_UUID;
+				} else if (parts[0].equalsIgnoreCase("console")) {
+					playerId = CONSOLE_SPECIAL_UUID;
+				} else if (MiscUtil.looksLikeUUID(parts[0])) {
+					playerId = UUID.fromString(parts[0]);
+				} else {
+					throw new SMSException("Varspec [" + spec + "]: player ID should be '*', 'console' or a valid UUID");
+				}
+				if (sender instanceof Player && !((Player) sender).getUniqueId().equals(playerId)) {
 					PermissionUtils.requirePerms(sender, "scrollingmenusign.vars.other");
 				}
-				if (!playerName.matches("[a-zA-Z0-9_]+") && !playerName.equals(DEFAULT_MARKER)) {
-					throw new SMSException("Invalid player name: " + spec);
-				}
+				varName = parts[1];
 			}
 			SMSValidate.isTrue(varName.matches("[a-zA-Z0-9_]+"), "Invalid variable name: " + spec + " (must be all alphanumeric)");
+		}
+	}
+
+	private static class SyncUUIDTask extends BukkitRunnable {
+		private final Map<String,UUID> map;
+		public SyncUUIDTask(Map<String, UUID> map) {
+			this.map = map;
+		}
+
+		@Override
+		public void run() {
+			for (String playerName : map.keySet()) {
+				UUID id = map.get(playerName);
+				if (id != null) {
+					YamlConfiguration conf = toMigrate.get(playerName);
+					SMSVariables vars = getVariables(id, true);
+					for (String key : conf.getKeys(false)) {
+						vars.set(key, conf.getString(key));
+					}
+				} else {
+					LogUtils.warning("can't find UUID for player: " + playerName);
+				}
+			}
+			toMigrate.clear();
+			LogUtils.info("user variables migration complete");
 		}
 	}
 }
