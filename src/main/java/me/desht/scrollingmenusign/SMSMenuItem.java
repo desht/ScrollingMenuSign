@@ -79,9 +79,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 	private SMSMenuItem(Builder builder) {
 		this.menu = builder.menu;
 		this.label = builder.label;
-		this.message = builder.message;
-		this.lore = builder.lore;
-		this.command = builder.command;
+		this.message = builder.message == null ? "" : builder.message;
+		this.lore = builder.lore == null ? new ArrayList<String>() : builder.lore;
+		this.command = builder.command == null ? "" : builder.command;
 		this.altCommand = builder.altCommand == null ? "" : builder.altCommand;
 		this.materialData = builder.icon;
 		this.uses = new SMSRemainingUses(this);
