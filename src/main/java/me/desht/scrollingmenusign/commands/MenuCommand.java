@@ -1,7 +1,6 @@
 package me.desht.scrollingmenusign.commands;
 
-import java.util.List;
-
+import me.desht.dhutils.ItemNames;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
@@ -11,12 +10,13 @@ import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.SMSView;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.material.MaterialData;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+
+import java.util.List;
 
 public class MenuCommand extends SMSAbstractCommand {
 
@@ -84,7 +84,7 @@ public class MenuCommand extends SMSAbstractCommand {
         }
 
         String defIconName = plugin.getConfig().getString("sms.inv_view.default_icon", "STONE");
-        MaterialData defIcon = SMSMenuItem.parseIconMaterial(defIconName);
+        ItemStack defIcon = SMSMenuItem.parseIconMaterial(defIconName);
 
         List<SMSMenuItem> items = menu.getItems();
         String s = items.size() == 1 ? "" : "s";
@@ -105,11 +105,11 @@ public class MenuCommand extends SMSAbstractCommand {
             if (!uses.isEmpty()) {
                 pager.add("    &9Uses: &e" + uses);
             }
-            if (item.getIconMaterial() != null) {
-                MaterialData icon = item.getIconMaterial();
-//				if (icon.getItemType() != defIcon.getItemType() || icon.getData() != defIcon.getData()) {
+            if (item.hasIcon()) {
+                ItemStack icon = item.getIcon();
                 if (!icon.equals(defIcon)) {
-                    pager.add("    &9Icon: &e" + icon.toString());
+                    String amt = icon.getAmount() > 1 ? icon.getAmount() + " x " : "";
+                    pager.add("    &9Icon: &e" + amt + ItemNames.lookup(icon));
                 }
             }
             String[] lore = item.getLore();

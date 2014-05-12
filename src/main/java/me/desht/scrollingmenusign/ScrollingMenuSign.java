@@ -58,6 +58,7 @@ import me.desht.scrollingmenusign.views.*;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
+import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
@@ -133,6 +134,10 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         setupSpout(pm);
         setupVault(pm);
         setupProtocolLib(pm);
+        if (protocolLibEnabled) {
+            ItemGlow.init(this);
+            setupItemMetaFaker();
+        }
 
         setupCustomFonts();
 
@@ -157,10 +162,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
         if (spoutEnabled) {
             SpoutUtils.precacheTextures();
-        }
-        if (protocolLibEnabled) {
-            ItemGlow.init(this);
-            setupItemMetaFaker();
         }
 
         setupMetrics();
@@ -299,16 +300,16 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
     private void setupVault(PluginManager pm) {
         Plugin vault = pm.getPlugin("Vault");
-        if (vault != null && vault instanceof net.milkbowl.vault.Vault && vault.isEnabled()) {
+        if (vault != null && vault.isEnabled()) {
             Debugger.getInstance().debug("Hooked Vault v" + vault.getDescription().getVersion());
             if (!setupEconomy()) {
                 LogUtils.warning("No economy plugin detected - economy command costs not available");
             }
             if (!setupPermission()) {
-                LogUtils.warning("No permissions plugin detected - no permission elevation support");
+                LogUtils.warning("No permissions plugin detected - no permission group support");
             }
         } else {
-            LogUtils.warning("Vault not loaded: no economy support & no permission elevation support");
+            LogUtils.warning("Vault not loaded: no economy command costs & no permission group support");
         }
     }
 
@@ -343,7 +344,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         faker = new MetaFaker(this, new MetadataFilter() {
             @Override
             public ItemMeta filter(ItemMeta itemMeta, Player player) {
-                if (ActiveItem.isActiveItem(itemMeta)) {
+                if (ActiveItem.isActiveItem(itemMeta) && player.getGameMode() != GameMode.CREATIVE) {
                     List<String> newLore = new ArrayList<String>(itemMeta.getLore());
                     newLore.remove(newLore.size() - 1);
                     ItemMeta newMeta = itemMeta.clone();

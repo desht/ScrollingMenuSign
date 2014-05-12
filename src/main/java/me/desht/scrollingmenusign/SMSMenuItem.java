@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign;
 
+import me.desht.dhutils.ItemGlow;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
@@ -13,6 +14,7 @@ import org.bukkit.TreeSpecies;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
 
@@ -23,7 +25,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
     private final String command;
     private final String message;
     private final List<String> lore;
-    private final MaterialData materialData;
+    private final ItemStack icon;
     private final String altCommand;
     private SMSRemainingUses uses;
     private final SMSMenu menu;
@@ -45,7 +47,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         this.altCommand = "";
         this.message = message;
         try {
-            this.materialData = parseIconMaterial(iconMaterialName);
+            this.icon = parseIconMaterial(iconMaterialName);
         } catch (IllegalArgumentException e) {
             throw new SMSException("invalid material '" + iconMaterialName + "'");
         }
@@ -66,7 +68,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         this.command = node.getString("command");
         this.altCommand = node.getString("altCommand", "");
         this.message = MiscUtil.parseColourSpec(node.getString("message"));
-        this.materialData = parseIconMaterial(node.getString("icon"));
+        this.icon = parseIconMaterial(node.getString("icon"));
         this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
         this.lore = new ArrayList<String>();
         if (node.contains("lore")) {
@@ -83,16 +85,44 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         this.lore = builder.lore;
         this.command = builder.command;
         this.altCommand = builder.altCommand == null ? "" : builder.altCommand;
-        this.materialData = builder.icon;
-        this.uses = new SMSRemainingUses(this);
+        this.icon = builder.icon;
+        if (builder.glow && ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
+            ItemGlow.setGlowing(this.icon, true);
+        }
+        this.uses = builder.uses == null ? new SMSRemainingUses(this) : builder.uses;
     }
 
-    public static MaterialData parseIconMaterial(String iconMaterialName) {
-        if (iconMaterialName == null) {
+    public static ItemStack parseIconMaterial(String spec) {
+        if (spec == null) {
             return null;
         }
 
-        String[] fields = iconMaterialName.split("[:()]");
+        try {
+            String[] fields = spec.split(",");
+            MaterialData mat = parseMatAndData(fields[0]);
+
+            int amount = 1;
+            boolean glowing = false;
+            for (int i = 1; i < fields.length; i++) {
+                if (StringUtils.isNumeric(fields[i])) {
+                    amount = Integer.parseInt(fields[i]);
+                } else if (fields[i].equalsIgnoreCase("glow")) {
+                    glowing = true;
+                }
+            }
+            ItemStack stack = mat.toItemStack(amount);
+            if (glowing && ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
+                ItemGlow.setGlowing(stack, true);
+            }
+            return stack;
+        } catch (Exception e) {
+            LogUtils.warning("Can't parse icon material [" + spec + "]: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private static MaterialData parseMatAndData(String matData) {
+        String[] fields = matData.split("[:()]");
         Material mat = Material.matchMaterial(fields[0]);
         if (mat == null) {
             throw new IllegalArgumentException("Unknown material " + fields[0]);
@@ -128,6 +158,13 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         return res;
     }
 
+    /**
+     * Get a string representation of the icon's material name.
+     *
+     * @return the icon material & data as a string
+     * @deprecated call {@code toString()} on {@link #getIconMaterial()} if you really need this
+     */
+    @Deprecated
     public String getIconMaterialName() {
         return getIconMaterial() == null ? null : getIconMaterial().toString();
     }
@@ -184,7 +221,25 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
      * @return the material used for the menu item's icon
      */
     public MaterialData getIconMaterial() {
-        return materialData;
+        return hasIcon() ? icon.getData() : null;
+    }
+
+    /**
+     * Check if this menu item has an icon defined.
+     *
+     * @return true if the item has an icon, false otherwise
+     */
+    public boolean hasIcon() {
+        return icon != null;
+    }
+
+    /**
+     * Get the item's icon as an item stack.
+     *
+     * @return a copy of the itme's icon
+     */
+    public ItemStack getIcon() {
+        return icon == null ? null : icon.clone();
     }
 
     /**
@@ -368,7 +423,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
      */
     @Override
     public String toString() {
-        return "SMSMenuItem [label=" + label + ", command=" + command + ", message=" + message + ", icon=" + materialData + "]";
+        return "SMSMenuItem [label=" + label + ", command=" + command + ", message=" + message + ", icon=" + icon + "]";
     }
 
     /**
@@ -474,7 +529,16 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         map.put("altCommand", altCommand);
         map.put("message", MiscUtil.unParseColourSpec(message));
         if (getIconMaterial() != null) {
-            map.put("icon", getIconMaterialName());
+            MaterialData m = getIconMaterial();
+            StringBuilder sb = new StringBuilder(m.getItemType().toString());
+            sb.append(":").append(m.getData());
+            if (icon.getAmount() > 1) {
+                sb.append(",").append(Integer.toString(icon.getAmount()));
+            }
+            if (ItemGlow.hasGlow(icon)) {
+                sb.append(",").append("glow");
+            }
+            map.put("icon", sb.toString());
         }
         map.put("usesRemaining", uses.freeze());
         List<String> lore2 = new ArrayList<String>(lore.size());
@@ -510,12 +574,11 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         return new SMSMenuItem.Builder(menu, label)
                 .withCommand(getCommand())
                 .withMessage(getMessage())
-                .withIcon(getIconMaterialName())
+                .withIcon(getIcon())
                 .withAltCommand(getAltCommand())
                 .withLore(getLore())
+                .withUseLimits(getUseLimits())
                 .build();
-
-//		return new SMSMenuItem(menu, getLabel() + "-" + n, getCommand(), getMessage(), getIconMaterialName());
     }
 
     public static class Builder {
@@ -525,7 +588,9 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         private String altCommand;
         private String message;
         private List<String> lore;
-        private MaterialData icon;
+        private ItemStack icon;
+        private boolean glow;
+        private SMSRemainingUses uses;
 
         public Builder(SMSMenu menu, String label) {
             this.menu = menu;
@@ -558,7 +623,22 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         }
 
         public Builder withIcon(MaterialData icon) {
+            this.icon = icon.toItemStack();
+            return this;
+        }
+
+        public Builder withIcon(ItemStack icon) {
             this.icon = icon;
+            return this;
+        }
+
+        public Builder withGlow(boolean glow) {
+            this.glow = glow;
+            return this;
+        }
+
+        public Builder withUseLimits(SMSRemainingUses uses) {
+            this.uses = uses;
             return this;
         }
 

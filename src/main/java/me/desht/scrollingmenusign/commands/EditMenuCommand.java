@@ -13,6 +13,7 @@ import me.desht.scrollingmenusign.parser.CommandParser;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public class EditMenuCommand extends SMSAbstractCommand {
@@ -21,16 +22,16 @@ public class EditMenuCommand extends SMSAbstractCommand {
         super("sms edit", 3);
         setPermissionNode("scrollingmenusign.commands.edit");
         setUsage(new String[]{
-                "/sms edit <menu-name> @<pos> <replacements...>",
-                "/sms edit <menu-name> <label> <replacements...>",
-                "Replacement options (all take a string argument):",
-                "  -label      The new item label",
-                "  -command    The new command to run",
-                "  -altcommand    The new alternative command to run",
-                "  -feedback   The new feedback message to display",
-                "  -icon       The new material used for the item's icon",
-                "  -lore       The new lore for the item (use '+text' to append)",
-                "  -move       The new position in the menu for the item",
+                "/sms edit <menu-name> @<pos> <options...>",
+                "/sms edit <menu-name> <label> <options...>",
+                "Options:",
+                "  -label <str>         The new item label",
+                "  -command <str>       The new command to run",
+                "  -altcommand <str>    The new alternative command to run",
+                "  -feedback <str>      The new feedback message to display",
+                "  -icon <str>          The new material used for the item's icon",
+                "  -lore <str>          The new lore for the item (use '+text' to append)",
+                "  -move <pos>          The new position in the menu for the item",
         });
         setQuotedArgs(true);
         setOptions("label:s", "command:s", "altcommand:s", "feedback:s", "icon:s", "move:i", "lore:s");
@@ -57,7 +58,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
         String command = hasOption("command") ? getStringOption("command") : currentItem.getCommand();
         String altCommand = hasOption("altcommand") ? getStringOption("altcommand") : currentItem.getAltCommand();
         String message = hasOption("feedback") ? MiscUtil.parseColourSpec(getStringOption("feedback")) : currentItem.getMessage();
-        String iconMat = hasOption("icon") ? getStringOption("icon") : currentItem.getIconMaterialName();
+        ItemStack icon = hasOption("icon") ? SMSMenuItem.parseIconMaterial(getStringOption("icon")) : currentItem.getIcon();
         String[] lore = buildNewLore(currentItem);
 
         if (!command.isEmpty() && sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, command)) {
@@ -68,12 +69,10 @@ public class EditMenuCommand extends SMSAbstractCommand {
                 .withCommand(command)
                 .withAltCommand(altCommand)
                 .withMessage(message)
-                .withIcon(iconMat)
+                .withIcon(icon)
                 .withLore(lore)
+                .withUseLimits(currentItem.getUseLimits())
                 .build();
-
-//		SMSMenuItem newItem = new SMSMenuItem(menu, label, command, message, iconMat, lore.toArray(new String[lore.size()]));
-        newItem.setUseLimits(currentItem.getUseLimits());
 
         if (hasOption("move")) {
             int newPos = getIntOption("move");
@@ -85,6 +84,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
             menu.replaceItem(pos, newItem);
             MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- edited in &e" + menu.getName() + "&-, position &e" + pos);
         }
+
         menu.notifyObservers(SMSMenuAction.REPAINT);
 
         return true;

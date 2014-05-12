@@ -24,7 +24,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
@@ -109,6 +108,8 @@ public class IconMenu implements Listener, SMSPopup {
 
         int xOff = getXOffset(width);
 
+        ItemStack defIcon = SMSMenuItem.parseIconMaterial(ScrollingMenuSign.getInstance().getConfig().getString("sms.inv_view.default_icon", "STONE"));
+
         for (int i = 0; i < nItems; i++) {
             int i2 = i * spacing;
             int row = i2 / width;
@@ -118,7 +119,7 @@ public class IconMenu implements Listener, SMSPopup {
                 break;
             }
             SMSMenuItem menuItem = getView().getActiveMenuItemAt(player, i + 1);
-            ItemStack icon = getItemIcon(menuItem.getIconMaterial());
+            ItemStack icon = menuItem.hasIcon() ? menuItem.getIcon() : defIcon.clone();
             String label = getView().variableSubs(menuItem.getLabel());
             ItemMeta im = icon.getItemMeta();
             im.setDisplayName(ChatColor.RESET + label);
@@ -129,16 +130,6 @@ public class IconMenu implements Listener, SMSPopup {
         }
 
         Debugger.getInstance().debug("built icon menu inventory for " + player.getDisplayName() + ": " + size + " slots");
-    }
-
-    private ItemStack getItemIcon(MaterialData iconMaterial) {
-        if (iconMaterial == null) {
-            String defIcon = ScrollingMenuSign.getInstance().getConfig().getString("sms.inv_view.default_icon", "STONE");
-            MaterialData mat = SMSMenuItem.parseIconMaterial(defIcon);
-            return mat.toItemStack(1);
-        } else {
-            return iconMaterial.toItemStack(1);
-        }
     }
 
     private int getMenuIndexForSlot(int invSlot) {
