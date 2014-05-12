@@ -6,6 +6,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.parser.ParsedCommand;
+import me.desht.scrollingmenusign.parser.SubstitutionHandler;
 import me.desht.scrollingmenusign.views.ViewManager;
 
 import org.bukkit.Location;
@@ -103,4 +104,9 @@ public class SMSHandlerImpl implements SMSHandler {
 	public ViewManager getViewManager() {
 		return ScrollingMenuSign.getInstance().getViewManager();
 	}
+
+    @Override
+    public void addCommandSubstitution(String sub, SubstitutionHandler handler) {
+        ParsedCommand.addSubstitutionHandler(sub, handler);
+    }
 }

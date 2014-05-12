@@ -11,7 +11,6 @@ import me.desht.scrollingmenusign.commandlets.CooldownCommandlet;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.variables.VariablesManager;
 import me.desht.scrollingmenusign.views.CommandTrigger;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -48,10 +47,6 @@ public class ParsedCommand {
 	}
 
 	private static final Pattern predefSubPat = Pattern.compile("<([A-Z]+)>");
-
-    public interface SubstitutionHandler {
-        public String sub(Player player, CommandTrigger trigger);
-    }
 
 	@Override
 	public String toString() {
@@ -191,8 +186,7 @@ public class ParsedCommand {
 				m.appendReplacement(sb, Matcher.quoteReplacement(repl));
 			} else {
 				String menuName = trigger == null ? "???" : trigger.getActiveMenu(player).getName();
-				LogUtils.warning("unknown replacement <" + key + "> in command [" + command + "], menu " + menuName);
-				sb.append("<").append(key).append(">");
+				LogUtils.warning("unknown replacement <" + key + "> in command [" + rawCommand + "...], menu " + menuName);
 			}
 		}
 		m.appendTail(sb);
@@ -558,7 +552,7 @@ public class ParsedCommand {
 
 	public static void addSubstitutionHandler(String sub, SubstitutionHandler handler) {
 		SMSValidate.isFalse(subs.containsKey(sub), "A handler is already registered for " + sub);
-		SMSValidate.isTrue(StringUtils.isAlpha(sub), "Substitution string must be all alphabetic");
+		SMSValidate.isTrue(sub.matches("^[A-Z]+$"), "Substitution string must be all uppercase alphabetic");
 		subs.put(sub, handler);
 	}
 
@@ -607,7 +601,6 @@ public class ParsedCommand {
 			}
 		});
 		subs.put("I", new SubstitutionHandler() {
-			@SuppressWarnings("deprecation")
             @Override
 			public String sub(Player player, CommandTrigger trigger) {
 				LogUtils.warning("Command substitution <I> is deprecated and will stop working in a future release.");

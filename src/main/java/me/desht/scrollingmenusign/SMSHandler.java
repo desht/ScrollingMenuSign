@@ -1,16 +1,14 @@
 package me.desht.scrollingmenusign;
 
-import java.util.List;
-
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.ParsedCommand;
+import me.desht.scrollingmenusign.parser.SubstitutionHandler;
 import me.desht.scrollingmenusign.views.ViewManager;
-import me.desht.scrollingmenusign.views.SMSView;
-
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import java.util.List;
 
 public interface SMSHandler {
 	/**
@@ -118,4 +116,15 @@ public interface SMSHandler {
 	 * @return the view manager
 	 */
 	public ViewManager getViewManager();
+
+    /**
+     * Add a custom command substitution handler, to be run when a string of the form "&lt;ABCD&gt;"
+     * is encountered in a command.
+     *
+     * @param sub the string to substitute; do not include the &lt; and &gt; angle brackets
+     * @param handler the handler to run
+     * @throws SMSException if there is already a handler registered with this name, or if the
+     *         subsititution string is not entirely alphabetic
+     */
+    public void addCommandSubstitution(String sub, SubstitutionHandler handler);
 }
