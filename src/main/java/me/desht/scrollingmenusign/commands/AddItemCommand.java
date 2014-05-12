@@ -16,75 +16,75 @@ import org.bukkit.plugin.Plugin;
 
 public class AddItemCommand extends SMSAbstractCommand {
 
-	public AddItemCommand() {
-		super("sms add", 2);
-		setPermissionNode("scrollingmenusign.commands.add");
-		setUsage(new String[]{
-				"/sms add <menu-name> <label> [<command>] [<options...>]",
-				"Options (-at takes integer, all others take string):",
-				"  -at         Position to add the new item at",
-				"  -altcommand The alternative command to run",
-				"  -feedback   The new feedback message to display",
-				"  -icon       The new material used for the item's icon",
-				"  -lore       The lore for the item (line delimiter '\\\\')",
-		});
-		setQuotedArgs(true);
-		setOptions("at:i", "altcommand:s", "feedback:s", "icon:s", "lore:s");
-	}
+    public AddItemCommand() {
+        super("sms add", 2);
+        setPermissionNode("scrollingmenusign.commands.add");
+        setUsage(new String[]{
+                "/sms add <menu-name> <label> [<command>] [<options...>]",
+                "Options (-at takes integer, all others take string):",
+                "  -at         Position to add the new item at",
+                "  -altcommand The alternative command to run",
+                "  -feedback   The new feedback message to display",
+                "  -icon       The new material used for the item's icon",
+                "  -lore       The lore for the item (line delimiter '\\\\')",
+        });
+        setQuotedArgs(true);
+        setOptions("at:i", "altcommand:s", "feedback:s", "icon:s", "lore:s");
+    }
 
-	@Override
-	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		String menuName = args[0];
+    @Override
+    public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
+        String menuName = args[0];
 
-		SMSMenu menu = getMenu(sender, menuName);
+        SMSMenu menu = getMenu(sender, menuName);
 
-		if (args.length < 3 && menu.getDefaultCommand().isEmpty()) {
-			throw new SMSException(getUsage()[0]);
-		}
+        if (args.length < 3 && menu.getDefaultCommand().isEmpty()) {
+            throw new SMSException(getUsage()[0]);
+        }
 
-		menu.ensureAllowedToModify(sender);
+        menu.ensureAllowedToModify(sender);
 
-		int pos = hasOption("at") ? getIntOption("at") : -1;
-		String label = MiscUtil.parseColourSpec(sender, args[1]);
-		String cmd = args.length >= 3 ? args[2] : "";
-		String altCmd = hasOption("altcommand") ? getStringOption("altcommand") : "";
-		String msg = hasOption("feedback") ? getStringOption("feedback") : "";
-		String iconMat = hasOption("icon") ? getStringOption("icon") : plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
-		String[] lore = hasOption("lore") ? getStringOption("lore").split("\\\\\\\\") : new String[0];
+        int pos = hasOption("at") ? getIntOption("at") : -1;
+        String label = MiscUtil.parseColourSpec(sender, args[1]);
+        String cmd = args.length >= 3 ? args[2] : "";
+        String altCmd = hasOption("altcommand") ? getStringOption("altcommand") : "";
+        String msg = hasOption("feedback") ? getStringOption("feedback") : "";
+        String iconMat = hasOption("icon") ? getStringOption("icon") : plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
+        String[] lore = hasOption("lore") ? getStringOption("lore").split("\\\\\\\\") : new String[0];
 
-		SMSValidate.isFalse(sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd),
-				"You do not have permission to add that kind of command.");
+        SMSValidate.isFalse(sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd),
+                "You do not have permission to add that kind of command.");
 
-		SMSMenuItem newItem = new SMSMenuItem.Builder(menu, label)
-				.withCommand(cmd)
-				.withMessage(msg)
-				.withIcon(iconMat)
-				.withAltCommand(altCmd)
-				.withLore(lore)
-				.build();
+        SMSMenuItem newItem = new SMSMenuItem.Builder(menu, label)
+                .withCommand(cmd)
+                .withMessage(msg)
+                .withIcon(iconMat)
+                .withAltCommand(altCmd)
+                .withLore(lore)
+                .build();
 
 //		SMSMenuItem newItem = new SMSMenuItem(menu, label, cmd, msg, iconMat, lore);
-		if (pos < 0) {
-			menu.addItem(newItem);
-			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- added to &e" + menu.getName());
-		} else {
-			menu.insertItem(pos, newItem);
-			int actualPos = menu.indexOfItem(label);
-			MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- inserted in &e" + menu.getName() + "&- at position " + actualPos);
-		}
+        if (pos < 0) {
+            menu.addItem(newItem);
+            MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- added to &e" + menu.getName());
+        } else {
+            menu.insertItem(pos, newItem);
+            int actualPos = menu.indexOfItem(label);
+            MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- inserted in &e" + menu.getName() + "&- at position " + actualPos);
+        }
 
-		menu.notifyObservers(SMSMenuAction.REPAINT);
+        menu.notifyObservers(SMSMenuAction.REPAINT);
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
-		if (args.length == 1) {
-			return getMenuCompletions(plugin, sender, args[0]);
-		} else {
-			showUsage(sender);
-			return noCompletions(sender);
-		}
-	}
+    @Override
+    public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+        if (args.length == 1) {
+            return getMenuCompletions(plugin, sender, args[0]);
+        } else {
+            showUsage(sender);
+            return noCompletions(sender);
+        }
+    }
 }

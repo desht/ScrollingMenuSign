@@ -24,50 +24,50 @@ import org.bukkit.command.CommandSender;
 
 public class ScriptCommandlet extends BaseCommandlet {
 
-	public ScriptCommandlet() {
-		super("SCRIPT");
-	}
+    public ScriptCommandlet() {
+        super("SCRIPT");
+    }
 
-	@Override
-	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
-		SMSValidate.isTrue(args.length >= 2, "Usage: " + cmd + " <script-name> [<script-args>]");
+    @Override
+    public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
+        SMSValidate.isTrue(args.length >= 2, "Usage: " + cmd + " <script-name> [<script-args>]");
 
-		ScriptEngineManager manager = new ScriptEngineManager();
-		String scriptName = args[1];
-		int idx = scriptName.lastIndexOf('.');
-		String ext = scriptName.substring(idx + 1);
-		ScriptEngine engine = manager.getEngineByExtension(ext);
-		SMSValidate.notNull(engine, "no scripting engine for " + scriptName);
-		Debugger.getInstance().debug("running script " + scriptName + " with " + engine.getFactory().getEngineName());
+        ScriptEngineManager manager = new ScriptEngineManager();
+        String scriptName = args[1];
+        int idx = scriptName.lastIndexOf('.');
+        String ext = scriptName.substring(idx + 1);
+        ScriptEngine engine = manager.getEngineByExtension(ext);
+        SMSValidate.notNull(engine, "no scripting engine for " + scriptName);
+        Debugger.getInstance().debug("running script " + scriptName + " with " + engine.getFactory().getEngineName());
 
-		Bindings bindings = new SimpleBindings();
-		if (args.length > 2) {
-			String[] scriptArgs = new String[args.length - 2];
-			System.arraycopy(args, 2, scriptArgs, 0, scriptArgs.length);
-			bindings.put("args", scriptArgs);
-		} else {
-			bindings.put("args", new String[0]);
-		}
-		bindings.put("view", trigger instanceof SMSView ? trigger : null);
-		bindings.put("trigger", trigger);
-		bindings.put("commandSender", sender);
-		bindings.put("result", true);
-		File scriptFile = new File(DirectoryStructure.getScriptsFolder(), scriptName);
-		boolean retval = true;
-		try {
-			engine.eval(new BufferedReader(new FileReader(scriptFile)), bindings);
-			Object o = bindings.get("result");
-			if (o instanceof Boolean) {
-				retval = (Boolean) o;
-				Debugger.getInstance().debug("script " + scriptName + " returns: " + retval);
-			}
-		} catch (FileNotFoundException e) {
-			throw new SMSException("no such script " + scriptName);
-		} catch (ScriptException e) {
-			LogUtils.warning("Script " + scriptName + " encountered an error:");
-			LogUtils.warning("  " + e.getMessage());
-			throw new SMSException("script encountered an error (see server log)");
-		}
-		return retval;
-	}
+        Bindings bindings = new SimpleBindings();
+        if (args.length > 2) {
+            String[] scriptArgs = new String[args.length - 2];
+            System.arraycopy(args, 2, scriptArgs, 0, scriptArgs.length);
+            bindings.put("args", scriptArgs);
+        } else {
+            bindings.put("args", new String[0]);
+        }
+        bindings.put("view", trigger instanceof SMSView ? trigger : null);
+        bindings.put("trigger", trigger);
+        bindings.put("commandSender", sender);
+        bindings.put("result", true);
+        File scriptFile = new File(DirectoryStructure.getScriptsFolder(), scriptName);
+        boolean retval = true;
+        try {
+            engine.eval(new BufferedReader(new FileReader(scriptFile)), bindings);
+            Object o = bindings.get("result");
+            if (o instanceof Boolean) {
+                retval = (Boolean) o;
+                Debugger.getInstance().debug("script " + scriptName + " returns: " + retval);
+            }
+        } catch (FileNotFoundException e) {
+            throw new SMSException("no such script " + scriptName);
+        } catch (ScriptException e) {
+            LogUtils.warning("Script " + scriptName + " encountered an error:");
+            LogUtils.warning("  " + e.getMessage());
+            throw new SMSException("script encountered an error (see server log)");
+        }
+        return retval;
+    }
 }

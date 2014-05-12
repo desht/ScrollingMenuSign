@@ -15,39 +15,39 @@ import org.bukkit.plugin.Plugin;
 
 public class DeleteMenuCommand extends SMSAbstractCommand {
 
-	public DeleteMenuCommand() {
-		super("sms delete", 0, 1);
-		setPermissionNode("scrollingmenusign.commands.delete");
-		setUsage("/sms delete <menu>");
-	}
+    public DeleteMenuCommand() {
+        super("sms delete", 0, 1);
+        setPermissionNode("scrollingmenusign.commands.delete");
+        setUsage("/sms delete <menu>");
+    }
 
-	@Override
-	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws SMSException {
-		SMSHandler handler = ((ScrollingMenuSign) plugin).getHandler();
-		SMSMenu menu;
+    @Override
+    public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws SMSException {
+        SMSHandler handler = ((ScrollingMenuSign) plugin).getHandler();
+        SMSMenu menu;
 
-		if (args.length > 0) {
-			menu = getMenu(sender, args[0]);
-		} else {
-			notFromConsole(sender);
-			Player player = (Player) sender;
-			SMSView view = ((ScrollingMenuSign) plugin).getViewManager().getTargetedView(player, true);
-			menu = view.getActiveMenu(player);
-		}
-		menu.ensureAllowedToModify(sender);
-		handler.deleteMenu(menu.getName());
-		MiscUtil.statusMessage(sender, "Deleted menu &e" + menu.getName() + "&-.  Use &f/sms undelete " + menu.getName() + "&- to restore it.");
+        if (args.length > 0) {
+            menu = getMenu(sender, args[0]);
+        } else {
+            notFromConsole(sender);
+            Player player = (Player) sender;
+            SMSView view = ((ScrollingMenuSign) plugin).getViewManager().getTargetedView(player, true);
+            menu = view.getActiveMenu(player);
+        }
+        menu.ensureAllowedToModify(sender);
+        handler.deleteMenu(menu.getName());
+        MiscUtil.statusMessage(sender, "Deleted menu &e" + menu.getName() + "&-.  Use &f/sms undelete " + menu.getName() + "&- to restore it.");
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
-		if (args.length == 1) {
-			return getMenuCompletions(plugin, sender, args[0]);
-		} else {
-			showUsage(sender);
-			return noCompletions(sender);
-		}
-	}
+    @Override
+    public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+        if (args.length == 1) {
+            return getMenuCompletions(plugin, sender, args[0]);
+        } else {
+            showUsage(sender);
+            return noCompletions(sender);
+        }
+    }
 }

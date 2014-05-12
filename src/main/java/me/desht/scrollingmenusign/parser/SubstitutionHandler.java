@@ -9,7 +9,7 @@ public interface SubstitutionHandler {
      * a string which will be used to replace the substitution template that this
      * handler is registered for.
      *
-     * @param player the player running the command
+     * @param player  the player running the command
      * @param trigger the command trigger that caused this command to run
      * @return a replacement string
      */

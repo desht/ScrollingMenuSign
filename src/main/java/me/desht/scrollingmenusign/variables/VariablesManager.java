@@ -67,10 +67,10 @@ public class VariablesManager {
      * a new empty SMSVariables collection will be created iff autoCreate is true, otherwise
      * an exception will be thrown.
      *
-     * @param sender the command sender
+     * @param sender     the command sender
      * @param autoCreate if true, a variables object will be auto-created if it doesn't exist
-     * @throws SMSException if autoCreate is false and the variables object does not exist
      * @return an SMSVariables collection of variables for the player
+     * @throws SMSException if autoCreate is false and the variables object does not exist
      */
     public SMSVariables getVariables(CommandSender sender, boolean autoCreate) {
         UUID id = sender instanceof ConsoleCommandSender ? GLOBAL_UUID : ((Player) sender).getUniqueId();
@@ -82,10 +82,10 @@ public class VariablesManager {
      * a new empty SMSVariables collection will be created iff autoCreate is true, otherwise
      * an exception will be thrown.
      *
-     * @param playerId the player's UUID
+     * @param playerId   the player's UUID
      * @param autoCreate if true, a variables object will be auto-created if it doesn't exist
-     * @throws SMSException if autoCreate is false and the variables object does not exist
      * @return an SMSVariables collection of variables for the player
+     * @throws SMSException if autoCreate is false and the variables object does not exist
      */
     public SMSVariables getVariables(UUID playerId, boolean autoCreate) {
         if (!hasVariables(playerId)) {
@@ -248,7 +248,7 @@ public class VariablesManager {
     }
 
     private class SyncUUIDTask extends BukkitRunnable {
-        private final Map<String,UUID> map;
+        private final Map<String, UUID> map;
 
         public SyncUUIDTask(Map<String, UUID> map) {
             this.map = map;

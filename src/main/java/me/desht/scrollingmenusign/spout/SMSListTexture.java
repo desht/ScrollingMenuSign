@@ -12,28 +12,28 @@ import org.getspout.spoutapi.gui.GenericTexture;
 import org.getspout.spoutapi.gui.RenderPriority;
 
 public class SMSListTexture extends GenericTexture {
-	private final SMSPopup popup;
+    private final SMSPopup popup;
 
-	public SMSListTexture(SMSPopup popup) {
-		this.popup = popup;
+    public SMSListTexture(SMSPopup popup) {
+        this.popup = popup;
 
-		setDrawAlphaChannel(true);
-		setPriority(RenderPriority.Highest);    // put it behind the list widget
+        setDrawAlphaChannel(true);
+        setPriority(RenderPriority.Highest);    // put it behind the list widget
 
-		updateURL();
-	}
+        updateURL();
+    }
 
-	public void updateURL() {
-		try {
-			String textureName = popup.getView().getAttributeAsString(SMSSpoutView.TEXTURE);
-			if (textureName != null && !textureName.isEmpty()) {
-				URL textureURL = ScrollingMenuSign.makeImageURL(textureName);
-				setUrl(textureURL.toString());
-			} else {
-				setUrl("");
-			}
-		} catch (MalformedURLException e) {
-			LogUtils.warning("malformed texture URL for spout view " + popup.getView().getName() + ": " + e.getMessage());
-		}
-	}
+    public void updateURL() {
+        try {
+            String textureName = popup.getView().getAttributeAsString(SMSSpoutView.TEXTURE);
+            if (textureName != null && !textureName.isEmpty()) {
+                URL textureURL = ScrollingMenuSign.makeImageURL(textureName);
+                setUrl(textureURL.toString());
+            } else {
+                setUrl("");
+            }
+        } catch (MalformedURLException e) {
+            LogUtils.warning("malformed texture URL for spout view " + popup.getView().getName() + ": " + e.getMessage());
+        }
+    }
 }

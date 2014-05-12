@@ -3,11 +3,11 @@ package me.desht.scrollingmenusign;
 import org.bukkit.command.CommandSender;
 
 interface SMSUseLimitable {
-	void autosave();
+    void autosave();
 
-	String getDescription();
+    String getDescription();
 
-	String formatUses(CommandSender sender);
+    String formatUses(CommandSender sender);
 
-	SMSRemainingUses getUseLimits();
+    SMSRemainingUses getUseLimits();
 }

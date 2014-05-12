@@ -15,30 +15,30 @@ import com.google.common.base.Joiner;
 
 public class AfterCommandlet extends BaseCommandlet {
 
-	public AfterCommandlet() {
-		super("AFTER");
-	}
+    public AfterCommandlet() {
+        super("AFTER");
+    }
 
-	@Override
-	public boolean execute(ScrollingMenuSign plugin, final CommandSender sender, final CommandTrigger trigger, String cmd, String[] args) {
-		SMSValidate.isTrue(args.length >= 3, "Usage: " + cmd + " <delay> <command string>");
+    @Override
+    public boolean execute(ScrollingMenuSign plugin, final CommandSender sender, final CommandTrigger trigger, String cmd, String[] args) {
+        SMSValidate.isTrue(args.length >= 3, "Usage: " + cmd + " <delay> <command string>");
 
-		int delay;
-		try {
-			delay = Integer.parseInt(args[1]);
-		} catch (NumberFormatException e) {
-			throw new SMSException("Invalid numeric quantity: " + args[1]);
-		}
+        int delay;
+        try {
+            delay = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            throw new SMSException("Invalid numeric quantity: " + args[1]);
+        }
 
-		final String command = Joiner.on(" ").join(Arrays.copyOfRange(args, 2, args.length));
+        final String command = Joiner.on(" ").join(Arrays.copyOfRange(args, 2, args.length));
 
-		Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-			@Override
-			public void run() {
-				CommandUtils.executeCommand(sender, command, trigger);
-			}
-		}, delay);
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                CommandUtils.executeCommand(sender, command, trigger);
+            }
+        }, delay);
 
-		return true;
-	}
+        return true;
+    }
 }

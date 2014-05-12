@@ -29,94 +29,94 @@ import org.bukkit.inventory.ItemStack;
 
 public class SMSEntityListener extends SMSListenerBase {
 
-	public SMSEntityListener(ScrollingMenuSign plugin) {
-		super(plugin);
-	}
+    public SMSEntityListener(ScrollingMenuSign plugin) {
+        super(plugin);
+    }
 
-	@EventHandler(ignoreCancelled = true)
-	public void onEntityExplode(EntityExplodeEvent event) {
-		boolean noExplode = plugin.getConfig().getBoolean("sms.no_explosions", false);
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityExplode(EntityExplodeEvent event) {
+        boolean noExplode = plugin.getConfig().getBoolean("sms.no_explosions", false);
 
-		Iterator<Block> iter = event.blockList().iterator();
-		while (iter.hasNext()) {
-			Location loc = iter.next().getLocation();
-			SMSView view = plugin.getViewManager().getViewForLocation(loc);
-			if (view != null) {
-				SMSMenu menu = view.getNativeMenu();
-				Debugger.getInstance().debug("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
-				if (noExplode) {
-					LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was protected from an explosion.");
-					iter.remove();
-				} else {
-					LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
-					plugin.getViewManager().deleteView(view, true);
-				}
-			}
-		}
-	}
+        Iterator<Block> iter = event.blockList().iterator();
+        while (iter.hasNext()) {
+            Location loc = iter.next().getLocation();
+            SMSView view = plugin.getViewManager().getViewForLocation(loc);
+            if (view != null) {
+                SMSMenu menu = view.getNativeMenu();
+                Debugger.getInstance().debug("entity explode event @ " + MiscUtil.formatLocation(loc) + ", menu=" + menu.getName());
+                if (noExplode) {
+                    LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was protected from an explosion.");
+                    iter.remove();
+                } else {
+                    LogUtils.info("view @ " + MiscUtil.formatLocation(loc) + " (menu " + menu.getName() + ") was destroyed by an explosion.");
+                    plugin.getViewManager().deleteView(view, true);
+                }
+            }
+        }
+    }
 
-	@EventHandler(ignoreCancelled = true)
-	public void onItemFrameDamagedByEntity_16(HangingBreakByEntityEvent event) {
-		// CB 1.6.4 and older - item frame auto-breaks even with an item in it
-		Entity entity = event.getEntity();
-		if (entity instanceof ItemFrame) {
-			ItemStack item = ((ItemFrame) entity).getItem();
-			if (item != null && item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
-				if (event.getRemover() instanceof Player && event.getCause() == HangingBreakEvent.RemoveCause.ENTITY) {
-					SMSUserAction action = SMSUserAction.getAction(event);
-					SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
-					Player player = (Player) event.getRemover();
-					try {
-						action.execute(player, mapView);
-					} catch (SMSException e) {
-						MiscUtil.errorMessage(player, e.getMessage());
-					}
-					event.setCancelled(true);
-				} else {
-					if (plugin.getConfig().getBoolean("sms.no_itemframe_damage")) {
-						event.setCancelled(true);
-					}
-				}
-			}
-		}
-	}
+    @EventHandler(ignoreCancelled = true)
+    public void onItemFrameDamagedByEntity_16(HangingBreakByEntityEvent event) {
+        // CB 1.6.4 and older - item frame auto-breaks even with an item in it
+        Entity entity = event.getEntity();
+        if (entity instanceof ItemFrame) {
+            ItemStack item = ((ItemFrame) entity).getItem();
+            if (item != null && item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
+                if (event.getRemover() instanceof Player && event.getCause() == HangingBreakEvent.RemoveCause.ENTITY) {
+                    SMSUserAction action = SMSUserAction.getAction(event);
+                    SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
+                    Player player = (Player) event.getRemover();
+                    try {
+                        action.execute(player, mapView);
+                    } catch (SMSException e) {
+                        MiscUtil.errorMessage(player, e.getMessage());
+                    }
+                    event.setCancelled(true);
+                } else {
+                    if (plugin.getConfig().getBoolean("sms.no_itemframe_damage")) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+        }
+    }
 
-	@EventHandler(ignoreCancelled = true)
-	public void onItemFrameDamagedByEntity(EntityDamageByEntityEvent event) {
-		// CB 1.7.2+ - item frame with an item in it doesn't auto-break - instead a damage event is fired
-		Entity entity = event.getEntity();
-		if (entity instanceof ItemFrame) {
-			ItemStack item = ((ItemFrame) entity).getItem();
-			if (item != null && item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
-				if (event.getDamager() instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
-					SMSUserAction action = SMSUserAction.getAction(event);
-					SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
-					Player player = (Player) event.getDamager();
-					try {
-						action.execute(player, mapView);
-					} catch (SMSException e) {
-						MiscUtil.errorMessage(player, e.getMessage());
-					}
-					event.setCancelled(true);
-				} else {
-					if (plugin.getConfig().getBoolean("sms.no_itemframe_damage")) {
-						event.setCancelled(true);
-					}
-				}
-			}
-		}
-	}
+    @EventHandler(ignoreCancelled = true)
+    public void onItemFrameDamagedByEntity(EntityDamageByEntityEvent event) {
+        // CB 1.7.2+ - item frame with an item in it doesn't auto-break - instead a damage event is fired
+        Entity entity = event.getEntity();
+        if (entity instanceof ItemFrame) {
+            ItemStack item = ((ItemFrame) entity).getItem();
+            if (item != null && item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
+                if (event.getDamager() instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+                    SMSUserAction action = SMSUserAction.getAction(event);
+                    SMSMapView mapView = plugin.getViewManager().getMapViewForId(item.getDurability());
+                    Player player = (Player) event.getDamager();
+                    try {
+                        action.execute(player, mapView);
+                    } catch (SMSException e) {
+                        MiscUtil.errorMessage(player, e.getMessage());
+                    }
+                    event.setCancelled(true);
+                } else {
+                    if (plugin.getConfig().getBoolean("sms.no_itemframe_damage")) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+        }
+    }
 
-	@EventHandler(ignoreCancelled = true)
-	public void onItemFrameDamagedByBlock(EntityDamageByBlockEvent event) {
-		Entity entity = event.getEntity();
-		if (entity instanceof ItemFrame) {
-			ItemStack item = ((ItemFrame) entity).getItem();
-			if (item != null && item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
-				if (plugin.getConfig().getBoolean("sms.no_itemframe_damage")) {
-					event.setCancelled(true);
-				}
-			}
-		}
-	}
+    @EventHandler(ignoreCancelled = true)
+    public void onItemFrameDamagedByBlock(EntityDamageByBlockEvent event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof ItemFrame) {
+            ItemStack item = ((ItemFrame) entity).getItem();
+            if (item != null && item.getType() == Material.MAP && plugin.getViewManager().checkForMapId(item.getDurability())) {
+                if (plugin.getConfig().getBoolean("sms.no_itemframe_damage")) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
 }

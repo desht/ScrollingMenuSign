@@ -9,17 +9,17 @@ import org.bukkit.event.world.WorldLoadEvent;
 
 public class SMSWorldListener extends SMSListenerBase {
 
-	public SMSWorldListener(ScrollingMenuSign plugin) {
-		super(plugin);
-	}
+    public SMSWorldListener(ScrollingMenuSign plugin) {
+        super(plugin);
+    }
 
-	@EventHandler
-	public void onWorldLoad(WorldLoadEvent event) {
-		// load any view locations for this world
-		plugin.getViewManager().loadDeferred(event.getWorld());
-		// load any switches for the world
-		Switch.loadDeferred(event.getWorld());
-		// load any control signs for the world
-		RedstoneControlSign.loadDeferred(event.getWorld());
-	}
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent event) {
+        // load any view locations for this world
+        plugin.getViewManager().loadDeferred(event.getWorld());
+        // load any switches for the world
+        Switch.loadDeferred(event.getWorld());
+        // load any control signs for the world
+        RedstoneControlSign.loadDeferred(event.getWorld());
+    }
 }

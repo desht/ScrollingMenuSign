@@ -12,119 +12,119 @@ import org.getspout.spoutapi.gui.WidgetAnchor;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
-	private static final int LIST_WIDTH_HEIGHT = 200;
-	private static final int TITLE_HEIGHT = 15;
-	private static final int TITLE_WIDTH = 100;
+    private static final int LIST_WIDTH_HEIGHT = 200;
+    private static final int TITLE_HEIGHT = 15;
+    private static final int TITLE_WIDTH = 100;
 
-	private final Label title;
-	private final SMSSpoutView view;
-	private final SMSListWidget listWidget;
-	private final SMSListTexture texture;
-	private final SpoutPlayer sp;
+    private final Label title;
+    private final SMSSpoutView view;
+    private final SMSListWidget listWidget;
+    private final SMSListTexture texture;
+    private final SpoutPlayer sp;
 
-	private boolean poppedUp;
+    private boolean poppedUp;
 
-	public SpoutViewPopup(SpoutPlayer sp, SMSSpoutView view) {
-		this.sp = sp;
-		this.view = view;
-		this.poppedUp = false;
+    public SpoutViewPopup(SpoutPlayer sp, SMSSpoutView view) {
+        this.sp = sp;
+        this.view = view;
+        this.poppedUp = false;
 
-		Screen mainScreen = sp.getMainScreen();
+        Screen mainScreen = sp.getMainScreen();
 
-		title = new GenericLabel(view.variableSubs(view.getActiveMenu(sp).getTitle()));
-		title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(15).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
-		title.setAnchor(WidgetAnchor.TOP_LEFT);
-		title.setAuto(false);
-		rejustify();
+        title = new GenericLabel(view.variableSubs(view.getActiveMenu(sp).getTitle()));
+        title.setX((mainScreen.getWidth() - TITLE_WIDTH) / 2).setY(15).setWidth(TITLE_WIDTH).setHeight(TITLE_HEIGHT);
+        title.setAnchor(WidgetAnchor.TOP_LEFT);
+        title.setAuto(false);
+        rejustify();
 
-		int listX = (mainScreen.getWidth() - LIST_WIDTH_HEIGHT) / 2;
-		int listY = 5 + 2 + TITLE_HEIGHT;
+        int listX = (mainScreen.getWidth() - LIST_WIDTH_HEIGHT) / 2;
+        int listY = 5 + 2 + TITLE_HEIGHT;
 
-		texture = new SMSListTexture(this);
+        texture = new SMSListTexture(this);
 
-		listWidget = new SMSListWidget(sp, view);
-		listWidget.setX(listX).setY(listY).setWidth(LIST_WIDTH_HEIGHT).setHeight(LIST_WIDTH_HEIGHT);
+        listWidget = new SMSListWidget(sp, view);
+        listWidget.setX(listX).setY(listY).setWidth(LIST_WIDTH_HEIGHT).setHeight(LIST_WIDTH_HEIGHT);
 
-		this.attachWidget(ScrollingMenuSign.getInstance(), title);
-		texture.setX(listX).setY(listY).setWidth(LIST_WIDTH_HEIGHT).setHeight(LIST_WIDTH_HEIGHT);
-		this.attachWidget(ScrollingMenuSign.getInstance(), texture);
-		this.attachWidget(ScrollingMenuSign.getInstance(), listWidget);
-	}
+        this.attachWidget(ScrollingMenuSign.getInstance(), title);
+        texture.setX(listX).setY(listY).setWidth(LIST_WIDTH_HEIGHT).setHeight(LIST_WIDTH_HEIGHT);
+        this.attachWidget(ScrollingMenuSign.getInstance(), texture);
+        this.attachWidget(ScrollingMenuSign.getInstance(), listWidget);
+    }
 
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.spout.SMSPopup#getView()
-	 */
-	@Override
-	public SMSSpoutView getView() {
-		return view;
-	}
+    /* (non-Javadoc)
+     * @see me.desht.scrollingmenusign.spout.SMSPopup#getView()
+     */
+    @Override
+    public SMSSpoutView getView() {
+        return view;
+    }
 
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.spout.SMSPopup#isPoppedUp()
-	 */
-	@Override
-	public boolean isPoppedUp(Player p) {
-		return poppedUp;
-	}
+    /* (non-Javadoc)
+     * @see me.desht.scrollingmenusign.spout.SMSPopup#isPoppedUp()
+     */
+    @Override
+    public boolean isPoppedUp(Player p) {
+        return poppedUp;
+    }
 
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.spout.SMSPopup#repaint()
-	 */
-	@Override
-	public void repaint() {
-		title.setText(view.variableSubs(view.getActiveMenuTitle(sp)));
-		rejustify();
-		texture.updateURL();
-		listWidget.repaint();
-	}
+    /* (non-Javadoc)
+     * @see me.desht.scrollingmenusign.spout.SMSPopup#repaint()
+     */
+    @Override
+    public void repaint() {
+        title.setText(view.variableSubs(view.getActiveMenuTitle(sp)));
+        rejustify();
+        texture.updateURL();
+        listWidget.repaint();
+    }
 
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.spout.SMSPopup#popup()
-	 */
-	@Override
-	public void popup(Player p) {
-		poppedUp = true;
-		((SpoutPlayer) p).getMainScreen().attachPopupScreen(this);
-	}
+    /* (non-Javadoc)
+     * @see me.desht.scrollingmenusign.spout.SMSPopup#popup()
+     */
+    @Override
+    public void popup(Player p) {
+        poppedUp = true;
+        ((SpoutPlayer) p).getMainScreen().attachPopupScreen(this);
+    }
 
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.spout.SMSPopup#popdown()
-	 */
-	@Override
-	public void popdown(Player p) {
-		poppedUp = false;
-		((SpoutPlayer) p).getMainScreen().closePopup();
-	}
+    /* (non-Javadoc)
+     * @see me.desht.scrollingmenusign.spout.SMSPopup#popdown()
+     */
+    @Override
+    public void popdown(Player p) {
+        poppedUp = false;
+        ((SpoutPlayer) p).getMainScreen().closePopup();
+    }
 
-	private void rejustify() {
-		switch (getView().getTitleJustification()) {
-			case LEFT:
-				title.setAlign(WidgetAnchor.CENTER_LEFT);
-				break;
-			case RIGHT:
-				title.setAlign(WidgetAnchor.CENTER_LEFT);
-				break;
-			case CENTER:
-			default:
-				title.setAlign(WidgetAnchor.CENTER_LEFT);
-				break;
-		}
-	}
+    private void rejustify() {
+        switch (getView().getTitleJustification()) {
+            case LEFT:
+                title.setAlign(WidgetAnchor.CENTER_LEFT);
+                break;
+            case RIGHT:
+                title.setAlign(WidgetAnchor.CENTER_LEFT);
+                break;
+            case CENTER:
+            default:
+                title.setAlign(WidgetAnchor.CENTER_LEFT);
+                break;
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see me.desht.scrollingmenusign.spout.SMSPopup#scrollTo(int)
-	 */
-	public void scrollTo(int scrollPos) {
-		listWidget.setSelection(scrollPos - 1);
+    /* (non-Javadoc)
+     * @see me.desht.scrollingmenusign.spout.SMSPopup#scrollTo(int)
+     */
+    public void scrollTo(int scrollPos) {
+        listWidget.setSelection(scrollPos - 1);
 
-		Debugger.getInstance().debug("Spout view " + getView().getName() + ": scroll to " + scrollPos + ": " + listWidget.getSelectedItem().getTitle());
-	}
+        Debugger.getInstance().debug("Spout view " + getView().getName() + ": scroll to " + scrollPos + ": " + listWidget.getSelectedItem().getTitle());
+    }
 
-	/**
-	 * This is used when the view is scrolled by a Spout keypress.  When that happens a new item
-	 * becomes selected; we need to distinguish that from an item being selected by a mouse click.
-	 */
-	public void ignoreNextSelection() {
-		listWidget.ignoreNextSelection(true);
-	}
+    /**
+     * This is used when the view is scrolled by a Spout keypress.  When that happens a new item
+     * becomes selected; we need to distinguish that from an item being selected by a mouse click.
+     */
+    public void ignoreNextSelection() {
+        listWidget.ignoreNextSelection(true);
+    }
 }

@@ -9,15 +9,15 @@ import org.bukkit.entity.Player;
 
 public class CloseSubmenuCommandlet extends BaseCommandlet {
 
-	public CloseSubmenuCommandlet() {
-		super("BACK");
-	}
+    public CloseSubmenuCommandlet() {
+        super("BACK");
+    }
 
-	@Override
-	public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
-		Validate.isTrue(sender instanceof Player, "Not from the console!");
-		trigger.popMenu((Player) sender);
-		return true;
-	}
+    @Override
+    public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
+        Validate.isTrue(sender instanceof Player, "Not from the console!");
+        trigger.popMenu((Player) sender);
+        return true;
+    }
 
 }

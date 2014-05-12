@@ -11,30 +11,30 @@ import org.bukkit.Location;
  * Track the location of every block which is managed by SMS.
  */
 public class LocationManager {
-	private final Map<PersistableLocation, SMSInteractableBlock> locationMap;
+    private final Map<PersistableLocation, SMSInteractableBlock> locationMap;
 
-	public LocationManager() {
-		locationMap = new HashMap<PersistableLocation, SMSInteractableBlock>();
-	}
+    public LocationManager() {
+        locationMap = new HashMap<PersistableLocation, SMSInteractableBlock>();
+    }
 
-	public void registerLocation(Location loc, SMSInteractableBlock interactable) {
-		locationMap.put(new PersistableLocation(loc), interactable);
-	}
+    public void registerLocation(Location loc, SMSInteractableBlock interactable) {
+        locationMap.put(new PersistableLocation(loc), interactable);
+    }
 
-	public void unregisterLocation(Location loc) {
-		locationMap.remove(new PersistableLocation(loc));
-	}
+    public void unregisterLocation(Location loc) {
+        locationMap.remove(new PersistableLocation(loc));
+    }
 
-	public SMSInteractableBlock getInteractableAt(Location loc) {
-		return locationMap.get(new PersistableLocation(loc));
-	}
+    public SMSInteractableBlock getInteractableAt(Location loc) {
+        return locationMap.get(new PersistableLocation(loc));
+    }
 
-	public <T> T getInteractableAt(Location loc, Class<T> c) {
-		Object o = locationMap.get(new PersistableLocation(loc));
-		if (o != null && c.isAssignableFrom(o.getClass())) {
-			return c.cast(o);
-		} else {
-			return null;
-		}
-	}
+    public <T> T getInteractableAt(Location loc, Class<T> c) {
+        Object o = locationMap.get(new PersistableLocation(loc));
+        if (o != null && c.isAssignableFrom(o.getClass())) {
+            return c.cast(o);
+        } else {
+            return null;
+        }
+    }
 }

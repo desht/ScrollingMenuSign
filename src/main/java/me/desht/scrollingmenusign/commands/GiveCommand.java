@@ -24,141 +24,141 @@ import org.bukkit.plugin.Plugin;
 
 public class GiveCommand extends SMSAbstractCommand {
 
-	public GiveCommand() {
-		super("sms give", 2, 4);
-		setPermissionNode("scrollingmenusign.commands.give");
-		setUsage(new String[]{
-				"/sms give map <menu-name|view-name|map-id> [<amount>] [<player>]",
-				"/sms give book <menu-name|view-name> [<amount>] [<player>]",
-		});
-	}
+    public GiveCommand() {
+        super("sms give", 2, 4);
+        setPermissionNode("scrollingmenusign.commands.give");
+        setUsage(new String[]{
+                "/sms give map <menu-name|view-name|map-id> [<amount>] [<player>]",
+                "/sms give book <menu-name|view-name> [<amount>] [<player>]",
+        });
+    }
 
-	@Override
-	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		int amount = 1;
-		if (args.length >= 3) {
-			try {
-				amount = Math.min(64, Math.max(1, Integer.parseInt(args[2])));
-			} catch (NumberFormatException e) {
-				throw new SMSException("Invalid amount '" + args[1] + "'.");
-			}
-		}
-		Player targetPlayer;
-		if (args.length >= 4) {
-			targetPlayer = Bukkit.getPlayer(args[3]);
-			if (targetPlayer == null) {
-				throw new SMSException("Player '" + args[3] + "' is not online.");
-			}
-		} else {
-			notFromConsole(sender);
-			targetPlayer = (Player) sender;
-		}
+    @Override
+    public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
+        int amount = 1;
+        if (args.length >= 3) {
+            try {
+                amount = Math.min(64, Math.max(1, Integer.parseInt(args[2])));
+            } catch (NumberFormatException e) {
+                throw new SMSException("Invalid amount '" + args[1] + "'.");
+            }
+        }
+        Player targetPlayer;
+        if (args.length >= 4) {
+            targetPlayer = Bukkit.getPlayer(args[3]);
+            if (targetPlayer == null) {
+                throw new SMSException("Player '" + args[3] + "' is not online.");
+            }
+        } else {
+            notFromConsole(sender);
+            targetPlayer = (Player) sender;
+        }
 
-		if (args[0].startsWith("m")) {
-			short mapId = getMapId(sender, targetPlayer, args[1]);
-			giveMap(sender, targetPlayer, mapId, amount);
-		} else if (args[0].startsWith("b")) {
-			giveBook(sender, targetPlayer, args[1], amount);
-		} else {
-			showUsage(sender);
-		}
-		return true;
-	}
+        if (args[0].startsWith("m")) {
+            short mapId = getMapId(sender, targetPlayer, args[1]);
+            giveMap(sender, targetPlayer, mapId, amount);
+        } else if (args[0].startsWith("b")) {
+            giveBook(sender, targetPlayer, args[1], amount);
+        } else {
+            showUsage(sender);
+        }
+        return true;
+    }
 
-	private short getMapId(CommandSender sender, Player target, String argStr) {
-		short mapId;
-		ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
+    private short getMapId(CommandSender sender, Player target, String argStr) {
+        short mapId;
+        ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
 
-		try {
-			// first, see if it's a map ID
-			mapId = Short.parseShort(argStr);
-		} catch (NumberFormatException e) {
-			// maybe it's a view name?
-			if (vm.checkForView(argStr)) {
-				SMSView view = vm.getView(argStr);
-				if (!(view instanceof SMSMapView)) {
-					throw new SMSException("View " + view.getName() + " is not a map view");
-				}
-				mapId = ((SMSMapView) view).getMapView().getId();
-			} else {
-				// or perhaps a menu name?
-				SMSMenu menu = getMenu(sender, argStr);
-				SMSView v = vm.findView(menu, SMSMapView.class);
-				if (v == null) {
-					// this menu doesn't have a map view - make one!
-					mapId = Bukkit.createMap(target.getWorld()).getId();
-					ScrollingMenuSign.getInstance().getViewManager().addMapToMenu(menu, mapId, sender);
-				} else {
-					// menu has a map view already - use that map ID
-					mapId = ((SMSMapView) v).getMapView().getId();
-				}
-			}
-		}
+        try {
+            // first, see if it's a map ID
+            mapId = Short.parseShort(argStr);
+        } catch (NumberFormatException e) {
+            // maybe it's a view name?
+            if (vm.checkForView(argStr)) {
+                SMSView view = vm.getView(argStr);
+                if (!(view instanceof SMSMapView)) {
+                    throw new SMSException("View " + view.getName() + " is not a map view");
+                }
+                mapId = ((SMSMapView) view).getMapView().getId();
+            } else {
+                // or perhaps a menu name?
+                SMSMenu menu = getMenu(sender, argStr);
+                SMSView v = vm.findView(menu, SMSMapView.class);
+                if (v == null) {
+                    // this menu doesn't have a map view - make one!
+                    mapId = Bukkit.createMap(target.getWorld()).getId();
+                    ScrollingMenuSign.getInstance().getViewManager().addMapToMenu(menu, mapId, sender);
+                } else {
+                    // menu has a map view already - use that map ID
+                    mapId = ((SMSMapView) v).getMapView().getId();
+                }
+            }
+        }
 
-		return mapId;
-	}
+        return mapId;
+    }
 
-	@SuppressWarnings("deprecation")
-	private void giveBook(CommandSender sender, Player targetPlayer, String argStr, int amount) {
-		SMSView view;
-		ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
-		if (vm.checkForView(argStr)) {
-			view = vm.getView(argStr);
-			if (!(view instanceof PoppableView)) {
-				throw new SMSException("View '" + argStr + "' isn't a poppable view.");
-			}
-		} else {
-			SMSMenu menu = SMSMenu.getMenu(argStr);
-			view = vm.findView(menu, PoppableView.class);
-			if (view == null) {
-				view = vm.addInventoryViewToMenu(menu, sender);
-			}
-		}
+    @SuppressWarnings("deprecation")
+    private void giveBook(CommandSender sender, Player targetPlayer, String argStr, int amount) {
+        SMSView view;
+        ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
+        if (vm.checkForView(argStr)) {
+            view = vm.getView(argStr);
+            if (!(view instanceof PoppableView)) {
+                throw new SMSException("View '" + argStr + "' isn't a poppable view.");
+            }
+        } else {
+            SMSMenu menu = SMSMenu.getMenu(argStr);
+            view = vm.findView(menu, PoppableView.class);
+            if (view == null) {
+                view = vm.addInventoryViewToMenu(menu, sender);
+            }
+        }
 
-		PopupBook book = new PopupBook(targetPlayer, view);
-		ItemStack writtenbook = book.toItemStack();
-		targetPlayer.getInventory().addItem(writtenbook);
-		targetPlayer.updateInventory();
+        PopupBook book = new PopupBook(targetPlayer, view);
+        ItemStack writtenbook = book.toItemStack();
+        targetPlayer.getInventory().addItem(writtenbook);
+        targetPlayer.updateInventory();
 
-		String s = amount == 1 ? "" : "s";
-		MiscUtil.statusMessage(sender, String.format("Gave %d book%s (&6%s&-) to &6%s", amount, s, argStr, targetPlayer.getName()));
-		if (sender != targetPlayer) {
-			MiscUtil.statusMessage(targetPlayer, String.format("You received %d books%s for menu &6%s", amount, s, view.getNativeMenu().getTitle()));
-		}
-	}
+        String s = amount == 1 ? "" : "s";
+        MiscUtil.statusMessage(sender, String.format("Gave %d book%s (&6%s&-) to &6%s", amount, s, argStr, targetPlayer.getName()));
+        if (sender != targetPlayer) {
+            MiscUtil.statusMessage(targetPlayer, String.format("You received %d books%s for menu &6%s", amount, s, view.getNativeMenu().getTitle()));
+        }
+    }
 
-	@SuppressWarnings("deprecation")
-	private void giveMap(CommandSender sender, Player targetPlayer, short mapId, int amount) {
-		if (Bukkit.getServer().getMap(mapId) == null) {
-			World world = targetPlayer.getWorld();
-			MapView mv = Bukkit.getServer().createMap(world);
-			mapId = mv.getId();
-		}
+    @SuppressWarnings("deprecation")
+    private void giveMap(CommandSender sender, Player targetPlayer, short mapId, int amount) {
+        if (Bukkit.getServer().getMap(mapId) == null) {
+            World world = targetPlayer.getWorld();
+            MapView mv = Bukkit.getServer().createMap(world);
+            mapId = mv.getId();
+        }
 
-		ItemStack stack = new ItemStack(Material.MAP, amount);
-		stack.setDurability(mapId);
-		SMSMapView v = ScrollingMenuSign.getInstance().getViewManager().getMapViewForId(mapId);
-		if (v != null) {
-			v.setMapItemName(stack);
-		}
-		targetPlayer.getInventory().addItem(stack);
-		targetPlayer.updateInventory();
+        ItemStack stack = new ItemStack(Material.MAP, amount);
+        stack.setDurability(mapId);
+        SMSMapView v = ScrollingMenuSign.getInstance().getViewManager().getMapViewForId(mapId);
+        if (v != null) {
+            v.setMapItemName(stack);
+        }
+        targetPlayer.getInventory().addItem(stack);
+        targetPlayer.updateInventory();
 
-		String s = amount == 1 ? "" : "s";
-		MiscUtil.statusMessage(sender, String.format("Gave %d map%s (&6map_%d&-) to &6%s", amount, s, mapId, targetPlayer.getName()));
-		if (sender != targetPlayer) {
-			MiscUtil.statusMessage(targetPlayer, String.format("You received %d map%s of type &6map_%d&-", amount, s, mapId));
-		}
-	}
+        String s = amount == 1 ? "" : "s";
+        MiscUtil.statusMessage(sender, String.format("Gave %d map%s (&6map_%d&-) to &6%s", amount, s, mapId, targetPlayer.getName()));
+        if (sender != targetPlayer) {
+            MiscUtil.statusMessage(targetPlayer, String.format("You received %d map%s of type &6map_%d&-", amount, s, mapId));
+        }
+    }
 
-	@Override
-	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
-		switch (args.length) {
-			case 1:
-				return filterPrefix(sender, Arrays.asList("book", "map"), args[0]);
-			default:
-				showUsage(sender);
-				return noCompletions(sender);
-		}
-	}
+    @Override
+    public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+        switch (args.length) {
+            case 1:
+                return filterPrefix(sender, Arrays.asList("book", "map"), args[0]);
+            default:
+                showUsage(sender);
+                return noCompletions(sender);
+        }
+    }
 }
