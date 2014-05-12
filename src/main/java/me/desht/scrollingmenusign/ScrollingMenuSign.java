@@ -104,6 +104,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
     public final ResponseHandler responseHandler = new ResponseHandler(this);
     private boolean protocolLibEnabled = false;
     private MetaFaker faker;
+    private boolean vaultLegacyMode = false;
 
     @Override
     public void onLoad() {
@@ -302,6 +303,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         Plugin vault = pm.getPlugin("Vault");
         if (vault != null && vault.isEnabled()) {
             Debugger.getInstance().debug("Hooked Vault v" + vault.getDescription().getVersion());
+            int ver = PluginVersionChecker.getRelease(vault.getDescription().getVersion());
+            vaultLegacyMode = ver < 1003000;  // 1.3.0
             if (!setupEconomy()) {
                 LogUtils.warning("No economy plugin detected - economy command costs not available");
             }
@@ -330,6 +333,10 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         }
 
         return permission != null;
+    }
+
+    public boolean isVaultLegacyMode() {
+        return vaultLegacyMode;
     }
 
     private void setupProtocolLib(PluginManager pm) {

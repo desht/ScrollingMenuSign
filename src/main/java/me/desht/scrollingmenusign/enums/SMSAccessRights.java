@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.enums;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -26,8 +27,9 @@ public enum SMSAccessRights {
         boolean inGroup;
         switch (this) {
             case OWNER_GROUP:
-                // TODO hopefully Vault will add API to do queries by UUID soon
-                String primaryGroup = ScrollingMenuSign.permission.getPrimaryGroup(player.getWorld().getName(), ownerName);
+                String primaryGroup = ScrollingMenuSign.getInstance().isVaultLegacyMode() ?
+                        ScrollingMenuSign.permission.getPrimaryGroup(player.getWorld(), ownerName) :
+                        ScrollingMenuSign.permission.getPrimaryGroup(player.getWorld(), Bukkit.getOfflinePlayer(ownerId));
                 inGroup = checkGroupMembership(player, primaryGroup);
                 Debugger.getInstance().debug("OWNER_GROUP access check: owner = [" + ownerName + "], primary group = [" + primaryGroup + "], player ["
                         + player.getDisplayName() + "] in group: " + inGroup);
@@ -42,10 +44,12 @@ public enum SMSAccessRights {
     }
 
     private boolean checkGroupMembership(Player player, String group) {
-        // TODO hopefully Vault will add API to do queries by UUID soon
-        return group != null &&
-                !group.isEmpty() &&
-                ScrollingMenuSign.permission != null &&
-                ScrollingMenuSign.permission.playerInGroup(player.getWorld(), player.getName(), group);
+        if (group == null || group.isEmpty() || ScrollingMenuSign.permission == null) {
+            return false;
+        } else if (ScrollingMenuSign.getInstance().isVaultLegacyMode()) {
+            return ScrollingMenuSign.permission.playerInGroup(player.getWorld(), player.getName(), group);
+        } else {
+            return ScrollingMenuSign.permission.playerInGroup(player.getWorld(), player, group);
+        }
     }
 }
