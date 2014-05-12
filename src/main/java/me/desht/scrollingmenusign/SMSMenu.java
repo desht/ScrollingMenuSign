@@ -61,7 +61,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         this.attributes = new AttributeCollection(this);
         registerAttributes();
         setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner);
-        ownerId = null;
+        ownerId = new UUID(0, 0);
         setAttribute(TITLE, title);
     }
 
@@ -79,7 +79,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         this.attributes = new AttributeCollection(this);
         registerAttributes();
         setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner.getName());
-        ownerId = owner == null ? null : owner.getUniqueId();
+        ownerId = owner == null ? new UUID(0, 0) : owner.getUniqueId();
         setAttribute(TITLE, title);
     }
 
@@ -97,7 +97,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         this.attributes = new AttributeCollection(this);
         registerAttributes();
         setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : "[" + owner.getName() + "]");
-        ownerId = null;
+        ownerId = new UUID(0, 0);
         setAttribute(TITLE, title);
     }
 
@@ -124,7 +124,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         if (id != null && !id.isEmpty()) {
             this.ownerId = UUID.fromString(id);
         } else {
-            this.ownerId = null;
+            this.ownerId = new UUID(0, 0)   ;
         }
 
         // migration of owner field from pre-2.0.0: "&console" => "[console]"
@@ -910,11 +910,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
                 ownerId = new UUID(0, 0);
             } else if (MiscUtil.looksLikeUUID(owner)) {
                 ownerId = UUID.fromString(owner);
-                getAttributes().setValidate(false);
                 String name = Bukkit.getOfflinePlayer(ownerId).getName();
                 setAttribute(OWNER, name == null ? "?" : name);
-                getAttributes().setValidate(true);
-            } else {
+            } else if (!owner.equals("?")) {
                 @SuppressWarnings("deprecation") Player p = Bukkit.getPlayer(owner);
                 if (p != null) {
                     ownerId = p.getUniqueId();

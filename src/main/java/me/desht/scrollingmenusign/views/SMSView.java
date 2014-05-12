@@ -699,11 +699,9 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
                 ownerId = new UUID(0, 0);
             } else if (MiscUtil.looksLikeUUID(owner)) {
                 ownerId = UUID.fromString(owner);
-                getAttributes().setValidate(false);
                 String name = Bukkit.getOfflinePlayer(ownerId).getName();
                 setAttribute(OWNER, name == null ? "?" : name);
-                getAttributes().setValidate(true);
-            } else {
+            } else if (!owner.equals("?")) {
                 @SuppressWarnings("deprecation") Player p = Bukkit.getPlayer(owner);
                 if (p != null) {
                     ownerId = p.getUniqueId();
