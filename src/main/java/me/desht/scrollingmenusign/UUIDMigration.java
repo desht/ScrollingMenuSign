@@ -25,11 +25,6 @@ public class UUIDMigration {
 				names.add(view.getAttributeAsString(SMSView.OWNER));
 			}
 		}
-		for (SMSVariables var : SMSVariables.listVariables()) {
-			if (!MiscUtil.looksLikeUUID(var.getPlayerName())) {
-				names.add(var.getPlayerName());
-			}
-		}
 		if (!names.isEmpty()) {
 			Bukkit.getScheduler().runTaskAsynchronously(plugin, new AsyncTask(plugin, names));
 		}
@@ -82,9 +77,6 @@ public class UUIDMigration {
 					UUID uuid = response.get(owner);
 					view.setOwnerId(uuid);
 				}
-			}
-			for (SMSVariables var : SMSVariables.listVariables()) {
-				// TODO
 			}
 
 			plugin.getConfig().set("sms.uuid_migration_done", true);

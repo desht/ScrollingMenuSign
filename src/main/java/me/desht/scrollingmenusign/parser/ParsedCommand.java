@@ -4,12 +4,12 @@ import me.desht.dhutils.*;
 import me.desht.dhutils.cost.Cost;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSValidate;
-import me.desht.scrollingmenusign.SMSVariables;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.commandlets.BaseCommandlet;
 import me.desht.scrollingmenusign.commandlets.CommandletManager;
 import me.desht.scrollingmenusign.commandlets.CooldownCommandlet;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
+import me.desht.scrollingmenusign.variables.VariablesManager;
 import me.desht.scrollingmenusign.views.CommandTrigger;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
@@ -42,16 +42,16 @@ public class ParsedCommand {
 	private StopCondition commandStopCondition;
 	private StopCondition macroStopCondition;
 
-	public interface SubstitutionHandler {
-		public String sub(Player player, CommandTrigger trigger);
-	}
-
 	private static final Map<String,SubstitutionHandler> subs = new HashMap<String, SubstitutionHandler>();
 	static {
 		setupDefaultSubHandlers();
 	}
 
 	private static final Pattern predefSubPat = Pattern.compile("<([A-Z]+)>");
+
+    public interface SubstitutionHandler {
+        public String sub(Player player, CommandTrigger trigger);
+    }
 
 	@Override
 	public String toString() {
@@ -477,7 +477,7 @@ public class ParsedCommand {
 		return s.length() == 36 && s.charAt(8) == '-';
 	}
 
-	private boolean isHoldingObject(Player player, String checkTerm) {
+    private boolean isHoldingObject(Player player, String checkTerm) {
 		if (checkTerm.matches("^[0-9]+$")) {
 			LogUtils.warning("Checking for held items by ID is deprecated and will stop working in a future release.");
 			return player.getItemInHand().getTypeId() == Integer.parseInt(checkTerm);
@@ -500,7 +500,8 @@ public class ParsedCommand {
 			if (m.group(1) == null) {
 				return false;
 			} else if (m.group(2) == null) {
-				return SMSVariables.isSet(player, m.group(1));
+                VariablesManager vm = ScrollingMenuSign.getInstance().getVariablesManager();
+				return vm.isSet(player, m.group(1));
 			} else {
 				return doComparison(player, checkType, m.group(1), m.group(2), m.group(3) == null ? "" : m.group(3));
 			}
@@ -510,8 +511,11 @@ public class ParsedCommand {
 	}
 
 	private boolean doComparison(Player player, String checkType, String varSpec, String op, String testValue) {
-		String value = SMSVariables.get(player, varSpec);
-		if (value == null) return false;
+        VariablesManager vm = ScrollingMenuSign.getInstance().getVariablesManager();
+		String value = vm.get(player, varSpec);
+		if (value == null) {
+            return false;
+        }
 
 		boolean caseInsensitive = checkType.indexOf('i') > 0;
 		boolean useRegex = checkType.indexOf('r') > 0;
@@ -603,7 +607,8 @@ public class ParsedCommand {
 			}
 		});
 		subs.put("I", new SubstitutionHandler() {
-			@Override
+			@SuppressWarnings("deprecation")
+            @Override
 			public String sub(Player player, CommandTrigger trigger) {
 				LogUtils.warning("Command substitution <I> is deprecated and will stop working in a future release.");
 				return player.getItemInHand() == null ? "0" : Integer.toString(player.getItemInHand().getTypeId());

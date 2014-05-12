@@ -1,5 +1,26 @@
 package me.desht.scrollingmenusign.parser;
 
+import com.google.common.base.Joiner;
+import me.desht.dhutils.Debugger;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.cost.Cost;
+import me.desht.dhutils.cost.ItemCost;
+import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSMacro;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.commandlets.CommandletManager;
+import me.desht.scrollingmenusign.enums.ReturnStatus;
+import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
+import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.scrollingmenusign.variables.VariablesManager;
+import me.desht.scrollingmenusign.views.CommandTrigger;
+import me.desht.scrollingmenusign.views.SMSView;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -12,29 +33,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import me.desht.dhutils.Debugger;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.cost.Cost;
-import me.desht.dhutils.cost.ItemCost;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMacro;
-import me.desht.scrollingmenusign.SMSVariables;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.commandlets.CommandletManager;
-import me.desht.scrollingmenusign.enums.ReturnStatus;
-import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
-import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.views.CommandTrigger;
-import me.desht.scrollingmenusign.views.SMSView;
-
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import com.google.common.base.Joiner;
 
 public class CommandParser {
 
@@ -132,8 +130,9 @@ public class CommandParser {
 	private String userVarSubs(Player player, String command, Set<String> missing) {
 		Matcher m = userVarSubPat.matcher(command);
 		StringBuffer sb = new StringBuffer(command.length());
+        VariablesManager vm = ScrollingMenuSign.getInstance().getVariablesManager();
 		while (m.find()) {
-			String repl = SMSVariables.get(player, m.group(1));
+			String repl = vm.get(player, m.group(1));
 			if (repl == null && m.groupCount() > 1 && m.group(2) != null) {
 				repl = m.group(2).substring(1);
 			}

@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.variables.SMSVariables;
+import me.desht.scrollingmenusign.variables.VariablesManager;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.ViewManager;
 
@@ -32,8 +34,8 @@ public class SMSPersistence {
 	}
 
 	public static void save(SMSPersistable object) {
-		File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
-		YamlConfiguration conf = new YamlConfiguration();
+        File saveFile = new File(object.getSaveFolder(), object.getName() + ".yml");
+        YamlConfiguration conf = new YamlConfiguration();
 		Map<String, Object> map = object.freeze();
 		expandMapIntoConfig(conf, map);
 		try {
@@ -77,14 +79,13 @@ public class SMSPersistence {
 	}
 
 	public static void loadVariables() {
-		for (SMSVariables variables : SMSVariables.listVariables()) {
-			variables.deleteTemporary();
-		}
+        VariablesManager vm = ScrollingMenuSign.getInstance().getVariablesManager();
 
+        vm.clear();
 		for (File f : DirectoryStructure.getVarsFolder().listFiles(ymlFilter)) {
-			SMSVariables.load(f);
+			vm.load(f);
 		}
-		Debugger.getInstance().debug("Loaded " + SMSVariables.listVariables().size() + " variable sets from file.");
+		Debugger.getInstance().debug("Loaded " + vm.listVariables().size() + " variable sets from file.");
 	}
 
 	public static void saveMenusAndViews() {
@@ -108,10 +109,11 @@ public class SMSPersistence {
 	}
 
 	public static void saveVariables() {
-		for (SMSVariables variables : SMSVariables.listVariables()) {
+        VariablesManager vm = ScrollingMenuSign.getInstance().getVariablesManager();
+		for (SMSVariables variables : vm.listVariables()) {
 			save(variables);
 		}
-		Debugger.getInstance().debug("saved " + SMSVariables.listVariables().size() + " variable sets to file.");
+		Debugger.getInstance().debug("saved " + vm.listVariables().size() + " variable sets to file.");
 	}
 
 	public static void loadMenus() {
@@ -160,7 +162,6 @@ public class SMSPersistence {
 	 * @throws SMSException if the field is not present in the configuration
 	 */
 	public static void mustHaveField(ConfigurationSection node, String field) throws SMSException {
-		if (!node.contains(field))
-			throw new SMSException("Field '" + field + "' missing - corrupted save file?");
+        SMSValidate.isTrue(node.contains(field), "Field '" + field + "' missing - corrupted save file?");
 	}
 }

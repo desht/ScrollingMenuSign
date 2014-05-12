@@ -53,6 +53,7 @@ import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
 import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.scrollingmenusign.variables.VariablesManager;
 import me.desht.scrollingmenusign.views.*;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -93,16 +94,17 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	private final CommandletManager cmdlets = new CommandletManager(this);
 	private final ViewManager viewManager = new ViewManager(this);
 	private final LocationManager locationManager = new LocationManager();
+    private VariablesManager variablesManager = new VariablesManager(this);
 
-	private boolean spoutEnabled = false;
+    private boolean spoutEnabled = false;
+
 	private ConfigurationManager configManager;
 
 	public final ResponseHandler responseHandler = new ResponseHandler(this);
+    private boolean protocolLibEnabled = false;
+    private MetaFaker faker;
 
-	private boolean protocolLibEnabled = false;
-	private MetaFaker faker;
-
-	@Override
+    @Override
 	public void onLoad() {
 		ConfigurationSerialization.registerClass(PersistableLocation.class);
 	}
@@ -151,6 +153,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 		SMSScrollableView.setDefaultScrollType(SMSScrollableView.ScrollType.valueOf(getConfig().getString("sms.scroll_type").toUpperCase()));
 
 		loadPersistedData();
+        variablesManager.checkForUUIDMigration();
 
 		if (spoutEnabled) {
 			SpoutUtils.precacheTextures();
@@ -171,6 +174,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 	public void onDisable() {
 		SMSPersistence.saveMenusAndViews();
 		SMSPersistence.saveMacros();
+        SMSPersistence.saveVariables();
 		for (SMSMenu menu : SMSMenu.listMenus()) {
 			// this also deletes all the menu's views...
 			menu.deleteTemporary();
@@ -503,4 +507,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 			saveConfig();
 		}
 	}
+
+    public VariablesManager getVariablesManager() {
+        return variablesManager;
+    }
 }
