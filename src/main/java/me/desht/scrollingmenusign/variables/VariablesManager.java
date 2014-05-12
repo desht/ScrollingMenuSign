@@ -48,6 +48,9 @@ public class VariablesManager {
     }
 
     public void checkForUUIDMigration() {
+        if (toMigrate.isEmpty()) {
+            return;
+        }
         LogUtils.info("Migrating user variables for " + toMigrate.size() + " user(s)");
         final UUIDFetcher uf = new UUIDFetcher(new ArrayList<String>(toMigrate.keySet()), true);
         Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
