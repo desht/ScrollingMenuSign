@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * Represents any object which can cause a SMS command to be triggered, e.g. a view or an active item.
  */
-public abstract class CommandTrigger {
+public abstract class CommandTrigger implements Comparable<CommandTrigger> {
     public abstract void pushMenu(Player player, SMSMenu newActive);
 
     public abstract SMSMenu popMenu(Player player);
@@ -96,4 +96,8 @@ public abstract class CommandTrigger {
         return getActiveMenuItemAt(player, pos).getLabel();
     }
 
+    @Override
+    public int compareTo(CommandTrigger other) {
+        return this.getName().compareTo(other.getName());
+    }
 }

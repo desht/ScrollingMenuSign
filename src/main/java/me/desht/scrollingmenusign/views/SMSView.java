@@ -43,14 +43,15 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
     private final SMSMenu menu;
     private final Set<PersistableLocation> locations = new HashSet<PersistableLocation>();
     private final String name;
-    private final AttributeCollection attributes;    // view attributes to be displayed and/or edited by players
+    private final AttributeCollection attributes;   // view attributes to be displayed and/or edited by players
     private final Map<String, String> variables;    // view variables
-    private final Map<UUID, MenuStack> menuStack;    // map player ID to menu stack (submenu support)
+    private final Map<UUID, MenuStack> menuStack;   // map player ID to menu stack (submenu support)
 
     private boolean autosave;
     private boolean dirty;
     private int maxLocations;
     private UUID ownerId;
+    private boolean inThaw;
 
     // we can't use a Set here, since there are three possible values: 1) dirty, 2) clean, 3) unknown
     private final Map<UUID, Boolean> dirtyPlayers = new HashMap<UUID, Boolean>();
@@ -163,6 +164,8 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
     public void setOwnerId(UUID ownerId) {
         this.ownerId = ownerId;
+        String name = Bukkit.getOfflinePlayer(ownerId).getName();
+        setAttribute(OWNER, name == null ? "???" : name);
         autosave();
     }
 
@@ -365,6 +368,8 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
     @SuppressWarnings("unchecked")
     protected void thaw(ConfigurationSection node) throws SMSException {
+        inThaw = true;
+
         List<Object> locs = (List<Object>) node.getList("locations");
         for (Object o : locs) {
             if (o instanceof PersistableLocation) {
@@ -411,6 +416,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
             }
         }
         attributes.setValidate(true);
+        inThaw = false;
     }
 
     /**
@@ -686,23 +692,52 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
      */
     @Override
     public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-        // don't do updates on views that haven't been registered yet (which will be the case
-        // when restoring saved views from disk)
-        if (key.equals(OWNER)) {
-            String owner = newVal.toString();
+        if (key.equals(OWNER) && !inThaw) {
+            // try to get the owner UUID matching the owner name if possible
+            final String owner = newVal.toString();
             if (owner.isEmpty() || owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {
-                ownerId = null;
+                ownerId = new UUID(0, 0);
+            } else if (MiscUtil.looksLikeUUID(owner)) {
+                ownerId = UUID.fromString(owner);
+                getAttributes().setValidate(false);
+                String name = Bukkit.getOfflinePlayer(ownerId).getName();
+                setAttribute(OWNER, name == null ? "?" : name);
+                getAttributes().setValidate(true);
             } else {
-                // TODO use async lookup to get the UUID for a player name?
                 @SuppressWarnings("deprecation") Player p = Bukkit.getPlayer(owner);
                 if (p != null) {
                     ownerId = p.getUniqueId();
+                } else {
+                    updateOwnerAsync(owner);
                 }
             }
         }
+
+        // Don't do updates on views that haven't been registered yet (which will be the case
+        // when restoring saved views from disk)
         if (ScrollingMenuSign.getInstance().getViewManager().checkForView(getName())) {
             update(null, SMSMenuAction.REPAINT);
         }
+    }
+
+    private void updateOwnerAsync(final String owner) {
+        final UUIDFetcher uf = new UUIDFetcher(Arrays.asList(owner));
+        Bukkit.getScheduler().runTaskAsynchronously(ScrollingMenuSign.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Map<String,UUID> res = uf.call();
+                    if (res.containsKey(owner)) {
+                        ownerId = res.get(owner);
+                    } else {
+                        LogUtils.warning("View [" + getName() + "]: no known UUID for player: " + owner);
+                        ownerId = new UUID(0, 0);
+                    }
+                } catch (Exception e) {
+                    LogUtils.warning("View [" + getName() + "]: can't retrieve UUID for player: " + owner + ": " + e.getMessage());
+                }
+            }
+        });
     }
 
     /* (non-Javadoc)
@@ -710,13 +745,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
      */
     @Override
     public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-        if (key.equals(OWNER)) {
-            String owner = newVal.toString();
-            if (!owner.isEmpty() && !owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {
-                @SuppressWarnings("deprecation") Player p = Bukkit.getPlayer(owner);
-                SMSValidate.notNull(p, "There is no player called '" + owner + "' online at this time.");
-            }
-        } else if (key.equals(ACCESS)) {
+        if (key.equals(ACCESS)) {
             SMSAccessRights access = (SMSAccessRights) newVal;
             if (access != SMSAccessRights.ANY && ownerId == null) {
                 throw new SMSException("View must be owned by a player to change access control to " + access);

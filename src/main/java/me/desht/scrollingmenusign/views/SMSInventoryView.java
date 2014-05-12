@@ -189,6 +189,6 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
     @Override
     public String toString() {
-        return "inventory: " + users.size() + " using " + iconMenus.size() + " menus";
+        return "inventory: " + users.size() + " players using " + iconMenus.size() + " menus";
     }
 }
