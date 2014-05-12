@@ -26,18 +26,22 @@ public class ViewCommand extends SMSAbstractCommand {
         super("sms view", 0, 3);
         setPermissionNode("scrollingmenusign.commands.view");
         setUsage(new String[]{
-                "/sms view",
+                "/sms view [-l]",
                 "/sms view <view-name> [<attribute|$var>] [<new-value>]",
                 "/sms view <view-name> -d [<$var>]",
                 "/sms view <view-name> -popup"
         });
         setQuotedArgs(true);
-        setOptions("popup", "d:s");
+        setOptions("popup", "d:s", "l");
     }
 
     @Override
     public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
         SMSView view;
+        if (getBooleanOption("l")) {
+            listAllViews(sender, plugin);
+            return true;
+        }
         if (args.length > 0) {
             view = getView(sender, args[0]);
         } else {
@@ -106,12 +110,21 @@ public class ViewCommand extends SMSAbstractCommand {
         return true;
     }
 
+    private void listAllViews(CommandSender sender, Plugin plugin) {
+        MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
+        for (SMSView view : MiscUtil.asSortedList(getViewManager(plugin).listViews())) {
+            pager.add(MessagePager.BULLET + " " + view.getName() + ": &e" + view.toString());
+        }
+        pager.showPage();
+    }
+
     private void showViewDetails(CommandSender sender, SMSView view) {
         MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
         pager.add(String.format("View &6%s&f (%s) :",
                 view.getName(), view.toString()));
         pager.add(String.format("Native menu: &6%s&f, Active menu: &6%s",
                 view.getNativeMenu().getName(), view.getActiveMenu(sender instanceof Player ? (Player) sender : null).getName()));
+        pager.add("Owner ID: &6" + view.getOwnerId());
         for (String k : view.listAttributeKeys(true)) {
             pager.add(String.format(MessagePager.BULLET + "&e%s&f = &e%s", k, view.getAttributeAsString(k, "")));
         }
