@@ -56,10 +56,6 @@
             <id>Plugin Metrics</id>
             <url>http://repo.mcstats.org/content/repositories/public</url>
         </repository>
-        <!-- <repository>
-            <id>DH Dropbox</id>
-            <url>http://dl.dropboxusercontent.com/u/12467600/maven-repo</url>
-        </repository> -->
         <repository>
             <id>hawkfalcon-repo</id>
             <name>Hawkfalcon Repository</name>
@@ -189,12 +185,6 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
             <version>LATEST</version>
             <scope>provided</scope>
         </dependency>
