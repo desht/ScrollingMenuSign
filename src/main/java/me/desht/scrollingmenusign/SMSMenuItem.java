@@ -535,7 +535,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
             if (icon.getAmount() > 1) {
                 sb.append(",").append(Integer.toString(icon.getAmount()));
             }
-            if (ItemGlow.hasGlow(icon)) {
+            if (ScrollingMenuSign.getInstance().isProtocolLibEnabled() && ItemGlow.hasGlow(icon)) {
                 sb.append(",").append("glow");
             }
             map.put("icon", sb.toString());
