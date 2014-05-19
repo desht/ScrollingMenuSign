@@ -1,8 +1,5 @@
 package me.desht.scrollingmenusign.commands;
 
-import java.util.Arrays;
-import java.util.List;
-
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.PopupBook;
 import me.desht.scrollingmenusign.SMSException;
@@ -12,7 +9,6 @@ import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.ViewManager;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -21,6 +17,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.Plugin;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class GiveCommand extends SMSAbstractCommand {
 
@@ -31,6 +30,7 @@ public class GiveCommand extends SMSAbstractCommand {
                 "/sms give map <menu-name|view-name|map-id> [<amount>] [<player>]",
                 "/sms give book <menu-name|view-name> [<amount>] [<player>]",
         });
+        setQuotedArgs(true);
     }
 
     @Override
@@ -40,11 +40,12 @@ public class GiveCommand extends SMSAbstractCommand {
             try {
                 amount = Math.min(64, Math.max(1, Integer.parseInt(args[2])));
             } catch (NumberFormatException e) {
-                throw new SMSException("Invalid amount '" + args[1] + "'.");
+                throw new SMSException("Invalid amount '" + args[2] + "'.");
             }
         }
         Player targetPlayer;
         if (args.length >= 4) {
+            //noinspection deprecation
             targetPlayer = Bukkit.getPlayer(args[3]);
             if (targetPlayer == null) {
                 throw new SMSException("Player '" + args[3] + "' is not online.");
@@ -116,9 +117,8 @@ public class GiveCommand extends SMSAbstractCommand {
         }
 
         PopupBook book = new PopupBook(targetPlayer, view);
-        ItemStack writtenbook = book.toItemStack();
+        ItemStack writtenbook = book.toItemStack(amount);
         targetPlayer.getInventory().addItem(writtenbook);
-        targetPlayer.updateInventory();
 
         String s = amount == 1 ? "" : "s";
         MiscUtil.statusMessage(sender, String.format("Gave %d book%s (&6%s&-) to &6%s", amount, s, argStr, targetPlayer.getName()));
@@ -142,7 +142,6 @@ public class GiveCommand extends SMSAbstractCommand {
             v.setMapItemName(stack);
         }
         targetPlayer.getInventory().addItem(stack);
-        targetPlayer.updateInventory();
 
         String s = amount == 1 ? "" : "s";
         MiscUtil.statusMessage(sender, String.format("Gave %d map%s (&6map_%d&-) to &6%s", amount, s, mapId, targetPlayer.getName()));
@@ -156,6 +155,10 @@ public class GiveCommand extends SMSAbstractCommand {
         switch (args.length) {
             case 1:
                 return filterPrefix(sender, Arrays.asList("book", "map"), args[0]);
+            case 2:
+                return getMenuCompletions(plugin, sender, args[1]);
+            case 4:
+                return null; // list online players
             default:
                 showUsage(sender);
                 return noCompletions(sender);

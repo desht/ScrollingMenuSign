@@ -102,12 +102,22 @@ public class PopupBook {
      * @return an ItemStack of 1 written book with the title and pages filled in
      */
     public ItemStack toItemStack() {
+        return toItemStack(1);
+    }
+
+    /**
+     * Get one or more book item corresponding to this popup book.
+     *
+     * @param amount the number of books
+     * @return an ItemStack of one or mote written books with the title and pages filled in
+     */
+    public ItemStack toItemStack(int amount) {
         Player p = this.player.get();
         SMSView v = getView();
         if (v == null || p == null) {
             return null;
         }
-        ItemStack item = new ItemStack(Material.WRITTEN_BOOK, 1);
+        ItemStack item = new ItemStack(Material.WRITTEN_BOOK, amount);
 
         BookMeta bm = (BookMeta) item.getItemMeta();
 
