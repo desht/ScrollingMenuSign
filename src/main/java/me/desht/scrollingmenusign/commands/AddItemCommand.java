@@ -10,6 +10,8 @@ import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -45,12 +47,12 @@ public class AddItemCommand extends SMSAbstractCommand {
         menu.ensureAllowedToModify(sender);
 
         int pos = hasOption("at") ? getIntOption("at") : -1;
-        String label = MiscUtil.parseColourSpec(sender, args[1]);
-        String cmd = args.length >= 3 ? args[2] : "";
-        String altCmd = hasOption("altcommand") ? getStringOption("altcommand") : "";
-        String msg = hasOption("feedback") ? getStringOption("feedback") : "";
+        String label = StringEscapeUtils.unescapeHtml(MiscUtil.parseColourSpec(sender, args[1]));
+        String cmd = args.length >= 3 ? StringEscapeUtils.unescapeHtml(args[2]) : "";
+        String altCmd = hasOption("altcommand") ? StringEscapeUtils.unescapeHtml(getStringOption("altcommand")) : "";
+        String msg = hasOption("feedback") ? StringEscapeUtils.unescapeHtml(getStringOption("feedback")) : "";
         String iconMat = hasOption("icon") ? getStringOption("icon") : plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
-        String[] lore = hasOption("lore") ? getStringOption("lore").split("\\\\\\\\") : new String[0];
+        String[] lore = hasOption("lore") ? StringEscapeUtils.unescapeHtml(getStringOption("lore")).split("\\\\\\\\") : new String[0];
 
         SMSValidate.isFalse(sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd),
                 "You do not have permission to add that kind of command.");

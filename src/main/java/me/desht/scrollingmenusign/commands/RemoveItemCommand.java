@@ -7,6 +7,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
@@ -26,7 +27,7 @@ public class RemoveItemCommand extends SMSAbstractCommand {
     public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 
         String menuName = args[0];
-        String item = args[1];
+        String item = StringEscapeUtils.unescapeHtml(args[1]);
 
         if (item.matches("@[0-9]+")) {
             // backwards compatibility - numeric indices should be prefixed with a '@'
