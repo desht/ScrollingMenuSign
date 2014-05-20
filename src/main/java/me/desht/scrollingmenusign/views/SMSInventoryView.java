@@ -149,6 +149,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
         if (item == null) {
             throw new SMSException("icon menu: index " + event.getIndex() + " out of range for " + getActiveMenu(player).getName() + " ?");
         }
+        event.setWillClose((Boolean) getAttribute(AUTOPOPDOWN));
         item.executeCommand(player, this, event.getClickType().isRightClick() || event.getClickType().isShiftClick());
         item.feedbackMessage(player);
         onExecuted(player);
@@ -168,8 +169,6 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
                     showGUI(player);
                 }
             }, 2L);
-        } else {
-            event.setWillClose((Boolean) getAttribute(AUTOPOPDOWN));
         }
     }
 

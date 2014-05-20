@@ -27,6 +27,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 public class IconMenu implements Listener, SMSPopup {
     private static final int INVENTORY_WIDTH = 9;
     private static final int MAX_INVENTORY_ROWS = 6;
@@ -119,11 +122,11 @@ public class IconMenu implements Listener, SMSPopup {
                 break;
             }
             SMSMenuItem menuItem = getView().getActiveMenuItemAt(player, i + 1);
-            ItemStack icon = menuItem.hasIcon() ? menuItem.getIcon() : defIcon.clone();
-            String label = getView().variableSubs(menuItem.getLabel());
+            ItemStack icon = menuItem.hasPermission(player) && menuItem.hasIcon() ? menuItem.getIcon() : defIcon.clone();
+            String label = getView().variableSubs(getView().getActiveItemLabel(player, i + 1));
             ItemMeta im = icon.getItemMeta();
             im.setDisplayName(ChatColor.RESET + label);
-            im.setLore(menuItem.getLoreAsList());
+            im.setLore(menuItem.hasPermission(player) ? menuItem.getLoreAsList() : Collections.<String>emptyList());
             icon.setItemMeta(im);
             optionIcons[pos] = icon;
             optionNames[pos] = menuItem.getLabel();

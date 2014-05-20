@@ -28,10 +28,11 @@ public class AddItemCommand extends SMSAbstractCommand {
                 "  -altcommand The alternative command to run",
                 "  -feedback   The new feedback message to display",
                 "  -icon       The new material used for the item's icon",
+                "  -perm       The permission node to see/use this item",
                 "  -lore       The lore for the item (line delimiter '\\\\')",
         });
         setQuotedArgs(true);
-        setOptions("at:i", "altcommand:s", "feedback:s", "icon:s", "lore:s");
+        setOptions("at:i", "altcommand:s", "feedback:s", "icon:s", "lore:s", "perm:s");
     }
 
     @Override
@@ -53,6 +54,7 @@ public class AddItemCommand extends SMSAbstractCommand {
         String msg = hasOption("feedback") ? StringEscapeUtils.unescapeHtml(getStringOption("feedback")) : "";
         String iconMat = hasOption("icon") ? getStringOption("icon") : plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
         String[] lore = hasOption("lore") ? StringEscapeUtils.unescapeHtml(getStringOption("lore")).split("\\\\\\\\") : new String[0];
+        String perm = hasOption("perm") ? getStringOption("perm") : "";
 
         SMSValidate.isFalse(sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd),
                 "You do not have permission to add that kind of command.");
@@ -63,9 +65,9 @@ public class AddItemCommand extends SMSAbstractCommand {
                 .withIcon(iconMat)
                 .withAltCommand(altCmd)
                 .withLore(lore)
+                .withPermissionNode(perm)
                 .build();
 
-//		SMSMenuItem newItem = new SMSMenuItem(menu, label, cmd, msg, iconMat, lore);
         if (pos < 0) {
             menu.addItem(newItem);
             MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- added to &e" + menu.getName());

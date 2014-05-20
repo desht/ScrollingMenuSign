@@ -65,3 +65,4 @@ sms:
         title_prefix: '->'
     coloured_console: true
     scroll_type: SCROLL
+    hidden_menuitem_text: '&o--???--'

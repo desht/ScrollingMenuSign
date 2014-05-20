@@ -96,6 +96,7 @@ public class MenuCommand extends SMSAbstractCommand {
             String command = item.getCommand().replace(" && ", " &&&& ");
             String altCommand = item.getAltCommand().replace(" && ", " &&&& ");
             String uses = item.formatUses(sender);
+            String perm = item.getPermissionNode();
             pager.add(String.format("&e%2d) &f%s &7[%s]", n++, item.getLabel(), command));
             if (!altCommand.isEmpty()) {
                 pager.add("    &9Alt Command: &e" + altCommand);
@@ -106,11 +107,14 @@ public class MenuCommand extends SMSAbstractCommand {
             if (!uses.isEmpty()) {
                 pager.add("    &9Uses: &e" + uses);
             }
+            if (!perm.isEmpty()) {
+                pager.add("    &9Permission node: &e" + perm);
+            }
             if (item.hasIcon()) {
                 ItemStack icon = item.getIcon();
                 if (!icon.equals(defIcon)) {
                     String amt = icon.getAmount() > 1 ? icon.getAmount() + " x " : "";
-                    pager.add("    &9Icon: &e" + amt + ItemNames.lookup(icon));
+                    pager.add("    &9Icon: &e" + amt + ItemNames.lookup(icon) + " &7(" + icon.getData().toString() + ")");
                 }
             }
             String[] lore = item.getLore();

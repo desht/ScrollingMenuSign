@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign;
 import me.desht.dhutils.ItemGlow;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.scrollingmenusign.views.CommandTrigger;
@@ -27,6 +28,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
     private final List<String> lore;
     private final ItemStack icon;
     private final String altCommand;
+    private final String permissionNode;
     private SMSRemainingUses uses;
     private final SMSMenu menu;
 
@@ -46,6 +48,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         this.command = command;
         this.altCommand = "";
         this.message = message;
+        this.permissionNode = "";
         try {
             this.icon = parseIconMaterial(iconMaterialName);
         } catch (IllegalArgumentException e) {
@@ -71,6 +74,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         this.icon = parseIconMaterial(node.getString("icon"));
         this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
         this.lore = new ArrayList<String>();
+        this.permissionNode = node.getString("permission", "");
         if (node.contains("lore")) {
             for (String l : node.getStringList("lore")) {
                 lore.add(MiscUtil.parseColourSpec(l));
@@ -84,9 +88,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         this.message = builder.message;
         this.lore = builder.lore;
         this.command = builder.command;
-        this.altCommand = builder.altCommand == null ? "" : builder.altCommand;
+        this.altCommand = builder.altCommand;
+        this.permissionNode = builder.permissionNode;
         this.icon = builder.icon;
-        if (builder.glow && ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
+        if (builder.glow && builder.icon != null && ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
             ItemGlow.setGlowing(this.icon, true);
         }
         this.uses = builder.uses == null ? new SMSRemainingUses(this) : builder.uses;
@@ -282,6 +287,15 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
     }
 
     /**
+     * Get the item's permission node, if any.
+     *
+     * @return the item's permission node, may be an empty string
+     */
+    public String getPermissionNode() {
+        return permissionNode;
+    }
+
+    /**
      * Executes the command for this item
      *
      * @param sender  the command sender who triggered the execution
@@ -301,6 +315,8 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
      * @throws SMSException if the usage limit for this player is exhausted
      */
     public void executeCommand(CommandSender sender, CommandTrigger trigger, boolean alt) {
+        SMSValidate.isTrue(hasPermission(sender), "That item is not available to you.");
+
         String cmd = getCommand();
         if (alt && !getAltCommand().isEmpty()) {
             cmd = getAltCommand();
@@ -546,6 +562,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
             lore2.add(MiscUtil.unParseColourSpec(l));
         }
         map.put("lore", lore2);
+        map.put("permission", permissionNode);
         return map;
     }
 
@@ -581,15 +598,29 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
                 .build();
     }
 
+    /**
+     * Check if the given player has permission to use this specific menu item,
+     * as defined by its permission node (see {@link #getPermissionNode()}).
+     * Note that this only gives the player permission to execute the menu item,
+     * not necessarily permission for any command that may be run.
+     *
+     * @param sender the player to check
+     * @return true if the player may use this item, false otherwise
+     */
+    public boolean hasPermission(CommandSender sender) {
+        return sender == null || permissionNode.isEmpty() || PermissionUtils.isAllowedTo(sender, permissionNode);
+    }
+
     public static class Builder {
         private final SMSMenu menu;
         private final String label;
-        private String command;
-        private String altCommand;
-        private String message;
+        private String command = "";
+        private String altCommand = "";
+        private String message = "";
         private List<String> lore;
         private ItemStack icon;
         private boolean glow;
+        private String permissionNode = "";
         private SMSRemainingUses uses;
 
         public Builder(SMSMenu menu, String label) {
@@ -634,6 +665,11 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
         public Builder withGlow(boolean glow) {
             this.glow = glow;
+            return this;
+        }
+
+        public Builder withPermissionNode(String permissionNode) {
+            this.permissionNode = permissionNode;
             return this;
         }
 

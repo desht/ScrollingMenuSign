@@ -516,7 +516,7 @@ public class SMSMapView extends SMSScrollableView {
 
         // draw the tooltip, if needed
         SMSMenuItem item = menu.getItemAt(getScrollPos(player));
-        if (item != null && config.getBoolean("sms.maps.show_tooltips")) {
+        if (item != null && item.hasPermission(player) && config.getBoolean("sms.maps.show_tooltips")) {
             String[] lore = item.getLore();
             if (lore.length > 0) {
                 int offset = getScrollType() == ScrollType.SCROLL ? 3 : (scrollPos % pageSize) + 1;

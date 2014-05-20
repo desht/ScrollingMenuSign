@@ -90,6 +90,7 @@ permissions:
       scrollingmenusign.maps.to.sign: true
       scrollingmenusign.maps.from.sign: true
       scrollingmenusign.create.switch: true
+      scrollingmenusign.create.tooltipsign: true
   scrollingmenusign.admin:
     description: Gives complete access to all SMS features
     default: op
@@ -124,7 +125,7 @@ permissions:
       scrollingmenusign.commands.menu: true
       scrollingmenusign.coloursigns: true
       scrollingmenusign.destroy: true
-      scrollingmenusign.maps.t.sign: true
+      scrollingmenusign.maps.to.sign: true
       scrollingmenusign.maps.from.sign: true
       scrollingmenusign.create.elevated: true
       scrollingmenusign.create.cost: true
@@ -133,6 +134,7 @@ permissions:
       scrollingmenusign.access.any: true
       scrollingmenusign.edit.any: true
       scrollingmenusign.vars.other: true
+      scrollingmenusign.create.tooltipsign: true
   scrollingmenusign.commands.create:
     description: Allow creation of new menus
     default: op
@@ -264,6 +266,9 @@ permissions:
     default: op
   scrollingmenusign.create.switch:
     description: Allows creation of redstone output switches
+    default: op
+  scrollingmenusign.create.tooltipsign:
+    description: Allows creation of tooltip signs
     default: op
   scrollingmenusign.vars.other:
     description: Allows get/set/delete of variables belonging to other users with "/sms var"

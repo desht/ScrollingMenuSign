@@ -31,11 +31,12 @@ public class EditMenuCommand extends SMSAbstractCommand {
                 "  -altcommand <str>    The new alternative command to run",
                 "  -feedback <str>      The new feedback message to display",
                 "  -icon <str>          The new material used for the item's icon",
+                "  -perm <str>          The permission node to see/use this item",
                 "  -lore <str>          The new lore for the item (use '+text' to append)",
                 "  -move <pos>          The new position in the menu for the item",
         });
         setQuotedArgs(true);
-        setOptions("label:s", "command:s", "altcommand:s", "feedback:s", "icon:s", "move:i", "lore:s");
+        setOptions("label:s", "command:s", "altcommand:s", "feedback:s", "icon:s", "move:i", "lore:s", "perm:s");
     }
 
     @Override
@@ -60,6 +61,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
         String altCommand = hasOption("altcommand") ? StringEscapeUtils.unescapeHtml(getStringOption("altcommand")) : currentItem.getAltCommand();
         String message = hasOption("feedback") ? StringEscapeUtils.unescapeHtml(MiscUtil.parseColourSpec(getStringOption("feedback"))) : currentItem.getMessage();
         ItemStack icon = hasOption("icon") ? SMSMenuItem.parseIconMaterial(getStringOption("icon")) : currentItem.getIcon();
+        String perm = hasOption("perm") ? getStringOption("perm") : currentItem.getPermissionNode();
         String[] lore = buildNewLore(currentItem);
 
         if (!command.isEmpty() && sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, command)) {
@@ -72,6 +74,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
                 .withMessage(message)
                 .withIcon(icon)
                 .withLore(lore)
+                .withPermissionNode(perm)
                 .withUseLimits(currentItem.getUseLimits())
                 .build();
 

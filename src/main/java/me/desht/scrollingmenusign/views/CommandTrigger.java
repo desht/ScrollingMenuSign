@@ -1,6 +1,7 @@
 package me.desht.scrollingmenusign.views;
 
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -24,7 +25,7 @@ public abstract class CommandTrigger implements Comparable<CommandTrigger> {
 
     /**
      * Get the player context for operations such as view scrolling, active submenu etc.  For
-     * views which have a per-player context (e.g. maps), this is just the player name. For views
+     * views which have a per-player context (e.g. maps), this is just the player's UUID. For views
      * with a global context (e.g. signs), a global pseudo-player handle can be used.
      * <p/>
      * Subclasses should override this as needed.
@@ -93,7 +94,11 @@ public abstract class CommandTrigger implements Comparable<CommandTrigger> {
      * @return the label of the active menu item
      */
     public String getActiveItemLabel(Player player, int pos) {
-        return getActiveMenuItemAt(player, pos).getLabel();
+        SMSMenuItem item = getActiveMenuItemAt(player, pos);
+        if (!item.hasPermission(player)) {
+            return MiscUtil.parseColourSpec(ScrollingMenuSign.getInstance().getConfig().getString("sms.hidden_menuitem_text", "???"));
+        }
+        return item.getLabel();
     }
 
     @Override

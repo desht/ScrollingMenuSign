@@ -102,7 +102,7 @@ public class SMSBlockListener extends SMSListenerBase {
             } else if (event.getLine(0).equals("[smstooltip]")) {
                 placeTooltipSign(event);
             }
-        } catch (SMSException e) {
+        } catch (DHUtilsException e) {
             MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
         }
     }
