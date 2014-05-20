@@ -45,9 +45,6 @@ public class UUIDMigration {
             try {
                 final Map<String, UUID> response = uf.call();
                 Bukkit.getScheduler().runTask(plugin, new SyncTask(plugin, response));
-                for (String u : response.keySet()) {
-                    System.out.println(u + " => " + response.get(u));
-                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
