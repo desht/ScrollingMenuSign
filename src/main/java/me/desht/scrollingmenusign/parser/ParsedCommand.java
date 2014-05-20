@@ -618,7 +618,9 @@ public class ParsedCommand {
             @Override
             public String sub(Player player, CommandTrigger trigger) {
                 if (ScrollingMenuSign.economy != null) {
-                    return formatMoney(ScrollingMenuSign.economy.getBalance(player.getName()));
+                    return ScrollingMenuSign.getInstance().isVaultLegacyMode() ?
+                            formatMoney(ScrollingMenuSign.economy.getBalance(player.getName())) :
+                            formatMoney(ScrollingMenuSign.economy.getBalance(player));
                 } else {
                     return "0.00";
                 }
