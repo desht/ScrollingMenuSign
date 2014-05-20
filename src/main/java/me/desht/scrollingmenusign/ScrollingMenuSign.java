@@ -409,7 +409,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
     }
 
     @Override
-    public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+    public Object onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
         if (key.equals("scroll_type")) {
             try {
                 SMSScrollableView.ScrollType t = SMSGlobalScrollableView.ScrollType.valueOf(newVal.toString().toUpperCase());
@@ -420,6 +420,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         } else if (key.equals("debug_level")) {
             DHValidate.isTrue((Integer) newVal >= 0, "Debug level must be >= 0");
         }
+        return newVal;
     }
 
     @Override

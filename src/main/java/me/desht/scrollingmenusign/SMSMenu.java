@@ -4,6 +4,7 @@ import me.desht.dhutils.*;
 import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSView;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -62,7 +63,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         registerAttributes();
         setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner);
         ownerId = new UUID(0, 0);
-        setAttribute(TITLE, title);
+        setAttribute(TITLE, StringEscapeUtils.unescapeHtml(MiscUtil.parseColourSpec(title)));
     }
 
     /**
@@ -184,7 +185,11 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
             l.add(item.freeze());
         }
         for (String key : attributes.listAttributeKeys(false)) {
-            map.put(key, attributes.get(key).toString());
+            if (key.equals(TITLE)) {
+                map.put(key, StringEscapeUtils.escapeHtml(MiscUtil.unParseColourSpec(attributes.get(key).toString())));
+            } else {
+                map.put(key, attributes.get(key).toString());
+            }
         }
         map.put("name", getName());
         map.put("items", l);
@@ -885,7 +890,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
     }
 
     @Override
-    public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+    public Object onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
         if (key.equals(ACCESS)) {
             SMSAccessRights access = (SMSAccessRights) newVal;
             if (access != SMSAccessRights.ANY && ownerId == null) {
@@ -893,7 +898,10 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
             } else if (access == SMSAccessRights.GROUP && ScrollingMenuSign.permission == null) {
                 throw new SMSException("Cannot use GROUP access control (no permission group support available)");
             }
+        } else if (key.equals(TITLE)) {
+            return MiscUtil.parseColourSpec(StringEscapeUtils.unescapeHtml(newVal.toString()));
         }
+        return newVal;
     }
 
     @Override
@@ -901,7 +909,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         if (key.equals(AUTOSORT) && (Boolean) newVal) {
             sortItems();
         } else if (key.equals(TITLE)) {
-            title = MiscUtil.parseColourSpec(newVal.toString());
+            title = newVal.toString();
             setChanged();
             notifyObservers(SMSMenuAction.REPAINT);
         } else if (key.equals(OWNER) && !inThaw) {

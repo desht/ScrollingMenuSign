@@ -232,8 +232,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
      * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
      */
     @Override
-    public void onConfigurationValidate(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
-        super.onConfigurationValidate(configurationManager, attribute, oldVal, newVal);
+    public Object onConfigurationValidate(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
+        newVal = super.onConfigurationValidate(configurationManager, attribute, oldVal, newVal);
 
         String err = null;
         if (attribute.equals(SPOUTKEYS) && !newVal.toString().isEmpty()) {
@@ -261,6 +261,8 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
         if (err != null) {
             throw new SMSException(err);
         }
+
+        return newVal;
     }
 
     /* (non-Javadoc)

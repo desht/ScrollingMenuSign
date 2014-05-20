@@ -227,14 +227,16 @@ public abstract class SMSScrollableView extends SMSView {
     }
 
     @Override
-    public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-        super.onConfigurationValidate(configurationManager, key, oldVal, newVal);
+    public Object onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+        newVal = super.onConfigurationValidate(configurationManager, key, oldVal, newVal);
 
         if (key.equals(MAX_TITLE_LINES)) {
             if ((Integer) newVal > getHardMaxTitleLines() || (Integer) newVal < 0) {
                 throw new SMSException("Valid " + MAX_TITLE_LINES + " range for this view is 0-" + getHardMaxTitleLines() + ".");
             }
         }
+
+        return newVal;
     }
 
     private static class MarkupTracker {

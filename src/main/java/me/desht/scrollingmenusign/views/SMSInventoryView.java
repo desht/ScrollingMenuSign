@@ -173,7 +173,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
     }
 
     @Override
-    public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+    public Object onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
         super.onConfigurationValidate(configurationManager, key, oldVal, newVal);
         if (key.equals(SPACING)) {
             SMSValidate.isTrue((Integer) newVal >= 1, "Spacing must be 1 or more");
@@ -184,6 +184,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
         } else if (key.equals(NO_ESCAPE) && ((Boolean) newVal)) {
             SMSValidate.isTrue((Boolean) getAttribute(AUTOPOPDOWN), "Cannot set 'noescape' to true if 'autopopdown' is false");
         }
+        return newVal;
     }
 
     @Override

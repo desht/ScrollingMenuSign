@@ -173,8 +173,8 @@ public class SMSRedstoneView extends SMSView {
      * @see me.desht.scrollingmenusign.views.SMSView#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
      */
     @Override
-    public void onConfigurationValidate(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
-        super.onConfigurationValidate(configurationManager, attribute, oldVal, newVal);
+    public Object onConfigurationValidate(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
+        newVal = super.onConfigurationValidate(configurationManager, attribute, oldVal, newVal);
 
         if (attribute.equals(POWERON) || attribute.equals(POWEROFF) || attribute.equals(POWERTOGGLE)) {
             String label = newVal.toString();
@@ -184,5 +184,7 @@ public class SMSRedstoneView extends SMSView {
                 }
             }
         }
+
+        return newVal;
     }
 }

@@ -742,7 +742,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
      * @see me.desht.dhutils.ConfigurationListener#onConfigurationValidate(me.desht.dhutils.ConfigurationManager, java.lang.String, java.lang.String)
      */
     @Override
-    public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+    public Object onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
         if (key.equals(ACCESS)) {
             SMSAccessRights access = (SMSAccessRights) newVal;
             if (access != SMSAccessRights.ANY && ownerId == null) {
@@ -751,6 +751,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
                 throw new SMSException("Cannot use GROUP access control (no permission group support available)");
             }
         }
+        return newVal;
     }
 
     /**
