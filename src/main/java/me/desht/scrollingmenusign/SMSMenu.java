@@ -3,8 +3,8 @@ package me.desht.scrollingmenusign;
 import me.desht.dhutils.*;
 import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.SMSView;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -62,8 +62,8 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         this.attributes = new AttributeCollection(this);
         registerAttributes();
         setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner);
-        ownerId = new UUID(0, 0);
-        setAttribute(TITLE, StringEscapeUtils.unescapeHtml(MiscUtil.parseColourSpec(title)));
+        ownerId = ScrollingMenuSign.CONSOLE_UUID;
+        setAttribute(TITLE, title);
     }
 
     /**
@@ -80,7 +80,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         this.attributes = new AttributeCollection(this);
         registerAttributes();
         setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner.getName());
-        ownerId = owner == null ? new UUID(0, 0) : owner.getUniqueId();
+        ownerId = owner == null ? ScrollingMenuSign.CONSOLE_UUID : owner.getUniqueId();
         setAttribute(TITLE, title);
     }
 
@@ -98,7 +98,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         this.attributes = new AttributeCollection(this);
         registerAttributes();
         setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : "[" + owner.getName() + "]");
-        ownerId = new UUID(0, 0);
+        ownerId = ScrollingMenuSign.CONSOLE_UUID;
         setAttribute(TITLE, title);
     }
 
@@ -120,17 +120,11 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
         this.attributes = new AttributeCollection(this);
         registerAttributes();
-        this.attributes.setValidate(false);
         String id = node.getString("owner_id");
         if (id != null && !id.isEmpty()) {
             this.ownerId = UUID.fromString(id);
         } else {
-            this.ownerId = new UUID(0, 0)   ;
-        }
-
-        // migration of owner field from pre-2.0.0: "&console" => "[console]"
-        if (node.getString(OWNER).equals("&console")) {
-            node.set(OWNER, ScrollingMenuSign.CONSOLE_OWNER);
+            this.ownerId = ScrollingMenuSign.CONSOLE_UUID;
         }
 
         // migration of group -> owner_group access in 2.4.0
@@ -144,8 +138,6 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
                 setAttribute(k, node.getString(k));
             }
         }
-
-        this.attributes.setValidate(true);
 
         List<Map<String, Object>> items = (List<Map<String, Object>>) node.getList("items");
         for (Map<String, Object> item : items) {
@@ -186,7 +178,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         }
         for (String key : attributes.listAttributeKeys(false)) {
             if (key.equals(TITLE)) {
-                map.put(key, StringEscapeUtils.escapeHtml(MiscUtil.unParseColourSpec(attributes.get(key).toString())));
+                map.put(key, SMSUtil.escape(attributes.get(key).toString()));
             } else {
                 map.put(key, attributes.get(key).toString());
             }
@@ -893,14 +885,18 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
     public Object onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
         if (key.equals(ACCESS)) {
             SMSAccessRights access = (SMSAccessRights) newVal;
-            if (access != SMSAccessRights.ANY && ownerId == null) {
+            if (access != SMSAccessRights.ANY && ownerId == null && !inThaw) {
                 throw new SMSException("View must be owned by a player to change access control to " + access);
             } else if (access == SMSAccessRights.GROUP && ScrollingMenuSign.permission == null) {
                 throw new SMSException("Cannot use GROUP access control (no permission group support available)");
             }
         } else if (key.equals(TITLE)) {
-            return MiscUtil.parseColourSpec(StringEscapeUtils.unescapeHtml(newVal.toString()));
+            return SMSUtil.unEscape(newVal.toString());
+        } else if (key.equals(OWNER) && newVal.toString().equals("&console")) {
+            // migration of owner field from pre-2.0.0: "&console" => "[console]"
+            return ScrollingMenuSign.CONSOLE_OWNER;
         }
+
         return newVal;
     }
 
@@ -915,7 +911,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         } else if (key.equals(OWNER) && !inThaw) {
             final String owner = newVal.toString();
             if (owner.isEmpty() || owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {
-                ownerId = new UUID(0, 0);
+                ownerId = ScrollingMenuSign.CONSOLE_UUID;
             } else if (MiscUtil.looksLikeUUID(owner)) {
                 ownerId = UUID.fromString(owner);
                 String name = Bukkit.getOfflinePlayer(ownerId).getName();
@@ -944,7 +940,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
                         ownerId = res.get(owner);
                     } else {
                         LogUtils.warning("Menu [" + getName() + "]: no known UUID for player: " + owner);
-                        ownerId = new UUID(0, 0);
+                        ownerId = ScrollingMenuSign.CONSOLE_UUID;
                     }
                 } catch (Exception e) {
                     LogUtils.warning("Menu [" + getName() + "]: can't retrieve UUID for player: " + owner + ": " + e.getMessage());

@@ -164,8 +164,12 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
     public void setOwnerId(UUID ownerId) {
         this.ownerId = ownerId;
-        String name = Bukkit.getOfflinePlayer(ownerId).getName();
-        setAttribute(OWNER, name == null ? "???" : name);
+        if (ownerId.equals(ScrollingMenuSign.CONSOLE_UUID)) {
+            setAttribute(OWNER, ScrollingMenuSign.CONSOLE_OWNER);
+        } else {
+            String name = Bukkit.getOfflinePlayer(ownerId).getName();
+            setAttribute(OWNER, name == null ? "???" : name);
+        }
         autosave();
     }
 
@@ -696,7 +700,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
             // try to get the owner UUID matching the owner name if possible
             final String owner = newVal.toString();
             if (owner.isEmpty() || owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {
-                ownerId = new UUID(0, 0);
+                ownerId = ScrollingMenuSign.CONSOLE_UUID;
             } else if (MiscUtil.looksLikeUUID(owner)) {
                 ownerId = UUID.fromString(owner);
                 String name = Bukkit.getOfflinePlayer(ownerId).getName();
@@ -729,7 +733,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
                         ownerId = res.get(owner);
                     } else {
                         LogUtils.warning("View [" + getName() + "]: no known UUID for player: " + owner);
-                        ownerId = new UUID(0, 0);
+                        ownerId = ScrollingMenuSign.CONSOLE_UUID;
                     }
                 } catch (Exception e) {
                     LogUtils.warning("View [" + getName() + "]: can't retrieve UUID for player: " + owner + ": " + e.getMessage());

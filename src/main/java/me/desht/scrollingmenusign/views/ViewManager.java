@@ -615,6 +615,6 @@ public class ViewManager {
     }
 
     private UUID getUniqueId(CommandSender owner) {
-        return owner instanceof Player ? ((Player) owner).getUniqueId() : null;
+        return owner instanceof Player ? ((Player) owner).getUniqueId() : ScrollingMenuSign.CONSOLE_UUID;
     }
 }

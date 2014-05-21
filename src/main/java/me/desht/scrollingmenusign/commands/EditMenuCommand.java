@@ -1,8 +1,5 @@
 package me.desht.scrollingmenusign.commands;
 
-import java.util.Collections;
-import java.util.List;
-
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -10,12 +7,15 @@ import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
-
+import me.desht.scrollingmenusign.util.SMSUtil;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+
+import java.util.Collections;
+import java.util.List;
 
 public class EditMenuCommand extends SMSAbstractCommand {
 
@@ -56,10 +56,10 @@ public class EditMenuCommand extends SMSAbstractCommand {
         }
 
         SMSMenuItem currentItem = menu.getItemAt(pos, true);
-        String label = hasOption("label") ? StringEscapeUtils.unescapeHtml(MiscUtil.parseColourSpec(getStringOption("label"))) : currentItem.getLabel();
+        String label = hasOption("label") ? SMSUtil.unEscape(getStringOption("label")) : currentItem.getLabel();
         String command = hasOption("command") ? StringEscapeUtils.unescapeHtml(getStringOption("command")) : currentItem.getCommand();
         String altCommand = hasOption("altcommand") ? StringEscapeUtils.unescapeHtml(getStringOption("altcommand")) : currentItem.getAltCommand();
-        String message = hasOption("feedback") ? StringEscapeUtils.unescapeHtml(MiscUtil.parseColourSpec(getStringOption("feedback"))) : currentItem.getMessage();
+        String message = hasOption("feedback") ? SMSUtil.unEscape(getStringOption("feedback")) : currentItem.getMessage();
         ItemStack icon = hasOption("icon") ? SMSMenuItem.parseIconMaterial(getStringOption("icon")) : currentItem.getIcon();
         String perm = hasOption("perm") ? getStringOption("perm") : currentItem.getPermissionNode();
         String[] lore = buildNewLore(currentItem);
@@ -97,7 +97,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
     private String[] buildNewLore(SMSMenuItem item) {
         List<String> lore = item.getLoreAsList();
         if (hasOption("lore")) {
-            String l = StringEscapeUtils.unescapeHtml(getStringOption("lore"));
+            String l = SMSUtil.unEscape(getStringOption("lore"));
             String l1;
             if (l.startsWith("+") && l.length() > 1) {
                 l1 = l.substring(1);

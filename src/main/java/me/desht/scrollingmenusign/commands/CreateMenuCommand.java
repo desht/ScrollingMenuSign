@@ -7,6 +7,7 @@ import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.SMSMapView;
 
 import org.bukkit.Location;
@@ -39,13 +40,11 @@ public class CreateMenuCommand extends SMSAbstractCommand {
 
         Location signLoc = null;
         short mapId = -1;
-        String owner = null;
 
         boolean autoCreateView = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autocreate_views");
 
         if (autoCreateView && sender instanceof Player) {
             Player player = (Player) sender;
-            owner = sender.getName();
             Block b = null;
             try {
                 b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
@@ -66,7 +65,7 @@ public class CreateMenuCommand extends SMSAbstractCommand {
             }
         }
 
-        String menuTitle = MiscUtil.parseColourSpec(sender, combine(args, 1));
+        String menuTitle = SMSUtil.unEscape(combine(args, 1));
         SMSMenu menu = handler.createMenu(menuName, menuTitle, sender instanceof Player ? (Player) sender : null);
 
         if (signLoc != null) {

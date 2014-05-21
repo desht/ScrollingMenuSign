@@ -6,6 +6,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.parser.CommandUtils;
+import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.CommandTrigger;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -68,17 +69,17 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         SMSPersistence.mustHaveField(node, "message");
 
         this.menu = menu;
-        this.label = MiscUtil.parseColourSpec(StringEscapeUtils.unescapeHtml(node.getString("label")));
+        this.label = SMSUtil.unEscape(node.getString("label"));
         this.command = StringEscapeUtils.unescapeHtml(node.getString("command"));
         this.altCommand = StringEscapeUtils.unescapeHtml(node.getString("altCommand", ""));
-        this.message = MiscUtil.parseColourSpec(StringEscapeUtils.unescapeHtml(node.getString("message")));
+        this.message = SMSUtil.unEscape(node.getString("message"));
         this.icon = parseIconMaterial(node.getString("icon"));
         this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
         this.lore = new ArrayList<String>();
         this.permissionNode = node.getString("permission", "");
         if (node.contains("lore")) {
             for (String l : node.getStringList("lore")) {
-                lore.add(MiscUtil.parseColourSpec(StringEscapeUtils.unescapeHtml(l)));
+                lore.add(SMSUtil.unEscape(l));
             }
         }
     }
@@ -541,10 +542,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
     Map<String, Object> freeze() {
         Map<String, Object> map = new HashMap<String, Object>();
 
-        map.put("label", StringEscapeUtils.escapeHtml(MiscUtil.unParseColourSpec(label)));
-        map.put("command", StringEscapeUtils.escapeHtml(command));
-        map.put("altCommand", StringEscapeUtils.escapeHtml(altCommand));
-        map.put("message", StringEscapeUtils.escapeHtml(MiscUtil.unParseColourSpec(message)));
+        map.put("label", SMSUtil.escape(label));
+        map.put("command", SMSUtil.escape(command));
+        map.put("altCommand", SMSUtil.escape(altCommand));
+        map.put("message", SMSUtil.escape(message));
         if (getIconMaterial() != null) {
             MaterialData m = getIconMaterial();
             StringBuilder sb = new StringBuilder(m.getItemType().toString());
@@ -560,7 +561,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         map.put("usesRemaining", uses.freeze());
         List<String> lore2 = new ArrayList<String>(lore.size());
         for (String l : lore) {
-            lore2.add(StringEscapeUtils.escapeHtml(MiscUtil.unParseColourSpec(l)));
+            lore2.add(SMSUtil.escape(l));
         }
         map.put("lore", lore2);
         map.put("permission", permissionNode);

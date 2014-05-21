@@ -63,6 +63,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
     public static final int BLOCK_TARGET_DIST = 4;
     public static final String CONSOLE_OWNER = "[console]";
+    public static final UUID CONSOLE_UUID = new UUID(0, 0);
 
     private static ScrollingMenuSign instance = null;
 

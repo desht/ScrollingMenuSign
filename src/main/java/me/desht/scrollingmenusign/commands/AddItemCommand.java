@@ -1,7 +1,5 @@
 package me.desht.scrollingmenusign.commands;
 
-import java.util.List;
-
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -9,12 +7,13 @@ import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
-
+import me.desht.scrollingmenusign.util.SMSUtil;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import java.util.List;
 
 public class AddItemCommand extends SMSAbstractCommand {
 
@@ -48,12 +47,12 @@ public class AddItemCommand extends SMSAbstractCommand {
         menu.ensureAllowedToModify(sender);
 
         int pos = hasOption("at") ? getIntOption("at") : -1;
-        String label = StringEscapeUtils.unescapeHtml(MiscUtil.parseColourSpec(sender, args[1]));
+        String label = SMSUtil.unEscape(args[1]);
         String cmd = args.length >= 3 ? StringEscapeUtils.unescapeHtml(args[2]) : "";
         String altCmd = hasOption("altcommand") ? StringEscapeUtils.unescapeHtml(getStringOption("altcommand")) : "";
-        String msg = hasOption("feedback") ? StringEscapeUtils.unescapeHtml(getStringOption("feedback")) : "";
+        String msg = hasOption("feedback") ? SMSUtil.unEscape(getStringOption("feedback")) : "";
         String iconMat = hasOption("icon") ? getStringOption("icon") : plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
-        String[] lore = hasOption("lore") ? StringEscapeUtils.unescapeHtml(getStringOption("lore")).split("\\\\\\\\") : new String[0];
+        String[] lore = hasOption("lore") ? SMSUtil.unEscape(getStringOption("lore")).split("\\\\\\\\") : new String[0];
         String perm = hasOption("perm") ? getStringOption("perm") : "";
 
         SMSValidate.isFalse(sender instanceof Player && !new CommandParser().verifyCreationPerms((Player) sender, cmd),
