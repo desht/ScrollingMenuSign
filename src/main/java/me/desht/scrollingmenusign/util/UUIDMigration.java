@@ -1,8 +1,10 @@
-package me.desht.scrollingmenusign;
+package me.desht.scrollingmenusign.util;
 
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.UUIDFetcher;
+import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSView;
 import org.bukkit.Bukkit;
 
@@ -15,7 +17,7 @@ public class UUIDMigration {
             return;
         }
         final Set<String> names = new HashSet<String>();
-        for (SMSMenu menu : SMSMenu.listMenus()) {
+        for (SMSMenu menu : plugin.getHandler().listMenus()) {
             if (!MiscUtil.looksLikeUUID(menu.getOwner())) {
                 names.add(menu.getOwner());
             }
@@ -62,7 +64,7 @@ public class UUIDMigration {
 
         @Override
         public void run() {
-            for (SMSMenu menu : SMSMenu.listMenus()) {
+            for (SMSMenu menu : plugin.getHandler().listMenus()) {
                 if (!MiscUtil.looksLikeUUID(menu.getOwner())) {
                     UUID uuid = response.get(menu.getOwner());
                     menu.setOwnerId(uuid);

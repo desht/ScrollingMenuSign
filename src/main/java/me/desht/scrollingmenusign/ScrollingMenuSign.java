@@ -31,6 +31,7 @@ import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
 import me.desht.scrollingmenusign.listeners.SMSWorldListener;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.scrollingmenusign.util.UUIDMigration;
 import me.desht.scrollingmenusign.variables.VariablesManager;
 import me.desht.scrollingmenusign.views.*;
 import net.milkbowl.vault.economy.Economy;
