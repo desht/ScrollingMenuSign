@@ -5,6 +5,7 @@ import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.ViewUpdateAction;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -646,7 +647,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
     void deletePermanent() {
         try {
             setChanged();
-            notifyObservers(SMSMenuAction.DELETE_PERM);
+            notifyObservers(new ViewUpdateAction(SMSMenuAction.DELETE_PERM));
             SMSMenu.unregisterMenu(getName());
             SMSPersistence.unPersist(this);
         } catch (SMSException e) {
@@ -662,7 +663,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
     void deleteTemporary() {
         try {
             SMSMenu.unregisterMenu(getName());
-            notifyObservers(SMSMenuAction.DELETE_TEMP);
+            notifyObservers(new ViewUpdateAction(SMSMenuAction.DELETE_TEMP));
         } catch (SMSException e) {
             // Should not get here
             LogUtils.warning("Impossible: deleteTemporary got SMSException? " + e.getMessage());
@@ -700,7 +701,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         menus.put(menuName, menu);
 
         if (updateSign) {
-            menu.notifyObservers(SMSMenuAction.REPAINT);
+            menu.notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
         }
 
         menu.autosave();
@@ -734,7 +735,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
      */
     public static void updateAllMenus() {
         for (SMSMenu menu : listMenus()) {
-            menu.notifyObservers(SMSMenuAction.REPAINT);
+            menu.notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
         }
     }
 
@@ -907,7 +908,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         } else if (key.equals(TITLE)) {
             title = newVal.toString();
             setChanged();
-            notifyObservers(SMSMenuAction.REPAINT);
+            notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
         } else if (key.equals(OWNER) && !inThaw) {
             final String owner = newVal.toString();
             if (owner.isEmpty() || owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {

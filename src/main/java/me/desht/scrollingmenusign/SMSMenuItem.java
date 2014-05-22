@@ -619,7 +619,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         private String command = "";
         private String altCommand = "";
         private String message = "";
-        private List<String> lore;
+        private List<String> lore = Collections.emptyList();
         private ItemStack icon;
         private boolean glow;
         private String permissionNode = "";

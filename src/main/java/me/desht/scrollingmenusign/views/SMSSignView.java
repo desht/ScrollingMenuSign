@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.views;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 
@@ -73,10 +74,11 @@ public class SMSSignView extends SMSGlobalScrollableView {
      * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
      */
     @Override
-    public void update(Observable menu, Object arg) {
-        super.update(menu, arg);
+    public void update(Observable menu, Object arg1) {
+        super.update(menu, arg1);
 
-        switch ((SMSMenuAction) arg) {
+        ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
+        switch (vu.getAction()) {
             case REPAINT:
             case SCROLLED:
                 repaintAll();

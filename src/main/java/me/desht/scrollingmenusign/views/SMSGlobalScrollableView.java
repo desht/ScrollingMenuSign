@@ -39,8 +39,6 @@ import com.google.common.base.Joiner;
  * the selected item in this view, and tracks the location of a possible tooltip sign.
  */
 public abstract class SMSGlobalScrollableView extends SMSScrollableView {
-    public static final UUID GLOBAL_PLAYER_UUID = UUID.fromString("90e73940-ba41-11e3-a5e2-0800200c9a66");
-
     protected static final int SIGN_WIDTH = 15;
     protected static final int SIGN_LINES = 4;
 
@@ -85,7 +83,8 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
     public void update(Observable menu, Object arg) {
         super.update(menu, arg);
 
-        if (arg == SMSMenuAction.REPAINT) {
+        ViewUpdateAction vu = ViewUpdateAction.getAction(arg);
+        if (vu.getAction() == SMSMenuAction.REPAINT) {
             updateTooltipSign();
         }
     }

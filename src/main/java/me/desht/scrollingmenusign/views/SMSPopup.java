@@ -6,13 +6,15 @@ import org.bukkit.entity.Player;
  * Represents the component of a {@link PoppableView} that is actually popped up or down.
  */
 public interface SMSPopup {
-    public abstract SMSView getView();
+    public SMSView getView();
 
-    public abstract void repaint();
+    public void repaint();
 
-    public abstract boolean isPoppedUp(Player p);
+    public boolean isPoppedUp();
 
-    public abstract void popup(Player p);
+    public void popup();
 
-    public abstract void popdown(Player p);
+    public void popdown();
+
+    public Player getPlayer();
 }

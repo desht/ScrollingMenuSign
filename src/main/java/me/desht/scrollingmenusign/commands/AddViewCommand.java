@@ -36,9 +36,15 @@ public class AddViewCommand extends SMSAbstractCommand {
                 "/sms sync <menu-name> -spout",
                 "/sms sync <menu-name> -inv",
                 "/sms sync <menu-name> -item",
+                "/sms sync <menu-name> -holopub",
+                "/sms sync <menu-name> -holopri",
                 "  [-viewname <name>]  Choose a non-default view name"
         });
-        setOptions("map:i", "sign", "spout", "redstone", "multi", "inventory", "inv", "item", "force", "viewname:s", "loc:s");
+        setOptions(
+                "map:i", "sign", "spout", "redstone", "multi",
+                "inventory", "inv", "item", "force", "viewname:s",
+                "loc:s", "holopub", "holopri"
+        );
     }
 
     @Override
@@ -71,8 +77,17 @@ public class AddViewCommand extends SMSAbstractCommand {
             } else {
                 view = getViewManager(plugin).addRedstoneViewToMenu(viewName, menu, loc, sender);
             }
+        } else if (hasOption("holopub")) {
+            if (loc == null) {
+                interactiveCreation(sender, viewName, menu, "holopub");
+                return true;
+            } else {
+                view = getViewManager(plugin).addPublicHoloViewToMenu(viewName, menu, loc, sender);
+            }
         } else if (hasOption("inventory") || hasOption("inv")) {
             view = getViewManager(plugin).addInventoryViewToMenu(viewName, menu, sender);
+        }  else if (hasOption("holopri")) {
+            view = getViewManager(plugin).addPrivateHoloToView(viewName, menu, sender);
         } else if (hasOption("item")) {
             notFromConsole(sender);
             Player p = (Player) sender;

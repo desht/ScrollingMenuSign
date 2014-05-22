@@ -12,6 +12,7 @@ import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.ViewUpdateAction;
 import me.desht.scrollingmenusign.views.redout.Switch;
 
 import org.bukkit.ChatColor;
@@ -76,7 +77,7 @@ public class ViewCommand extends SMSAbstractCommand {
                 varName = varName.substring(1);
                 view.setVariable(varName, null);
                 view.autosave();
-                view.update(null, SMSMenuAction.REPAINT);
+                view.update(null, new ViewUpdateAction(SMSMenuAction.REPAINT));
                 MiscUtil.statusMessage(sender, "Deleted view variable: &a" + varName + "&-.");
             }
         } else if (args.length <= 1) {
@@ -90,7 +91,7 @@ public class ViewCommand extends SMSAbstractCommand {
                     view.ensureAllowedToModify(sender);
                     view.setVariable(varName, args[2]);
                     view.autosave();
-                    view.update(null, SMSMenuAction.REPAINT);
+                    view.update(null, new ViewUpdateAction(SMSMenuAction.REPAINT));
                 }
                 MiscUtil.statusMessage(sender, String.format("&a%s.$%s&- = &a%s&-", view.getName(), varName, view.getVariable(varName)));
             } else {

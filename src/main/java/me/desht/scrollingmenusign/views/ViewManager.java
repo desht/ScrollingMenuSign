@@ -268,14 +268,14 @@ public class ViewManager {
         }
 
         if (view == null && PopupBook.holding(player)) {
-            // popup book (spout/inventory)
+            // popup book (spout/inventory/private-holo)
             PopupBook book = PopupBook.get(player);
             view = book.getView();
         }
 
         Block b = null;
         if (view == null) {
-            // targeted view (sign/multisign/redstone)
+            // targeted view (sign/multisign/redstone/public-holo)
             try {
                 b = player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST);
                 view = getViewForLocation(b.getLocation());
@@ -286,7 +286,7 @@ public class ViewManager {
 
         if (view == null && b != null) {
             // maybe there's a map view item frame attached to the block we're looking at
-            ItemFrame frame = getMapFrame(b, player.getEyeLocation());
+            ItemFrame frame = findMapFrame(b, player.getEyeLocation());
             if (frame != null) {
                 view = getMapViewForId(frame.getItem().getDurability());
             }
@@ -425,11 +425,8 @@ public class ViewManager {
         }
 
         SMSMapView mapView = new SMSMapView(viewName, menu);
-        registerView(mapView);
-        mapView.setAttribute(SMSView.OWNER, mapView.makeOwnerName(owner));
-        mapView.setOwnerId(getUniqueId(owner));
         mapView.setMapId(mapId);
-        mapView.update(menu, SMSMenuAction.REPAINT);
+        initialiseView(mapView, owner);
 
         return mapView;
     }
@@ -482,7 +479,7 @@ public class ViewManager {
      * @param viewerLoc the location to check from
      * @return the item frame object, or null if none was found
      */
-    public ItemFrame getMapFrame(Block block, Location viewerLoc) {
+    public ItemFrame findMapFrame(Block block, Location viewerLoc) {
         BlockFace face = BlockUtil.getNearestFace(block, viewerLoc);
         for (Entity entity : block.getWorld().getEntitiesByClass(ItemFrame.class)) {
             ItemFrame frame = (ItemFrame) entity;
@@ -509,10 +506,7 @@ public class ViewManager {
 
     public SMSInventoryView addInventoryViewToMenu(String viewName, SMSMenu menu, CommandSender owner) {
         SMSInventoryView view = new SMSInventoryView(viewName, menu);
-        registerView(view);
-        view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
-        view.setOwnerId(getUniqueId(owner));
-        view.update(view.getNativeMenu(), SMSMenuAction.REPAINT);
+        initialiseView(view, owner);
         return view;
     }
 
@@ -528,10 +522,7 @@ public class ViewManager {
      */
     public SMSView addMultiSignToMenu(String viewName, SMSMenu menu, Location location, CommandSender owner) throws SMSException {
         SMSView view = new SMSMultiSignView(viewName, menu, location);
-        registerView(view);
-        view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
-        view.setOwnerId(getUniqueId(owner));
-        view.update(menu, SMSMenuAction.REPAINT);
+        initialiseView(view, owner);
         return view;
     }
 
@@ -558,10 +549,7 @@ public class ViewManager {
      */
     public SMSView addRedstoneViewToMenu(String viewName, SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
         SMSView view = new SMSRedstoneView(viewName, menu);
-        view.addLocation(loc);
-        registerView(view);
-        view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
-        view.setOwnerId(getUniqueId(owner));
+        initialiseView(view, owner);
         return view;
     }
 
@@ -582,10 +570,7 @@ public class ViewManager {
      */
     public SMSView addSignToMenu(String viewName, SMSMenu menu, Location loc, CommandSender owner) throws SMSException {
         SMSView view = new SMSSignView(viewName, menu, loc);
-        registerView(view);
-        view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
-        view.setOwnerId(getUniqueId(owner));
-        view.update(menu, SMSMenuAction.REPAINT);
+        initialiseView(view, owner);
         return view;
     }
 
@@ -607,14 +592,50 @@ public class ViewManager {
 
     public SMSView addSpoutViewToMenu(String viewName, SMSMenu menu, CommandSender owner) throws SMSException {
         SMSView view = new SMSSpoutView(viewName, menu);
-        registerView(view);
-        view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
-        view.setOwnerId(getUniqueId(owner));
-        view.update(menu, SMSMenuAction.REPAINT);
+        initialiseView(view, owner);
         return view;
     }
 
     private UUID getUniqueId(CommandSender owner) {
         return owner instanceof Player ? ((Player) owner).getUniqueId() : ScrollingMenuSign.CONSOLE_UUID;
+    }
+
+    /**
+     * Convenience method.  Create and register a new SMSPublicHoloView object, and attach it to
+     * the given menu.
+     *
+     * @param viewName Name for the view; if null a name will be auto-generated
+     * @param menu The menu to attach the new view to
+     * @param loc  Location of the new view
+     * @return The newly-created view
+     * @throws SMSException if the given location is not a suitable location for the new view
+     */
+    public SMSView addPublicHoloViewToMenu(String viewName, SMSMenu menu, Location loc, CommandSender owner) {
+        SMSView view = new SMSPublicHoloView(viewName, menu, loc);
+        initialiseView(view, owner);
+        return view;
+    }
+
+    /**
+     * Convenience method.  Create and register a new SMSPrivateHoloView object, and attach it to
+     * the given menu.
+     *
+     * @param viewName Name for the view; if null a name will be auto-generated
+     * @param menu The menu to attach the new view to
+     * @return The newly-created view
+     * @throws SMSException if the given location is not a suitable location for the new view
+     */
+    public SMSView addPrivateHoloToView(String viewName, SMSMenu menu, CommandSender owner) {
+        SMSView view = new SMSPrivateHoloView(viewName, menu);
+        initialiseView(view, owner);
+        return view;
+    }
+
+    private void initialiseView(SMSView view, CommandSender owner) {
+        // common setup tasks for a new view
+        registerView(view);
+        view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
+        view.setOwnerId(getUniqueId(owner));
+        view.update(view.getNativeMenu(), new ViewUpdateAction(SMSMenuAction.REPAINT));
     }
 }

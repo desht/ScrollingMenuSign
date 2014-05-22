@@ -16,6 +16,7 @@ import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 
+import me.desht.scrollingmenusign.views.ViewUpdateAction;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -60,7 +61,7 @@ public class SMSBlockListener extends SMSListenerBase {
             event.setCancelled(true);
             if (iBlock != null && iBlock instanceof SMSView) {
                 SMSView view = (SMSView) iBlock;
-                view.update(view.getActiveMenu(player), SMSMenuAction.REPAINT);
+                view.update(view.getActiveMenu(player), new ViewUpdateAction(SMSMenuAction.REPAINT));
             }
         } else if (iBlock != null) {
             iBlock.processEvent(plugin, event);

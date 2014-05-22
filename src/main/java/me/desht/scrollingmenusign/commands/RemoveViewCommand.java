@@ -48,7 +48,7 @@ public class RemoveViewCommand extends SMSAbstractCommand {
                 MiscUtil.statusMessage(sender, "Deactivated held item: " + ChatColor.GOLD + player.getItemInHand().getType());
                 return true;
             } else if (hasOption("frame")) {
-                ItemFrame frame = viewManager.getMapFrame(player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST), player.getEyeLocation());
+                ItemFrame frame = viewManager.findMapFrame(player.getTargetBlock(null, ScrollingMenuSign.BLOCK_TARGET_DIST), player.getEyeLocation());
                 if (frame != null) {
                     ItemStack stack = frame.getItem();
                     SMSMapView mv = viewManager.getMapViewForId(stack.getDurability());

@@ -37,6 +37,8 @@ public class ExpectViewCreation extends ExpectLocation {
                 view = vm.addRedstoneViewToMenu(viewName, menu, getLocation(), player);
             } else if (arg.equals("multisign")) {
                 view = vm.addMultiSignToMenu(viewName, menu, getLocation(), player);
+            } else if (arg.equals("holopub")) {
+                view = vm.addPublicHoloViewToMenu(viewName, menu, getLocation(), player);
             }
         } catch (SMSException e) {
             throw new DHUtilsException(e.getMessage());

@@ -338,7 +338,7 @@ public class SMSMapView extends SMSScrollableView {
      */
     public void setMapItemName(ItemStack item) {
         int nItems = getNativeMenu().getItemCount();
-        String loreStr = nItems + (nItems == 1 ? " item" : " items");
+        String loreStr = nItems + (nItems == 1 ? " menu item" : " menu items");
         loreStr = ChatColor.GRAY.toString() + ChatColor.ITALIC.toString() + loreStr;
         List<String> lore = new ArrayList<String>(1);
         lore.add(loreStr);
@@ -371,16 +371,17 @@ public class SMSMapView extends SMSScrollableView {
     public void update(Observable menu, Object arg1) {
         super.update(menu, arg1);
 
-        switch ((SMSMenuAction) arg1) {
+        ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
+        switch (vu.getAction()) {
             case REPAINT:
             case SCROLLED:
-                if (mapView == null)
-                    return;
-                if (mapView.getRenderers().contains(getMapRenderer())) {
-                    mapView.removeRenderer(getMapRenderer());
+                if (mapView != null) {
+                    if (mapView.getRenderers().contains(getMapRenderer())) {
+                        mapView.removeRenderer(getMapRenderer());
+                    }
+                    mapView.addRenderer(getMapRenderer());
+                    setDirty(vu.getPlayer(), true);
                 }
-                mapView.addRenderer(getMapRenderer());
-                setDirty(true);
                 break;
             default:
                 break;

@@ -13,6 +13,8 @@ import java.util.UUID;
  * Represents any object which can cause a SMS command to be triggered, e.g. a view or an active item.
  */
 public abstract class CommandTrigger implements Comparable<CommandTrigger> {
+    public static final UUID GLOBAL_PLAYER_UUID = UUID.fromString("90e73940-ba41-11e3-a5e2-0800200c9a66");
+
     public abstract void pushMenu(Player player, SMSMenu newActive);
 
     public abstract SMSMenu popMenu(Player player);
@@ -26,15 +28,13 @@ public abstract class CommandTrigger implements Comparable<CommandTrigger> {
     /**
      * Get the player context for operations such as view scrolling, active submenu etc.  For
      * views which have a per-player context (e.g. maps), this is just the player's UUID. For views
-     * with a global context (e.g. signs), a global pseudo-player handle can be used.
-     * <p/>
-     * Subclasses should override this as needed.
+     * with a global context (e.g. signs), a global pseudo-player handle is used.
      *
      * @param player the player to check for
      * @return the player context ID
      */
     protected UUID getPlayerContext(Player player) {
-        return player.getUniqueId();
+        return player == null? GLOBAL_PLAYER_UUID : player.getUniqueId();
     }
 
     /**

@@ -8,6 +8,7 @@ import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.util.SMSUtil;
+import me.desht.scrollingmenusign.views.ViewUpdateAction;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -76,7 +77,7 @@ public class AddItemCommand extends SMSAbstractCommand {
             MiscUtil.statusMessage(sender, "Menu item &f" + label + "&- inserted in &e" + menu.getName() + "&- at position " + actualPos);
         }
 
-        menu.notifyObservers(SMSMenuAction.REPAINT);
+        menu.notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
 
         return true;
     }

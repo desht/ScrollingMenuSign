@@ -85,6 +85,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
     private boolean protocolLibEnabled = false;
     private MetaFaker faker;
     private boolean vaultLegacyMode = false;
+    private boolean holoAPIEnabled;
 
     @Override
     public void onLoad() {
@@ -115,6 +116,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         setupSpout(pm);
         setupVault(pm);
         setupProtocolLib(pm);
+        setupHoloAPI(pm);
         if (protocolLibEnabled) {
             ItemGlow.init(this);
             setupItemMetaFaker();
@@ -198,6 +200,10 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         return protocolLibEnabled;
     }
 
+    public boolean isHoloAPIEnabled() {
+        return holoAPIEnabled;
+    }
+
     public static ScrollingMenuSign getInstance() {
         return instance;
     }
@@ -269,6 +275,14 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
     private static void setInstance(ScrollingMenuSign plugin) {
         instance = plugin;
+    }
+
+    private void setupHoloAPI(PluginManager pm) {
+        Plugin holoAPI = pm.getPlugin("HoloAPI");
+        if (holoAPI != null && holoAPI.isEnabled()) {
+            holoAPIEnabled = true;
+            Debugger.getInstance().debug("Hooked HoloAPI v" + holoAPI.getDescription().getVersion());
+        }
     }
 
     private void setupSpout(PluginManager pm) {
@@ -451,7 +465,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
     private void repaintViews(String type) {
         for (SMSView v : viewManager.listViews()) {
             if (type == null || v.getType().equals(type)) {
-                v.update(null, SMSMenuAction.REPAINT);
+                v.update(null, new ViewUpdateAction(SMSMenuAction.REPAINT));
             }
         }
     }

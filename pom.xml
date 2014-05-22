@@ -230,6 +230,12 @@
             <version>2.4.7</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.dsh105</groupId>
+            <artifactId>HoloAPI</artifactId>
+            <version>1.2.4-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies/>

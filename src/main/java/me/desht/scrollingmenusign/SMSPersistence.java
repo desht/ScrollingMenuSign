@@ -14,6 +14,7 @@ import me.desht.scrollingmenusign.variables.VariablesManager;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.ViewManager;
 
+import me.desht.scrollingmenusign.views.ViewUpdateAction;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -147,7 +148,7 @@ public class SMSPersistence {
             SMSView view = vm.loadView(conf);
             if (view != null) {
                 view.getNativeMenu().addObserver(view);
-                view.update(view.getNativeMenu(), SMSMenuAction.REPAINT);
+                view.update(view.getNativeMenu(), new ViewUpdateAction(SMSMenuAction.REPAINT));
             }
         }
 

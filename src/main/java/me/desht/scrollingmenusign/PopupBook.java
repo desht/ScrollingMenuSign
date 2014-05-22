@@ -162,7 +162,7 @@ public class PopupBook {
             return false;
         }
         BookMeta bm = (BookMeta) p.getItemInHand().getItemMeta();
-        return bm.getPageCount() >= 4 && bm.getPage(VIEW_TYPE).matches("^sms \\w+ view$");
+        return bm.getPageCount() >= 4 && bm.getPage(VIEW_TYPE).matches("^sms [\\w-]+ view$");
     }
 
     /**

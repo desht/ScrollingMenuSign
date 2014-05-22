@@ -4,7 +4,6 @@ import me.desht.dhutils.Debugger;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSSpoutView;
-import org.bukkit.entity.Player;
 import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.Label;
 import org.getspout.spoutapi.gui.Screen;
@@ -63,7 +62,7 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
      * @see me.desht.scrollingmenusign.spout.SMSPopup#isPoppedUp()
      */
     @Override
-    public boolean isPoppedUp(Player p) {
+    public boolean isPoppedUp() {
         return poppedUp;
     }
 
@@ -82,18 +81,18 @@ public class SpoutViewPopup extends SMSGenericPopup implements SMSPopup {
      * @see me.desht.scrollingmenusign.spout.SMSPopup#popup()
      */
     @Override
-    public void popup(Player p) {
+    public void popup() {
         poppedUp = true;
-        ((SpoutPlayer) p).getMainScreen().attachPopupScreen(this);
+        sp.getMainScreen().attachPopupScreen(this);
     }
 
     /* (non-Javadoc)
      * @see me.desht.scrollingmenusign.spout.SMSPopup#popdown()
      */
     @Override
-    public void popdown(Player p) {
+    public void popdown() {
         poppedUp = false;
-        ((SpoutPlayer) p).getMainScreen().closePopup();
+        sp.getMainScreen().closePopup();
     }
 
     private void rejustify() {

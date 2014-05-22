@@ -217,7 +217,7 @@ public class SMSPlayerListener extends SMSListenerBase {
             } else if (event.getAction() == Action.LEFT_CLICK_BLOCK && isHittingViewWithSwitch(player, clickedView)) {
                 // Hit a globally scrollable view with a button or lever - adding it as a redstone output
                 tryToAddRedstoneOutput((SMSGlobalScrollableView) clickedView, player);
-            } else if (clickedView != null && clickedView instanceof SMSScrollableView) {
+            } else if (clickedView != null && clickedView instanceof SMSScrollableView && clickedView.isClickable()) {
                 // There's an interactable view at the targeted block
                 Debugger.getInstance().debug("player interact event @ " + block.getLocation() + ", " + player.getDisplayName() + " did " + event.getAction() +
                         ", menu=" + clickedView.getActiveMenu(player).getName());
@@ -227,7 +227,7 @@ public class SMSPlayerListener extends SMSListenerBase {
                 }
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK && player.getGameMode() == GameMode.CREATIVE) {
                     // left clicking a sign in creative mode even once will blank the sign
-                    clickedView.update(clickedView.getActiveMenu(player), SMSMenuAction.REPAINT);
+                    clickedView.update(clickedView.getActiveMenu(player), new ViewUpdateAction(SMSMenuAction.REPAINT));
                 }
             } else {
                 return false;

@@ -121,17 +121,17 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
      * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
      */
     @Override
-    public void update(Observable o, Object arg) {
+    public void update(Observable o, Object arg1) {
         if (o == null)
             return;
 
         SMSMenu m = (SMSMenu) o;
-        SMSMenuAction action = (SMSMenuAction) arg;
-        Debugger.getInstance().debug("update: view=" + getName() + " action=" + action + " menu=" + m.getName() + ", nativemenu=" + getNativeMenu().getName());
+        ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
+        Debugger.getInstance().debug("update: view=" + getName() + " action=" + vu.getAction() + " player=" + vu.getPlayer() + " menu=" + m.getName() + ", nativemenu=" + getNativeMenu().getName());
         if (m == getNativeMenu()) {
-            if (action == SMSMenuAction.DELETE_PERM) {
+            if (vu.getAction() == SMSMenuAction.DELETE_PERM) {
                 ScrollingMenuSign.getInstance().getViewManager().deleteView(this, true);
-            } else if (action == SMSMenuAction.DELETE_TEMP) {
+            } else if (vu.getAction() == SMSMenuAction.DELETE_TEMP) {
                 ScrollingMenuSign.getInstance().getViewManager().deleteView(this, false);
             }
         }
@@ -180,10 +180,6 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
      * @return the active SMSMenu object for this view
      */
     public SMSMenu getActiveMenu(Player player) {
-        if (player == null) {
-            return getNativeMenu();
-        }
-
         UUID key = getPlayerContext(player);
 
         if (!menuStack.containsKey(key)) {
@@ -208,7 +204,9 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         }
         menuStack.get(key).pushMenu(newActive);
         newActive.addObserver(this);
-        update(newActive, SMSMenuAction.REPAINT);
+        Debugger.getInstance().debug("pushed menu " + newActive.getName() + " onto " + getName()
+                + " player=" + player.getName() + " player-context = " + key);
+        update(newActive, new ViewUpdateAction(SMSMenuAction.REPAINT, player));
     }
 
     /**
@@ -231,7 +229,9 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         oldActive.deleteObserver(this);
         SMSMenu newActive = getActiveMenu(player);
         newActive.addObserver(this);
-        update(newActive, SMSMenuAction.REPAINT);
+        Debugger.getInstance().debug("popped menu " + oldActive.getName() + " off " + getName() + " new active = " + newActive.getName()
+                + " player=" + player.getName() + " player-context = " + key);
+        update(newActive, new ViewUpdateAction(SMSMenuAction.REPAINT, player));
         return oldActive;
     }
 
@@ -475,10 +475,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
      * @param dirty true if a repaint is needed, false otherwise
      */
     public void setDirty(boolean dirty) {
-        this.dirty = dirty;
-        if (dirty) {
-            dirtyPlayers.clear();
-        }
+        setDirty(null, dirty);
     }
 
     /**
@@ -488,7 +485,14 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
      * @param dirty  Whether or not a repaint is needed
      */
     public void setDirty(Player player, boolean dirty) {
-        dirtyPlayers.put(getPlayerContext(player), dirty);
+        if (player == null) {
+            this.dirty = dirty;
+            if (dirty) {
+                dirtyPlayers.clear();
+            }
+        } else {
+            dirtyPlayers.put(getPlayerContext(player), dirty);
+        }
     }
 
     /**
@@ -718,7 +722,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         // Don't do updates on views that haven't been registered yet (which will be the case
         // when restoring saved views from disk)
         if (ScrollingMenuSign.getInstance().getViewManager().checkForView(getName())) {
-            update(null, SMSMenuAction.REPAINT);
+            update(null, new ViewUpdateAction(SMSMenuAction.REPAINT));
         }
     }
 
@@ -801,8 +805,9 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         Player player = event.getPlayer();
 
         SMSMenu menu = getNativeMenu();
-        Debugger.getInstance().debug("block damage event @ " + MiscUtil.formatLocation(b.getLocation()) + ", view = " + getName() + ", menu=" + menu.getName());
-
+        if (Debugger.getInstance().getLevel() > 0) {
+            Debugger.getInstance().debug("block damage event @ " + MiscUtil.formatLocation(b.getLocation()) + ", view = " + getName() + ", menu=" + menu.getName());
+        }
         if (plugin.getConfig().getBoolean("sms.no_destroy_signs") ||
                 !menu.isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
             event.setCancelled(true);
@@ -813,11 +818,13 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         Player player = event.getPlayer();
         Block b = event.getBlock();
 
-        Debugger.getInstance().debug("block break event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
+        if (Debugger.getInstance().getLevel() > 0) {
+            Debugger.getInstance().debug("block break event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
+        }
 
         if (plugin.getConfig().getBoolean("sms.no_destroy_signs")) {
             event.setCancelled(true);
-            update(getActiveMenu(player), SMSMenuAction.REPAINT);
+            update(getActiveMenu(player), new ViewUpdateAction(SMSMenuAction.REPAINT, player));
         } else {
             removeLocation(b.getLocation());
             if (getLocations().isEmpty()) {
@@ -832,7 +839,9 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
     public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
         Block b = event.getBlock();
 
-        Debugger.getInstance().debug("block physics event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
+        if (Debugger.getInstance().getLevel() > 0) {
+            Debugger.getInstance().debug("block physics event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
+        }
         if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
             event.setCancelled(true);
         } else if (BlockUtil.isAttachableDetached(b)) {
@@ -846,9 +855,11 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
     public void processEvent(ScrollingMenuSign plugin, BlockRedstoneEvent event) {
         Block b = event.getBlock();
 
-        Debugger.getInstance().debug("block redstone event @ " + b.getLocation() + ", view = "
-                + getName() + ", menu = " + getNativeMenu().getName()
-                + ", current = " + event.getOldCurrent() + "->" + event.getNewCurrent());
+        if (Debugger.getInstance().getLevel() > 0) {
+            Debugger.getInstance().debug("block redstone event @ " + b.getLocation() + ", view = "
+                    + getName() + ", menu = " + getNativeMenu().getName()
+                    + ", current = " + event.getOldCurrent() + "->" + event.getNewCurrent());
+        }
     }
 
     /**
@@ -872,6 +883,15 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
     @Deprecated
     public void register() {
         ScrollingMenuSign.getInstance().getViewManager().registerView(this);
+    }
+
+    /**
+     * Check if this view responds to player clicks to scroll/execute it.
+     *
+     * @return true if the view is responsive to clicks, false otherwise
+     */
+    public boolean isClickable() {
+        return true;
     }
 
     /**

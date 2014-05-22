@@ -93,7 +93,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
         }
 
         SpoutViewPopup gui = popups.get(sp.getUniqueId());
-        gui.popup(p);
+        gui.popup();
     }
 
     /**
@@ -112,7 +112,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
         }
 
         Debugger.getInstance().debug("hiding Spout GUI for " + getName() + " from " + sp.getDisplayName());
-        popups.get(sp.getUniqueId()).popdown(p);
+        popups.get(sp.getUniqueId()).popdown();
 
         // decision: destroy the gui object or not?
         //		popups.remove(sp.getName());
@@ -190,11 +190,15 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
      * @see me.desht.scrollingmenusign.views.SMSScrollableView#update(java.util.Observable, java.lang.Object)
      */
     @Override
-    public void update(Observable menu, Object arg) {
-        switch ((SMSMenuAction) arg) {
+    public void update(Observable menu, Object arg1) {
+        super.update(menu, arg1);
+        ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
+        switch (vu.getAction()) {
             case REPAINT:
-                for (SMSPopup gui : popups.values()) {
-                    gui.repaint();
+                for (SpoutViewPopup gui : popups.values()) {
+                    if (vu.getPlayer() == null || gui.getPlayer().equals(vu.getPlayer())) {
+                        gui.repaint();
+                    }
                 }
                 break;
             default:
@@ -209,7 +213,7 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
         super.onDeleted(permanent);
         if (permanent) {
             for (Entry<UUID, SpoutViewPopup> e : popups.entrySet()) {
-                if (e.getValue().isPoppedUp(null)) {
+                if (e.getValue().isPoppedUp()) {
                     hideGUI(e.getValue().getPlayer());
                 }
             }

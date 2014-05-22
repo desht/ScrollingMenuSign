@@ -5,6 +5,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.util.SMSUtil;
+import me.desht.scrollingmenusign.views.ViewUpdateAction;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
@@ -38,7 +39,7 @@ public class RemoveItemCommand extends SMSAbstractCommand {
             SMSMenu menu = getMenu(sender, menuName);
             menu.ensureAllowedToModify(sender);
             menu.removeItem(item);
-            menu.notifyObservers(SMSMenuAction.REPAINT);
+            menu.notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
             MiscUtil.statusMessage(sender, "Menu entry &f#" + item + "&- removed from &e" + menu.getName());
         } catch (IndexOutOfBoundsException e) {
             throw new SMSException("Item index " + item + " out of range");
