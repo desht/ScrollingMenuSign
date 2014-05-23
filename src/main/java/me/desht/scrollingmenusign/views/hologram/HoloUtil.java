@@ -10,6 +10,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 public class HoloUtil {
+    public static final String LAST_HOLO_INTERACTION = "SMS_Last_Holo_Interaction";
+    public static final long HOLO_POPDOWN_TIMEOUT = 150; // ms
+
     public static String[] buildText(SMSScrollableView view, Player player, int nLines) {
         String[] res = new String[nLines];
 

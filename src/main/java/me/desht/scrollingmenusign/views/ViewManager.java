@@ -316,7 +316,7 @@ public class ViewManager {
      * @return the first view found for the menu
      */
     public SMSView findView(SMSMenu menu) {
-        return findView(menu, null);
+        return findView(menu, (Class<?>) null);
     }
 
 
@@ -324,11 +324,29 @@ public class ViewManager {
      * Find a view for the given menu.
      *
      * @param menu the SMS menu
+     * @param c if non-null, the view must be a instanceof of this class or a subclass
      * @return the first view found of the given class (or interface) for the menu
      */
     public SMSView findView(SMSMenu menu, Class<?> c) {
         for (SMSView view : listViews()) {
             if (view.getNativeMenu() == menu && (c == null || c.isAssignableFrom(view.getClass()))) {
+                return view;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find a view for the given menu.
+     *
+     * @param menu the SMS menu
+     * @param type if non-null, the desired view type as returned
+     *             by {@link me.desht.scrollingmenusign.views.SMSView#getType()}
+     * @return the first view found of the given class (or interface) for the menu
+     */
+    public SMSView findView(SMSMenu menu, String type) {
+        for (SMSView view : listViews()) {
+            if (view.getNativeMenu() == menu && (type == null || type.equals(view.getType()))) {
                 return view;
             }
         }

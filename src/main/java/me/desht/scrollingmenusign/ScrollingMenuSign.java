@@ -372,6 +372,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         cmds.registerCommand(new ListMacroCommand());
         cmds.registerCommand(new ListMenusCommand());
         cmds.registerCommand(new MenuCommand());
+        cmds.registerCommand(new MakePopupCommand());
         cmds.registerCommand(new PageCommand());
         cmds.registerCommand(new ReloadCommand());
         cmds.registerCommand(new RemoveItemCommand());
@@ -473,6 +474,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
     public void setupCustomFonts() {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
+        //noinspection ConstantConditions
         for (File f : DirectoryStructure.getFontsFolder().listFiles()) {
             String n = f.getName().toLowerCase();
             int type;

@@ -14,6 +14,7 @@ import me.desht.scrollingmenusign.views.SMSPrivateHoloView;
 import me.desht.scrollingmenusign.views.SMSView;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.LinkedHashMap;
 
@@ -128,6 +129,8 @@ public class HoloPopup implements SMSPopup {
                 if (ua != null) {
                     ua.execute(player, view);
                 }
+                player.setMetadata(HoloUtil.LAST_HOLO_INTERACTION,
+                        new FixedMetadataValue(ScrollingMenuSign.getInstance(), System.currentTimeMillis()));
             }
         }
 
