@@ -29,7 +29,7 @@ public enum SMSAccessRights {
             case OWNER_GROUP:
                 String primaryGroup = ScrollingMenuSign.getInstance().isVaultLegacyMode() ?
                         ScrollingMenuSign.permission.getPrimaryGroup(player.getWorld(), ownerName) :
-                        ScrollingMenuSign.permission.getPrimaryGroup(player.getWorld(), Bukkit.getOfflinePlayer(ownerId));
+                        ScrollingMenuSign.permission.getPrimaryGroup(player.getWorld().getName(), Bukkit.getOfflinePlayer(ownerId));
                 inGroup = checkGroupMembership(player, primaryGroup);
                 Debugger.getInstance().debug("OWNER_GROUP access check: owner = [" + ownerName + "], primary group = [" + primaryGroup + "], player ["
                         + player.getDisplayName() + "] in group: " + inGroup);
@@ -49,7 +49,7 @@ public enum SMSAccessRights {
         } else if (ScrollingMenuSign.getInstance().isVaultLegacyMode()) {
             return ScrollingMenuSign.permission.playerInGroup(player.getWorld(), player.getName(), group);
         } else {
-            return ScrollingMenuSign.permission.playerInGroup(player.getWorld(), player, group);
+            return ScrollingMenuSign.permission.playerInGroup(player.getWorld().getName(), player, group);
         }
     }
 }
