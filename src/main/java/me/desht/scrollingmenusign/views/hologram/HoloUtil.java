@@ -11,7 +11,7 @@ import java.util.List;
 
 public class HoloUtil {
     public static final String LAST_HOLO_INTERACTION = "SMS_Last_Holo_Interaction";
-    public static final long HOLO_POPDOWN_TIMEOUT = 150; // ms
+    public static final long HOLO_POPDOWN_TIMEOUT = 100; // ms
 
     public static String[] buildText(SMSScrollableView view, Player player, int nLines) {
         String[] res = new String[nLines];
@@ -26,6 +26,9 @@ public class HoloUtil {
         for (int i = 0; i < nTitleLines; i++) {
             res[i] = titleLines.get(i);
             maxWidth = Math.max(maxWidth, res[i].length());
+        }
+        for (int i = nTitleLines; i < nLines; i++) {
+            res[i] = "...";
         }
 
         int scrollPos = view.getScrollPos(player);

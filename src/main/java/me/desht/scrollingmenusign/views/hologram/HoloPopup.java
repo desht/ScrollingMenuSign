@@ -7,6 +7,8 @@ import com.dsh105.holoapi.api.touch.TouchAction;
 import com.dsh105.holoapi.api.visibility.Visibility;
 import com.dsh105.holoapi.protocol.Action;
 import me.desht.dhutils.Debugger;
+import me.desht.dhutils.MiscUtil;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.SMSPopup;
@@ -19,6 +21,8 @@ import org.bukkit.metadata.FixedMetadataValue;
 import java.util.LinkedHashMap;
 
 public class HoloPopup implements SMSPopup {
+    private static final double POPUP_DISTANCE = 2.5;
+
     private final SMSPrivateHoloView view;
     private final Player player;
     private Hologram hologram = null;
@@ -40,7 +44,10 @@ public class HoloPopup implements SMSPopup {
     @Override
     public void repaint() {
         String[] text = HoloUtil.buildText(view, player, (Integer) view.getAttribute(SMSPrivateHoloView.LINES));
-        if (hologram == null || hologram.getLines().length != text.length) {
+        if (text.length != hologram.getLines().length) {
+            popdown();  // force a new hologram to be created with the new size
+        }
+        if (hologram == null) {
             hologram = buildHologram(player, text);
         } else {
             hologram.updateLines(text);
@@ -86,7 +93,7 @@ public class HoloPopup implements SMSPopup {
     }
 
     private Location getHologramPosition(Player player) {
-        return player.getEyeLocation().add(player.getLocation().getDirection().multiply(2.0));
+        return player.getEyeLocation().add(player.getLocation().getDirection().multiply(POPUP_DISTANCE));
     }
 
     private class HologramVisibility implements Visibility {
@@ -126,11 +133,15 @@ public class HoloPopup implements SMSPopup {
             if (player.equals(this.player)) {
                 Debugger.getInstance().debug("Hologram action: player=" + player.getName() + " action=" + action + " view = " + view.getName());
                 SMSUserAction ua = getAction(player, action);
-                if (ua != null) {
-                    ua.execute(player, view);
+                try {
+                    if (ua != null) {
+                        ua.execute(player, view);
+                    }
+                    player.setMetadata(HoloUtil.LAST_HOLO_INTERACTION,
+                            new FixedMetadataValue(ScrollingMenuSign.getInstance(), System.currentTimeMillis()));
+                } catch (SMSException e) {
+                    MiscUtil.errorMessage(player, e.getMessage());
                 }
-                player.setMetadata(HoloUtil.LAST_HOLO_INTERACTION,
-                        new FixedMetadataValue(ScrollingMenuSign.getInstance(), System.currentTimeMillis()));
             }
         }
 
@@ -148,10 +159,10 @@ public class HoloPopup implements SMSPopup {
             StringBuilder key = new StringBuilder();
             switch (action) {
                 case RIGHT_CLICK:
-                    key = new StringBuilder("sms.actions.rightclick.");
+                    key.append("sms.actions.rightclick.");
                     break;
                 case LEFT_CLICK:
-                    key = new StringBuilder("sms.actions.leftclick.");
+                    key.append("sms.actions.leftclick.");
                     break;
             }
             key.append(player.isSneaking() ? "sneak" : "normal");

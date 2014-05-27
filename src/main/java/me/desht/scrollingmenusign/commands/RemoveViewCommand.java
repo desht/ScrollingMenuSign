@@ -28,6 +28,8 @@ public class RemoveViewCommand extends SMSAbstractCommand {
                 "/sms break",
                 "/sms break <view-name>",
                 "/sms break -loc <x,y,z,world>",
+                "/sms break -item",
+                "/sms break -frame",
         });
         setOptions("loc:s", "view:s", "item", "frame");
     }

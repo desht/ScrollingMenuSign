@@ -1,6 +1,8 @@
 package me.desht.scrollingmenusign;
 
 import com.google.common.base.Joiner;
+import me.desht.dhutils.Debugger;
+import me.desht.dhutils.ItemGlow;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.ViewManager;
@@ -13,47 +15,55 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.MetadataValue;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.List;
 
 public class PopupItem {
     private static final String SEPARATOR = "▶";
-    public static final int VIEW_NAME = 2;
-    public static final int MENU_NAME = 1;
-    public static final int VIEW_TYPE = 3;
+    public static final int MENU_NAME_FIELD = 1;
+    public static final int VIEW_NAME_FIELD = 2;
+    public static final int VIEW_TYPE_FIELD = 3;
 
-    private final SMSView view;
+    private final WeakReference<SMSView> viewRef;
     private final MaterialData mat;
 
     private PopupItem(MaterialData mat, SMSView view) {
-        SMSValidate.isTrue(view instanceof PoppableView, "View type " + view.getType() + " is not a view view");
-        //noinspection ConstantConditions
-        this.view = view;
+        SMSValidate.isTrue(view instanceof PoppableView, "View type " + view.getType() + " is not a poppable view");
+        this.viewRef = new WeakReference<SMSView>(view);
         this.mat = mat;
     }
 
     public SMSView getView() {
-        return view;
+        return viewRef.get();
     }
 
     public void toggle(final Player player) {
+        final SMSView view = viewRef.get();
+        if (view == null) {
+            return;
+        }
         final PoppableView pop = (PoppableView) view;
+        view.ensureAllowedToUse(player);
 
-        if (pop.hasActiveGUI(player)) {
-            // Cheeky hack: if the player has very recently interacted with a hologram, we can
-            // infer that he's still looking at it, in which case we do *not* pop the view down
-            Bukkit.getScheduler().runTask(ScrollingMenuSign.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    long when = getLastHoloInteraction(player);
-                    if (System.currentTimeMillis() - when > HoloUtil.HOLO_POPDOWN_TIMEOUT) {
+        // By deferring this, we get a chance to know if the player is using the popup item
+        // to interact with a hologram on this tick.  If he is, then don't do any popup/popdown
+        // of the hologram.
+        Bukkit.getScheduler().runTask(ScrollingMenuSign.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                long when = getLastHoloInteraction(player);
+                if (System.currentTimeMillis() - when > HoloUtil.HOLO_POPDOWN_TIMEOUT) {
+                    if (pop.hasActiveGUI(player)) {
+                        Debugger.getInstance().debug("popup item: close " + view.getName() + " for " + player.getName());
                         pop.hideGUI(player);
+                    } else {
+                        Debugger.getInstance().debug("popup item: open " + view.getName() + " for " + player.getName());
+                        pop.showGUI(player);
                     }
                 }
-            });
-        } else {
-            pop.showGUI(player);
-        }
+            }
+        });
     }
 
     private long getLastHoloInteraction(Player player) {
@@ -66,10 +76,14 @@ public class PopupItem {
     }
 
     public ItemStack toItemStack() {
-        return toItemStack(MENU_NAME);
+        return toItemStack(1);
     }
 
     public ItemStack toItemStack(int amount) {
+        SMSView view = viewRef.get();
+        if (view == null) {
+            return null;
+        }
         ItemStack res = mat.toItemStack(amount);
         ItemMeta meta = res.getItemMeta();
         meta.setDisplayName(view.getNativeMenu().getTitle());
@@ -80,6 +94,9 @@ public class PopupItem {
                 view.getType()
         )));
         res.setItemMeta(meta);
+        if (ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
+            ItemGlow.setGlowing(res, true);
+        }
         return res;
     }
 
@@ -91,28 +108,20 @@ public class PopupItem {
      * @throws SMSException if the stack is a popup item but the view & menu are not valid
      */
     public static PopupItem get(ItemStack stack) {
-        if (!stack.hasItemMeta() || !stack.getItemMeta().hasLore()) {
+        String[] f = getPopupItemFields(stack.getItemMeta());
+        if (f == null) {
             return null;
         }
-        List<String> lore = stack.getItemMeta().getLore();
-        if (lore.isEmpty()) {
-            return null;
-        }
-        String line = lore.get(lore.size() - 1);
-        String[] f = line.split(SEPARATOR);
-        if (f.length != 3) {
-            return null;
-        }
-        ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
 
-        if (vm.checkForView(f[VIEW_NAME])) {
-            return new PopupItem(stack.getData(), vm.getView(f[VIEW_NAME]));
-        } else if (ScrollingMenuSign.getInstance().getHandler().checkMenu(f[MENU_NAME])) {
+        ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
+        if (vm.checkForView(f[VIEW_NAME_FIELD])) {
+            return new PopupItem(stack.getData(), vm.getView(f[VIEW_NAME_FIELD]));
+        } else if (ScrollingMenuSign.getInstance().getHandler().checkMenu(f[MENU_NAME_FIELD])) {
             // the view doesn't exist (must have been deleted?)
             // but we can attempt to find another view of the same type
-            SMSMenu menu = ScrollingMenuSign.getInstance().getHandler().getMenu(f[MENU_NAME]);
-            SMSView view = vm.findView(menu, f[VIEW_TYPE]);
-            SMSValidate.notNull(view, "Invalid view");
+            SMSMenu menu = ScrollingMenuSign.getInstance().getHandler().getMenu(f[MENU_NAME_FIELD]);
+            SMSView view = vm.findView(menu, f[VIEW_TYPE_FIELD]);
+            SMSValidate.notNull(view, "Menu has no view of type " + f[VIEW_TYPE_FIELD]);
             return new PopupItem(stack.getData(), view);
         } else {
             throw new SMSException("Invalid menu and view");
@@ -122,5 +131,25 @@ public class PopupItem {
     public static PopupItem create(ItemStack stack, SMSView view) {
         SMSValidate.isTrue(view instanceof PoppableView, "That view is not a popup view");
         return new PopupItem(stack.getData(), view);
+    }
+
+    public static PopupItem get(Player player) {
+        return get(player.getItemInHand());
+    }
+
+    public static String[] getPopupItemFields(ItemMeta itemMeta) {
+        if (itemMeta == null || !itemMeta.hasLore()) {
+            return null;
+        }
+        List<String> lore = itemMeta.getLore();
+        if (lore.isEmpty()) {
+            return null;
+        }
+        String line = lore.get(lore.size() - 1);
+        String[] f = line.split(SEPARATOR);
+        if (f.length != 4) {
+            return null;
+        }
+        return f;
     }
 }

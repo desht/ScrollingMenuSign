@@ -87,11 +87,11 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
     }
 
     @Override
-    public void toggleGUI(Player p) {
-        if (hasActiveGUI(p)) {
-            hideGUI(p);
+    public void toggleGUI(Player player) {
+        if (hasActiveGUI(player)) {
+            hideGUI(player);
         } else {
-            showGUI(p);
+            showGUI(player);
         }
     }
 

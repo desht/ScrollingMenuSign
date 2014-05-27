@@ -12,50 +12,53 @@ import java.util.UUID;
 
 public class SMSPrivateHoloView extends SMSScrollableView implements PoppableView {
     public static final String LINES = "lines";
+    public static final String AUTOPOPDOWN = "autopopdown";
+
     private final Map<UUID, HoloPopup> holograms = new HashMap<UUID, HoloPopup>();
 
     public SMSPrivateHoloView(String name, SMSMenu menu) {
         super(name, menu);
 
         registerAttribute(LINES, 4, "Number of lines visible in the hologram (including title)");
+        registerAttribute(AUTOPOPDOWN, true, "Auto-popdown after item click?");
     }
 
     @Override
-    public void showGUI(Player p) {
-        if (!holograms.containsKey(p.getUniqueId())) {
-            HoloPopup h = new HoloPopup(p, this);
+    public void showGUI(Player player) {
+        if (!holograms.containsKey(player.getUniqueId())) {
+            HoloPopup h = new HoloPopup(player, this);
             h.popup();
-            holograms.put(p.getUniqueId(), h);
+            holograms.put(player.getUniqueId(), h);
         }
     }
 
     @Override
-    public void hideGUI(Player p) {
-        HoloPopup popup = holograms.get(p.getUniqueId());
+    public void hideGUI(Player player) {
+        HoloPopup popup = holograms.get(player.getUniqueId());
         if (popup != null) {
             popup.popdown();
-            holograms.remove(p.getUniqueId());
+            holograms.remove(player.getUniqueId());
         }
     }
 
     @Override
-    public void toggleGUI(Player p) {
-        if (hasActiveGUI(p)) {
-            hideGUI(p);
+    public void toggleGUI(Player player) {
+        if (hasActiveGUI(player)) {
+            hideGUI(player);
         } else {
-            showGUI(p);
+            showGUI(player);
         }
-        p.closeInventory();
+        player.closeInventory();
     }
 
     @Override
-    public boolean hasActiveGUI(Player p) {
-        return holograms.containsKey(p.getUniqueId());
+    public boolean hasActiveGUI(Player player) {
+        return holograms.containsKey(player.getUniqueId());
     }
 
     @Override
-    public SMSPopup getActiveGUI(Player p) {
-        return holograms.get(p.getUniqueId());
+    public SMSPopup getActiveGUI(Player player) {
+        return holograms.get(player.getUniqueId());
     }
 
     @Override
@@ -81,6 +84,13 @@ public class SMSPrivateHoloView extends SMSScrollableView implements PoppableVie
     }
 
     @Override
+    public void onExecuted(Player player) {
+        if ((Boolean) getAttribute(SMSPrivateHoloView.AUTOPOPDOWN)) {
+            hideGUI(player);
+        }
+    }
+
+    @Override
     public String getType() {
         return "private-holo";
     }
@@ -90,5 +100,16 @@ public class SMSPrivateHoloView extends SMSScrollableView implements PoppableVie
         for (HoloPopup holoPopup : holograms.values()) {
             HoloAPI.getManager().stopTracking(holoPopup.getHologram());
         }
+    }
+
+    @Override
+    public void clearPlayerForView(Player player) {
+        hideGUI(player);
+    }
+
+    @Override
+    public String toString() {
+        String s = holograms.size() == 1 ? "" : "s";
+        return "private-holo: " + holograms.size() + " active popup" + s;
     }
 }

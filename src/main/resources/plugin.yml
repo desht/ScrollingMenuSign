@@ -59,6 +59,7 @@ permissions:
       scrollingmenusign.use.inventory: true
       scrollingmenusign.use.spout: true
       scrollingmenusign.use.item: true
+      scrollingmenusign.use.holo-pri: true
   scrollingmenusign.limited_admin:
     description: Gives limited administration rights for SMS
     default: false
@@ -70,6 +71,7 @@ permissions:
       scrollingmenusign.use.inventory: true
       scrollingmenusign.use.spout: true
       scrollingmenusign.use.item: true
+      scrollingmenusign.use.holo-pri: true
       scrollingmenusign.commands.create: true
       scrollingmenusign.commands.delete: true
       scrollingmenusign.commands.undelete: true
@@ -102,6 +104,7 @@ permissions:
       scrollingmenusign.use.inventory: true
       scrollingmenusign.use.spout: true
       scrollingmenusign.use.item: true
+      scrollingmenusign.use.holo-pri: true
       scrollingmenusign.commands.create: true
       scrollingmenusign.commands.delete: true
       scrollingmenusign.commands.undelete: true
@@ -260,6 +263,12 @@ permissions:
     default: op
   scrollingmenusign.use.item:
     description: Allows usage of active items
+    default: op
+  scrollingmenusign.use.holo-pub:
+    description: Allows usage of public hologram views
+    default: true
+  scrollingmenusign.use.holo-pri:
+    description: Allows usage of private hologram views
     default: op
   scrollingmenusign.create.redstonecontrol:
     description: Allows creation of redstone control signs

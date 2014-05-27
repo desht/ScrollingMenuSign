@@ -77,11 +77,11 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
     /**
      * Show the given player's GUI for this view.
      *
-     * @param p The player object
+     * @param player The player object
      */
     @Override
-    public void showGUI(Player p) {
-        SpoutPlayer sp = SpoutManager.getPlayer(p);
+    public void showGUI(Player player) {
+        SpoutPlayer sp = SpoutManager.getPlayer(player);
         if (!sp.isSpoutCraftEnabled())
             return;
 
@@ -99,11 +99,11 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
     /**
      * Hide the given player's GUI for this view.
      *
-     * @param p The player object
+     * @param player The player object
      */
     @Override
-    public void hideGUI(Player p) {
-        SpoutPlayer sp = SpoutManager.getPlayer(p);
+    public void hideGUI(Player player) {
+        SpoutPlayer sp = SpoutManager.getPlayer(player);
         if (!sp.isSpoutCraftEnabled())
             return;
 
@@ -154,11 +154,11 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
      * Toggle the given player's visibility of the GUI for this view.  If a GUI for a different view
      * is currently showing, pop that one down, and pop this one up.
      *
-     * @param p The player object
+     * @param player The player object
      */
     @Override
-    public void toggleGUI(Player p) {
-        final SpoutPlayer sp = SpoutManager.getPlayer(p);
+    public void toggleGUI(Player player) {
+        final SpoutPlayer sp = SpoutManager.getPlayer(player);
         if (!sp.isSpoutCraftEnabled())
             return;
 

@@ -9,11 +9,7 @@ import java.util.Map.Entry;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.BlockUtil;
-import me.desht.scrollingmenusign.PopupBook;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSPersistence;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSMapView.SMSMapRenderer;
 import me.desht.scrollingmenusign.views.SMSView.MenuStack;
@@ -29,6 +25,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.util.Vector;
@@ -271,6 +268,12 @@ public class ViewManager {
             // popup book (spout/inventory/private-holo)
             PopupBook book = PopupBook.get(player);
             view = book.getView();
+        }
+
+        ItemStack stack = player.getItemInHand();
+        if (view == null && stack != null && PopupItem.getPopupItemFields(stack.getItemMeta()) != null) {
+            PopupItem item = PopupItem.get(stack);
+            view = item.getView();
         }
 
         Block b = null;

@@ -31,21 +31,13 @@ public class SMSPlayerListener extends SMSListenerBase {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() == Action.PHYSICAL) {
-            // We're not interested in physical actions (pressure plate) here
+            // We're not interested in physical actions here
             return;
         }
-        if (event.isCancelled() && plugin.getViewManager().getHeldMapView(event.getPlayer()) == null
-                && !PopupBook.holding(event.getPlayer()) && !ActiveItem.isActiveItem(event.getPlayer().getItemInHand())) {
-            // Work around weird Bukkit behaviour where all air-click events
-            // arrive cancelled by default.
-            return;
-        }
-
         try {
-            boolean cancelEvent = handleInteraction(event);
-            event.setCancelled(cancelEvent);
-        } catch (SMSException e) {
-            MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
+            boolean alreadyCancelled = event.isCancelled();
+            boolean shouldCancel = handleInteraction(event);
+            event.setCancelled(alreadyCancelled || shouldCancel);
         } catch (DHUtilsException e) {
             MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
         }
@@ -82,7 +74,7 @@ public class SMSPlayerListener extends SMSListenerBase {
                 // Bukkit 1.5.1+ PlayerItemHeldEvent is now cancellable
                 event.setCancelled(true);
             }
-        } catch (SMSException e) {
+        } catch (DHUtilsException e) {
             LogUtils.warning(e.getMessage());
         } catch (IllegalStateException e) {
             // ignore
@@ -143,15 +135,21 @@ public class SMSPlayerListener extends SMSListenerBase {
         Block block = event.getClickedBlock();
 
         PopupBook popupBook = null;
+        PopupItem popupItem = null;
         ActiveItem activeItem = null;
         SMSMapView mapView = plugin.getViewManager().getHeldMapView(player);
+
+        // check the various special items that the player might be holding
         if (mapView == null) {
-            popupBook = PopupBook.get(player);
-            if (popupBook == null) {
-                activeItem = ActiveItem.get(player);
+            activeItem = ActiveItem.get(player);
+            if (activeItem == null) {
+                popupItem = PopupItem.get(player);
+                if (popupItem == null) {
+                    popupBook = PopupBook.get(player);
+                }
             }
         }
-        if (block == null && mapView == null && popupBook == null && activeItem == null) {
+        if (block == null && mapView == null && popupBook == null && activeItem == null && popupItem == null) {
             // nothing for us to do here
             return false;
         }
@@ -163,48 +161,20 @@ public class SMSPlayerListener extends SMSListenerBase {
             plugin.responseHandler.cancelAction(player, ExpectCommandSubstitution.class);
             MiscUtil.alertMessage(player, "&6Command execution cancelled.");
         } else if (plugin.responseHandler.isExpecting(player, ExpectViewCreation.class) && block != null) {
-            // Handle the case where the player is creating a view interactively: left-click to create,
-            // right-click to cancel.
-            ExpectViewCreation c = plugin.responseHandler.getAction(player, ExpectViewCreation.class);
-            if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-                c.setLocation(block.getLocation());
-                c.handleAction(player);
-            } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                c.cancelAction(player);
-                MiscUtil.statusMessage(player, "&6View creation cancelled.");
-            }
+            handleViewCreation(event, player, block);
         } else if (plugin.responseHandler.isExpecting(player, ExpectSwitchAddition.class) && isHittingLeverWithSwitch(player, block)) {
-            Switch sw = plugin.getLocationManager().getInteractableAt(block.getLocation(), Switch.class);
-            if (sw == null) {
-                ExpectSwitchAddition swa = plugin.responseHandler.getAction(player, ExpectSwitchAddition.class);
-                swa.setLocation(event.getClickedBlock().getLocation());
-                swa.handleAction(player);
-            } else {
-                MiscUtil.statusMessage(player, String.format("&6Lever is an output switch already (&e%s / %s&-).",
-                        sw.getView().getName(), sw.getTrigger()));
-            }
+            handleSwitchCreation(player, block);
+        } else if (popupItem != null) {
+            popupItem.toggle(player);
         } else if (popupBook != null) {
             // A popup written book - toggle the book's associated poppable view
             popupBook.toggle();
             player.setItemInHand(popupBook.toItemStack());
         } else if (activeItem != null) {
-            Debugger.getInstance().debug("player interact event @ active item: " + activeItem);
             SMSUserAction action = SMSUserAction.getAction(event);
             activeItem.processAction(player, action);
         } else if (mapView != null) {
-            // Holding an active map view
-            Debugger.getInstance().debug("player interact event @ map_" + mapView.getMapView().getId() + ", " + player.getDisplayName() + " did " + event.getAction() +
-                    ", menu=" + mapView.getActiveMenu(player).getName());
-            if (clickedView == null && block != null && (block.getType() == Material.WALL_SIGN || block.getType() == Material.SIGN_POST)) {
-                // Hit a non-active sign with an active map - try to make the sign into a view
-                tryToActivateSign(block, player, mapView.getActiveMenu(player));
-            } else {
-                SMSUserAction action = SMSUserAction.getAction(event);
-                if (action != null) {
-                    action.execute(player, mapView);
-                }
-                mapView.setMapItemName(player.getItemInHand());
-            }
+            handleMapInteraction(event, player, block, mapView, clickedView);
         } else if (block != null) {
             ItemStack heldItem = player.getItemInHand();
             if (clickedView != null && heldItem.getType() == Material.MAP) {
@@ -219,7 +189,8 @@ public class SMSPlayerListener extends SMSListenerBase {
                 tryToAddRedstoneOutput((SMSGlobalScrollableView) clickedView, player);
             } else if (clickedView != null && clickedView instanceof SMSScrollableView && clickedView.isClickable()) {
                 // There's an interactable view at the targeted block
-                Debugger.getInstance().debug("player interact event @ " + block.getLocation() + ", " + player.getDisplayName() + " did " + event.getAction() +
+                Debugger.getInstance().debug("player interact event @ " + block.getLocation() +
+                        ", " + player.getDisplayName() + " did " + event.getAction() +
                         ", menu=" + clickedView.getActiveMenu(player).getName());
                 SMSUserAction action = SMSUserAction.getAction(event);
                 if (action != null) {
@@ -234,6 +205,48 @@ public class SMSPlayerListener extends SMSListenerBase {
             }
         }
         return true;
+    }
+
+    private void handleMapInteraction(PlayerInteractEvent event, Player player, Block block, SMSMapView mapView, SMSView clickedView) {
+        // Holding an active map view
+        Debugger.getInstance().debug("player interact event @ map_" + mapView.getMapView().getId() +
+                ", " + player.getDisplayName() + " did " + event.getAction() +
+                ", menu=" + mapView.getActiveMenu(player).getName());
+        if (clickedView == null && block != null && (block.getType() == Material.WALL_SIGN || block.getType() == Material.SIGN_POST)) {
+            // Hit a non-active sign with an active map - try to make the sign into a view
+            tryToActivateSign(block, player, mapView.getActiveMenu(player));
+        } else {
+            SMSUserAction action = SMSUserAction.getAction(event);
+            if (action != null) {
+                action.execute(player, mapView);
+            }
+            mapView.setMapItemName(player.getItemInHand());
+        }
+    }
+
+    private void handleViewCreation(PlayerInteractEvent event, Player player, Block block) {
+        // Handle the case where the player is creating a view interactively:
+        // left-click to create, right-click to cancel.
+        ExpectViewCreation c = plugin.responseHandler.getAction(player, ExpectViewCreation.class);
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+            c.setLocation(block.getLocation());
+            c.handleAction(player);
+        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            c.cancelAction(player);
+            MiscUtil.statusMessage(player, "&6View creation cancelled.");
+        }
+    }
+
+    private void handleSwitchCreation(Player player, Block block) {
+        Switch sw = plugin.getLocationManager().getInteractableAt(block.getLocation(), Switch.class);
+        if (sw == null) {
+            ExpectSwitchAddition swa = plugin.responseHandler.getAction(player, ExpectSwitchAddition.class);
+            swa.setLocation(block.getLocation());
+            swa.handleAction(player);
+        } else {
+            MiscUtil.statusMessage(player, String.format("&6Lever is an output switch already (&e%s / %s&-).",
+                    sw.getView().getName(), sw.getTrigger()));
+        }
     }
 
     /**

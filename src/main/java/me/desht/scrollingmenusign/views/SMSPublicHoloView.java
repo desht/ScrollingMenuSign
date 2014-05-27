@@ -11,7 +11,6 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.hologram.HoloUtil;
 import org.bukkit.Location;
@@ -112,8 +111,7 @@ public class SMSPublicHoloView extends SMSGlobalScrollableView {
         super.onDeleted(permanent);
         if (permanent) {
             if (hologram != null) {
-                HoloAPI.getManager().stopTracking(hologram);
-                hologram = null;
+                popdown();
             }
         }
     }
@@ -121,7 +119,10 @@ public class SMSPublicHoloView extends SMSGlobalScrollableView {
     private void repaintAll() {
         if (isActive()) {
             String[] text = HoloUtil.buildText(this, null, (Integer) getAttribute(LINES));
-            if (hologram == null || hologram.getLines().length != text.length) {
+            if (hologram != null && hologram.getLines().length != text.length) {
+                popdown(); // force a new hologram to be created with the right size
+            }
+            if (hologram == null) {
                 hologram = buildHologram(text);
             } else {
                 hologram.updateLines(text);
@@ -147,14 +148,6 @@ public class SMSPublicHoloView extends SMSGlobalScrollableView {
 
     @Override
     public void onConfigurationChanged(ConfigurationManager configurationManager, String attribute, Object oldVal, Object newVal) {
-        if (attribute.equals(LINES) && hologram != null) {
-            // Need to do this *before* calling the superclass method because update() will be
-            // called, and the hologram could then be the wrong size, throwing an exception.
-            // By nulling the hologram now, a new one will be created by update().
-            HoloAPI.getManager().stopTracking(hologram);
-            hologram = null;
-        }
-
         super.onConfigurationChanged(configurationManager, attribute, oldVal, newVal);
 
         if ((attribute.equals(OFFSET) || attribute.equals(DIRECTION)) && hologram != null) {
@@ -196,7 +189,7 @@ public class SMSPublicHoloView extends SMSGlobalScrollableView {
 
         boolean newPower = getLocationsArray()[0].getBlock().isBlockIndirectlyPowered();
         if (newPower != powered) {
-            Debugger.getInstance().debug("holo anchor for " +getName() + " got power change! " + powered + " => " + newPower);
+            Debugger.getInstance().debug("holo anchor for " + getName() + " got power change! " + powered + " => " + newPower);
             checkVisibility(powered, newPower, getRedstoneBehaviour(), getRedstoneBehaviour());
             powered = newPower;
         }
@@ -209,8 +202,7 @@ public class SMSPublicHoloView extends SMSGlobalScrollableView {
             }
             HoloAPI.getManager().track(hologram, ScrollingMenuSign.getInstance());
         } else if (isActive(oldPower, oldRedstone) && !isActive(newPower, newRedstone) && hologram != null) {
-            HoloAPI.getManager().stopTracking(hologram);
-            hologram = null;
+            popdown();
         }
     }
 
@@ -221,6 +213,11 @@ public class SMSPublicHoloView extends SMSGlobalScrollableView {
             case LOW: return !level;
             default: throw new IllegalArgumentException("invalid value: " + rsb);
         }
+    }
+
+    private void popdown() {
+        HoloAPI.getManager().stopTracking(hologram);
+        hologram = null;
     }
 
     public enum RedstoneBehaviour {

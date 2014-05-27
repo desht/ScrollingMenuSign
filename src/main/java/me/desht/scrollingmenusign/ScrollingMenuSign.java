@@ -345,15 +345,22 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         faker = new MetaFaker(this, new MetadataFilter() {
             @Override
             public ItemMeta filter(ItemMeta itemMeta, Player player) {
-                if (ActiveItem.isActiveItem(itemMeta) && player.getGameMode() != GameMode.CREATIVE) {
-                    List<String> newLore = new ArrayList<String>(itemMeta.getLore());
-                    newLore.remove(newLore.size() - 1);
-                    ItemMeta newMeta = itemMeta.clone();
-                    newMeta.setLore(newLore);
-                    return newMeta;
-                } else {
+                if (player.getGameMode() == GameMode.CREATIVE) {
+                    // messing with item meta in creative mode can have unwanted consequences
                     return null;
                 }
+                if (!ActiveItem.isActiveItem(itemMeta)) {
+                    String[] f = PopupItem.getPopupItemFields(itemMeta);
+                    if (f == null) {
+                        return null;
+                    }
+                }
+                // strip the last line from the lore for active items & popup items
+                List<String> newLore = new ArrayList<String>(itemMeta.getLore());
+                newLore.remove(newLore.size() - 1);
+                ItemMeta newMeta = itemMeta.clone();
+                newMeta.setLore(newLore);
+                return newMeta;
             }
         });
     }

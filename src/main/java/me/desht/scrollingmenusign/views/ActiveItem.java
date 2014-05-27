@@ -230,6 +230,7 @@ public class ActiveItem extends CommandTrigger {
      * @param action the action to carry out
      */
     public void processAction(Player player, SMSUserAction action) {
+        Debugger.getInstance().debug("active item + " + this + ": " + action + " for " + player.getName());
         switch (action) {
             case EXECUTE:
                 execute(player);
