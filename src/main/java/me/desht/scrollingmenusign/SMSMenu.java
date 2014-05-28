@@ -845,6 +845,11 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         return uses;
     }
 
+    @Override
+    public String getLimitableName() {
+        return getName();
+    }
+
     /**
      * Returns a printable representation of the number of uses remaining for this item.
      *
@@ -863,15 +868,15 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
     @Override
     public String formatUses(CommandSender sender) {
         if (sender instanceof Player) {
-            return uses.toString(sender.getName());
+            return uses.toString((Player) sender);
         } else {
             return formatUses();
         }
     }
 
     /* (non-Javadoc)
-     * @see me.desht.scrollingmenusign.Freezable#getSaveFolder()
-     */
+         * @see me.desht.scrollingmenusign.Freezable#getSaveFolder()
+         */
     @Override
     public File getSaveFolder() {
         return DirectoryStructure.getMenusFolder();

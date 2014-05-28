@@ -300,12 +300,11 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
      * @throws SMSException if the usage limits for the item were already exhausted
      */
     private boolean verifyRemainingUses(SMSUseLimitable useLimitable, Player player) throws SMSException {
-        String playerName = player.getName();
         SMSRemainingUses limits = useLimitable.getUseLimits();
 
         if (limits.hasLimitedUses()) {
             String desc = limits.getDescription();
-            if (limits.getRemainingUses(playerName) <= 0) {
+            if (limits.getRemainingUses(player) <= 0) {
                 throw new SMSException("You can't use that " + desc + " anymore.");
             }
             return true;
@@ -315,14 +314,13 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
     }
 
     private void decrementRemainingUses(SMSUseLimitable useLimitable, Player player) {
-        String playerName = player.getName();
         SMSRemainingUses limits = useLimitable.getUseLimits();
 
         if (limits.hasLimitedUses()) {
             String desc = limits.getDescription();
-            limits.use(playerName);
+            limits.use(player);
             if ((Boolean) menu.getAttributes().get(SMSMenu.REPORT_USES)) {
-                MiscUtil.statusMessage(player, "&6[Uses remaining for this " + desc + ": &e" + limits.getRemainingUses(playerName) + "&6]");
+                MiscUtil.statusMessage(player, "&6&o[Uses remaining for this " + desc + ": &e&o" + limits.getRemainingUses(player) + "&6&o]");
             }
         }
     }
@@ -381,8 +379,14 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
      *
      * @return The remaining use details
      */
+    @Override
     public SMSRemainingUses getUseLimits() {
         return uses;
+    }
+
+    @Override
+    public String getLimitableName() {
+        return menu.getName() + "/" + getLabelStripped();
     }
 
     /**
@@ -412,7 +416,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
     @Override
     public String formatUses(CommandSender sender) {
         if (sender instanceof Player) {
-            return uses.toString(sender.getName());
+            return uses.toString((Player) sender);
         } else {
             return formatUses();
         }

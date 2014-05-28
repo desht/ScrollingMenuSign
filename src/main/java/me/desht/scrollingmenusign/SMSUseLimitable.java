@@ -2,7 +2,10 @@ package me.desht.scrollingmenusign;
 
 import org.bukkit.command.CommandSender;
 
-interface SMSUseLimitable {
+/**
+ * Objects which hold usage-limit data must implement this interface.
+ */
+public interface SMSUseLimitable {
     void autosave();
 
     String getDescription();
@@ -10,4 +13,6 @@ interface SMSUseLimitable {
     String formatUses(CommandSender sender);
 
     SMSRemainingUses getUseLimits();
+
+    String getLimitableName();
 }
