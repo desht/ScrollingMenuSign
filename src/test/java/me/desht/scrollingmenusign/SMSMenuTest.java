@@ -21,23 +21,12 @@ public class SMSMenuTest {
         assertEquals("Owner is console", ScrollingMenuSign.CONSOLE_OWNER, menu.getOwner());
     }
 
-//	@Test
-//	public void testOwnerNotEmpty() {
-//		boolean ok = false;
-//		try {
-//			new SMSMenu("testmenu", "A Test Menu", "");
-//		} catch (SMSException e) {
-//			ok = true;
-//		}
-//		assertTrue("Exception thrown when empty owner passed", ok);
-//	}
-
     @Test
     public void testAddRemoveItems() {
         SMSMenu menu = new SMSMenu("testmenu", "A Test Menu", (Player) null);
-        menu.addItem("Label 1", "a command", "");
-        menu.addItem("Label 2", "another command", "msg 2");
-        menu.addItem("Label 3", "third command", "");
+        menu.addItem(new SMSMenuItem(menu, "Label 1", "a command", ""));
+        menu.addItem(new SMSMenuItem(menu, "Label 2", "another command", "msg 2"));
+        menu.addItem(new SMSMenuItem(menu, "Label 3", "third command", ""));
 
         assertEquals("Menu has three items", 3, menu.getItemCount());
         assertEquals("Second label is 'Label 2'", "Label 2", menu.getItemAt(2).getLabel());
@@ -55,10 +44,10 @@ public class SMSMenuTest {
     @Test
     public void testSortMenu() {
         SMSMenu menu = new SMSMenu("testmenu", "A Test Menu", (Player) null);
-        menu.addItem("Zebra", "a command", "");
-        menu.addItem("Hotel", "another command", "msg 2");
-        menu.addItem("Charlie", "third command", "");
-        menu.addItem("Tango", "blah blah", "");
+        menu.addItem(new SMSMenuItem(menu, "Zebra", "a command", ""));
+        menu.addItem(new SMSMenuItem(menu, "Hotel", "another command", "msg 2"));
+        menu.addItem(new SMSMenuItem(menu, "Charlie", "third command", ""));
+        menu.addItem(new SMSMenuItem(menu, "Tango", "blah blah", ""));
         menu.sortItems();
 
         assertEquals("Sort items", "third command", menu.getItemAt(1).getCommand());
