@@ -296,9 +296,12 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
     private void setupVault(PluginManager pm) {
         Plugin vault = pm.getPlugin("Vault");
         if (vault != null && vault.isEnabled()) {
-            Debugger.getInstance().debug("Hooked Vault v" + vault.getDescription().getVersion());
             int ver = PluginVersionChecker.getRelease(vault.getDescription().getVersion());
             vaultLegacyMode = ver < 1003000;  // 1.3.0
+            Debugger.getInstance().debug("Hooked Vault v" + vault.getDescription().getVersion());
+            if (vaultLegacyMode) {
+                LogUtils.warning("Detected an older version of Vault.  Correct SMS UUID functionality requires Vault 1.4.1 or later.");
+            }
             if (!setupEconomy()) {
                 LogUtils.warning("No economy plugin detected - economy command costs not available");
             }
