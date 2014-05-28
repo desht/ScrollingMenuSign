@@ -84,13 +84,6 @@ public class SMSPrivateHoloView extends SMSScrollableView implements PoppableVie
     }
 
     @Override
-    public void onExecuted(Player player) {
-        if ((Boolean) getAttribute(SMSPrivateHoloView.AUTOPOPDOWN)) {
-            hideGUI(player);
-        }
-    }
-
-    @Override
     public String getType() {
         return "private-holo";
     }

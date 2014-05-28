@@ -9,6 +9,7 @@ import com.dsh105.holoapi.protocol.Action;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.SMSPopup;
@@ -134,11 +135,16 @@ public class HoloPopup implements SMSPopup {
                 Debugger.getInstance().debug("Hologram action: player=" + player.getName() + " action=" + action + " view = " + view.getName());
                 SMSUserAction ua = getAction(player, action);
                 try {
+                    SMSMenu m = view.getActiveMenu(player);
                     if (ua != null) {
                         ua.execute(player, view);
                     }
                     player.setMetadata(HoloUtil.LAST_HOLO_INTERACTION,
                             new FixedMetadataValue(ScrollingMenuSign.getInstance(), System.currentTimeMillis()));
+
+                    if (ua == SMSUserAction.EXECUTE && ((Boolean) view.getAttribute(SMSPrivateHoloView.AUTOPOPDOWN)) && view.getActiveMenu(player) == m) {
+                        view.hideGUI(player);
+                    }
                 } catch (SMSException e) {
                     MiscUtil.errorMessage(player, e.getMessage());
                 }
