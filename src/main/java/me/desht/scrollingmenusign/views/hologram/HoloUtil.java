@@ -1,5 +1,6 @@
 package me.desht.scrollingmenusign.views.hologram;
 
+import me.desht.dhutils.MinecraftChatStr;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ViewJustification;
@@ -25,10 +26,10 @@ public class HoloUtil {
         int nTitleLines = titleLines.size();
         for (int i = 0; i < nTitleLines; i++) {
             res[i] = titleLines.get(i);
-            maxWidth = Math.max(maxWidth, res[i].length());
+            maxWidth = Math.max(maxWidth, MinecraftChatStr.getStringWidth(res[i]));
         }
         for (int i = nTitleLines; i < nLines; i++) {
-            res[i] = "...";
+            res[i] = "";
         }
 
         int scrollPos = view.getScrollPos(player);
@@ -41,7 +42,7 @@ public class HoloUtil {
                     SMSMenuItem item = view.getActiveMenuItemAt(player, pos);
                     String lineText = view.getActiveItemLabel(player, pos);
                     res[j + nTitleLines] = formatItem(prefix, item.getIcon(), lineText);
-                    maxWidth = Math.max(maxWidth, res[j + nTitleLines].length());
+                    maxWidth = Math.max(maxWidth, MinecraftChatStr.getStringWidth(res[j + nTitleLines]));
                     if (++pos > menuSize) {
                         pos = 1;
                     }
@@ -54,20 +55,16 @@ public class HoloUtil {
                     SMSMenuItem item = view.getActiveMenuItemAt(player, pos);
                     String lineText = view.getActiveItemLabel(player, pos);
                     res[j+ nTitleLines] = formatItem(pre, item.getIcon(), lineText);
-                    maxWidth = Math.max(maxWidth, res[j + nTitleLines].length());
+                    maxWidth = Math.max(maxWidth, MinecraftChatStr.getStringWidth(res[j + nTitleLines]));
                 }
                 break;
         }
 
-        if (view.getTitleJustification() != ViewJustification.CENTER) {
-            for (int i = 0; i < nTitleLines; i++) {
-                res[i] = padText(res[i], maxWidth, view.getTitleJustification());
-            }
+        for (int i = 0; i < nTitleLines; i++) {
+            res[i] = padText(res[i], maxWidth, view.getTitleJustification());
         }
-        if (view.getItemJustification() != ViewJustification.CENTER) {
-            for (int i = nTitleLines; i < nLines; i++) {
-                res[i] = padText(res[i], maxWidth, view.getItemJustification());
-            }
+        for (int i = nTitleLines; i < nLines; i++) {
+            res[i] = padText(res[i], maxWidth, view.getItemJustification());
         }
 
         return res;
@@ -85,20 +82,11 @@ public class HoloUtil {
     }
 
     private static String padText(String text, int maxWidth, ViewJustification just) {
-        String s = "";
         switch (just) {
-            case LEFT:
-                s = "%1$-" + maxWidth + "s";
-                break;
-            case CENTER:
-                s = "%1$s";
-                break;
-            case RIGHT:
-                s = "%1$" + maxWidth + "s";
-                break;
-            default:
-                break;
+            case LEFT: return MinecraftChatStr.strPadRightChat(text, maxWidth, ' ');
+            case CENTER: return MinecraftChatStr.strPadCenterChat(text, maxWidth, ' ');
+            case RIGHT: return MinecraftChatStr.strPadLeftChat(text, maxWidth, ' ');
+            default: throw new IllegalArgumentException("unknown justification: " + just);
         }
-        return String.format(s, text);
     }
 }
