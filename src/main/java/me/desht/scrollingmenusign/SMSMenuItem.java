@@ -9,16 +9,12 @@ import me.desht.scrollingmenusign.parser.CommandUtils;
 import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.CommandTrigger;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
-import org.bukkit.Material;
-import org.bukkit.TreeSpecies;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
 
 import java.util.*;
@@ -43,8 +39,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
     }
 
     public SMSMenuItem(SMSMenu menu, String label, String command, String message, String iconMaterialName, String[] lore) {
-        if (label == null || command == null || message == null)
-            throw new NullPointerException();
+        Validate.notNull(menu, "menu may not be null");
+        Validate.notNull(label, "label may not be null");
+        Validate.notNull(command, "command may not be null");
+
         this.menu = menu;
         this.label = label;
         this.command = command;
@@ -52,7 +50,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         this.message = message;
         this.permissionNode = "";
         try {
-            this.icon = parseIconMaterial(iconMaterialName);
+            this.icon = SMSUtil.parseMaterialSpec(iconMaterialName);
         } catch (IllegalArgumentException e) {
             throw new SMSException("invalid material '" + iconMaterialName + "'");
         }
@@ -73,7 +71,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         this.command = StringEscapeUtils.unescapeHtml(node.getString("command"));
         this.altCommand = StringEscapeUtils.unescapeHtml(node.getString("altCommand", ""));
         this.message = SMSUtil.unEscape(node.getString("message"));
-        this.icon = parseIconMaterial(node.getString("icon"));
+        this.icon = SMSUtil.parseMaterialSpec(node.getString("icon"));
         this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
         this.lore = new ArrayList<String>();
         this.permissionNode = node.getString("permission", "");
@@ -97,72 +95,6 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
             ItemGlow.setGlowing(this.icon, true);
         }
         this.uses = builder.uses == null ? new SMSRemainingUses(this) : builder.uses;
-    }
-
-    public static ItemStack parseIconMaterial(String spec) {
-        if (spec == null) {
-            return null;
-        }
-
-        try {
-            String[] fields = spec.split(",");
-            MaterialData mat = parseMatAndData(fields[0]);
-
-            int amount = 1;
-            boolean glowing = false;
-            for (int i = 1; i < fields.length; i++) {
-                if (StringUtils.isNumeric(fields[i])) {
-                    amount = Integer.parseInt(fields[i]);
-                } else if (fields[i].equalsIgnoreCase("glow")) {
-                    glowing = true;
-                }
-            }
-            ItemStack stack = mat.toItemStack(amount);
-            if (glowing && ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
-                ItemGlow.setGlowing(stack, true);
-            }
-            return stack;
-        } catch (Exception e) {
-            LogUtils.warning("Can't parse icon material [" + spec + "]: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private static MaterialData parseMatAndData(String matData) {
-        String[] fields = matData.split("[:()]");
-        Material mat = Material.matchMaterial(fields[0]);
-        if (mat == null) {
-            throw new IllegalArgumentException("Unknown material " + fields[0]);
-        }
-        MaterialData res = new MaterialData(mat);
-        if (fields.length > 1) {
-            if (StringUtils.isNumeric(fields[1])) {
-                res.setData(Byte.parseByte(fields[1]));
-            } else {
-                switch (mat) {
-                    case INK_SACK:
-                        Dye dye = new Dye();
-                        dye.setColor(DyeColor.valueOf(fields[1].toUpperCase()));
-                        res = dye;
-                        break;
-                    case WOOL:
-                    case CARPET:
-                    case STAINED_GLASS:
-                    case STAINED_GLASS_PANE:
-                    case STAINED_CLAY:
-                        // maybe one day these will all implement Colorable...
-                        DyeColor dc2 = DyeColor.valueOf(fields[1].toUpperCase());
-                        res.setData(dc2.getWoolData());
-                        break;
-                    case SAPLING:
-                    case WOOD:
-                        TreeSpecies ts = TreeSpecies.valueOf(fields[1].toUpperCase());
-                        res.setData(ts.getData());
-                        break;
-                }
-            }
-        }
-        return res;
     }
 
     /**
@@ -546,17 +478,8 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         map.put("command", SMSUtil.escape(command));
         map.put("altCommand", SMSUtil.escape(altCommand));
         map.put("message", SMSUtil.escape(message));
-        if (getIconMaterial() != null) {
-            MaterialData m = getIconMaterial();
-            StringBuilder sb = new StringBuilder(m.getItemType().toString());
-            sb.append(":").append(m.getData());
-            if (icon.getAmount() > 1) {
-                sb.append(",").append(Integer.toString(icon.getAmount()));
-            }
-            if (ScrollingMenuSign.getInstance().isProtocolLibEnabled() && ItemGlow.hasGlow(icon)) {
-                sb.append(",").append("glow");
-            }
-            map.put("icon", sb.toString());
+        if (hasIcon()) {
+            map.put("icon", SMSUtil.freezeMaterialSpec(getIcon()));
         }
         map.put("usesRemaining", uses.freeze());
         List<String> lore2 = new ArrayList<String>(lore.size());
@@ -682,7 +605,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
         public Builder withIcon(String iconMaterialName) {
             try {
-                this.icon = parseIconMaterial(iconMaterialName);
+                this.icon = SMSUtil.parseMaterialSpec(iconMaterialName);
             } catch (IllegalArgumentException e) {
                 throw new SMSException("invalid material '" + iconMaterialName + "'");
             }
