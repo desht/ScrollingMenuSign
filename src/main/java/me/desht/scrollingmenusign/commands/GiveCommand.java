@@ -1,10 +1,9 @@
 package me.desht.scrollingmenusign.commands;
 
+import me.desht.dhutils.DHValidate;
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.PopupBook;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.*;
+import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSMapView;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -24,11 +23,12 @@ import java.util.List;
 public class GiveCommand extends SMSAbstractCommand {
 
     public GiveCommand() {
-        super("sms give", 2, 4);
+        super("sms give", 2, 5);
         setPermissionNode("scrollingmenusign.commands.give");
         setUsage(new String[]{
                 "/sms give map <menu-name|view-name|map-id> [<amount>] [<player>]",
                 "/sms give book <menu-name|view-name> [<amount>] [<player>]",
+                "/sms give popup <menu-name|view-name> <material-name>[:<data>] [<amount>] [<player>]",
         });
         setQuotedArgs(true);
     }
@@ -36,19 +36,26 @@ public class GiveCommand extends SMSAbstractCommand {
     @Override
     public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
         int amount = 1;
-        if (args.length >= 3) {
+        int amountArg = 2, playerArg = 3;
+        if (args[0].startsWith("p")) {
+            // popup item has an extra argument
+            amountArg++; playerArg++;
+        }
+
+        if (args.length > amountArg) {
             try {
-                amount = Math.min(64, Math.max(1, Integer.parseInt(args[2])));
+                amount = Math.min(64, Math.max(1, Integer.parseInt(args[amountArg])));
             } catch (NumberFormatException e) {
-                throw new SMSException("Invalid amount '" + args[2] + "'.");
+                throw new SMSException("Invalid amount '" + args[amountArg] + "'.");
             }
         }
+
         Player targetPlayer;
-        if (args.length >= 4) {
+        if (args.length > playerArg) {
             //noinspection deprecation
-            targetPlayer = Bukkit.getPlayer(args[3]);
+            targetPlayer = Bukkit.getPlayer(args[playerArg]);
             if (targetPlayer == null) {
-                throw new SMSException("Player '" + args[3] + "' is not online.");
+                throw new SMSException("Player '" + args[playerArg] + "' is not online.");
             }
         } else {
             notFromConsole(sender);
@@ -60,6 +67,8 @@ public class GiveCommand extends SMSAbstractCommand {
             giveMap(sender, targetPlayer, mapId, amount);
         } else if (args[0].startsWith("b")) {
             giveBook(sender, targetPlayer, args[1], amount);
+        } else if (args[0].startsWith("p") && args.length > 2) {
+            givePopupItem(sender, targetPlayer, args[1], args[2], amount);
         } else {
             showUsage(sender);
         }
@@ -99,35 +108,20 @@ public class GiveCommand extends SMSAbstractCommand {
         return mapId;
     }
 
-    @SuppressWarnings("deprecation")
-    private void giveBook(CommandSender sender, Player targetPlayer, String argStr, int amount) {
-        SMSView view;
-        ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
-        if (vm.checkForView(argStr)) {
-            view = vm.getView(argStr);
-            if (!(view instanceof PoppableView)) {
-                throw new SMSException("View '" + argStr + "' isn't a poppable view.");
-            }
-        } else {
-            SMSMenu menu = SMSMenu.getMenu(argStr);
-            view = vm.findView(menu, PoppableView.class);
-            if (view == null) {
-                view = vm.addInventoryViewToMenu(menu, sender);
-            }
-        }
+    private void giveBook(CommandSender sender, Player targetPlayer, String viewOrMenu, int amount) {
+        SMSView view = getView(viewOrMenu, sender);
 
         PopupBook book = new PopupBook(targetPlayer, view);
         ItemStack writtenbook = book.toItemStack(amount);
         targetPlayer.getInventory().addItem(writtenbook);
 
         String s = amount == 1 ? "" : "s";
-        MiscUtil.statusMessage(sender, String.format("Gave %d book%s (&6%s&-) to &6%s", amount, s, argStr, targetPlayer.getName()));
+        MiscUtil.statusMessage(sender, String.format("Gave %d book%s (&6%s&-) to &6%s", amount, s, viewOrMenu, targetPlayer.getName()));
         if (sender != targetPlayer) {
             MiscUtil.statusMessage(targetPlayer, String.format("You received %d books%s for menu &6%s", amount, s, view.getNativeMenu().getTitle()));
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void giveMap(CommandSender sender, Player targetPlayer, short mapId, int amount) {
         if (Bukkit.getServer().getMap(mapId) == null) {
             World world = targetPlayer.getWorld();
@@ -150,18 +144,69 @@ public class GiveCommand extends SMSAbstractCommand {
         }
     }
 
+    private void givePopupItem(CommandSender sender, Player targetPlayer, String viewOrMenu, String matName, int amount) {
+        try {
+            SMSView view = getView(viewOrMenu, sender);
+            PopupItem item = PopupItem.create(SMSUtil.parseMaterialSpec(matName), view);
+            ItemStack stack = item.toItemStack(amount);
+            targetPlayer.getInventory().addItem(stack);
+
+            String s = amount == 1 ? "" : "s";
+            MiscUtil.statusMessage(sender, String.format("Gave %d popup item%s (&6%s&-) to &6%s",
+                    amount, s, view.getName(), targetPlayer.getName()));
+            if (sender != targetPlayer) {
+                MiscUtil.statusMessage(targetPlayer, String.format("You received %d popup item%s for &6%s&-",
+                        amount, s, view.getNativeMenu().getTitle()));
+            }
+        } catch (IllegalArgumentException e) {
+            throw new SMSException(e.getMessage());
+        }
+    }
+
+    private SMSView getView(String viewOrMenu, CommandSender sender) {
+        SMSView view;
+        ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
+        if (vm.checkForView(viewOrMenu)) {
+            view = vm.getView(viewOrMenu);
+            if (!(view instanceof PoppableView)) {
+                throw new SMSException("View '" + viewOrMenu + "' isn't a poppable view.");
+            }
+        } else {
+            SMSMenu menu = SMSMenu.getMenu(viewOrMenu);
+            view = vm.findView(menu, PoppableView.class);
+            if (view == null) {
+                view = vm.addInventoryViewToMenu(menu, sender);
+            }
+        }
+        return view;
+    }
+
     @Override
     public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
         switch (args.length) {
             case 1:
-                return filterPrefix(sender, Arrays.asList("book", "map"), args[0]);
+                return filterPrefix(sender, Arrays.asList("book", "map", "popup"), args[0]);
             case 2:
                 return getMenuCompletions(plugin, sender, args[1]);
+            case 3:
+                if (args[0].startsWith("p")) {
+                    return getEnumCompletions(sender, Material.class, args[2]);
+                }
+                break;
             case 4:
-                return null; // list online players
+                if (args[0].startsWith("m") || args[0].startsWith("b")) {
+                    return null; // list online players
+                }
+                break;
+            case 5:
+                if (args[0].startsWith("p")) {
+                    return null; // list online players
+                }
+                break;
             default:
                 showUsage(sender);
                 return noCompletions(sender);
         }
+        return noCompletions(sender);
     }
 }

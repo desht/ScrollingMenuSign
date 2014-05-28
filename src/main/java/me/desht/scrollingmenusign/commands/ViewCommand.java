@@ -28,9 +28,9 @@ public class ViewCommand extends SMSAbstractCommand {
         setPermissionNode("scrollingmenusign.commands.view");
         setUsage(new String[]{
                 "/sms view [-l]",
-                "/sms view <view-name> [<attribute|$var>] [<new-value>]",
+                "/sms view <view-name> <attribute-name>|<$var> [<new-value>]",
                 "/sms view <view-name> -d [<$var>]",
-                "/sms view <view-name> -popup"
+                "/sms view <view-name> -popup",
         });
         setQuotedArgs(true);
         setOptions("popup", "d:s", "l");

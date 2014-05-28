@@ -7,6 +7,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.ViewJustification;
+import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.SMSInventoryView;
 import me.desht.scrollingmenusign.views.SMSPopup;
 import me.desht.scrollingmenusign.views.SMSView;
@@ -112,7 +113,7 @@ public class IconMenu implements Listener, SMSPopup {
 
         int xOff = getXOffset(width);
 
-        ItemStack defIcon = SMSMenuItem.parseIconMaterial(ScrollingMenuSign.getInstance().getConfig().getString("sms.inv_view.default_icon", "STONE"));
+        ItemStack defIcon = SMSUtil.parseMaterialSpec(ScrollingMenuSign.getInstance().getConfig().getString("sms.inv_view.default_icon", "STONE"));
 
         for (int i = 0; i < nItems; i++) {
             int i2 = i * spacing;

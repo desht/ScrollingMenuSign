@@ -520,6 +520,7 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
                 .withAltCommand(getAltCommand())
                 .withLore(getLore())
                 .withUseLimits(getUseLimits())
+                .withPermissionNode(getPermissionNode())
                 .build();
     }
 
@@ -588,6 +589,15 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
             return this;
         }
 
+        public Builder withIcon(String iconMaterialName) {
+            try {
+                this.icon = SMSUtil.parseMaterialSpec(iconMaterialName);
+            } catch (IllegalArgumentException e) {
+                throw new SMSException("invalid material '" + iconMaterialName + "'");
+            }
+            return this;
+        }
+
         public Builder withGlow(boolean glow) {
             this.glow = glow;
             return this;
@@ -600,15 +610,6 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
         public Builder withUseLimits(SMSRemainingUses uses) {
             this.uses = uses;
-            return this;
-        }
-
-        public Builder withIcon(String iconMaterialName) {
-            try {
-                this.icon = SMSUtil.parseMaterialSpec(iconMaterialName);
-            } catch (IllegalArgumentException e) {
-                throw new SMSException("invalid material '" + iconMaterialName + "'");
-            }
             return this;
         }
 

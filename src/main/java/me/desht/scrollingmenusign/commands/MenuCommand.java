@@ -8,6 +8,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.ActiveItem;
 import me.desht.scrollingmenusign.views.SMSView;
 import org.bukkit.ChatColor;
@@ -85,7 +86,7 @@ public class MenuCommand extends SMSAbstractCommand {
         }
 
         String defIconName = plugin.getConfig().getString("sms.inv_view.default_icon", "STONE");
-        ItemStack defIcon = SMSMenuItem.parseIconMaterial(defIconName);
+        ItemStack defIcon = SMSUtil.parseMaterialSpec(defIconName);
 
         List<SMSMenuItem> items = menu.getItems();
         String s = items.size() == 1 ? "" : "s";

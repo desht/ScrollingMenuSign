@@ -379,7 +379,6 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         cmds.registerCommand(new ListMacroCommand());
         cmds.registerCommand(new ListMenusCommand());
         cmds.registerCommand(new MenuCommand());
-        cmds.registerCommand(new MakePopupCommand());
         cmds.registerCommand(new PageCommand());
         cmds.registerCommand(new ReloadCommand());
         cmds.registerCommand(new RemoveItemCommand());

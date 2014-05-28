@@ -22,33 +22,43 @@ public class SMSUtil {
         return MiscUtil.parseColourSpec(StringEscapeUtils.unescapeHtml(s));
     }
 
+    /**
+     * Given a string specification, try to get an ItemStack.
+     * <p>
+     * The spec. is of the form "material-name[:data-byte][,amount][,glow]" where
+     * material-name is a valid Bukkit material name as understoood by
+     * {@link Material#matchMaterial(String)}, data-byte is a numeric byte value,
+     * amount is an optional item quantity, and "glow" if present indicates that
+     * the item should glow if possible.
+     * <p>
+     * No item metadata is considered by this method.
+     *
+     * @param spec the specification
+     * @return the return ItemStack
+     * @throws IllegalArgumentException if the specification is invalid
+     */
     public static ItemStack parseMaterialSpec(String spec) {
         if (spec == null || spec.isEmpty()) {
             return null;
         }
 
-        try {
-            String[] fields = spec.split(",");
-            MaterialData mat = parseMatAndData(fields[0]);
+        String[] fields = spec.split(",");
+        MaterialData mat = parseMatAndData(fields[0]);
 
-            int amount = 1;
-            boolean glowing = false;
-            for (int i = 1; i < fields.length; i++) {
-                if (StringUtils.isNumeric(fields[i])) {
-                    amount = Integer.parseInt(fields[i]);
-                } else if (fields[i].equalsIgnoreCase("glow")) {
-                    glowing = true;
-                }
+        int amount = 1;
+        boolean glowing = false;
+        for (int i = 1; i < fields.length; i++) {
+            if (StringUtils.isNumeric(fields[i])) {
+                amount = Integer.parseInt(fields[i]);
+            } else if (fields[i].equalsIgnoreCase("glow")) {
+                glowing = true;
             }
-            ItemStack stack = mat.toItemStack(amount);
-            if (glowing && ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
-                ItemGlow.setGlowing(stack, true);
-            }
-            return stack;
-        } catch (Exception e) {
-            LogUtils.warning("Can't parse icon material [" + spec + "]: " + e.getMessage());
-            return null;
         }
+        ItemStack stack = mat.toItemStack(amount);
+        if (glowing && ScrollingMenuSign.getInstance().isProtocolLibEnabled()) {
+            ItemGlow.setGlowing(stack, true);
+        }
+        return stack;
     }
 
     private static MaterialData parseMatAndData(String matData) {
@@ -88,6 +98,16 @@ public class SMSUtil {
         return res;
     }
 
+    /**
+     * Given an ItemStack, freeze it into a parseable form.
+     * <p>
+     * The returned String is guaranteed to parseable by {@link #parseMaterialSpec(String)}
+     * <p>
+     * No item metadata is frozen.
+     *
+     * @param stack the ItemStack to freeze
+     * @return a String representing the ItemStack
+     */
     public static String freezeMaterialSpec(ItemStack stack) {
         MaterialData m = stack.getData();
         StringBuilder sb = new StringBuilder(m.getItemType().toString());

@@ -61,7 +61,7 @@ public class EditMenuCommand extends SMSAbstractCommand {
         String command = hasOption("command") ? StringEscapeUtils.unescapeHtml(getStringOption("command")) : currentItem.getCommand();
         String altCommand = hasOption("altcommand") ? StringEscapeUtils.unescapeHtml(getStringOption("altcommand")) : currentItem.getAltCommand();
         String message = hasOption("feedback") ? SMSUtil.unEscape(getStringOption("feedback")) : currentItem.getMessage();
-        ItemStack icon = hasOption("icon") ? SMSMenuItem.parseIconMaterial(getStringOption("icon")) : currentItem.getIcon();
+        ItemStack icon = hasOption("icon") ? SMSUtil.parseMaterialSpec(getStringOption("icon")) : currentItem.getIcon();
         String perm = hasOption("perm") ? getStringOption("perm") : currentItem.getPermissionNode();
         String[] lore = buildNewLore(currentItem);
 

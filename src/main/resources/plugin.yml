@@ -1,7 +1,7 @@
 name: ScrollingMenuSign
 description: Scrollable command menus with multiple view types
 author: desht
-website: http://dev.bukkit.org/server-mods/scrollingmenusign
+website: http://dev.bukkit.org/bukkit-plugins/scrollingmenusign
 main: me.desht.scrollingmenusign.ScrollingMenuSign
 version: ${project.version}
 softdepend: [ Spout, Vault, ProtocolLib, HoloAPI ]
@@ -10,7 +10,7 @@ commands:
     description: ScrollingMenuSign management
     usage: |
       /sms create <menu-name> <title>
-      /sms delete [<menu-name>]
+      /sms delete <menu-name>
       /sms undelete <menu-name>
       /sms list [<menu-name>]
       /sms menu <menu-name> <options...>
@@ -18,16 +18,16 @@ commands:
       /sms remove <menu-name> <@index>|<label>
       /sms edit <menu-name> <@index>|<label> <options...>
       /sms uses <menu-name> [<item>] <count>|clear [-global]
-      /sms sync <menu-name> <options...>
+      /sms sync <menu-name> [<options...>]
       /sms break <options...>
-      /sms view <view-name> <options...>
+      /sms view <view-name> [<options...>]
       /sms getcfg [<key>]
       /sms setcfg <key> <value>
       /sms macro <list|add|remove> <macro-name> ...
       /sms save [<all|menus|macros|config>]
       /sms reload [<all|menus|macros|config>]
-      /sms give map <map-id> <quantity> [<player>]
-      /sms give book <view-name> <quantity> [<player>]
+      /sms give map {<map-id>|<view-name>|<menu-name>} [<quantity>] [<player>]
+      /sms give book {<view-name>|<menu-name>} [<quantity>] [<player>]
       /sms var [<var-name>] [<value>]
       /sms page [<page-number|n|p>]
 permissions:
@@ -88,7 +88,6 @@ permissions:
       scrollingmenusign.commands.edit: true
       scrollingmenusign.commands.font: true
       scrollingmenusign.commands.menu: true
-      scrollingmenusign.coloursigns: true
       scrollingmenusign.maps.to.sign: true
       scrollingmenusign.maps.from.sign: true
       scrollingmenusign.create.switch: true
@@ -126,7 +125,6 @@ permissions:
       scrollingmenusign.commands.edit: true
       scrollingmenusign.commands.font: true
       scrollingmenusign.commands.menu: true
-      scrollingmenusign.coloursigns: true
       scrollingmenusign.destroy: true
       scrollingmenusign.maps.to.sign: true
       scrollingmenusign.maps.from.sign: true
@@ -204,14 +202,11 @@ permissions:
   scrollingmenusign.commands.undelete:
     description: Allows restoration of deleted menus
     default: op
+  scrollingmenusign.commands.mkpopup:
+    description: Allows creation of popup items
+    default: op
   scrollingmenusign.destroy:
     description: Allows destruction of views belonging to a menu created by someone else
-    default: op
-  scrollingmenusign.coloursigns:
-    description: Allows creation of signs with coloured titles and menu items
-    default: op
-  scrollingmenusign.colorsigns:
-    description: Synonym for scrollingmenusign.coloursigns
     default: op
   scrollingmenusign.scroll:
     description: Allows menus to be scrolled
