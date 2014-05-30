@@ -1,22 +1,13 @@
 package me.desht.scrollingmenusign.views;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.google.common.base.Joiner;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.ItemGlow;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.SMSValidate;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
-
+import me.desht.scrollingmenusign.util.Substitutions;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -24,7 +15,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.google.common.base.Joiner;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents an item linked to a SMS menu.  Not a traditional view, since all the
@@ -100,7 +93,11 @@ public class ActiveItem extends CommandTrigger {
         SMSMenuItem menuItem = getActiveMenuItemAt(null, getSelectedItem());
         List<String> lore = new ArrayList<String>();
         if (menuItem != null) {
-            meta.setDisplayName(variableSubs(getActiveMenuTitle(null)) + SEPARATOR + variableSubs(menuItem.getLabel()));
+            meta.setDisplayName(
+                    Substitutions.viewVariableSubs(null, getActiveMenuTitle(null))
+                    + SEPARATOR
+                    + Substitutions.viewVariableSubs(null, menuItem.getLabel())
+            );
             Collections.addAll(lore, menuItem.getLore());
         } else {
             meta.setDisplayName(getActiveMenuTitle(null) + SEPARATOR + NO_ITEMS);
@@ -297,19 +294,6 @@ public class ActiveItem extends CommandTrigger {
     @Override
     public String getName() {
         return "Active:" + stack.getType();
-    }
-
-    private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
-
-    private String variableSubs(String text) {
-        Matcher m = viewVarSubPat.matcher(text);
-        StringBuffer sb = new StringBuffer(text.length());
-        while (m.find()) {
-            String repl = m.group(2);
-            m.appendReplacement(sb, Matcher.quoteReplacement(repl));
-        }
-        m.appendTail(sb);
-        return sb.toString();
     }
 
     private class MenuPos {
