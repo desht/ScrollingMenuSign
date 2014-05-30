@@ -127,6 +127,13 @@ public interface SMSHandler {
     public VariablesManager getVariablesManager();
 
     /**
+     * Get the menu manager object, which allows menus to be manipulated.
+     *
+     * @return the menu manager
+     */
+    public MenuManager getMenuManager();
+
+    /**
      * Add a custom command substitution handler, to be run when a string of the form "&lt;ABCD&gt;"
      * is encountered in a command.
      *

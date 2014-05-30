@@ -51,7 +51,6 @@ public class ReloadCommand extends SMSAbstractCommand {
         }
         if (loadAll || loadConfig) {
             plugin.reloadConfig();
-            SMSMenu.updateAllMenus();
         }
         if (loadAll || loadMenus) {
             SMSPersistence.loadMenus();
@@ -69,6 +68,8 @@ public class ReloadCommand extends SMSAbstractCommand {
         if (loadAll || loadFonts) {
             ScrollingMenuSign.getInstance().setupCustomFonts();
         }
+
+        ((ScrollingMenuSign) plugin).getMenuManager().updateAllMenus();
 
         MiscUtil.statusMessage(sender, "Reload complete.");
 

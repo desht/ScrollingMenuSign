@@ -99,7 +99,7 @@ public abstract class SMSAbstractCommand extends AbstractCommand {
             Player player = (Player) sender;
             return ScrollingMenuSign.getInstance().getViewManager().getTargetedView(player, true).getActiveMenu(player);
         } else {
-            return SMSMenu.getMenu(menuName);
+            return ScrollingMenuSign.getInstance().getMenuManager().getMenu(menuName);
         }
     }
 

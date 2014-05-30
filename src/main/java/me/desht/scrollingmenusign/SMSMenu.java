@@ -4,12 +4,10 @@ import me.desht.dhutils.*;
 import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.util.SMSUtil;
-import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.ViewUpdateAction;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -22,7 +20,7 @@ import java.util.*;
 /**
  * Represents a menu object
  */
-public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitable, ConfigurationListener {
+public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitable, ConfigurationListener, Comparable<SMSMenu> {
     public static final String FAKE_SPACE = "\u203f";
 
     public static final String AUTOSORT = "autosort";
@@ -39,12 +37,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
     private final SMSRemainingUses uses;
     private final AttributeCollection attributes;    // menu attributes to be displayed and/or edited by players
 
-    private static final Map<String, SMSMenu> menus = new HashMap<String, SMSMenu>();
-    private static final Map<String, SMSMenu> deletedMenus = new HashMap<String, SMSMenu>();
-
     private String title;  // cache colour-parsed version of the title attribute
     private UUID ownerId;  // cache owner's UUID (could be null)
-    private boolean autosave = true;
+    private boolean autosave;
     private boolean inThaw;
 
     /**
@@ -65,6 +60,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner);
         ownerId = ScrollingMenuSign.CONSOLE_UUID;
         setAttribute(TITLE, title);
+        autosave = true;
     }
 
     /**
@@ -83,6 +79,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : owner.getName());
         ownerId = owner == null ? ScrollingMenuSign.CONSOLE_UUID : owner.getUniqueId();
         setAttribute(TITLE, title);
+        autosave = true;
     }
 
     /**
@@ -101,16 +98,17 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         setAttribute(OWNER, owner == null ? ScrollingMenuSign.CONSOLE_OWNER : "[" + owner.getName() + "]");
         ownerId = ScrollingMenuSign.CONSOLE_UUID;
         setAttribute(TITLE, title);
+        autosave = true;
     }
 
     /**
-     * Construct a new menu from data read from the save file
+     * Construct a new menu from a frozen configuration object.
      *
      * @param node A ConfigurationSection containing the menu's properties
      * @throws SMSException If there is already a menu at this location
      */
     @SuppressWarnings("unchecked")
-    SMSMenu(ConfigurationSection node) {
+    public SMSMenu(ConfigurationSection node) {
         SMSPersistence.mustHaveField(node, "name");
         SMSPersistence.mustHaveField(node, "title");
         SMSPersistence.mustHaveField(node, "owner");
@@ -129,7 +127,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         }
 
         // migration of group -> owner_group access in 2.4.0
-        if (!node.contains("group") && node.getString(ACCESS).equals("GROUP")) {
+        if (!node.contains("group") && node.contains(ACCESS) && node.getString(ACCESS).equals("GROUP")) {
             LogUtils.info("menu " + name + ": migrate GROUP -> OWNER_GROUP access");
             node.set("access", "OWNER_GROUP");
         }
@@ -141,18 +139,21 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         }
 
         List<Map<String, Object>> items = (List<Map<String, Object>>) node.getList("items");
-        for (Map<String, Object> item : items) {
-            MemoryConfiguration itemNode = new MemoryConfiguration();
-            // need to expand here because the item may contain a usesRemaining object - item could contain a nested map
-            SMSPersistence.expandMapIntoConfig(itemNode, item);
-            SMSMenuItem menuItem = new SMSMenuItem(this, itemNode);
-            SMSMenuItem actual = menuItem.uniqueItem();
-            if (!actual.getLabel().equals(menuItem.getLabel()))
-                LogUtils.warning("Menu '" + getName() + "': duplicate item '" + menuItem.getLabelStripped() + "' renamed to '" + actual.getLabelStripped() + "'");
-            addItem(actual);
+        if (items != null) {
+            for (Map<String, Object> item : items) {
+                MemoryConfiguration itemNode = new MemoryConfiguration();
+                // need to expand here because the item may contain a usesRemaining object - item could contain a nested map
+                SMSPersistence.expandMapIntoConfig(itemNode, item);
+                SMSMenuItem menuItem = new SMSMenuItem(this, itemNode);
+                SMSMenuItem actual = menuItem.uniqueItem();
+                if (!actual.getLabel().equals(menuItem.getLabel()))
+                    LogUtils.warning("Menu '" + getName() + "': duplicate item '" + menuItem.getLabelStripped() + "' renamed to '" + actual.getLabelStripped() + "'");
+                addItem(actual);
+            }
         }
 
         inThaw = false;
+        autosave = true;
     }
 
     public void setAttribute(String k, String val) {
@@ -648,7 +649,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         try {
             setChanged();
             notifyObservers(new ViewUpdateAction(SMSMenuAction.DELETE_PERM));
-            SMSMenu.unregisterMenu(getName());
+            ScrollingMenuSign.getInstance().getMenuManager().unregisterMenu(getName());
             SMSPersistence.unPersist(this);
         } catch (SMSException e) {
             // Should not get here
@@ -662,7 +663,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
      */
     void deleteTemporary() {
         try {
-            SMSMenu.unregisterMenu(getName());
+            ScrollingMenuSign.getInstance().getMenuManager().unregisterMenu(getName());
             notifyObservers(new ViewUpdateAction(SMSMenuAction.DELETE_TEMP));
         } catch (SMSException e) {
             // Should not get here
@@ -672,7 +673,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
 
     public void autosave() {
         // we only save menus which have been registered via SMSMenu.addMenu()
-        if (SMSMenu.checkForMenu(getName()) && isAutosave()) {
+        if (isAutosave() && ScrollingMenuSign.getInstance().getMenuManager().checkForMenu(getName())) {
             SMSPersistence.save(this);
         }
     }
@@ -686,154 +687,6 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
     public boolean hasOwnerPermission(Player player) {
         SMSAccessRights access = (SMSAccessRights) getAttributes().get(ACCESS);
         return access.isAllowedToUse(player, ownerId, getOwner(), getGroup());
-    }
-
-    /**************************************************************************/
-
-    /**
-     * Add a menu to the menu list, preserving a reference to it.
-     *
-     * @param menuName   The menu's name
-     * @param menu       The menu object
-     * @param updateSign Whether or not to update the menu's signs now
-     */
-    static void registerMenu(String menuName, SMSMenu menu, boolean updateSign) {
-        menus.put(menuName, menu);
-
-        if (updateSign) {
-            menu.notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
-        }
-
-        menu.autosave();
-    }
-
-    /**
-     * Remove a menu from the list, destroying the reference to it.
-     *
-     * @param menuName the menu's name
-     * @throws SMSException if there is no menu of the given name
-     */
-    static void unregisterMenu(String menuName) {
-        deletedMenus.put(menuName, getMenu(menuName));
-        menus.remove(menuName);
-    }
-
-    /**
-     * Retrieve the menu with the given name.
-     *
-     * @param menuName the name of the menu to retrieve
-     * @return the menu object
-     * @throws SMSException if there is no menu of the given name
-     */
-    public static SMSMenu getMenu(String menuName) {
-        SMSValidate.isTrue(menus.containsKey(menuName), "No such menu '" + menuName + "'.");
-        return menus.get(menuName);
-    }
-
-    /**
-     * Force the views on all menus to be redrawn.
-     */
-    public static void updateAllMenus() {
-        for (SMSMenu menu : listMenus()) {
-            menu.notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
-        }
-    }
-
-    /**
-     * Restore the given deleted menu.
-     *
-     * @param menuName the name of the menu to restore
-     * @return the restored menu
-     * @throws SMSException if there is no deleted menu to restore
-     */
-    public static SMSMenu restoreDeletedMenu(String menuName) {
-        SMSValidate.isTrue(deletedMenus.containsKey(menuName), "No such deleted menu '" + menuName + "'.");
-        SMSMenu menu = deletedMenus.get(menuName);
-        registerMenu(menuName, menu, false);
-        deletedMenus.remove(menuName);
-        return menu;
-    }
-
-    /**
-     * Get a list of the deleted menu names.
-     *
-     * @return a list of the deleted menu names
-     */
-    public static List<String> listDeletedMenus() {
-        return new ArrayList<String>(deletedMenus.keySet());
-    }
-
-    /**
-     * Retrieve the deleted menu with the given name.
-     *
-     * @param menuName The name of the menu to retrieve
-     * @return The menu object
-     * @throws SMSException if the menu name is not found
-     */
-    public static SMSMenu getDeletedMenu(String menuName) {
-        SMSValidate.isTrue(deletedMenus.containsKey(menuName), "No such deleted menu '" + menuName + "'.");
-        return deletedMenus.get(menuName);
-    }
-
-    /**
-     * Get the name of the menu at the given location.
-     *
-     * @param loc The location
-     * @return The menu name, or null if there is no menu sign at the location
-     */
-    static String getMenuNameAt(Location loc) {
-        SMSView v = ScrollingMenuSign.getInstance().getViewManager().getViewForLocation(loc);
-        return v == null ? null : v.getNativeMenu().getName();
-    }
-
-    /**
-     * Get the menu at the given location
-     *
-     * @param loc The location
-     * @return The menu object
-     * @throws SMSException if there is no menu sign at the location
-     */
-    static SMSMenu getMenuAt(Location loc) {
-        return getMenu(getMenuNameAt(loc));
-    }
-
-    /**
-     * Check to see if a menu with the given name exists
-     *
-     * @param menuName The menu name
-     * @return true if the menu exists, false if it does not
-     */
-    static boolean checkForMenu(String menuName) {
-        return menus.containsKey(menuName);
-    }
-
-    /**
-     * Return an unsorted list of all the known menus
-     * Equivalent to calling <b>listMenus(false)</b>
-     *
-     * @return A list of SMSMenu objects
-     */
-    static List<SMSMenu> listMenus() {
-        return listMenus(false);
-    }
-
-    /**
-     * Return a list of all the known menus
-     *
-     * @param isSorted Whether or not to sort the menus by name
-     * @return A list of SMSMenu objects
-     */
-    static List<SMSMenu> listMenus(boolean isSorted) {
-        if (isSorted) {
-            SortedSet<String> sorted = new TreeSet<String>(menus.keySet());
-            List<SMSMenu> res = new ArrayList<SMSMenu>();
-            for (String name : sorted) {
-                res.add(menus.get(name));
-            }
-            return res;
-        } else {
-            return new ArrayList<SMSMenu>(menus.values());
-        }
     }
 
     /**
@@ -874,9 +727,6 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         }
     }
 
-    /* (non-Javadoc)
-         * @see me.desht.scrollingmenusign.Freezable#getSaveFolder()
-         */
     @Override
     public File getSaveFolder() {
         return DirectoryStructure.getMenusFolder();
@@ -977,5 +827,10 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
                 throw new SMSException("You don't have permission to modify that menu.");
             }
         }
+    }
+
+    @Override
+    public int compareTo(SMSMenu o) {
+        return getName().compareTo(o.getName());
     }
 }

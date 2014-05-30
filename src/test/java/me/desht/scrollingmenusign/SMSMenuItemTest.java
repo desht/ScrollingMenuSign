@@ -29,6 +29,7 @@ public class SMSMenuItemTest {
         LogUtils.init("SMSMenuItemTest");
 
         testMenu = new SMSMenu("testmenu", "Test Menu", (Player) null);
+        testMenu.setAutosave(false);
     }
 
     @Test

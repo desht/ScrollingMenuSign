@@ -53,7 +53,7 @@ public class AddViewCommand extends SMSAbstractCommand {
             showUsage(sender);
             return true;
         }
-        SMSMenu menu = SMSMenu.getMenu(args[0]);
+        SMSMenu menu = smsPlugin.getMenuManager().getMenu(args[0]);
         String viewName = getStringOption("viewname");
         Location loc = hasOption("loc") ? MiscUtil.parseLocation(getStringOption("loc")) : null;
 

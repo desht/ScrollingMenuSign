@@ -35,7 +35,7 @@ public class MenuCommand extends SMSAbstractCommand {
         SMSMenu menu;
         SMSView view = null;
         if (args.length > 0 && !args[0].equals(".")) {
-            menu = SMSMenu.getMenu(args[0]);
+            menu = ((ScrollingMenuSign) plugin).getMenuManager().getMenu(args[0]);
         } else {
             notFromConsole(sender);
             Player player = (Player) sender;

@@ -70,12 +70,13 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
     public static Economy economy = null;
     public static Permission permission = null;
 
-    private final SMSHandlerImpl handler = new SMSHandlerImpl();
     private final CommandManager cmds = new CommandManager(this);
     private final CommandletManager cmdlets = new CommandletManager(this);
     private final ViewManager viewManager = new ViewManager(this);
     private final LocationManager locationManager = new LocationManager();
-    private VariablesManager variablesManager = new VariablesManager(this);
+    private final VariablesManager variablesManager = new VariablesManager(this);
+    private final MenuManager menuManager = new MenuManager(this);
+    private final SMSHandlerImpl handler = new SMSHandlerImpl(this);
 
     private boolean spoutEnabled = false;
 
@@ -159,7 +160,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         SMSPersistence.saveMenusAndViews();
         SMSPersistence.saveMacros();
         SMSPersistence.saveVariables();
-        for (SMSMenu menu : SMSMenu.listMenus()) {
+        for (SMSMenu menu : getMenuManager().listMenus()) {
             // this also deletes all the menu's views...
             menu.deleteTemporary();
         }
@@ -242,7 +243,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
             graphM.addPlotter(new Plotter("Menus") {
                 @Override
                 public int getValue() {
-                    return SMSMenu.listMenus().size();
+                    return getMenuManager().listMenus().size();
                 }
             });
             graphM.addPlotter(new Plotter("Views") {
@@ -525,5 +526,9 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
 
     public VariablesManager getVariablesManager() {
         return variablesManager;
+    }
+
+    public MenuManager getMenuManager() {
+        return menuManager;
     }
 }

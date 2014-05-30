@@ -172,7 +172,7 @@ public class GiveCommand extends SMSAbstractCommand {
                 throw new SMSException("View '" + viewOrMenu + "' isn't a poppable view.");
             }
         } else {
-            SMSMenu menu = SMSMenu.getMenu(viewOrMenu);
+            SMSMenu menu = ScrollingMenuSign.getInstance().getMenuManager().getMenu(viewOrMenu);
             view = vm.findView(menu, PoppableView.class);
             if (view == null) {
                 view = vm.addInventoryViewToMenu(menu, sender);

@@ -15,8 +15,10 @@ import org.bukkit.plugin.Plugin;
 import java.util.List;
 
 public class SMSHandlerImpl implements SMSHandler {
+    private final MenuManager menuManager;
 
-    SMSHandlerImpl() {
+    SMSHandlerImpl(ScrollingMenuSign plugin) {
+        menuManager = plugin.getMenuManager();
     }
 
     @Override
@@ -24,12 +26,13 @@ public class SMSHandlerImpl implements SMSHandler {
     public SMSMenu createMenu(String name, String title, String owner) {
         SMSMenu menu;
         try {
+            //noinspection deprecation
             menu = new SMSMenu(name, MiscUtil.parseColourSpec(title), owner);
         } catch (SMSException e) {
             // should not get here
             return null;
         }
-        SMSMenu.registerMenu(name, menu, false);
+        menuManager.registerMenu(name, menu);
         return menu;
     }
 
@@ -43,7 +46,7 @@ public class SMSHandlerImpl implements SMSHandler {
             // should not get here
             return null;
         }
-        SMSMenu.registerMenu(name, menu, false);
+        menuManager.registerMenu(name, menu);
         return menu;
     }
 
@@ -56,43 +59,43 @@ public class SMSHandlerImpl implements SMSHandler {
             // should not get here
             return null;
         }
-        SMSMenu.registerMenu(name, menu, false);
+        menuManager.registerMenu(name, menu);
         return menu;
     }
 
     @Override
     public SMSMenu getMenu(String name) throws SMSException {
-        return SMSMenu.getMenu(name);
+        return menuManager.getMenu(name);
     }
 
     @Override
     public boolean checkMenu(String name) {
-        return SMSMenu.checkForMenu(name);
+        return menuManager.checkForMenu(name);
     }
 
     @Override
     public void deleteMenu(String name) throws SMSException {
-        SMSMenu.getMenu(name).deletePermanent();
+        menuManager.getMenu(name).deletePermanent();
     }
 
     @Override
     public SMSMenu getMenuAt(Location loc) throws SMSException {
-        return SMSMenu.getMenuAt(loc);
+        return menuManager.getMenuAt(loc);
     }
 
     @Override
     public String getMenuNameAt(Location loc) {
-        return SMSMenu.getMenuNameAt(loc);
+        return menuManager.getMenuNameAt(loc);
     }
 
     @Override
     public List<SMSMenu> listMenus() {
-        return SMSMenu.listMenus();
+        return menuManager.listMenus();
     }
 
     @Override
     public List<SMSMenu> listMenus(boolean isSorted) {
-        return SMSMenu.listMenus(isSorted);
+        return menuManager.listMenus(isSorted);
     }
 
     @Override
@@ -108,6 +111,11 @@ public class SMSHandlerImpl implements SMSHandler {
     @Override
     public VariablesManager getVariablesManager() {
         return ScrollingMenuSign.getInstance().getVariablesManager();
+    }
+
+    @Override
+    public MenuManager getMenuManager() {
+        return menuManager;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class SubmenuCommandlet extends BaseCommandlet {
     public boolean execute(ScrollingMenuSign plugin, CommandSender sender, CommandTrigger trigger, String cmd, String[] args) {
         SMSValidate.isTrue(args.length >= 2, "Usage: " + cmd + " <menu-name>");
         SMSValidate.isTrue(sender instanceof Player, "Not from the console!");
-        trigger.pushMenu((Player) sender, SMSMenu.getMenu(args[1]));
+        trigger.pushMenu((Player) sender, plugin.getMenuManager().getMenu(args[1]));
         return true;
     }
 }

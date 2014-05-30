@@ -90,15 +90,16 @@ public class SMSPersistence {
     }
 
     public static void saveMenusAndViews() {
+        MenuManager mm = ScrollingMenuSign.getInstance().getMenuManager();
         ViewManager vm = ScrollingMenuSign.getInstance().getViewManager();
 
-        for (SMSMenu menu : SMSMenu.listMenus()) {
+        for (SMSMenu menu : mm.listMenus()) {
             save(menu);
         }
         for (SMSView view : vm.listViews()) {
             save(view);
         }
-        Debugger.getInstance().debug("saved " + SMSMenu.listMenus().size() + " menus and " +
+        Debugger.getInstance().debug("saved " + mm.listMenus().size() + " menus and " +
                 vm.listViews().size() + " views to file.");
     }
 
@@ -118,7 +119,9 @@ public class SMSPersistence {
     }
 
     public static void loadMenus() {
-        for (SMSMenu menu : SMSMenu.listMenus()) {
+        MenuManager mm = ScrollingMenuSign.getInstance().getMenuManager();
+
+        for (SMSMenu menu : mm.listMenus()) {
             menu.deleteTemporary();
         }
 
@@ -127,12 +130,12 @@ public class SMSPersistence {
                 Debugger.getInstance().debug(2, "loading menu: " + f);
                 YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
                 SMSMenu menu = new SMSMenu(conf);
-                SMSMenu.registerMenu(menu.getName(), menu, true);
+                mm.registerMenu(menu.getName(), menu);
             } catch (SMSException e) {
                 LogUtils.severe("Can't load menu data from " + f + ": " + e.getMessage());
             }
         }
-        Debugger.getInstance().debug("Loaded " + SMSMenu.listMenus().size() + " menus from file.");
+        Debugger.getInstance().debug("Loaded " + mm.listMenus().size() + " menus from file.");
     }
 
     public static void loadViews() {

@@ -58,7 +58,8 @@ public class ViewManager {
 
             Class<? extends SMSView> c = Class.forName(className).asSubclass(SMSView.class);
             Constructor<? extends SMSView> ctor = c.getDeclaredConstructor(String.class, SMSMenu.class);
-            SMSView view = ctor.newInstance(viewName, SMSMenu.getMenu(node.getString("menu")));
+            SMSMenu menu = ScrollingMenuSign.getInstance().getMenuManager().getMenu(node.getString("menu"));
+            SMSView view = ctor.newInstance(viewName, menu);
             if (!node.contains("group") && node.getString(SMSView.ACCESS).equals("GROUP")) {
                 // migration - GROUP access becomes OWNER_GROUP in v2.4.0
                 LogUtils.info("view " + viewName + ": migrate GROUP -> OWNER_GROUP access");

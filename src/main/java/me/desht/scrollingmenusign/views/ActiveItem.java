@@ -61,7 +61,7 @@ public class ActiveItem extends CommandTrigger {
         for (String menuName : menuPath) {
             String[] f = menuName.split(":");
             SMSValidate.isTrue(f.length == 2 && StringUtils.isNumeric(f[1]), "Item lore is not correctly formed");
-            menus.add(new MenuPos(SMSMenu.getMenu(f[0]), Integer.parseInt(f[1])));
+            menus.add(new MenuPos(ScrollingMenuSign.getInstance().getMenuManager().getMenu(f[0]), Integer.parseInt(f[1])));
         }
     }
 

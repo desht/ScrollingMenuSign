@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.commands;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.ViewUpdateAction;
@@ -56,7 +57,7 @@ public class RemoveItemCommand extends SMSAbstractCommand {
             case 1:
                 return getMenuCompletions(plugin, sender, args[0]);
             case 2:
-                SMSMenu menu = SMSMenu.getMenu(args[0]);
+                SMSMenu menu = ((ScrollingMenuSign) plugin).getMenuManager().getMenu(args[0]);
                 return getMenuItemCompletions(sender, menu, args[1]);
             default:
                 showUsage(sender);

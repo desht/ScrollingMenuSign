@@ -2,11 +2,7 @@ package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSHandler;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSValidate;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.SMSMapView;
 
@@ -41,7 +37,7 @@ public class CreateMenuCommand extends SMSAbstractCommand {
         Location signLoc = null;
         short mapId = -1;
 
-        boolean autoCreateView = ScrollingMenuSign.getInstance().getConfig().getBoolean("sms.autocreate_views");
+        boolean autoCreateView = smsPlugin.getConfig().getBoolean("sms.autocreate_views");
 
         if (autoCreateView && sender instanceof Player) {
             Player player = (Player) sender;
@@ -52,7 +48,7 @@ public class CreateMenuCommand extends SMSAbstractCommand {
                 // ignore
             }
             if (b != null && (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN)) {
-                if (handler.getMenuNameAt(b.getLocation()) == null) {
+                if (smsPlugin.getLocationManager().getInteractableAt(b.getLocation()) == null) {
                     PermissionUtils.requirePerms(sender, "scrollingmenusign.use.sign");
                     signLoc = b.getLocation();
                 }
