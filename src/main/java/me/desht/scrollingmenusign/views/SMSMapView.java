@@ -27,7 +27,6 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
 
 import org.bukkit.Bukkit;
@@ -343,7 +342,7 @@ public class SMSMapView extends SMSScrollableView {
         List<String> lore = new ArrayList<String>(1);
         lore.add(loreStr);
         ItemMeta im = item.getItemMeta();
-        im.setDisplayName(ChatColor.RESET + variableSubs(getNativeMenu().getTitle()));
+        im.setDisplayName(ChatColor.RESET + viewVariableSubs(getNativeMenu().getTitle()));
         im.setLore(lore);
         item.setItemMeta(im);
     }

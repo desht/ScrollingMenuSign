@@ -13,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
 
+import java.text.DecimalFormat;
+
 public class SMSUtil {
     public static String escape(String s) {
         return StringEscapeUtils.escapeHtml(MiscUtil.unParseColourSpec(s));
@@ -121,5 +123,16 @@ public class SMSUtil {
             sb.append(",").append("glow");
         }
         return sb.toString();
+    }
+
+    public static String formatMoney(double amount) {
+        try {
+            return ScrollingMenuSign.economy.format(amount);
+        } catch (Exception e) {
+            LogUtils.warning("Caught exception from " + ScrollingMenuSign.economy.getName() + " while trying to format quantity " + amount + ":");
+            e.printStackTrace();
+            LogUtils.warning("ScrollingMenuSign will continue but you should verify your economy plugin configuration.");
+        }
+        return new DecimalFormat("#0.00").format(amount) + " ";
     }
 }

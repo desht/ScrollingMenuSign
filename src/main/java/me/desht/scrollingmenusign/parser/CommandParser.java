@@ -14,7 +14,7 @@ import me.desht.scrollingmenusign.commandlets.CommandletManager;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
 import me.desht.scrollingmenusign.expector.ExpectCommandSubstitution;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
-import me.desht.scrollingmenusign.variables.VariablesManager;
+import me.desht.scrollingmenusign.util.Substitutions;
 import me.desht.scrollingmenusign.views.CommandTrigger;
 import me.desht.scrollingmenusign.views.SMSView;
 import org.bukkit.Bukkit;
@@ -38,8 +38,6 @@ public class CommandParser {
 
     private static final Pattern promptPat = Pattern.compile("<\\$:(.+?)>");
     private static final Pattern passwordPat = Pattern.compile("<\\$p:(.+?)>");
-    private static final Pattern userVarSubPat = Pattern.compile("<\\$([A-Za-z0-9_\\.]+)(=.*?)?>");
-    private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
 
     private enum RunMode {CHECK_PERMS, EXECUTE}
 
@@ -120,52 +118,6 @@ public class CommandParser {
     }
 
     /**
-     * Substitute any user-defined variables (/sms var) in the command
-     *
-     * @param player  The player running the command
-     * @param command The command string
-     * @param missing (returned) a set of variable names with no definitions
-     * @return The substituted command string
-     */
-    private String userVarSubs(Player player, String command, Set<String> missing) {
-        Matcher m = userVarSubPat.matcher(command);
-        StringBuffer sb = new StringBuffer(command.length());
-        VariablesManager vm = ScrollingMenuSign.getInstance().getVariablesManager();
-        while (m.find()) {
-            String repl = vm.get(player, m.group(1));
-            if (repl == null && m.groupCount() > 1 && m.group(2) != null) {
-                repl = m.group(2).substring(1);
-            }
-            if (repl == null) {
-                missing.add(m.group(1));
-            } else {
-                m.appendReplacement(sb, Matcher.quoteReplacement(repl));
-            }
-        }
-        m.appendTail(sb);
-        return sb.toString();
-    }
-
-
-    /**
-     * Substitute any view-specific variable in the command
-     *
-     * @param view    the view
-     * @param command the command string
-     * @return the substituted command string
-     */
-    private String viewVarSubs(SMSView view, String command) {
-        Matcher m = viewVarSubPat.matcher(command);
-        StringBuffer sb = new StringBuffer(command.length());
-        while (m.find()) {
-            String repl = view != null && view.checkVariable(m.group(1)) ? view.getVariable(m.group(1)) : m.group(2);
-            m.appendReplacement(sb, Matcher.quoteReplacement(repl));
-        }
-        m.appendTail(sb);
-        return sb.toString();
-    }
-
-    /**
      * Handle one command string, which may contain multiple commands (chained with && or $$)
      *
      * @param sender  the command sender
@@ -196,7 +148,7 @@ public class CommandParser {
 
             // make any user-defined substitutions
             Set<String> missing = new HashSet<String>();
-            command = userVarSubs(player, command, missing);
+            command = Substitutions.userVariableSubs(player, command, missing);
             if (!missing.isEmpty() && mode == RunMode.EXECUTE) {
                 return new ParsedCommand(ReturnStatus.BAD_VARIABLE, "Command has uninitialised variables: " + missing.toString());
             }
@@ -204,9 +156,9 @@ public class CommandParser {
 
         // make any view-specific substitutions
         if (trigger instanceof SMSView) {
-            command = viewVarSubs((SMSView) trigger, command);
+            command = Substitutions.viewVariableSubs((SMSView) trigger, command);
         } else {
-            command = viewVarSubs(null, command);
+            command = Substitutions.viewVariableSubs(null, command);
         }
 
         Scanner scanner = new Scanner(command);

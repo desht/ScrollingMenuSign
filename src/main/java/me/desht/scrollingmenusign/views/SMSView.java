@@ -251,7 +251,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
     @Override
     public String getActiveItemLabel(Player player, int pos) {
         String label = super.getActiveItemLabel(player, pos);
-        return label == null ? null : variableSubs(label);
+        return label == null ? null : viewVariableSubs(label);
     }
 
     /**
@@ -334,7 +334,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
     private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
 
-    public String variableSubs(String text) {
+    public String viewVariableSubs(String text) {
         Matcher m = viewVarSubPat.matcher(text);
         StringBuffer sb = new StringBuffer(text.length());
         while (m.find()) {

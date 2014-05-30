@@ -8,7 +8,6 @@ import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Location;
@@ -458,7 +457,7 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
     }
 
     private String formatItem(String prefix, String text) {
-        return formatLine(prefix, variableSubs(text), getItemJustification());
+        return formatLine(prefix, viewVariableSubs(text), getItemJustification());
     }
 
     private boolean isHexDigit(char c) {

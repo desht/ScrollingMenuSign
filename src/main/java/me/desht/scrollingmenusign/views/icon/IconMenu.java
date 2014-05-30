@@ -125,7 +125,7 @@ public class IconMenu implements Listener, SMSPopup {
             }
             SMSMenuItem menuItem = getView().getActiveMenuItemAt(player, i + 1);
             ItemStack icon = menuItem.hasPermission(player) && menuItem.hasIcon() ? menuItem.getIcon() : defIcon.clone();
-            String label = getView().variableSubs(getView().getActiveItemLabel(player, i + 1));
+            String label = getView().viewVariableSubs(getView().getActiveItemLabel(player, i + 1));
             ItemMeta im = icon.getItemMeta();
             im.setDisplayName(ChatColor.RESET + label);
             im.setLore(menuItem.hasPermission(player) ? menuItem.getLoreAsList() : Collections.<String>emptyList());
@@ -223,7 +223,7 @@ public class IconMenu implements Listener, SMSPopup {
     }
 
     private String getAbbreviatedTitle() {
-        return StringUtils.abbreviate(getView().variableSubs(getView().getActiveMenuTitle(player)), MAX_TITLE_LENGTH);
+        return StringUtils.abbreviate(getView().viewVariableSubs(getView().getActiveMenuTitle(player)), MAX_TITLE_LENGTH);
     }
 
     private boolean isClosingOnCommand(Player p) {

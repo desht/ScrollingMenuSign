@@ -180,7 +180,7 @@ public abstract class SMSScrollableView extends SMSView {
      * @return a String list containing the split title
      */
     public List<String> splitTitle(Player player) {
-        String title = variableSubs(getActiveMenuTitle(player));
+        String title = viewVariableSubs(getActiveMenuTitle(player));
         int lineLength = getLineLength();
         List<String> result = new ArrayList<String>();
         int maxLines = Math.min(getMaxTitleLines(), getHardMaxTitleLines());

@@ -1,21 +1,23 @@
 package me.desht.scrollingmenusign.parser;
 
-import me.desht.dhutils.*;
+import com.google.common.collect.Sets;
+import me.desht.dhutils.Debugger;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.cost.Cost;
 import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.commandlets.BaseCommandlet;
 import me.desht.scrollingmenusign.commandlets.CommandletManager;
-import me.desht.scrollingmenusign.commandlets.CooldownCommandlet;
 import me.desht.scrollingmenusign.enums.ReturnStatus;
+import me.desht.scrollingmenusign.util.Substitutions;
 import me.desht.scrollingmenusign.variables.VariablesManager;
 import me.desht.scrollingmenusign.views.CommandTrigger;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,14 +42,6 @@ public class ParsedCommand {
     private boolean commandlet;
     private StopCondition commandStopCondition;
     private StopCondition macroStopCondition;
-
-    private static final Map<String, SubstitutionHandler> subs = new HashMap<String, SubstitutionHandler>();
-
-    static {
-        setupDefaultSubHandlers();
-    }
-
-    private static final Pattern predefSubPat = Pattern.compile("<([A-Z]+)>");
 
     @Override
     public String toString() {
@@ -100,7 +94,14 @@ public class ParsedCommand {
             }
 
             if (sender instanceof Player) {
-                token = predefSubs((Player) sender, token, trigger);
+                Set<String> missing = Sets.newHashSet();
+                token = Substitutions.predefSubs((Player) sender, token, trigger, missing);
+                if (!missing.isEmpty()) {
+                    String menuName = trigger == null ? "???" : trigger.getActiveMenu((Player) sender).getName();
+                    for (String key : missing) {
+                        LogUtils.warning("unknown replacement <" + key + "> in command [" + rawCommand + "...], menu " + menuName);
+                    }
+                }
             }
 
             if (cmdlets.hasCommandlet(token) && command == null) {
@@ -177,23 +178,6 @@ public class ParsedCommand {
         Debugger.getInstance().debug(this.toString());
     }
 
-    private String predefSubs(Player player, String token, CommandTrigger trigger) {
-        Matcher m = predefSubPat.matcher(token);
-        StringBuffer sb = new StringBuffer(token.length());
-        while (m.find()) {
-            String key = m.group(1);
-            if (subs.containsKey(key)) {
-                String repl = subs.get(key).sub(player, trigger);
-                m.appendReplacement(sb, Matcher.quoteReplacement(repl));
-            } else {
-                String menuName = trigger == null ? "???" : trigger.getActiveMenu(player).getName();
-                LogUtils.warning("unknown replacement <" + key + "> in command [" + rawCommand + "...], menu " + menuName);
-            }
-        }
-        m.appendTail(sb);
-        return sb.toString();
-    }
-
     private void applyCosts(Player player, String token) {
         for (String c : token.substring(1).split(";")) {
             if (!c.isEmpty()) {
@@ -219,8 +203,8 @@ public class ParsedCommand {
     }
 
     /**
-     * Get the name of the command, i.e. the first word of the command string with any special
-     * leading characters removed.
+     * Get the name of the command, i.e. the first word of the command string
+     * with any special leading characters removed.
      *
      * @return The command name
      */
@@ -229,7 +213,8 @@ public class ParsedCommand {
     }
 
     /**
-     * Get the argument list for the command (excluding the command), split on whitespace.
+     * Get the argument list for the command (excluding the command), split on
+     * whitespace.
      *
      * @return The command's arguments
      */
@@ -238,8 +223,8 @@ public class ParsedCommand {
     }
 
     /**
-     * Get the argument list for the command (including the command), split on quoted substrings
-     * and/or whitespace.
+     * Get the argument list for the command (including the command), split on
+     * quoted substrings and/or whitespace.
      *
      * @return the argument list
      */
@@ -248,8 +233,8 @@ public class ParsedCommand {
     }
 
     /**
-     * Get the elevation status, i.e. whether the command should be (has been) run with permissions checks
-     * bypassed.
+     * Get the elevation status, i.e. whether the command should be (has been)
+     * run with elevated permissions.
      *
      * @return true if elevated, false otherwise
      */
@@ -258,8 +243,8 @@ public class ParsedCommand {
     }
 
     /**
-     * Get the restriction status, i.e. whether the command will be (has been) ignored due to a restriction
-     * check not being met.
+     * Get the restriction status, i.e. whether the command will be (has been)
+     * ignored due to a restriction check not being met.
      *
      * @return true if the command was not run due to a restriction check, false otherwise
      */
@@ -277,7 +262,8 @@ public class ParsedCommand {
     }
 
     /**
-     * Get the affordable status, i.e. whether the command costs can be (have been) met by the player.
+     * Get the affordable status, i.e. whether the command costs can be
+     * (have been) met by the player.
      *
      * @return true if the command is affordable, false otherwise
      */
@@ -286,8 +272,9 @@ public class ParsedCommand {
     }
 
     /**
-     * Get the applicable status, i.e. whether the command costs actually make sense.  E.g. repairing an
-     * item which doesn't have durability would not be applicable.
+     * Get the applicable status, i.e. whether the command costs actually make
+     * sense.  E.g. repairing an item which doesn't have durability would not
+     * be applicable.
      *
      * @return true if the costs are applicable, false otherwise
      */
@@ -296,7 +283,8 @@ public class ParsedCommand {
     }
 
     /**
-     * Check if this command is a special "commandlet" registered with SMS.  {@link BaseCommandlet}
+     * Check if this command is a special "commandlet" registered with SMS.
+     * See {@link BaseCommandlet}.
      *
      * @return true if this is a commandlet, false otherwise
      */
@@ -322,6 +310,11 @@ public class ParsedCommand {
         return status;
     }
 
+    /**
+     * Set the return status of this object.
+     *
+     * @param status the new return status
+     */
     void setStatus(ReturnStatus status) {
         this.status = status;
     }
@@ -453,7 +446,7 @@ public class ParsedCommand {
             case 'g':
                 return ScrollingMenuSign.permission != null && ScrollingMenuSign.permission.playerInGroup(player, checkTerm);
             case 'p':
-                return looksLikeUUID(checkTerm) ? player.getUniqueId().equals(UUID.fromString(checkTerm)) : player.getName().equalsIgnoreCase(checkTerm);
+                return MiscUtil.looksLikeUUID(checkTerm) ? player.getUniqueId().equals(UUID.fromString(checkTerm)) : player.getName().equalsIgnoreCase(checkTerm);
             case 'w':
                 return player.getWorld().getName().equalsIgnoreCase(checkTerm);
             case 'n':
@@ -466,10 +459,6 @@ public class ParsedCommand {
                 LogUtils.warning("Unknown check type: " + check);
                 return false;
         }
-    }
-
-    private static boolean looksLikeUUID(String s) {
-        return s.length() == 36 && s.charAt(8) == '-';
     }
 
     private boolean isHoldingObject(Player player, String checkTerm) {
@@ -549,120 +538,6 @@ public class ParsedCommand {
         }
 
         return false;
-    }
-
-    public static void addSubstitutionHandler(String sub, SubstitutionHandler handler) {
-        SMSValidate.isFalse(subs.containsKey(sub), "A handler is already registered for " + sub);
-        SMSValidate.isTrue(sub.matches("^[A-Z]+$"), "Substitution string must be all uppercase alphabetic");
-        subs.put(sub, handler);
-    }
-
-    private static void setupDefaultSubHandlers() {
-        subs.put("X", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                return Integer.toString(player.getLocation().getBlockX());
-            }
-        });
-        subs.put("Y", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                return Integer.toString(player.getLocation().getBlockY());
-            }
-        });
-        subs.put("Z", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                return Integer.toString(player.getLocation().getBlockZ());
-            }
-        });
-        subs.put("NAME", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                return player.getName();
-            }
-        });
-        subs.put("DNAME", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                return player.getDisplayName();
-            }
-        });
-        subs.put("UUID", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                return player.getUniqueId().toString();
-            }
-        });
-        subs.put("N", subs.get("NAME"));
-        subs.put("WORLD", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                return player.getWorld().getName();
-            }
-        });
-        subs.put("I", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                LogUtils.warning("Command substitution <I> is deprecated and will stop working in a future release.");
-                return player.getItemInHand() == null ? "0" : Integer.toString(player.getItemInHand().getTypeId());
-            }
-        });
-        subs.put("INAME", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                return player.getItemInHand() == null ? "Air" : ItemNames.lookup(player.getItemInHand());
-            }
-        });
-        subs.put("MONEY", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                if (ScrollingMenuSign.economy != null) {
-                    return ScrollingMenuSign.getInstance().isVaultLegacyMode() ?
-                            formatMoney(ScrollingMenuSign.economy.getBalance(player.getName())) :
-                            formatMoney(ScrollingMenuSign.economy.getBalance(player));
-                } else {
-                    return "0.00";
-                }
-            }
-        });
-        subs.put("VIEW", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                return trigger == null ? "" : trigger.getName();
-            }
-        });
-        subs.put("EXP", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                return Integer.toString(new ExperienceManager(player).getCurrentExp());
-            }
-        });
-        subs.put("COOLDOWN", new SubstitutionHandler() {
-            @Override
-            public String sub(Player player, CommandTrigger trigger) {
-                CooldownCommandlet cc = (CooldownCommandlet) ScrollingMenuSign.getInstance().getCommandletManager().getCommandlet("COOLDOWN");
-                long millis = cc.getLastCooldownTimeRemaining();
-                int seconds = (int) (millis / 1000) % 60;
-                if (millis < 60000) return String.format("%ds", seconds);
-                int minutes = (int) ((millis / (1000 * 60)) % 60);
-                if (millis < 3600000)
-                    return String.format("%dm %ds", minutes, seconds);
-                int hours = (int) ((millis / (1000 * 60 * 60)) % 24);
-                return String.format("%dh %dm %ds", hours, minutes, seconds);
-            }
-        });
-    }
-
-    private static String formatMoney(double amount) {
-        try {
-            return ScrollingMenuSign.economy.format(amount);
-        } catch (Exception e) {
-            LogUtils.warning("Caught exception from " + ScrollingMenuSign.economy.getName() + " while trying to format quantity " + amount + ":");
-            e.printStackTrace();
-            LogUtils.warning("ScrollingMenuSign will continue but you should verify your economy plugin configuration.");
-        }
-        return new DecimalFormat("#0.00").format(amount) + " ";
     }
 
     public enum StopCondition {NONE, ON_SUCCESS, ON_FAIL}

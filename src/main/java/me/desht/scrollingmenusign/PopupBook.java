@@ -121,7 +121,7 @@ public class PopupBook {
 
         BookMeta bm = (BookMeta) item.getItemMeta();
 
-        bm.setTitle(v.variableSubs(v.getNativeMenu().getTitle()));
+        bm.setTitle(v.viewVariableSubs(v.getNativeMenu().getTitle()));
         bm.setAuthor(p.getDisplayName());
         bm.setPages("Left Click to Use!",
                 "sms " + v.getType() + " view",
