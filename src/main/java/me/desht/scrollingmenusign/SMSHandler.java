@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign;
 
 import me.desht.scrollingmenusign.parser.ParsedCommand;
 import me.desht.scrollingmenusign.parser.SubstitutionHandler;
+import me.desht.scrollingmenusign.variables.VariablesManager;
 import me.desht.scrollingmenusign.views.ViewManager;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -116,6 +117,14 @@ public interface SMSHandler {
      * @return the view manager
      */
     public ViewManager getViewManager();
+
+    /**
+     * Get the variables manager object, which allows user variables to be
+     * manipulated.
+     *
+     * @return the variables manager
+     */
+    public VariablesManager getVariablesManager();
 
     /**
      * Add a custom command substitution handler, to be run when a string of the form "&lt;ABCD&gt;"
