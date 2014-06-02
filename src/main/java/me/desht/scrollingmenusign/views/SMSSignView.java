@@ -1,21 +1,18 @@
 package me.desht.scrollingmenusign.views;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Observable;
-
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+
+import java.util.List;
+import java.util.Observable;
 
 /**
  * This view draws menus on signs.
@@ -77,15 +74,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
     public void update(Observable menu, Object arg1) {
         super.update(menu, arg1);
 
-        ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
-        switch (vu.getAction()) {
-            case REPAINT:
-            case SCROLLED:
-                repaintAll();
-                break;
-            default:
-                break;
-        }
+        repaintAll();
     }
 
     @Override

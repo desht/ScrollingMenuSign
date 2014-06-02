@@ -1,19 +1,12 @@
 package me.desht.scrollingmenusign.views;
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.Map.Entry;
-
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.*;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSMapView.SMSMapRenderer;
 import me.desht.scrollingmenusign.views.SMSView.MenuStack;
-
+import me.desht.scrollingmenusign.views.action.RepaintAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -29,6 +22,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.util.Vector;
+
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class ViewManager {
     // map view name to view object for registered views
@@ -658,6 +657,6 @@ public class ViewManager {
         registerView(view);
         view.setAttribute(SMSView.OWNER, view.makeOwnerName(owner));
         view.setOwnerId(getUniqueId(owner));
-        view.update(view.getNativeMenu(), new ViewUpdateAction(SMSMenuAction.REPAINT));
+        view.update(view.getNativeMenu(), new RepaintAction());
     }
 }

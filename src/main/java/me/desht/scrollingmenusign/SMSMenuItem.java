@@ -541,6 +541,10 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
         return sender == null || permissionNode.isEmpty() || PermissionUtils.isAllowedTo(sender, permissionNode);
     }
 
+    public SMSMenu getMenu() {
+        return menu;
+    }
+
     public static class Builder {
         private final SMSMenu menu;
         private final String label;

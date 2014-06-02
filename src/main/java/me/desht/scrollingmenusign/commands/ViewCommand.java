@@ -1,25 +1,23 @@
 package me.desht.scrollingmenusign.commands;
 
-import java.util.List;
-
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.scrollingmenusign.views.ViewUpdateAction;
+import me.desht.scrollingmenusign.views.action.RepaintAction;
 import me.desht.scrollingmenusign.views.redout.Switch;
-
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import java.util.List;
 
 public class ViewCommand extends SMSAbstractCommand {
 
@@ -77,7 +75,7 @@ public class ViewCommand extends SMSAbstractCommand {
                 varName = varName.substring(1);
                 view.setVariable(varName, null);
                 view.autosave();
-                view.update(null, new ViewUpdateAction(SMSMenuAction.REPAINT));
+                view.update(null, new RepaintAction());
                 MiscUtil.statusMessage(sender, "Deleted view variable: &a" + varName + "&-.");
             }
         } else if (args.length <= 1) {
@@ -91,7 +89,7 @@ public class ViewCommand extends SMSAbstractCommand {
                     view.ensureAllowedToModify(sender);
                     view.setVariable(varName, args[2]);
                     view.autosave();
-                    view.update(null, new ViewUpdateAction(SMSMenuAction.REPAINT));
+                    view.update(null, new RepaintAction());
                 }
                 MiscUtil.statusMessage(sender, String.format("&a%s.$%s&- = &a%s&-", view.getName(), varName, view.getVariable(varName)));
             } else {

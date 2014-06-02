@@ -3,9 +3,10 @@ package me.desht.scrollingmenusign.variables;
 import com.google.common.collect.Lists;
 import me.desht.dhutils.*;
 import me.desht.scrollingmenusign.*;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.util.Substitutions;
-import me.desht.scrollingmenusign.views.ViewUpdateAction;
+import me.desht.scrollingmenusign.views.action.ItemAction;
+import me.desht.scrollingmenusign.views.action.RepaintAction;
+import me.desht.scrollingmenusign.views.action.TitleAction;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -184,9 +185,14 @@ public class VariablesManager implements Observer {
      */
     public void set(CommandSender sender, String varSpec, String value) {
         VarSpec vs = new VarSpec(sender, varSpec);
+
+        if (sender instanceof Player && vs.getPlayerId() != GLOBAL_UUID && !((Player) sender).getUniqueId().equals(vs.getPlayerId())) {
+            PermissionUtils.requirePerms(sender, "scrollingmenusign.vars.other");
+        }
+
         getVariables(vs.getPlayerId(), value != null).set(vs.getVarName(), value);
         for (SMSMenu menu : getMenusUsingVariable(vs.getVarName())) {
-            menu.notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
+            menu.forceUpdate(new RepaintAction(sender));
         }
     }
 
@@ -245,10 +251,14 @@ public class VariablesManager implements Observer {
         }
         updateVarRefs(menu.getTitle(), menu.getName());
         for (SMSMenuItem item : menu.getItems()) {
-            updateVarRefs(item.getLabel(), menu.getName());
-            for (String l : item.getLore()) {
-                updateVarRefs(l, menu.getName());
-            }
+            updateVariableUsage(item);
+        }
+    }
+
+    public void updateVariableUsage(SMSMenuItem item) {
+        updateVarRefs(item.getLabel(), item.getMenu().getName());
+        for (String l : item.getLore()) {
+            updateVarRefs(l, item.getMenu().getName());
         }
     }
 
@@ -260,14 +270,20 @@ public class VariablesManager implements Observer {
                 menuUsage.put(vs.getVarName(), new HashSet<String>());
             }
             menuUsage.get(vs.getVarName()).add(menuName);
+            Debugger.getInstance().debug("variable [" + vs.getVarName() + "] linked to menu: " + menuName);
         }
     }
 
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof SMSMenu) {
-            Debugger.getInstance().debug("variables manager : menu updated: " + ((SMSMenu) o).getName());
-            updateVariableUsage((SMSMenu) o);
+            if (arg instanceof ItemAction) {
+                SMSMenuItem item = ((ItemAction) arg).getModifiedItem();
+                updateVariableUsage(item);
+                Debugger.getInstance().debug("variables manager : menu updated: " + item.getMenu().getName() + " / " + item.getLabel());
+            } else if (arg instanceof TitleAction) {
+                updateVarRefs(((TitleAction) arg).getNewTitle(), ((SMSMenu) o).getName());
+            }
         }
     }
 
@@ -285,9 +301,6 @@ public class VariablesManager implements Observer {
             } else {
                 // qualified variable - <player>.<var>
                 playerId = getIDFromString(parts[0]);
-                if (sender instanceof Player && !((Player) sender).getUniqueId().equals(playerId)) {
-                    PermissionUtils.requirePerms(sender, "scrollingmenusign.vars.other");
-                }
                 varName = parts[1];
             }
             SMSValidate.isTrue(varName.matches("[a-zA-Z0-9_]+"), "Invalid variable name: " + spec + " (must be all alphanumeric)");

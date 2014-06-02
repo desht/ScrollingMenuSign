@@ -1,5 +1,26 @@
 package me.desht.scrollingmenusign.views;
 
+import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MapUtil;
+import me.desht.dhutils.PermissionUtils;
+import me.desht.scrollingmenusign.*;
+import me.desht.scrollingmenusign.enums.ViewJustification;
+import me.desht.scrollingmenusign.views.action.ViewUpdateAction;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.map.MapCanvas;
+import org.bukkit.map.MapPalette;
+import org.bukkit.map.MapRenderer;
+import org.bukkit.map.MapView;
+
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -15,32 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
-
-import javax.imageio.ImageIO;
-
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MapUtil;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.scrollingmenusign.DirectoryStructure;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.ViewJustification;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.map.MapCanvas;
-import org.bukkit.map.MapPalette;
-import org.bukkit.map.MapRenderer;
-import org.bukkit.map.MapView;
 
 /**
  * This view draws menus on maps.  With thanks to dumptruckman for MapActionMenu, which provided inspiration for this.
@@ -342,7 +337,7 @@ public class SMSMapView extends SMSScrollableView {
         List<String> lore = new ArrayList<String>(1);
         lore.add(loreStr);
         ItemMeta im = item.getItemMeta();
-        im.setDisplayName(ChatColor.RESET + viewVariableSubs(getNativeMenu().getTitle()));
+        im.setDisplayName(ChatColor.RESET + doVariableSubstitutions(null, getNativeMenu().getTitle()));
         im.setLore(lore);
         item.setItemMeta(im);
     }
@@ -371,19 +366,12 @@ public class SMSMapView extends SMSScrollableView {
         super.update(menu, arg1);
 
         ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
-        switch (vu.getAction()) {
-            case REPAINT:
-            case SCROLLED:
-                if (mapView != null) {
-                    if (mapView.getRenderers().contains(getMapRenderer())) {
-                        mapView.removeRenderer(getMapRenderer());
-                    }
-                    mapView.addRenderer(getMapRenderer());
-                    setDirty(vu.getPlayer(), true);
-                }
-                break;
-            default:
-                break;
+        if (mapView != null) {
+            if (mapView.getRenderers().contains(getMapRenderer())) {
+                mapView.removeRenderer(getMapRenderer());
+            }
+            mapView.addRenderer(getMapRenderer());
+            setDirty(vu.getSender() instanceof Player ? (Player) vu.getSender() : null, true);
         }
     }
 
@@ -517,18 +505,19 @@ public class SMSMapView extends SMSScrollableView {
         // draw the tooltip, if needed
         SMSMenuItem item = menu.getItemAt(getScrollPos(player));
         if (item != null && item.hasPermission(player) && config.getBoolean("sms.maps.show_tooltips")) {
-            String[] lore = item.getLore();
-            if (lore.length > 0) {
+//            String[] lore = item.getLore();
+            List<String> lore = doVariableSubstitutions(player, item.getLoreAsList());
+            if (!lore.isEmpty()) {
                 int offset = getScrollType() == ScrollType.SCROLL ? 3 : (scrollPos % pageSize) + 1;
                 int y1 = lineHeight * (titleLines.size() + offset);
                 int x1 = x + 10;
-                int y2 = y1 + lineHeight * lore.length + 1;
+                int y2 = y1 + lineHeight * lore.size() + 1;
                 int x2 = x + width;
                 g.setColor(MapUtil.getMapColor(10));
                 g.fillRect(x1, y1, x2 - x1, y2 - y1);
                 g.setColor(MapUtil.getMapColor(11));
                 g.draw3DRect(x1, y1, x2 - x1, y2 - y1, true);
-                yPos = y2 - (2 + lineHeight * (lore.length - 1));
+                yPos = y2 - (2 + lineHeight * (lore.size() - 1));
                 g.setClip(x1, y1, x2 - x1, y2 - y1);
                 for (String l : lore) {
                     g.setColor(MapUtil.getChatColor(0));

@@ -125,10 +125,12 @@ public class IconMenu implements Listener, SMSPopup {
             }
             SMSMenuItem menuItem = getView().getActiveMenuItemAt(player, i + 1);
             ItemStack icon = menuItem.hasPermission(player) && menuItem.hasIcon() ? menuItem.getIcon() : defIcon.clone();
-            String label = getView().viewVariableSubs(getView().getActiveItemLabel(player, i + 1));
+            String label = getView().doVariableSubstitutions(player, getView().getActiveItemLabel(player, i + 1));
             ItemMeta im = icon.getItemMeta();
             im.setDisplayName(ChatColor.RESET + label);
-            im.setLore(menuItem.hasPermission(player) ? menuItem.getLoreAsList() : Collections.<String>emptyList());
+            im.setLore(menuItem.hasPermission(player) ?
+                    view.doVariableSubstitutions(player, menuItem.getLoreAsList()) :
+                    Collections.<String>emptyList());
             icon.setItemMeta(im);
             optionIcons[pos] = icon;
             optionNames[pos] = menuItem.getLabel();
@@ -223,7 +225,7 @@ public class IconMenu implements Listener, SMSPopup {
     }
 
     private String getAbbreviatedTitle() {
-        return StringUtils.abbreviate(getView().viewVariableSubs(getView().getActiveMenuTitle(player)), MAX_TITLE_LENGTH);
+        return StringUtils.abbreviate(getView().doVariableSubstitutions(player, getView().getActiveMenuTitle(player)), MAX_TITLE_LENGTH);
     }
 
     private boolean isClosingOnCommand(Player p) {
@@ -236,12 +238,18 @@ public class IconMenu implements Listener, SMSPopup {
     }
 
     public void destroy() {
-        Debugger.getInstance().debug("icon menu: unregister events: " + this + " view=" + view.getName());
+        Debugger.getInstance().debug("destroying icon menu [" + getPlayer().getName() + "] for view: " + view.getName());
         HandlerList.unregisterAll(this);
+        popdown();
     }
 
     public interface OptionClickEventHandler {
         public void onOptionClick(OptionClickEvent event);
+    }
+
+    @Override
+    public String toString() {
+        return "icon menu [player=" + player.getName() + " view=" + view.getName() + " size=" + size + "]";
     }
 
     public class OptionClickEvent {

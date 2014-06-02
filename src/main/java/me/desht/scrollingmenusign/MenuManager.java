@@ -1,8 +1,7 @@
 package me.desht.scrollingmenusign;
 
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.scrollingmenusign.views.ViewUpdateAction;
+import me.desht.scrollingmenusign.views.action.RepaintAction;
 import org.bukkit.Location;
 
 import java.util.*;
@@ -27,6 +26,7 @@ public class MenuManager {
         menus.put(menuName, menu);
 
         menu.addObserver(plugin.getVariablesManager());
+        plugin.getVariablesManager().updateVariableUsage(menu);
 
         menu.autosave();
     }
@@ -61,7 +61,7 @@ public class MenuManager {
      */
     public void updateAllMenus() {
         for (SMSMenu menu : listMenus()) {
-            menu.notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
+            menu.notifyObservers(new RepaintAction());
         }
     }
 

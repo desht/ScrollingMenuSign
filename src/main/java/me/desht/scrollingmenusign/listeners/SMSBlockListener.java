@@ -4,19 +4,11 @@ import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.block.BlockUtil;
-import me.desht.scrollingmenusign.RedstoneControlSign;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSHandler;
-import me.desht.scrollingmenusign.SMSInteractableBlock;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSValidate;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.expector.ExpectSwitchAddition;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
-
-import me.desht.scrollingmenusign.views.ViewUpdateAction;
+import me.desht.scrollingmenusign.views.action.RepaintAction;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -24,12 +16,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
-import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.material.Sign;
 
 public class SMSBlockListener extends SMSListenerBase {
@@ -61,7 +48,7 @@ public class SMSBlockListener extends SMSListenerBase {
             event.setCancelled(true);
             if (iBlock != null && iBlock instanceof SMSView) {
                 SMSView view = (SMSView) iBlock;
-                view.update(view.getActiveMenu(player), new ViewUpdateAction(SMSMenuAction.REPAINT));
+                view.update(view.getActiveMenu(player), new RepaintAction());
             }
         } else if (iBlock != null) {
             iBlock.processEvent(plugin, event);

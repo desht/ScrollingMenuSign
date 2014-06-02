@@ -12,6 +12,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
+import me.desht.scrollingmenusign.views.action.ViewUpdateAction;
 import me.desht.scrollingmenusign.views.hologram.HoloUtil;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -95,15 +96,7 @@ public class SMSPublicHoloView extends SMSGlobalScrollableView {
     public void update(Observable menu, Object arg1) {
         super.update(menu, arg1);
 
-        ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
-        switch (vu.getAction()) {
-            case REPAINT:
-            case SCROLLED:
-                repaintAll();
-                break;
-            default:
-                break;
-        }
+        repaintAll();
     }
 
     @Override

@@ -1,42 +1,22 @@
 package me.desht.scrollingmenusign;
 
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.Map.Entry;
-
+import com.comphenix.protocol.ProtocolLibrary;
 import me.desht.dhutils.*;
 import me.desht.dhutils.MetaFaker.MetadataFilter;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.cost.EconomyCost;
 import me.desht.dhutils.responsehandler.ResponseHandler;
-import me.desht.scrollingmenusign.commandlets.AfterCommandlet;
-import me.desht.scrollingmenusign.commandlets.CloseSubmenuCommandlet;
-import me.desht.scrollingmenusign.commandlets.CommandletManager;
-import me.desht.scrollingmenusign.commandlets.CooldownCommandlet;
-import me.desht.scrollingmenusign.commandlets.PopupCommandlet;
-import me.desht.scrollingmenusign.commandlets.QuickMessageCommandlet;
-import me.desht.scrollingmenusign.commandlets.ScriptCommandlet;
-import me.desht.scrollingmenusign.commandlets.SubmenuCommandlet;
+import me.desht.scrollingmenusign.commandlets.*;
 import me.desht.scrollingmenusign.commands.*;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.scrollingmenusign.listeners.SMSBlockListener;
-import me.desht.scrollingmenusign.listeners.SMSEntityListener;
-import me.desht.scrollingmenusign.listeners.SMSPlayerListener;
-import me.desht.scrollingmenusign.listeners.SMSSpoutKeyListener;
-import me.desht.scrollingmenusign.listeners.SMSWorldListener;
+import me.desht.scrollingmenusign.listeners.*;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
 import me.desht.scrollingmenusign.util.UUIDMigration;
 import me.desht.scrollingmenusign.variables.VariablesManager;
 import me.desht.scrollingmenusign.views.*;
+import me.desht.scrollingmenusign.views.action.RepaintAction;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
-
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -52,7 +32,15 @@ import org.mcstats.Metrics;
 import org.mcstats.Metrics.Graph;
 import org.mcstats.Metrics.Plotter;
 
-import com.comphenix.protocol.ProtocolLibrary;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
 
 /**
  * ScrollingMenuSign
@@ -476,7 +464,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
     private void repaintViews(String type) {
         for (SMSView v : viewManager.listViews()) {
             if (type == null || v.getType().equals(type)) {
-                v.update(null, new ViewUpdateAction(SMSMenuAction.REPAINT));
+                v.update(null, new RepaintAction());
             }
         }
     }

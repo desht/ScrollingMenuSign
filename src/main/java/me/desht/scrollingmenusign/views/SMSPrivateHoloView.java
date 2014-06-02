@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.views;
 
 import com.dsh105.holoapi.HoloAPI;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.views.action.ViewUpdateAction;
 import me.desht.scrollingmenusign.views.hologram.HoloPopup;
 import org.bukkit.entity.Player;
 
@@ -64,22 +65,15 @@ public class SMSPrivateHoloView extends SMSScrollableView implements PoppableVie
     @Override
     public void update(Observable obj, Object arg1) {
         ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
-        switch (vu.getAction()) {
-            case REPAINT:
-            case SCROLLED:
-                if (vu.getPlayer() == null) {
-                    for (HoloPopup h : holograms.values()) {
-                        h.repaint();
-                    }
-                } else {
-                    HoloPopup h = holograms.get(vu.getPlayer().getUniqueId());
-                    if (h != null) {
-                        h.repaint();
-                    }
-                }
-                break;
-            default:
-                break;
+        if (vu.getSender() instanceof Player) {
+            HoloPopup h = holograms.get(((Player) vu.getSender()).getUniqueId());
+            if (h != null) {
+                h.repaint();
+            }
+        } else {
+            for (HoloPopup h : holograms.values()) {
+                h.repaint();
+            }
         }
     }
 

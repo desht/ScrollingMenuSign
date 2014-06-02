@@ -7,8 +7,7 @@ import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.SMSScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
-
-import me.desht.scrollingmenusign.views.ViewUpdateAction;
+import me.desht.scrollingmenusign.views.action.ScrollAction;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
@@ -110,12 +109,12 @@ public enum SMSUserAction {
                 break;
             case SCROLLDOWN:
                 sview.scrollDown(player);
-                sview.update(menu, new ViewUpdateAction(SMSMenuAction.SCROLLED, player));
+                sview.update(menu, new ScrollAction(player, ScrollAction.ScrollDirection.DOWN));
                 sview.onScrolled(player, SCROLLDOWN);
                 break;
             case SCROLLUP:
                 sview.scrollUp(player);
-                sview.update(menu, new ViewUpdateAction(SMSMenuAction.SCROLLED, player));
+                sview.update(menu, new ScrollAction(player, ScrollAction.ScrollDirection.UP));
                 sview.onScrolled(player, SCROLLUP);
                 break;
             default:

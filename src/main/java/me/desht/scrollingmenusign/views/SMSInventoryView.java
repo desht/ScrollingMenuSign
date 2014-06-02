@@ -2,6 +2,7 @@ package me.desht.scrollingmenusign.views;
 
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.scrollingmenusign.*;
+import me.desht.scrollingmenusign.views.action.ViewUpdateAction;
 import me.desht.scrollingmenusign.views.icon.IconMenu;
 import me.desht.scrollingmenusign.views.icon.IconMenu.OptionClickEvent;
 import me.desht.scrollingmenusign.views.icon.IconMenu.OptionClickEventHandler;
@@ -37,22 +38,18 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
 
     @Override
     public void update(Observable obj, Object arg1) {
+        super.update (obj, arg1);
+
         ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
-        switch (vu.getAction()) {
-            case REPAINT:
-                if (vu.getPlayer() == null) {
-                    for (IconMenu im : popups.values()) {
-                        im.repaint();
-                    }
-                } else {
-                    IconMenu im = popups.get(vu.getPlayer().getUniqueId());
-                    if (im != null) {
-                        im.repaint();
-                    }
-                }
-                break;
-            default:
-                break;
+        if (vu.getSender() instanceof Player) {
+            IconMenu iconMenu = popups.get(((Player) vu.getSender()).getUniqueId());
+            if (iconMenu != null) {
+                iconMenu.repaint();
+            }
+        } else {
+            for (IconMenu iconMenu : popups.values()) {
+                iconMenu.repaint();
+            }
         }
     }
 
@@ -61,6 +58,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
         for (IconMenu iconMenu : popups.values()) {
             iconMenu.destroy();
         }
+        popups.clear();
     }
 
     @Override

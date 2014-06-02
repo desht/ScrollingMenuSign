@@ -1,22 +1,20 @@
 package me.desht.scrollingmenusign;
 
+import me.desht.dhutils.Debugger;
+import me.desht.dhutils.LogUtils;
+import me.desht.scrollingmenusign.variables.SMSVariables;
+import me.desht.scrollingmenusign.variables.VariablesManager;
+import me.desht.scrollingmenusign.views.SMSView;
+import me.desht.scrollingmenusign.views.ViewManager;
+import me.desht.scrollingmenusign.views.action.RepaintAction;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import me.desht.dhutils.Debugger;
-import me.desht.dhutils.LogUtils;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
-import me.desht.scrollingmenusign.variables.SMSVariables;
-import me.desht.scrollingmenusign.variables.VariablesManager;
-import me.desht.scrollingmenusign.views.SMSView;
-import me.desht.scrollingmenusign.views.ViewManager;
-
-import me.desht.scrollingmenusign.views.ViewUpdateAction;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 public class SMSPersistence {
 
@@ -151,8 +149,7 @@ public class SMSPersistence {
             YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
             SMSView view = vm.loadView(conf);
             if (view != null) {
-                view.getNativeMenu().addObserver(view);
-                view.update(view.getNativeMenu(), new ViewUpdateAction(SMSMenuAction.REPAINT));
+                view.update(view.getNativeMenu(), new RepaintAction());
             }
         }
 

@@ -2,9 +2,10 @@ package me.desht.scrollingmenusign;
 
 import me.desht.dhutils.*;
 import me.desht.scrollingmenusign.enums.SMSAccessRights;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.util.SMSUtil;
-import me.desht.scrollingmenusign.views.ViewUpdateAction;
+import me.desht.scrollingmenusign.views.action.MenuDeleteAction;
+import me.desht.scrollingmenusign.views.action.RepaintAction;
+import me.desht.scrollingmenusign.views.action.ViewUpdateAction;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -648,7 +649,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
     void deletePermanent() {
         try {
             setChanged();
-            notifyObservers(new ViewUpdateAction(SMSMenuAction.DELETE_PERM));
+            notifyObservers(new MenuDeleteAction(null, true));
             ScrollingMenuSign.getInstance().getMenuManager().unregisterMenu(getName());
             SMSPersistence.unPersist(this);
         } catch (SMSException e) {
@@ -663,8 +664,9 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
      */
     void deleteTemporary() {
         try {
+            setChanged();
+            notifyObservers(new MenuDeleteAction(null, false));
             ScrollingMenuSign.getInstance().getMenuManager().unregisterMenu(getName());
-            notifyObservers(new ViewUpdateAction(SMSMenuAction.DELETE_TEMP));
         } catch (SMSException e) {
             // Should not get here
             LogUtils.warning("Impossible: deleteTemporary got SMSException? " + e.getMessage());
@@ -763,7 +765,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         } else if (key.equals(TITLE)) {
             title = newVal.toString();
             setChanged();
-            notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
+            notifyObservers(new RepaintAction());
         } else if (key.equals(OWNER) && !inThaw) {
             final String owner = newVal.toString();
             if (owner.isEmpty() || owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {
@@ -832,5 +834,10 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
     @Override
     public int compareTo(SMSMenu o) {
         return getName().compareTo(o.getName());
+    }
+
+    public void forceUpdate(ViewUpdateAction action) {
+        setChanged();
+        notifyObservers(action);
     }
 }

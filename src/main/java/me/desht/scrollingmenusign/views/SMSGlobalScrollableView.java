@@ -1,22 +1,14 @@
 package me.desht.scrollingmenusign.views;
 
-import java.util.*;
-
+import com.google.common.base.Joiner;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
-import me.desht.scrollingmenusign.RedstoneControlSign;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.TooltipSign;
+import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.enums.RedstoneOutputMode;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.views.redout.Switch;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,7 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import com.google.common.base.Joiner;
+import java.util.*;
 
 /**
  * This is just like a {@link SMSScrollableView} but maintains only a single player context
@@ -83,10 +75,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
     public void update(Observable menu, Object arg) {
         super.update(menu, arg);
 
-        ViewUpdateAction vu = ViewUpdateAction.getAction(arg);
-        if (vu.getAction() == SMSMenuAction.REPAINT) {
-            updateTooltipSign();
-        }
+        updateTooltipSign();
     }
 
     public void addSwitch(Switch sw) {
@@ -378,7 +367,7 @@ public abstract class SMSGlobalScrollableView extends SMSScrollableView {
     }
 
     public String[] getTooltipText() {
-        String[] lore = getActiveMenuItemAt(null, getScrollPos()).getLore();
+        List<String> lore = doVariableSubstitutions(null, getActiveMenuItemAt(null, getScrollPos()).getLoreAsList());
         Scanner scanner = new Scanner(Joiner.on(" ").join(lore));
         StringBuilder sb = new StringBuilder();
         String[] text = new String[SIGN_LINES];

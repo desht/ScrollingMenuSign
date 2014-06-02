@@ -13,12 +13,12 @@ import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.spout.HexColor;
 import me.desht.scrollingmenusign.spout.SMSSpoutKeyMap;
 import me.desht.scrollingmenusign.spout.SpoutViewPopup;
 import me.desht.scrollingmenusign.spout.TextEntryPopup;
 
+import me.desht.scrollingmenusign.views.action.ViewUpdateAction;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
@@ -193,16 +193,10 @@ public class SMSSpoutView extends SMSScrollableView implements PoppableView {
     public void update(Observable menu, Object arg1) {
         super.update(menu, arg1);
         ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
-        switch (vu.getAction()) {
-            case REPAINT:
-                for (SpoutViewPopup gui : popups.values()) {
-                    if (vu.getPlayer() == null || gui.getPlayer().equals(vu.getPlayer())) {
-                        gui.repaint();
-                    }
-                }
-                break;
-            default:
-                break;
+        for (SpoutViewPopup gui : popups.values()) {
+            if (vu.getSender() == null || gui.getPlayer().equals(vu.getSender())) {
+                gui.repaint();
+            }
         }
         // although this is a scrollable view, we don't need to do anything if the action was SCROLLED,
         // since the Spout list widget handles its own repainting

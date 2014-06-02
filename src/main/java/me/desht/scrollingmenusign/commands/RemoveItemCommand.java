@@ -3,10 +3,10 @@ package me.desht.scrollingmenusign.commands;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
+import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.util.SMSUtil;
-import me.desht.scrollingmenusign.views.ViewUpdateAction;
+import me.desht.scrollingmenusign.views.action.RemoveItemAction;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
@@ -28,22 +28,24 @@ public class RemoveItemCommand extends SMSAbstractCommand {
     public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 
         String menuName = args[0];
-        String item = SMSUtil.unEscape(args[1]);
+        String itemLabel = SMSUtil.unEscape(args[1]);
 
-        if (item.matches("@[0-9]+")) {
+        if (itemLabel.matches("@[0-9]+")) {
             // backwards compatibility - numeric indices should be prefixed with a '@'
             // but we'll allow raw numbers to be used
-            item = item.substring(1);
+            itemLabel = itemLabel.substring(1);
         }
 
         try {
             SMSMenu menu = getMenu(sender, menuName);
             menu.ensureAllowedToModify(sender);
-            menu.removeItem(item);
-            menu.notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
-            MiscUtil.statusMessage(sender, "Menu entry &f#" + item + "&- removed from &e" + menu.getName());
+            int pos = menu.indexOfItem(itemLabel);
+            SMSMenuItem menuItem = menu.getItemAt(pos);
+            menu.removeItem(pos);
+            menu.notifyObservers(new RemoveItemAction(sender, menuItem));
+            MiscUtil.statusMessage(sender, "Menu entry &f#" + itemLabel + "&- removed from &e" + menu.getName());
         } catch (IndexOutOfBoundsException e) {
-            throw new SMSException("Item index " + item + " out of range");
+            throw new SMSException("Item index " + itemLabel + " out of range");
         } catch (IllegalArgumentException e) {
             throw new SMSException(e.getMessage());
         }

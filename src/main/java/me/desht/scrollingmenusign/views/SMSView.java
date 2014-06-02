@@ -4,9 +4,12 @@ import me.desht.dhutils.*;
 import me.desht.dhutils.block.BlockUtil;
 import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.enums.SMSAccessRights;
-import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
 import me.desht.scrollingmenusign.enums.ViewJustification;
+import me.desht.scrollingmenusign.util.Substitutions;
+import me.desht.scrollingmenusign.views.action.MenuDeleteAction;
+import me.desht.scrollingmenusign.views.action.RepaintAction;
+import me.desht.scrollingmenusign.views.action.ViewUpdateAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -22,8 +25,6 @@ import org.bukkit.util.Vector;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Represents a base menu view from which all concrete views will inherit.
@@ -122,17 +123,16 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
      */
     @Override
     public void update(Observable o, Object arg1) {
-        if (o == null)
+        if (o == null) {
             return;
-
+        }
         SMSMenu m = (SMSMenu) o;
         ViewUpdateAction vu = ViewUpdateAction.getAction(arg1);
-        Debugger.getInstance().debug("update: view=" + getName() + " action=" + vu.getAction() + " player=" + vu.getPlayer() + " menu=" + m.getName() + ", nativemenu=" + getNativeMenu().getName());
+        Debugger.getInstance().debug("update: view=" + getName() + " action=" + vu.getClass().getSimpleName()
+                + " player=" + vu.getSender() + " menu=" + m.getName() + ", nativemenu=" + getNativeMenu().getName());
         if (m == getNativeMenu()) {
-            if (vu.getAction() == SMSMenuAction.DELETE_PERM) {
-                ScrollingMenuSign.getInstance().getViewManager().deleteView(this, true);
-            } else if (vu.getAction() == SMSMenuAction.DELETE_TEMP) {
-                ScrollingMenuSign.getInstance().getViewManager().deleteView(this, false);
+            if (vu instanceof MenuDeleteAction) {
+                ScrollingMenuSign.getInstance().getViewManager().deleteView(this, ((MenuDeleteAction) vu).isPermanent());
             }
         }
     }
@@ -206,7 +206,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         newActive.addObserver(this);
         Debugger.getInstance().debug("pushed menu " + newActive.getName() + " onto " + getName()
                 + " player=" + player.getName() + " player-context = " + key);
-        update(newActive, new ViewUpdateAction(SMSMenuAction.REPAINT, player));
+        update(newActive, new RepaintAction());
     }
 
     /**
@@ -231,7 +231,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         newActive.addObserver(this);
         Debugger.getInstance().debug("popped menu " + oldActive.getName() + " off " + getName() + " new active = " + newActive.getName()
                 + " player=" + player.getName() + " player-context = " + key);
-        update(newActive, new ViewUpdateAction(SMSMenuAction.REPAINT, player));
+        update(newActive, new RepaintAction());
         return oldActive;
     }
 
@@ -251,7 +251,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
     @Override
     public String getActiveItemLabel(Player player, int pos) {
         String label = super.getActiveItemLabel(player, pos);
-        return label == null ? null : viewVariableSubs(label);
+        return label == null ? null : doVariableSubstitutions(player, label);
     }
 
     /**
@@ -332,17 +332,18 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         }
     }
 
-    private static final Pattern viewVarSubPat = Pattern.compile("<\\$v:([A-Za-z0-9_\\.]+)=(.*?)>");
+    public String doVariableSubstitutions(Player player, String text) {
+        String s = Substitutions.viewVariableSubs(this, text);
+        s = Substitutions.userVariableSubs(player, s, null);
+        return s;
+    }
 
-    public String viewVariableSubs(String text) {
-        Matcher m = viewVarSubPat.matcher(text);
-        StringBuffer sb = new StringBuffer(text.length());
-        while (m.find()) {
-            String repl = checkVariable(m.group(1)) ? getVariable(m.group(1)) : m.group(2);
-            m.appendReplacement(sb, Matcher.quoteReplacement(repl));
+    public List<String> doVariableSubstitutions(Player player, List<String> l) {
+        List<String> res = new ArrayList<String>(l.size());
+        for (String s : l) {
+            res.add(doVariableSubstitutions(player, s));
         }
-        m.appendTail(sb);
-        return sb.toString();
+        return res;
     }
 
     public Map<String, Object> freeze() {
@@ -480,8 +481,9 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
     /**
      * Set the per-player "dirty" status for this view - whether or not a repaint is needed for the given player.
+     * If a null player is passed, the view is marked as dirty for all players.
      *
-     * @param player The player to check for
+     * @param player The player to check for, may be null
      * @param dirty  Whether or not a repaint is needed
      */
     public void setDirty(Player player, boolean dirty) {
@@ -722,7 +724,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         // Don't do updates on views that haven't been registered yet (which will be the case
         // when restoring saved views from disk)
         if (ScrollingMenuSign.getInstance().getViewManager().checkForView(getName())) {
-            update(null, new ViewUpdateAction(SMSMenuAction.REPAINT));
+            update(null, new RepaintAction());
         }
     }
 
@@ -824,7 +826,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
         if (plugin.getConfig().getBoolean("sms.no_destroy_signs")) {
             event.setCancelled(true);
-            update(getActiveMenu(player), new ViewUpdateAction(SMSMenuAction.REPAINT, player));
+            update(getActiveMenu(player), new RepaintAction());
         } else {
             removeLocation(b.getLocation());
             if (getLocations().isEmpty()) {
