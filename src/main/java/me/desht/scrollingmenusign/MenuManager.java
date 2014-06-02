@@ -26,6 +26,8 @@ public class MenuManager {
     public void registerMenu(String menuName, SMSMenu menu) {
         menus.put(menuName, menu);
 
+        menu.addObserver(plugin.getVariablesManager());
+
         menu.autosave();
     }
 
@@ -36,7 +38,9 @@ public class MenuManager {
      * @throws SMSException if there is no menu of the given name
      */
     public void unregisterMenu(String menuName) {
-        deletedMenus.put(menuName, getMenu(menuName));
+        SMSMenu menu = getMenu(menuName);
+        menu.deleteObserver(plugin.getVariablesManager());
+        deletedMenus.put(menuName, menu);
         menus.remove(menuName);
     }
 

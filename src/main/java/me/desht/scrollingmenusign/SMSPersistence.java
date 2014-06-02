@@ -131,6 +131,7 @@ public class SMSPersistence {
                 YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
                 SMSMenu menu = new SMSMenu(conf);
                 mm.registerMenu(menu.getName(), menu);
+                menu.notifyObservers();
             } catch (SMSException e) {
                 LogUtils.severe("Can't load menu data from " + f + ": " + e.getMessage());
             }

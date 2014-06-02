@@ -1,13 +1,11 @@
 package me.desht.scrollingmenusign.variables;
 
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.UUIDFetcher;
-import me.desht.scrollingmenusign.DirectoryStructure;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSValidate;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
+import com.google.common.collect.Lists;
+import me.desht.dhutils.*;
+import me.desht.scrollingmenusign.*;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
+import me.desht.scrollingmenusign.util.Substitutions;
+import me.desht.scrollingmenusign.views.ViewUpdateAction;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -17,13 +15,16 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Matcher;
 
-public class VariablesManager {
+public class VariablesManager implements Observer {
     public static final UUID GLOBAL_UUID = new UUID(0, 0);
     private static final String DEFAULT_MARKER = "*";
 
     private final Map<String, YamlConfiguration> toMigrate = new HashMap<String, YamlConfiguration>();
     private final Map<UUID, SMSVariables> allVariables = new HashMap<UUID, SMSVariables>();
+    private final Map<String, Set<String>> menuUsage = new HashMap<String, Set<String>>();
+
     private final ScrollingMenuSign plugin;
 
     public VariablesManager(ScrollingMenuSign plugin) {
@@ -184,6 +185,9 @@ public class VariablesManager {
     public void set(CommandSender sender, String varSpec, String value) {
         VarSpec vs = new VarSpec(sender, varSpec);
         getVariables(vs.getPlayerId(), value != null).set(vs.getVarName(), value);
+        for (SMSMenu menu : getMenusUsingVariable(vs.getVarName())) {
+            menu.notifyObservers(new ViewUpdateAction(SMSMenuAction.REPAINT));
+        }
     }
 
     /**
@@ -216,6 +220,54 @@ public class VariablesManager {
             return GLOBAL_UUID;
         } else {
             throw new SMSException("Player ID should be '*', 'console' or a valid UUID");
+        }
+    }
+
+    public List<SMSMenu> getMenusUsingVariable(String varName) {
+        Set<String> menuNames = menuUsage.get(varName);
+        if (menuNames == null) {
+            return Collections.emptyList();
+        } else {
+            SMSHandler h = ScrollingMenuSign.getInstance().getHandler();
+            List<SMSMenu> res = Lists.newArrayList();
+            for (String menuName : menuNames) {
+                if (h.checkMenu(menuName)) {
+                    res.add(h.getMenu(menuName));
+                }
+            }
+            return res;
+        }
+    }
+
+    public void updateVariableUsage(SMSMenu menu) {
+        for (Set<String> s : menuUsage.values()) {
+            s.remove(menu.getName());
+        }
+        updateVarRefs(menu.getTitle(), menu.getName());
+        for (SMSMenuItem item : menu.getItems()) {
+            updateVarRefs(item.getLabel(), menu.getName());
+            for (String l : item.getLore()) {
+                updateVarRefs(l, menu.getName());
+            }
+        }
+    }
+
+    private void updateVarRefs(String str, String menuName) {
+        Matcher m = Substitutions.userVarSubPat.matcher(str);
+        while (m.find()) {
+            VarSpec vs = new VarSpec(null, m.group(1));
+            if (!menuUsage.containsKey(vs.getVarName())) {
+                menuUsage.put(vs.getVarName(), new HashSet<String>());
+            }
+            menuUsage.get(vs.getVarName()).add(menuName);
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o instanceof SMSMenu) {
+            Debugger.getInstance().debug("variables manager : menu updated: " + ((SMSMenu) o).getName());
+            updateVariableUsage((SMSMenu) o);
         }
     }
 
