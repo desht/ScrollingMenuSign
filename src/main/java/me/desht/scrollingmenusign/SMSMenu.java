@@ -5,6 +5,7 @@ import me.desht.scrollingmenusign.enums.SMSAccessRights;
 import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.action.MenuDeleteAction;
 import me.desht.scrollingmenusign.views.action.RepaintAction;
+import me.desht.scrollingmenusign.views.action.TitleAction;
 import me.desht.scrollingmenusign.views.action.ViewUpdateAction;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -379,10 +380,10 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
     }
 
     /**
-     * Get the menu item matching the given label
+     * Get the menu item matching the given label.
      *
-     * @param wanted The label to match (case-insensitive)
-     * @return The menu item with that label, or null if no matching item
+     * @param wanted the label to match (case-insensitive)
+     * @return the menu item with that label, or null if no matching item
      */
     public SMSMenuItem getItem(String wanted) {
         return getItem(wanted, false);
@@ -765,7 +766,7 @@ public class SMSMenu extends Observable implements SMSPersistable, SMSUseLimitab
         } else if (key.equals(TITLE)) {
             title = newVal.toString();
             setChanged();
-            notifyObservers(new RepaintAction());
+            notifyObservers(new TitleAction(null, oldVal.toString(), newVal.toString()));
         } else if (key.equals(OWNER) && !inThaw) {
             final String owner = newVal.toString();
             if (owner.isEmpty() || owner.equals(ScrollingMenuSign.CONSOLE_OWNER)) {

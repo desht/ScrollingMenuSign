@@ -4,9 +4,7 @@ import com.google.common.collect.Lists;
 import me.desht.dhutils.*;
 import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.util.Substitutions;
-import me.desht.scrollingmenusign.views.action.ItemAction;
-import me.desht.scrollingmenusign.views.action.RepaintAction;
-import me.desht.scrollingmenusign.views.action.TitleAction;
+import me.desht.scrollingmenusign.views.action.*;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -249,40 +247,50 @@ public class VariablesManager implements Observer {
         for (Set<String> s : menuUsage.values()) {
             s.remove(menu.getName());
         }
-        updateVarRefs(menu.getTitle(), menu.getName());
+        updateVarRefs(menu.getTitle(), menu, true);
         for (SMSMenuItem item : menu.getItems()) {
-            updateVariableUsage(item);
+            updateVariableUsage(item, true);
         }
     }
 
-    public void updateVariableUsage(SMSMenuItem item) {
-        updateVarRefs(item.getLabel(), item.getMenu().getName());
+    public void updateVariableUsage(SMSMenuItem item, boolean adding) {
+        updateVarRefs(item.getLabel(), item.getMenu(), adding);
         for (String l : item.getLore()) {
-            updateVarRefs(l, item.getMenu().getName());
+            updateVarRefs(l, item.getMenu(), adding);
         }
     }
 
-    private void updateVarRefs(String str, String menuName) {
+    private void updateVarRefs(String str, SMSMenu menu, boolean adding) {
         Matcher m = Substitutions.userVarSubPat.matcher(str);
         while (m.find()) {
             VarSpec vs = new VarSpec(null, m.group(1));
             if (!menuUsage.containsKey(vs.getVarName())) {
                 menuUsage.put(vs.getVarName(), new HashSet<String>());
             }
-            menuUsage.get(vs.getVarName()).add(menuName);
-            Debugger.getInstance().debug("variable [" + vs.getVarName() + "] linked to menu: " + menuName);
+            if (adding) {
+                menuUsage.get(vs.getVarName()).add(menu.getName());
+                Debugger.getInstance().debug("variable [" + vs.getVarName() + "] linked to menu: " + menu.getName());
+            } else {
+                menuUsage.get(vs.getVarName()).remove(menu.getName());
+                Debugger.getInstance().debug("variable [" + vs.getVarName() + "] unlinked from menu: " + menu.getName());
+            }
         }
     }
 
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof SMSMenu) {
-            if (arg instanceof ItemAction) {
-                SMSMenuItem item = ((ItemAction) arg).getModifiedItem();
-                updateVariableUsage(item);
-                Debugger.getInstance().debug("variables manager : menu updated: " + item.getMenu().getName() + " / " + item.getLabel());
+            if (arg instanceof AddItemAction) {
+                updateVariableUsage(((AddItemAction) arg).getModifiedItem(), true);
+            } else if (arg instanceof RemoveItemAction) {
+                updateVariableUsage(((RemoveItemAction) arg).getModifiedItem(), false);
+            } else if (arg instanceof UpdateItemAction) {
+                updateVariableUsage(((UpdateItemAction) arg).getModifiedItem(), false);
+                updateVariableUsage(((UpdateItemAction) arg).getNewItem(), true);
             } else if (arg instanceof TitleAction) {
-                updateVarRefs(((TitleAction) arg).getNewTitle(), ((SMSMenu) o).getName());
+                SMSMenu menu = (SMSMenu) o;
+                updateVarRefs(((TitleAction) arg).getOldTitle(), menu, false);
+                updateVarRefs(((TitleAction) arg).getNewTitle(), menu, true);
             }
         }
     }
