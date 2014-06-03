@@ -112,24 +112,24 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
     @Override
     public void onOptionClick(final OptionClickEvent event) {
         final Player player = event.getPlayer();
-        SMSMenu m = getActiveMenu(player);
-        SMSMenuItem item = getActiveMenuItemAt(player, event.getIndex());
+        SMSMenu menu = getActiveMenu(player);
+        SMSMenuItem item = menu.getItem(event.getLabel());
         if (item == null) {
-            throw new SMSException("icon menu: index " + event.getIndex() + " out of range for " + getActiveMenu(player).getName() + " ?");
+            throw new SMSException("icon menu: item [" + event.getLabel() + "] unknown for menu: " + menu.getName());
         }
         event.setWillClose((Boolean) getAttribute(AUTOPOPDOWN));
         item.executeCommand(player, this, event.getClickType().isRightClick() || event.getClickType().isShiftClick());
         item.feedbackMessage(player);
         onExecuted(player);
         if (item.getCommand().isEmpty() && item.getMessage().isEmpty()) {
-            // an item with no command or feedback in an inventory view is basically a label and
-            // won't cause the view to close if clicked
+            // An item with no command or feedback in an inventory view is basically
+            // a label and won't cause the view to close if clicked
             event.setWillClose(false);
             return;
         }
-        if (m != getActiveMenu(player)) {
-            // just pushed or popped a submenu
-            // need to pop this inventory down and pop up a new one with the right title
+        if (menu != getActiveMenu(player)) {
+            // We just pushed or popped a submenu, so we need to pop this
+            // inventory down and pop up a new one with the right title
             event.setWillClose(true);
             Bukkit.getScheduler().runTaskLater(ScrollingMenuSign.getInstance(), new Runnable() {
                 @Override
@@ -144,7 +144,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
     public Object onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
         super.onConfigurationValidate(configurationManager, key, oldVal, newVal);
         if (key.equals(SPACING)) {
-            SMSValidate.isTrue((Integer) newVal >= 1, "Spacing must be 1 or more");
+            SMSValidate.isTrue((Integer) newVal >= 1 && (Integer) newVal <= 7, "Spacing must be in the range 1 .. 7");
         } else if (key.equals(WIDTH)) {
             SMSValidate.isTrue((Integer) newVal >= 1 && (Integer) newVal <= 9, "Width must be in the range 1 .. 9");
         } else if (key.equals(AUTOPOPDOWN) && !((Boolean) newVal)) {

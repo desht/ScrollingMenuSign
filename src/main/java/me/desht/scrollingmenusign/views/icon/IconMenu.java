@@ -1,7 +1,6 @@
 package me.desht.scrollingmenusign.views.icon;
 
 import me.desht.dhutils.Debugger;
-import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenuItem;
@@ -101,62 +100,67 @@ public class IconMenu implements Listener, SMSPopup {
         }
     }
 
+    private static int roundUp(int n, int nearestMultiple) {
+        return n + nearestMultiple - 1 - (n - 1) % nearestMultiple;
+    }
+
     private void buildMenu(Player player) {
-        int width = (Integer) getView().getAttribute(SMSInventoryView.WIDTH);
-        int spacing = (Integer) getView().getAttribute(SMSInventoryView.SPACING);
-        int nItems = getView().getActiveMenuItemCount(player);
-        int nRows = Math.min(MAX_INVENTORY_ROWS, (((nItems - 1) / width) + 1) * spacing);
-
-        size = INVENTORY_WIDTH * nRows;
-        optionIcons = new ItemStack[size];
-        optionNames = new String[size];
-
-        int xOff = getXOffset(width);
+        final int width = (Integer) getView().getAttribute(SMSInventoryView.WIDTH);
+        final int spacing = (Integer) getView().getAttribute(SMSInventoryView.SPACING);
+        final int nItems = getView().getActiveMenuItemCount(player);
 
         ItemStack defIcon = SMSUtil.parseMaterialSpec(ScrollingMenuSign.getInstance().getConfig().getString("sms.inv_view.default_icon", "STONE"));
 
+        final int iconsPerRow = roundUp(width, spacing) / spacing;
+        final int maxRows = roundUp(nItems, iconsPerRow) / iconsPerRow;
+
+        size = INVENTORY_WIDTH * Math.min(MAX_INVENTORY_ROWS, maxRows);
+        optionIcons = new ItemStack[size];
+        optionNames = new String[size];
+
+        int row = 0;
+        int col = 0;
+        int rowWidth = Math.min(nItems, iconsPerRow);
+        rowWidth += (spacing - 1) * (rowWidth - 1);
+        int xOff = getXOffset(rowWidth);
         for (int i = 0; i < nItems; i++) {
-            int i2 = i * spacing;
-            int row = i2 / width;
-            int pos = row * INVENTORY_WIDTH + xOff + i2 % width;
-            if (pos >= size) {
-                LogUtils.warning("inventory view " + getView().getName() + " doesn't have enough slots to display its items");
-                break;
-            }
+            int pos = row * INVENTORY_WIDTH + xOff + col;
             SMSMenuItem menuItem = getView().getActiveMenuItemAt(player, i + 1);
-            ItemStack icon = menuItem.hasPermission(player) && menuItem.hasIcon() ? menuItem.getIcon() : defIcon.clone();
+            boolean hasPermission = menuItem.hasPermission(player);
+            ItemStack icon = hasPermission && menuItem.hasIcon() ? menuItem.getIcon() : defIcon.clone();
             String label = getView().doVariableSubstitutions(player, getView().getActiveItemLabel(player, i + 1));
             ItemMeta im = icon.getItemMeta();
             im.setDisplayName(ChatColor.RESET + label);
-            im.setLore(menuItem.hasPermission(player) ?
+            im.setLore(hasPermission ?
                     view.doVariableSubstitutions(player, menuItem.getLoreAsList()) :
                     Collections.<String>emptyList());
             icon.setItemMeta(im);
             optionIcons[pos] = icon;
             optionNames[pos] = menuItem.getLabel();
+
+            col += spacing;
+            if (i % iconsPerRow == iconsPerRow - 1) {
+                row++;
+                rowWidth = Math.min(nItems - (i + 1), iconsPerRow);
+                rowWidth += (spacing - 1) * (rowWidth - 1);
+                xOff = getXOffset(rowWidth);
+                col = 0;
+                if (row >= MAX_INVENTORY_ROWS) {
+                    break;
+                }
+            }
         }
 
         Debugger.getInstance().debug("built icon menu inventory for " + player.getDisplayName() + ": " + size + " slots");
     }
 
-    private int getMenuIndexForSlot(int invSlot) {
-        int width = (Integer) getView().getAttribute(SMSInventoryView.WIDTH);
-
-        int row = invSlot / INVENTORY_WIDTH;
-        int col = invSlot % INVENTORY_WIDTH;
-
-        return row * width + (col - getXOffset(width)) + 1;
-    }
-
     private int getXOffset(int width) {
         ViewJustification ij = view.getItemJustification();
         switch (ij) {
-            case LEFT:
-                return 0;
-            case RIGHT:
-                return INVENTORY_WIDTH - width;
-            default:
-                return (INVENTORY_WIDTH - width) / 2;
+            case LEFT: return 0;
+            case RIGHT: return INVENTORY_WIDTH - width;
+            case CENTER: return (INVENTORY_WIDTH - width) / 2;
+            default: throw new IllegalArgumentException("unknown justification: " + ij);
         }
     }
 
@@ -174,10 +178,8 @@ public class IconMenu implements Listener, SMSPopup {
 
             event.setCancelled(true);
             int slot = event.getRawSlot();
-            int spacing = (Integer) getView().getAttribute(SMSInventoryView.SPACING);
-            int slot2 = slot == 0 ? 0 : ((slot - 1) / spacing) + 1;
             if (slot >= 0 && slot < size && optionNames[slot] != null) {
-                OptionClickEvent optionEvent = new OptionClickEvent(player, getMenuIndexForSlot(slot2), optionNames[slot], event.getClick());
+                OptionClickEvent optionEvent = new OptionClickEvent(player, optionNames[slot], event.getClick());
                 try {
                     view.onOptionClick(optionEvent);
                 } catch (SMSException e) {
@@ -254,17 +256,15 @@ public class IconMenu implements Listener, SMSPopup {
 
     public class OptionClickEvent {
         private final Player player;
-        private final int index;
-        private final String name;
+        private final String label;
         private final ClickType clickType;
 
         private boolean close;
         private boolean destroy;
 
-        public OptionClickEvent(Player player, int index, String name, ClickType type) {
+        public OptionClickEvent(Player player, String label, ClickType type) {
             this.player = player;
-            this.index = index;
-            this.name = name;
+            this.label = label;
             this.close = true;
             this.destroy = false;
             this.clickType = type;
@@ -274,12 +274,8 @@ public class IconMenu implements Listener, SMSPopup {
             return player;
         }
 
-        public int getIndex() {
-            return index;
-        }
-
-        public String getName() {
-            return name;
+        public String getLabel() {
+            return label;
         }
 
         public boolean willClose() {
