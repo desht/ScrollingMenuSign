@@ -5,12 +5,14 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.scrollingmenusign.RedstoneControlSign;
 import me.desht.scrollingmenusign.SMSException;
+import me.desht.scrollingmenusign.SMSValidate;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.views.PoppableView;
 import me.desht.scrollingmenusign.views.SMSGlobalScrollableView;
 import me.desht.scrollingmenusign.views.SMSView;
 import me.desht.scrollingmenusign.views.action.RepaintAction;
 import me.desht.scrollingmenusign.views.redout.Switch;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -31,7 +33,7 @@ public class ViewCommand extends SMSAbstractCommand {
                 "/sms view <view-name> -popup",
         });
         setQuotedArgs(true);
-        setOptions("popup", "d:s", "l");
+        setOptions("popup", "popup-for:s", "d:s", "l");
     }
 
     @Override
@@ -62,12 +64,15 @@ public class ViewCommand extends SMSAbstractCommand {
         if (getBooleanOption("popup")) {
             notFromConsole(sender);
             view.ensureAllowedToUse(sender);
-            if (view instanceof PoppableView) {
-                PoppableView pop = (PoppableView) view;
-                pop.toggleGUI((Player) sender);
-            } else {
-                throw new SMSException("This view type can't be popped up");
-            }
+            SMSValidate.isTrue(view instanceof PoppableView, "This view type can't be popped up.");
+            ((PoppableView) view).toggleGUI((Player) sender);
+        } else if (hasOption("popup-for")) {
+            PermissionUtils.requirePerms(sender, "scrollingmenusign.popup.other");
+            String otherName = getStringOption("popup-for");
+            @SuppressWarnings("deprecation") Player other = Bukkit.getPlayer(otherName);
+            SMSValidate.notNull(other, "Player " + otherName + " is not online.");
+            SMSValidate.isTrue(view instanceof PoppableView, "This view type can't be popped up.");
+            ((PoppableView) view).toggleGUI(other);
         } else if (hasOption("d")) {
             view.ensureAllowedToModify(sender);
             String varName = getStringOption("d");

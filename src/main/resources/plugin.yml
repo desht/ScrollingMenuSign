@@ -277,3 +277,6 @@ permissions:
   scrollingmenusign.vars.other:
     description: Allows get/set/delete of variables belonging to other users with "/sms var"
     default: op
+  scrollingmenusign.popup.other:
+    description: Allows popup views to be force-displayed on someone else's screen
+    default: op

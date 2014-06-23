@@ -60,7 +60,7 @@ public class ViewManager {
             SMSMenu menu = ScrollingMenuSign.getInstance().getMenuManager().getMenu(node.getString("menu"));
             SMSView view = ctor.newInstance(viewName, menu);
             if (!node.contains("group") && node.getString(SMSView.ACCESS).equals("GROUP")) {
-                // migration - GROUP access becomes OWNER_GROUP in v2.4.0
+                // migration - GROUP access becomes OWNER_GROUP in v3.0.0+
                 LogUtils.info("view " + viewName + ": migrate GROUP -> OWNER_GROUP access");
                 node.set(SMSView.ACCESS, "OWNER_GROUP");
             }
