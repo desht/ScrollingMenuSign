@@ -485,6 +485,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
             configCache.setBreakProtected((Boolean) newVal);
         } else if (key.equals("inv_view.default_icon")) {
             configCache.setDefaultInventoryViewIcon(newVal.toString());
+        } else if (key.equals("user_variables.fallback_sub")) {
+            configCache.setFallbackUserVarSub(newVal.toString());
         }
     }
 

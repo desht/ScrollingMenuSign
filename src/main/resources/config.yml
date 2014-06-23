@@ -66,3 +66,5 @@ sms:
     coloured_console: true
     scroll_type: SCROLL
     hidden_menuitem_text: '&o--???--'
+    user_variables:
+        fallback_sub: '???'

@@ -42,6 +42,7 @@ public class Substitutions {
         Matcher m = userVarSubPat.matcher(command);
         StringBuffer sb = new StringBuffer(command.length());
         VariablesManager vm = ScrollingMenuSign.getInstance().getVariablesManager();
+        String fallback = ScrollingMenuSign.getInstance().getConfigCache().getFallbackUserVarSub();
         while (m.find()) {
             String repl = vm.get(player, m.group(1));
             if (repl == null && m.groupCount() > 1 && m.group(2) != null) {
@@ -49,7 +50,7 @@ public class Substitutions {
             }
             if (repl == null) {
                 if (missing == null) {
-                    m.appendReplacement(sb, Matcher.quoteReplacement("???"));
+                    m.appendReplacement(sb, fallback);
                 } else {
                     missing.add(m.group(1));
                 }

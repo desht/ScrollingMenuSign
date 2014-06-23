@@ -51,6 +51,7 @@ public class ReloadCommand extends SMSAbstractCommand {
         }
         if (loadAll || loadConfig) {
             plugin.reloadConfig();
+            ((ScrollingMenuSign) plugin).getConfigCache().processConfig(plugin.getConfig());
         }
         if (loadAll || loadMenus) {
             SMSPersistence.loadMenus();

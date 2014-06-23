@@ -4,6 +4,8 @@ import me.desht.scrollingmenusign.util.SMSUtil;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.regex.Matcher;
+
 /**
  * Cache some config values which are accessed very frequently, to reduce
  * lookup/parsing overheads.
@@ -17,6 +19,7 @@ public class ConfigCache {
     private ItemStack submenuBackIcon;
     private String submenuTitlePrefix;
     private ItemStack defaultInventoryViewIcon;
+    private String fallbackUserVarSub;
 
     public void processConfig(Configuration conf) {
         setPrefixSelected(conf.getString("sms.item_prefix.selected"));
@@ -27,6 +30,7 @@ public class ConfigCache {
         setSubmenuBackIcon(conf.getString("sms.submenus.back_item.material"));
         setSubmenuTitlePrefix(conf.getString("sms.submenus.title_prefix"));
         setDefaultInventoryViewIcon(conf.getString("sms.inv_view.default_icon"));
+        setFallbackUserVarSub(conf.getString("sms.user_variables.fallback_sub"));
     }
 
     public String getPrefixSelected() {
@@ -91,5 +95,13 @@ public class ConfigCache {
 
     public void setDefaultInventoryViewIcon(String defaultInventoryViewIcon) {
         this.defaultInventoryViewIcon = SMSUtil.parseMaterialSpec(defaultInventoryViewIcon);
+    }
+
+    public String getFallbackUserVarSub() {
+        return fallbackUserVarSub;
+    }
+
+    public void setFallbackUserVarSub(String fallbackUserVarSub) {
+        this.fallbackUserVarSub = Matcher.quoteReplacement(fallbackUserVarSub);
     }
 }
