@@ -113,8 +113,8 @@ public class SMSSignView extends SMSGlobalScrollableView {
             res[i] = String.format(makePrefix("", getTitleJustification()), title.get(i));
         }
 
-        String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%");
-        String prefixSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
+        String prefixNotSel = ScrollingMenuSign.getInstance().getConfigCache().getPrefixNotSelected();
+        String prefixSel = ScrollingMenuSign.getInstance().getConfigCache().getPrefixSelected();
         ViewJustification ij = getItemJustification();
         int pageSize = res.length - title.size();
         int menuSize = getActiveMenuItemCount(null);
@@ -142,8 +142,9 @@ public class SMSSignView extends SMSGlobalScrollableView {
     }
 
     private String getLine2Item(int pos) {
-        if (getActiveMenuItemCount(null) < 3)
+        if (getActiveMenuItemCount(null) < 3) {
             return "";
+        }
 
         int prevPos = pos - 1;
         if (prevPos < 1) {
@@ -186,7 +187,7 @@ public class SMSSignView extends SMSGlobalScrollableView {
             default:
                 break;
         }
-        return MiscUtil.parseColourSpec(s);
+        return s;
     }
 
     /**

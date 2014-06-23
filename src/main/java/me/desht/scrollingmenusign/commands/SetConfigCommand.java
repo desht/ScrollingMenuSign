@@ -9,6 +9,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
@@ -37,7 +38,7 @@ public class SetConfigCommand extends SMSAbstractCommand {
                 configManager.set(key, val);
             }
             Object res = configManager.get(key);
-            MiscUtil.statusMessage(player, key + " is now set to '&e" + res + "&-'");
+            MiscUtil.rawMessage(player, MiscUtil.STATUS_COLOUR + key + " is now set to '" + ChatColor.YELLOW + res + MiscUtil.STATUS_COLOUR + "'");
         } catch (SMSException e) {
             MiscUtil.errorMessage(player, e.getMessage());
             MiscUtil.errorMessage(player, "Use /sms getcfg to list all valid keys");

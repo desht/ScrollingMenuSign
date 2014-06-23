@@ -17,8 +17,8 @@ public class HoloUtil {
     public static String[] buildText(SMSScrollableView view, Player player, int nLines) {
         String[] res = new String[nLines];
 
-        String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%");
-        String prefixSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
+        String prefixNotSel = ScrollingMenuSign.getInstance().getConfigCache().getPrefixNotSelected();
+        String prefixSel = ScrollingMenuSign.getInstance().getConfigCache().getPrefixSelected();
 
         int maxWidth = 0;
 

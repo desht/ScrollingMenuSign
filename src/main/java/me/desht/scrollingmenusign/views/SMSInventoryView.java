@@ -113,7 +113,7 @@ public class SMSInventoryView extends SMSView implements PoppableView, OptionCli
     public void onOptionClick(final OptionClickEvent event) {
         final Player player = event.getPlayer();
         SMSMenu menu = getActiveMenu(player);
-        SMSMenuItem item = menu.getItem(event.getLabel());
+        SMSMenuItem item = getActiveMenuItemByLabel(player, event.getLabel());
         if (item == null) {
             throw new SMSException("icon menu: item [" + event.getLabel() + "] unknown for menu: " + menu.getName());
         }

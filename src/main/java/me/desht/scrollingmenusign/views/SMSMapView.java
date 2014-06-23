@@ -474,8 +474,8 @@ public class SMSMapView extends SMSScrollableView {
         g.drawLine(x, lineY, x + width, lineY);
         g.setColor(c);
 
-        String prefixNotSel = config.getString("sms.item_prefix.not_selected", "  ");
-        String prefixSel = config.getString("sms.item_prefix.selected", "> ");
+        String prefixNotSel = ScrollingMenuSign.getInstance().getConfigCache().getPrefixNotSelected();
+        String prefixSel = ScrollingMenuSign.getInstance().getConfigCache().getPrefixSelected();
         ViewJustification itemJust = getItemJustification();
         int pageSize = (getHeight() - yPos) / (metrics.getHeight() + getLineSpacing());
         int scrollPos = getScrollPos(player);
@@ -600,7 +600,6 @@ public class SMSMapView extends SMSScrollableView {
 
     private void renderTextElement(Graphics g, String s, int x, int y, int width, int height, byte flags) {
         Font f = g.getFont();
-
         int style = 0;
         if ((flags & BOLD) == BOLD) style |= Font.BOLD;
         if ((flags & ITALIC) == ITALIC) style |= Font.ITALIC;

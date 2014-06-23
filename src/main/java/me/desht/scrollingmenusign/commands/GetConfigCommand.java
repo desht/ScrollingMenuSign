@@ -10,6 +10,7 @@ import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -27,7 +28,7 @@ public class GetConfigCommand extends SMSAbstractCommand {
     public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
         List<String> lines = getPluginConfiguration(args.length >= 1 ? args[0] : null);
         if (lines.size() > 1) {
-            MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
+            MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(false);
             for (String line : lines) {
                 pager.add(line);
             }
@@ -65,7 +66,7 @@ public class GetConfigCommand extends SMSAbstractCommand {
         for (String k : items) {
             if (cs.isConfigurationSection(k))
                 continue;
-            res.add("&f" + k.replaceAll("^sms\\.", "") + "&- = '&e" + cs.get(k) + "&-'");
+            res.add(ChatColor.WHITE + k.replaceAll("^sms\\.", "") + " = '" + ChatColor.YELLOW + cs.get(k) + ChatColor.WHITE + "'");
         }
         Collections.sort(res);
         return res;

@@ -109,7 +109,7 @@ public class IconMenu implements Listener, SMSPopup {
         final int spacing = (Integer) getView().getAttribute(SMSInventoryView.SPACING);
         final int nItems = getView().getActiveMenuItemCount(player);
 
-        ItemStack defIcon = SMSUtil.parseMaterialSpec(ScrollingMenuSign.getInstance().getConfig().getString("sms.inv_view.default_icon", "STONE"));
+        ItemStack defIcon = ScrollingMenuSign.getInstance().getConfigCache().getDefaultInventoryViewIcon();
 
         final int iconsPerRow = roundUp(width, spacing) / spacing;
         final int maxRows = roundUp(nItems, iconsPerRow) / iconsPerRow;

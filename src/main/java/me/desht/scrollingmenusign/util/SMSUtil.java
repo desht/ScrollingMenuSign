@@ -3,6 +3,7 @@ package me.desht.scrollingmenusign.util;
 import me.desht.dhutils.ItemGlow;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +38,7 @@ public class SMSUtil {
      *
      * @param spec the specification
      * @return the return ItemStack
-     * @throws IllegalArgumentException if the specification is invalid
+     * @throws SMSException if the specification is invalid
      */
     public static ItemStack parseMaterialSpec(String spec) {
         if (spec == null || spec.isEmpty()) {
@@ -67,7 +68,7 @@ public class SMSUtil {
         String[] fields = matData.split("[:()]");
         Material mat = Material.matchMaterial(fields[0]);
         if (mat == null) {
-            throw new IllegalArgumentException("Unknown material " + fields[0]);
+            throw new SMSException("Unknown material " + fields[0]);
         }
         MaterialData res = new MaterialData(mat);
         if (fields.length > 1) {

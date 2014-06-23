@@ -810,7 +810,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         if (Debugger.getInstance().getLevel() > 0) {
             Debugger.getInstance().debug("block damage event @ " + MiscUtil.formatLocation(b.getLocation()) + ", view = " + getName() + ", menu=" + menu.getName());
         }
-        if (plugin.getConfig().getBoolean("sms.no_destroy_signs") ||
+        if (plugin.getConfigCache().isBreakProtected() ||
                 !menu.isOwnedBy(player) && !PermissionUtils.isAllowedTo(player, "scrollingmenusign.edit.any")) {
             event.setCancelled(true);
         }
@@ -824,7 +824,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
             Debugger.getInstance().debug("block break event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
         }
 
-        if (plugin.getConfig().getBoolean("sms.no_destroy_signs")) {
+        if (plugin.getConfigCache().isBreakProtected()) {
             event.setCancelled(true);
             update(getActiveMenu(player), new RepaintAction());
         } else {
@@ -844,7 +844,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
         if (Debugger.getInstance().getLevel() > 0) {
             Debugger.getInstance().debug("block physics event @ " + b.getLocation() + ", view = " + getName() + ", menu=" + getNativeMenu().getName());
         }
-        if (plugin.getConfig().getBoolean("sms.no_physics", false)) {
+        if (plugin.getConfigCache().isPhysicsProtected()) {
             event.setCancelled(true);
         } else if (BlockUtil.isAttachableDetached(b)) {
             // attached to air? looks like the sign (or other attachable) has become detached

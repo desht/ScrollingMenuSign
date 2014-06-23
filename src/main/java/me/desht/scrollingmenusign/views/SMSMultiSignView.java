@@ -118,8 +118,8 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
     }
 
     private void repaintAll() {
-        String prefixNotSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.not_selected", "  ").replace("%", "%%");
-        String prefixSel = ScrollingMenuSign.getInstance().getConfig().getString("sms.item_prefix.selected", "> ").replace("%", "%%");
+        String prefixNotSel = ScrollingMenuSign.getInstance().getConfigCache().getPrefixNotSelected();
+        String prefixSel = ScrollingMenuSign.getInstance().getConfigCache().getPrefixSelected();
 
         List<String> titleLines = formatTitle();
         int nTitleLines = titleLines.size();
@@ -136,9 +136,8 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
         switch (getScrollType()) {
             case SCROLL:
                 for (int j = 0, pos = scrollPos; j < pageSize && j < menuSize; j++) {
-                    String pre = j == 0 ? prefixSel : prefixNotSel;
                     String lineText = getActiveItemLabel(null, pos);
-                    drawText(j + nTitleLines, formatItem(pre, lineText));
+                    drawText(j + nTitleLines, formatItem(j == 0 ? prefixSel : prefixNotSel, lineText));
                     if (++pos > menuSize) {
                         pos = 1;
                     }
@@ -147,9 +146,8 @@ public class SMSMultiSignView extends SMSGlobalScrollableView {
             case PAGE:
                 int pageNum = (scrollPos - 1) / pageSize;
                 for (int j = 0, pos = (pageNum * pageSize) + 1; j < pageSize && pos <= menuSize; j++, pos++) {
-                    String pre = pos == scrollPos ? prefixSel : prefixNotSel;
                     String lineText = getActiveItemLabel(null, pos);
-                    drawText(j + nTitleLines, formatItem(pre, lineText));
+                    drawText(j + nTitleLines, formatItem(pos == scrollPos ? prefixSel : prefixNotSel, lineText));
                 }
                 break;
         }

@@ -219,7 +219,7 @@ public class Switch implements Comparable<Switch>, SMSInteractableBlock {
 
     @Override
     public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
-        if (plugin.getConfig().getBoolean("sms.no_physics")) {
+        if (plugin.getConfigCache().isPhysicsProtected()) {
             event.setCancelled(true);
         } else if (BlockUtil.isAttachableDetached(event.getBlock())) {
             LogUtils.info("Redstone output switch @ " + location + " (for " + getView().getName() + ") has become detached: deleting");

@@ -6,6 +6,7 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSMenuItem;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
@@ -45,7 +46,7 @@ public abstract class CommandTrigger implements Comparable<CommandTrigger> {
      */
     public String getActiveMenuTitle(Player player) {
         SMSMenu activeMenu = getActiveMenu(player);
-        String prefix = activeMenu == getNativeMenu() ? "" : ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.title_prefix");
+        String prefix = activeMenu == getNativeMenu() ? "" : ScrollingMenuSign.getInstance().getConfigCache().getSubmenuTitlePrefix();
         return prefix + activeMenu.getTitle();
     }
 
@@ -68,21 +69,41 @@ public abstract class CommandTrigger implements Comparable<CommandTrigger> {
      * Get the menu item at the given position for the given player's currently active menu.
      *
      * @param player the player to check
-     * @param pos    position in the active menu
+     * @param pos position in the active menu
      * @return the active menu item
      */
     public SMSMenuItem getActiveMenuItemAt(Player player, int pos) {
         SMSMenu activeMenu = getActiveMenu(player);
         if (activeMenu != getNativeMenu() && pos == activeMenu.getItemCount() + 1) {
-            String label = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.label", "&l<- BACK");
-            String backIcon = ScrollingMenuSign.getInstance().getConfig().getString("sms.submenus.back_item.material", "irondoor");
-            return new SMSMenuItem.Builder(activeMenu, MiscUtil.parseColourSpec(label))
-                    .withCommand("BACK")
-                    .withIcon(backIcon)
-                    .build();
+            return makeSpecialBackItem(activeMenu);
         } else {
             return activeMenu.getItemAt(pos);
         }
+    }
+
+    /**
+     * Get the menu item of the given label for the given player's currently active menu.
+     *
+     * @param player the player to check
+     * @param label label of the desired item
+     * @return the active menu item
+     */
+    public SMSMenuItem getActiveMenuItemByLabel(Player player, String label) {
+        SMSMenu activeMenu = getActiveMenu(player);
+        if (label.equals(ScrollingMenuSign.getInstance().getConfigCache().getSubmenuBackLabel())) {
+            return makeSpecialBackItem(activeMenu);
+        } else {
+            return activeMenu.getItem(label);
+        }
+    }
+
+    private SMSMenuItem makeSpecialBackItem(SMSMenu menu) {
+        String label = ScrollingMenuSign.getInstance().getConfigCache().getSubmenuBackLabel();
+        ItemStack backIcon = ScrollingMenuSign.getInstance().getConfigCache().getSubmenuBackIcon();
+        return new SMSMenuItem.Builder(menu, label)
+                .withCommand("BACK")
+                .withIcon(backIcon)
+                .build();
     }
 
     /**

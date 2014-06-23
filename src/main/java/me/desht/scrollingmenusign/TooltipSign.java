@@ -40,7 +40,7 @@ public class TooltipSign implements SMSInteractableBlock {
     @Override
     public void processEvent(ScrollingMenuSign plugin, BlockPhysicsEvent event) {
         if (BlockUtil.isAttachableDetached(event.getBlock())) {
-            if (plugin.getConfig().getBoolean("sms.no_physics")) {
+            if (plugin.getConfigCache().isPhysicsProtected()) {
                 event.setCancelled(true);
             } else {
                 LogUtils.info("Tooltip sign for " + view.getName() + " @ " + event.getBlock().getLocation() + " has become detached: deleting");

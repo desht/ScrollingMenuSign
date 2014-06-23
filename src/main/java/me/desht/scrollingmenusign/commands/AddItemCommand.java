@@ -1,10 +1,7 @@
 package me.desht.scrollingmenusign.commands;
 
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSMenuItem;
-import me.desht.scrollingmenusign.SMSValidate;
+import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.views.action.AddItemAction;
@@ -51,7 +48,7 @@ public class AddItemCommand extends SMSAbstractCommand {
         String cmd = args.length >= 3 ? StringEscapeUtils.unescapeHtml(args[2]) : "";
         String altCmd = hasOption("altcommand") ? StringEscapeUtils.unescapeHtml(getStringOption("altcommand")) : "";
         String msg = hasOption("feedback") ? SMSUtil.unEscape(getStringOption("feedback")) : "";
-        String iconMat = hasOption("icon") ? getStringOption("icon") : plugin.getConfig().getString("sms.inv_view.default_icon", "stone");
+        String iconMat = getStringOption("icon");
         String[] lore = hasOption("lore") ? SMSUtil.unEscape(getStringOption("lore")).split("\\\\\\\\") : new String[0];
         String perm = hasOption("perm") ? getStringOption("perm") : "";
 

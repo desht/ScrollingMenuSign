@@ -11,6 +11,7 @@ import me.desht.scrollingmenusign.commands.*;
 import me.desht.scrollingmenusign.listeners.*;
 import me.desht.scrollingmenusign.parser.CommandParser;
 import me.desht.scrollingmenusign.spout.SpoutUtils;
+import me.desht.scrollingmenusign.util.SMSUtil;
 import me.desht.scrollingmenusign.util.UUIDMigration;
 import me.desht.scrollingmenusign.variables.VariablesManager;
 import me.desht.scrollingmenusign.views.*;
@@ -65,6 +66,7 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
     private final VariablesManager variablesManager = new VariablesManager(this);
     private final MenuManager menuManager = new MenuManager(this);
     private final SMSHandlerImpl handler = new SMSHandlerImpl(this);
+    private final ConfigCache configCache = new ConfigCache();
 
     private boolean spoutEnabled = false;
 
@@ -93,6 +95,8 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         configManager.setPrefix("sms");
 
         configCleanup();
+
+        configCache.processConfig(getConfig());
 
         MiscUtil.init(this);
         MiscUtil.setColouredConsole(getConfig().getBoolean("sms.coloured_console"));
@@ -434,6 +438,12 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
             }
         } else if (key.equals("debug_level")) {
             DHValidate.isTrue((Integer) newVal >= 0, "Debug level must be >= 0");
+        } else if (key.equals("submenus.back_item.material") || key.equals("inv_view.default_icon")) {
+            try {
+                SMSUtil.parseMaterialSpec(newVal.toString());
+            } catch (IllegalArgumentException e) {
+                throw new DHUtilsException("Invalid material specification: " + newVal.toString());
+            }
         }
         return newVal;
     }
@@ -452,13 +462,34 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
             Debugger.getInstance().setLevel((Integer) newVal);
         } else if (key.startsWith("item_prefix.") || key.endsWith("_justify") || key.equals("max_title_lines") || key.startsWith("submenus.")) {
             // settings which affect how all views are drawn
+            if (key.equals("item_prefix.selected")) {
+                configCache.setPrefixSelected(newVal.toString());
+            } else if (key.equals("item_prefix.not_selected")) {
+                configCache.setPrefixNotSelected(newVal.toString());
+            } else if (key.equals("submenus.back_item.label")) {
+                configCache.setSubmenuBackLabel(newVal.toString());
+            } else if (key.equals("submenus.back_item.material")) {
+                configCache.setSubmenuBackIcon(newVal.toString());
+            } else if (key.equals("submenus.title_prefix")) {
+                configCache.setSubmenuTitlePrefix(newVal.toString());
+            }
             repaintViews(null);
         } else if (key.equals("coloured_console")) {
             MiscUtil.setColouredConsole((Boolean) newVal);
         } else if (key.equals("scroll_type")) {
             SMSScrollableView.setDefaultScrollType(SMSGlobalScrollableView.ScrollType.valueOf(newVal.toString().toUpperCase()));
             repaintViews(null);
+        } else if (key.equals("no_physics")) {
+            configCache.setPhysicsProtected((Boolean) newVal);
+        } else if (key.equals("no_break_signs")) {
+            configCache.setBreakProtected((Boolean) newVal);
+        } else if (key.equals("inv_view.default_icon")) {
+            configCache.setDefaultInventoryViewIcon(newVal.toString());
         }
+    }
+
+    public ConfigCache getConfigCache() {
+        return configCache;
     }
 
     private void repaintViews(String type) {
