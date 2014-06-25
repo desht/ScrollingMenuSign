@@ -164,7 +164,7 @@ public abstract class SMSView extends CommandTrigger implements Observer, SMSPer
 
     public void setOwnerId(UUID ownerId) {
         this.ownerId = ownerId;
-        if (ownerId.equals(ScrollingMenuSign.CONSOLE_UUID)) {
+        if (ownerId == null || ownerId.equals(ScrollingMenuSign.CONSOLE_UUID)) {
             setAttribute(OWNER, ScrollingMenuSign.CONSOLE_OWNER);
         } else {
             String name = Bukkit.getOfflinePlayer(ownerId).getName();
