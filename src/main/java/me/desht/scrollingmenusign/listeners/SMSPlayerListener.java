@@ -35,9 +35,10 @@ public class SMSPlayerListener extends SMSListenerBase {
             return;
         }
         try {
-            boolean alreadyCancelled = event.isCancelled();
             boolean shouldCancel = handleInteraction(event);
-            event.setCancelled(alreadyCancelled || shouldCancel);
+            if (shouldCancel) {
+                event.setCancelled(true);
+            }
         } catch (DHUtilsException e) {
             MiscUtil.errorMessage(event.getPlayer(), e.getMessage());
         }
