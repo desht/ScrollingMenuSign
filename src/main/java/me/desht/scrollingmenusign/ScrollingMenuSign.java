@@ -290,39 +290,32 @@ public class ScrollingMenuSign extends JavaPlugin implements ConfigurationListen
         Plugin vault = pm.getPlugin("Vault");
         if (vault != null && vault.isEnabled()) {
             int ver = PluginVersionChecker.getRelease(vault.getDescription().getVersion());
-            vaultLegacyMode = ver < 1003000;  // 1.3.0
             Debugger.getInstance().debug("Hooked Vault v" + vault.getDescription().getVersion());
+            vaultLegacyMode = ver < 1003000;  // Vault 1.3.0
             if (vaultLegacyMode) {
-                LogUtils.warning("Detected an older version of Vault.  Correct SMS UUID functionality requires Vault 1.4.1 or later.");
+                LogUtils.warning("Detected an older version of Vault.  Proper UUID functionality requires Vault 1.4.1 or later.");
             }
-            if (!setupEconomy()) {
-                LogUtils.warning("No economy plugin detected - economy command costs not available");
-            }
-            if (!setupPermission()) {
-                LogUtils.warning("No permissions plugin detected - no permission group support");
-            }
+            setupEconomy();
+            setupPermission();
         } else {
             LogUtils.warning("Vault not loaded: no economy command costs & no permission group support");
         }
     }
 
-    private boolean setupEconomy() {
+    private void setupEconomy() {
         RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
-        if (economyProvider != null) {
-            economy = economyProvider.getProvider();
-            EconomyCost.setEconomy(economy);
+        economy = economyProvider.getProvider();
+        if (economyProvider == null) {
+            LogUtils.warning("No economy plugin detected - economy command costs not available");
         }
-
-        return economy != null;
     }
 
-    private boolean setupPermission() {
+    private void setupPermission() {
         RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(Permission.class);
-        if (permissionProvider != null) {
-            permission = permissionProvider.getProvider();
+        permission = permissionProvider.getProvider();
+        if (permission == null) {
+            LogUtils.warning("No permissions plugin detected - no permission group support");
         }
-
-        return permission != null;
     }
 
     public boolean isVaultLegacyMode() {
