@@ -130,11 +130,14 @@ public class IconMenu implements Listener, SMSPopup {
             ItemStack icon = hasPermission && menuItem.hasIcon() ? menuItem.getIcon() : defIcon.clone();
             String label = getView().doVariableSubstitutions(player, getView().getActiveItemLabel(player, i + 1));
             ItemMeta im = icon.getItemMeta();
-            im.setDisplayName(ChatColor.RESET + label);
-            im.setLore(hasPermission ?
-                    view.doVariableSubstitutions(player, menuItem.getLoreAsList()) :
-                    Collections.<String>emptyList());
-            icon.setItemMeta(im);
+            if (im != null) {
+                // could be null if AIR is used as the icon material (spacers)
+                im.setDisplayName(ChatColor.RESET + label);
+                im.setLore(hasPermission ?
+                        view.doVariableSubstitutions(player, menuItem.getLoreAsList()) :
+                        Collections.<String>emptyList());
+                icon.setItemMeta(im);
+            }
             optionIcons[pos] = icon;
             optionNames[pos] = menuItem.getLabel();
 
