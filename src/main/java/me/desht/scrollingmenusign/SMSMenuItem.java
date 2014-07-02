@@ -63,14 +63,12 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
 
     public SMSMenuItem(SMSMenu menu, ConfigurationSection node) throws SMSException {
         SMSPersistence.mustHaveField(node, "label");
-        SMSPersistence.mustHaveField(node, "command");
-        SMSPersistence.mustHaveField(node, "message");
 
         this.menu = menu;
         this.label = SMSUtil.unEscape(node.getString("label"));
-        this.command = StringEscapeUtils.unescapeHtml(node.getString("command"));
+        this.command = StringEscapeUtils.unescapeHtml(node.getString("command", ""));
         this.altCommand = StringEscapeUtils.unescapeHtml(node.getString("altCommand", ""));
-        this.message = SMSUtil.unEscape(node.getString("message"));
+        this.message = SMSUtil.unEscape(node.getString("message", ""));
         this.icon = SMSUtil.parseMaterialSpec(node.getString("icon"));
         this.uses = new SMSRemainingUses(this, node.getConfigurationSection("usesRemaining"));
         this.lore = new ArrayList<String>();
@@ -95,6 +93,38 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
             ItemGlow.setGlowing(this.icon, true);
         }
         this.uses = builder.uses == null ? new SMSRemainingUses(this) : builder.uses;
+    }
+
+    Map<String, Object> freeze() {
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        map.put("label", SMSUtil.escape(label));
+        if (!command.isEmpty()) {
+            map.put("command", SMSUtil.escape(command));
+        }
+        if (!altCommand.isEmpty()) {
+            map.put("altCommand", SMSUtil.escape(altCommand));
+        }
+        if (!message.isEmpty()) {
+            map.put("message", SMSUtil.escape(message));
+        }
+        if (hasIcon()) {
+            map.put("icon", SMSUtil.freezeMaterialSpec(getIcon()));
+        }
+        if (uses.hasLimitedUses()) {
+            map.put("usesRemaining", uses.freeze());
+        }
+        if (!lore.isEmpty()) {
+            List<String> lore2 = new ArrayList<String>(lore.size());
+            for (String l : lore) {
+                lore2.add(SMSUtil.escape(l));
+            }
+            map.put("lore", lore2);
+        }
+        if (!permissionNode.isEmpty()) {
+            map.put("permission", permissionNode);
+        }
+        return map;
     }
 
     /**
@@ -473,26 +503,6 @@ public class SMSMenuItem implements Comparable<SMSMenuItem>, SMSUseLimitable {
     @Override
     public int compareTo(SMSMenuItem other) {
         return getLabelStripped().compareToIgnoreCase(other.getLabelStripped());
-    }
-
-    Map<String, Object> freeze() {
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        map.put("label", SMSUtil.escape(label));
-        map.put("command", SMSUtil.escape(command));
-        map.put("altCommand", SMSUtil.escape(altCommand));
-        map.put("message", SMSUtil.escape(message));
-        if (hasIcon()) {
-            map.put("icon", SMSUtil.freezeMaterialSpec(getIcon()));
-        }
-        map.put("usesRemaining", uses.freeze());
-        List<String> lore2 = new ArrayList<String>(lore.size());
-        for (String l : lore) {
-            lore2.add(SMSUtil.escape(l));
-        }
-        map.put("lore", lore2);
-        map.put("permission", permissionNode);
-        return map;
     }
 
     public void autosave() {
