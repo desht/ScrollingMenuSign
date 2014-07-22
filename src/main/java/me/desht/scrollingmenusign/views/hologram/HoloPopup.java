@@ -3,9 +3,9 @@ package me.desht.scrollingmenusign.views.hologram;
 import com.dsh105.holoapi.HoloAPI;
 import com.dsh105.holoapi.api.Hologram;
 import com.dsh105.holoapi.api.HologramFactory;
+import com.dsh105.holoapi.api.touch.Action;
 import com.dsh105.holoapi.api.touch.TouchAction;
 import com.dsh105.holoapi.api.visibility.Visibility;
-import com.dsh105.holoapi.protocol.Action;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSException;
@@ -51,7 +51,8 @@ public class HoloPopup implements SMSPopup {
         if (hologram == null) {
             hologram = buildHologram(player, text);
         } else {
-            hologram.updateLines(text);
+//            hologram.updateLines(text);
+            HoloAPI.getManager().setLineContent(hologram, text);
         }
     }
 

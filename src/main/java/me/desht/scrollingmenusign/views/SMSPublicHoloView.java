@@ -3,8 +3,8 @@ package me.desht.scrollingmenusign.views;
 import com.dsh105.holoapi.HoloAPI;
 import com.dsh105.holoapi.api.Hologram;
 import com.dsh105.holoapi.api.HologramFactory;
+import com.dsh105.holoapi.api.touch.Action;
 import com.dsh105.holoapi.api.touch.TouchAction;
-import com.dsh105.holoapi.protocol.Action;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.MiscUtil;
@@ -12,7 +12,6 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import me.desht.scrollingmenusign.enums.SMSUserAction;
-import me.desht.scrollingmenusign.views.action.ViewUpdateAction;
 import me.desht.scrollingmenusign.views.hologram.HoloUtil;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -117,8 +116,10 @@ public class SMSPublicHoloView extends SMSGlobalScrollableView {
             }
             if (hologram == null) {
                 hologram = buildHologram(text);
+                HoloAPI.getManager().track(hologram, ScrollingMenuSign.getInstance());
             } else {
-                hologram.updateLines(text);
+                HoloAPI.getManager().setLineContent(hologram, text);
+//                hologram.updateLines(text);
             }
         }
     }
@@ -192,8 +193,8 @@ public class SMSPublicHoloView extends SMSGlobalScrollableView {
         if (!isActive(oldPower, oldRedstone) && isActive(newPower, newRedstone)) {
             if (hologram == null) {
                 hologram = buildHologram(HoloUtil.buildText(this, null, (Integer) getAttribute(LINES)));
+                HoloAPI.getManager().track(hologram, ScrollingMenuSign.getInstance());
             }
-            HoloAPI.getManager().track(hologram, ScrollingMenuSign.getInstance());
         } else if (isActive(oldPower, oldRedstone) && !isActive(newPower, newRedstone) && hologram != null) {
             popdown();
         }
