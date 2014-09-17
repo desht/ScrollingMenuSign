@@ -22,5 +22,5 @@ Detailed documentation is available at http://dev.bukkit.org/server-mods/scrolli
 
 ## License
 
-ScrollingMenuSign by Des Herriott is licensed under the [Gnu GPL v3](http://www.gnu.org/licenses/gpl-3.0.html).
+ScrollingMenuSign by Des Herriott is licensed under the [Gnu LGPL v3](http://www.gnu.org/licenses/lgpl.html)
 
